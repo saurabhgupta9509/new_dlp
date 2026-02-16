@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - Generate Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #f3f4f6; 
+        }
+        
+        .dashboard-container { 
+            display: flex; 
+            min-height: 100vh; 
+            padding-top: 64px; /* Add padding for fixed header */
+        }
+        
+        .main-content { 
+            flex: 1; 
+            margin-left: 240px; 
+            transition: margin-left 0.3s ease; 
+            width: calc(100% - 240px);
+        }
+        
+        .main-content.expanded { 
+            margin-left: 70px; 
+            width: calc(100% - 70px);
+        }
+        
+        /* .content-area { 
+            padding: 24px; 
+            max-width: 1200px; 
+            margin: 0 auto;
+        } */
+
+
+        .content-area { 
+            padding: 24px; 
+          
+            margin: 0 auto;
+        }
+        
+        .page-header { 
+            background: white; 
+            padding: 20px 24px; 
+            border-radius: 12px; 
+            border: 1px solid #e5e7eb; 
+            margin-bottom: 24px; 
+        }
+        
+        .page-title-section { 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+        }
+        
+        .page-icon { 
+            width: 48px; 
+            height: 48px; 
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        .page-icon i { 
+            font-size: 22px; 
+            color: white; 
+        }
+        
+        .page-title-text h1 { 
+            font-size: 1.5em; 
+            color: #111827; 
+            font-weight: 700; 
+        }
+        
+        .page-subtitle { 
+            color: #6b7280; 
+            font-size: 0.9em; 
+        }
+        
+        .report-form { 
+            background: white; 
+            padding: 28px; 
+            border-radius: 12px; 
+            border: 1px solid #e5e7eb; 
+        }
+        
+        .form-section { 
+            margin-bottom: 28px; 
+            padding-bottom: 28px; 
+            border-bottom: 1px solid #e5e7eb; 
+        }
+        
+        .form-section:last-child { 
+            border-bottom: none; 
+            margin-bottom: 0; 
+            padding-bottom: 0; 
+        }
+        
+        .section-title { 
+            font-size: 1.05em; 
+            font-weight: 600; 
+            color: #111827; 
+            margin-bottom: 16px; 
+        }
+        
+        .form-row { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 16px; 
+            margin-bottom: 16px; 
+        }
+        
+        .form-row.full { 
+            grid-template-columns: 1fr; 
+        }
+        
+        .form-group { 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        .form-label { 
+            font-size: 0.85em; 
+            color: #374151; 
+            font-weight: 500; 
+            margin-bottom: 6px; 
+        }
+        
+        .form-input, .form-select { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border: 1.5px solid #e5e7eb; 
+            border-radius: 8px; 
+            font-size: 0.9em; 
+        }
+        
+        .form-input:focus, .form-select:focus { 
+            outline: none; 
+            border-color: #3b82f6; 
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-select { 
+            background: white; 
+            cursor: pointer;
+        }
+        
+        .template-cards { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 14px; 
+        }
+        
+        .template-card { 
+            padding: 16px; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+        }
+        
+        .template-card:hover { 
+            border-color: #3b82f6; 
+            background: #f9fafb; 
+            transform: translateY(-2px);
+        }
+        
+        .template-card.selected { 
+            border-color: #3b82f6; 
+            background: #eff6ff; 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+        }
+        
+        .template-icon { 
+            width: 42px; 
+            height: 42px; 
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); 
+            border-radius: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-size: 1.1em; 
+            margin-bottom: 12px; 
+        }
+        
+        .template-name { 
+            font-weight: 600; 
+            color: #111827; 
+            margin-bottom: 4px; 
+            font-size: 0.95em; 
+        }
+        
+        .template-desc { 
+            font-size: 0.8em; 
+            color: #6b7280; 
+            line-height: 1.4;
+        }
+        
+        .checkbox-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 10px; 
+        }
+        
+        .checkbox-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            padding: 10px; 
+            background: #f9fafb; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            transition: background 0.2s;
+        }
+        
+        .checkbox-item:hover {
+            background: #f3f4f6;
+        }
+        
+        .checkbox-item input[type="checkbox"] { 
+            width: 18px; 
+            height: 18px; 
+            cursor: pointer; 
+            accent-color: #3b82f6;
+        }
+        
+        .checkbox-item label { 
+            flex: 1; 
+            cursor: pointer; 
+            font-size: 0.9em; 
+            color: #374151; 
+        }
+        
+        .format-options { 
+            display: flex; 
+            gap: 12px; 
+        }
+        
+        .format-btn { 
+            flex: 1; 
+            padding: 12px; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 8px; 
+            background: white; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            font-size: 0.9em; 
+            font-weight: 600; 
+            transition: all 0.2s; 
+        }
+        
+        .format-btn:hover { 
+            border-color: #3b82f6; 
+            background: #f9fafb;
+        }
+        
+        .format-btn.selected { 
+            border-color: #3b82f6; 
+            background: #eff6ff; 
+            color: #2563eb; 
+        }
+        
+        .btn-group { 
+            display: flex; 
+            gap: 12px; 
+            margin-top: 28px; 
+        }
+        
+        .btn { 
+            flex: 1; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            font-size: 0.95em; 
+            font-weight: 600; 
+            cursor: pointer; 
+            border: none; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            transition: all 0.2s;
+        }
+        
+        .btn-primary { 
+            background: #2563eb; 
+            color: white; 
+        }
+        
+        .btn-primary:hover { 
+            background: #1d4ed8; 
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary { 
+            background: white; 
+            color: #374151; 
+            border: 1.5px solid #e5e7eb; 
+        }
+        
+        .btn-secondary:hover { 
+            background: #f9fafb; 
+            border-color: #d1d5db;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 968px) { 
+            .dashboard-container {
+                padding-top: 56px;
+            }
+            
+            .main-content { 
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .main-content.expanded {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .content-area {
+                padding: 16px;
+            }
+        }
+        
+        @media (max-width: 768px) { 
+            .form-row { 
+                grid-template-columns: 1fr; 
+            }
+            
+            .template-cards { 
+                grid-template-columns: 1fr; 
+            }
+            
+            .checkbox-grid { 
+                grid-template-columns: 1fr; 
+            }
+            
+            .format-options {
+                flex-direction: column;
+            }
+            
+            .btn-group { 
+                flex-direction: column; 
+            }
+        }
+        
+        @media (max-width: 640px) { 
+            .page-header {
+                padding: 16px;
+            }
+            
+            .report-form {
+                padding: 20px;
+            }
+            
+            .form-section {
+                padding-bottom: 20px;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Load Sidebar -->
+    <div id="sidebarContainer"></div>
+    
+    <!-- Load Header -->
+    <div id="headerContainer"></div>
+    
+    <div class="dashboard-container">
+        <main class="main-content" id="mainContent">
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <div class="page-icon"><i class="fas fa-file-export"></i></div>
+                        <div class="page-title-text">
+                            <h1>Generate Report</h1>
+                            <p class="page-subtitle">Create custom security reports with selected metrics</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form class="report-form" id="reportForm">
+                    <div class="form-section">
+                        <div class="section-title">Report Template</div>
+                        <div class="template-cards">
+                            <div class="template-card selected" onclick="selectTemplate(this)">
+                                <div class="template-icon"><i class="fas fa-chart-pie"></i></div>
+                                <div class="template-name">Executive Summary</div>
+                                <div class="template-desc">High-level overview for leadership</div>
+                            </div>
+                            <div class="template-card" onclick="selectTemplate(this)">
+                                <div class="template-icon"><i class="fas fa-shield-alt"></i></div>
+                                <div class="template-name">Policy Compliance</div>
+                                <div class="template-desc">Detailed policy adherence metrics</div>
+                            </div>
+                            <div class="template-card" onclick="selectTemplate(this)">
+                                <div class="template-icon"><i class="fas fa-bug"></i></div>
+                                <div class="template-name">Threat Analysis</div>
+                                <div class="template-desc">In-depth threat patterns</div>
+                            </div>
+                            <div class="template-card" onclick="selectTemplate(this)">
+                                <div class="template-icon"><i class="fas fa-desktop"></i></div>
+                                <div class="template-name">Agent Status</div>
+                                <div class="template-desc">Endpoint health coverage</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Time Period</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" class="form-input" id="startDate" value="2024-01-01">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">End Date</label>
+                                <input type="date" class="form-input" id="endDate" value="2024-01-15">
+                            </div>
+                        </div>
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label class="form-label">Quick Select</label>
+                                <select class="form-select" id="quickSelect" onchange="handleQuickSelect(this)">
+                                    <option value="custom">Custom Range</option>
+                                    <option value="7days">Last 7 Days</option>
+                                    <option value="30days" selected>Last 30 Days</option>
+                                    <option value="90days">Last 90 Days</option>
+                                    <option value="6months">Last 6 Months</option>
+                                    <option value="1year">Last Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Filters</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Severity Level</label>
+                                <select class="form-select" id="severityLevel">
+                                    <option selected>All Levels</option>
+                                    <option>Critical Only</option>
+                                    <option>High & Critical</option>
+                                    <option>Medium & Above</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Policy Type</label>
+                                <select class="form-select" id="policyType">
+                                    <option selected>All Policies</option>
+                                    <option>USB Policies</option>
+                                    <option>File Policies</option>
+                                    <option>Network Policies</option>
+                                    <option>OCR Policies</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label class="form-label">Agent/User Filter</label>
+                                <input type="text" class="form-input" placeholder="Filter by specific agent or user (optional)" id="agentFilter">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Include Sections</div>
+                        <div class="checkbox-grid">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="summary" checked>
+                                <label for="summary">Executive Summary</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="alerts" checked>
+                                <label for="alerts">Alert Statistics</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="policies" checked>
+                                <label for="policies">Policy Compliance</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="agents" checked>
+                                <label for="agents">Agent Status</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="violations">
+                                <label for="violations">Top Violations</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="trends">
+                                <label for="trends">Trend Analysis</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Export Format</div>
+                        <div class="format-options">
+                            <button type="button" class="format-btn selected" onclick="selectFormat(this)">
+                                <i class="fas fa-file-pdf"></i><span>PDF</span>
+                            </button>
+                            <button type="button" class="format-btn" onclick="selectFormat(this)">
+                                <i class="fas fa-file-csv"></i><span>CSV</span>
+                            </button>
+                            <button type="button" class="format-btn" onclick="selectFormat(this)">
+                                <i class="fas fa-file-excel"></i><span>Excel</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-download"></i><span>Generate Report</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                            <i class="fas fa-rotate-left"></i><span>Reset</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        // Check login status
+        async function checkAuth() {
+                try {
+                    const response = await fetch("/api/auth/check", {
+                        credentials: "include"
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Not authenticated");
+                    }
+
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        window.location.href = "index.html";
+                    }
+
+                } catch (err) {
+                    window.location.href = "index.html";
+                }
+            }
+
+        // Load components function
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Failed to load ${url}: ${response.status}`);
+                }
+                const html = await response.text();
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.innerHTML = html;
+                    
+                    // Execute any scripts in the loaded component
+                    const scripts = container.querySelectorAll('script');
+                    scripts.forEach(script => {
+                        const newScript = document.createElement('script');
+                        if (script.src) {
+                            newScript.src = script.src;
+                        } else {
+                            newScript.textContent = script.textContent;
+                        }
+                        document.body.appendChild(newScript);
+                    });
+                    
+                    // Initialize the component
+                    if (containerId === 'sidebarContainer') {
+                        initSidebar();
+                    }
+                } else {
+                    console.error(`Container ${containerId} not found`);
+                }
+            } catch (error) {
+                console.error('Error loading component:', error);
+                // Fallback: Show basic navigation if component fails to load
+                if (containerId === 'sidebarContainer') {
+                    document.getElementById('sidebarContainer').innerHTML = `
+                        <aside class="sidebar" id="sidebar">
+                            <div class="sidebar-header">
+                                <div class="sidebar-logo">
+                                    <i class="fas fa-shield-halved"></i>
+                                </div>
+                                <div class="sidebar-title">DLP Shield</div>
+                            </div>
+                            <nav class="nav-menu">
+                                <div class="nav-item">
+                                    <a href="dashboard.html" class="nav-link">
+                                        <i class="fas fa-th-large"></i>
+                                        <span>Dashboard</span>
+                                    </a>
+                                </div>
+                                <div class="nav-item">
+                                    <a href="alerts.html" class="nav-link">
+                                        <i class="fas fa-triangle-exclamation"></i>
+                                        <span>Alerts & Incidents</span>
+                                    </a>
+                                </div>
+                                <div class="nav-item">
+                                    <a href="generate-report.html" class="nav-link active">
+                                        <i class="fas fa-file-export"></i>
+                                        <span>Generate Report</span>
+                                    </a>
+                                </div>
+                            </nav>
+                        </aside>
+                    `;
+                }
+            }
+        }
+
+        // Initialize sidebar after loading
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (sidebar && mainContent) {
+                // Set active page
+                const currentPage = 'generate-report.html';
+                const navLinks = sidebar.querySelectorAll('.nav-link[data-page], .sub-menu-item[data-page]');
+                
+                navLinks.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href === currentPage || link.getAttribute('data-page') === 'generate-report') {
+                        link.classList.add('active');
+                        
+                        // Open parent submenu if exists
+                        const parentSubMenu = link.closest('.sub-menu');
+                        if (parentSubMenu) {
+                            parentSubMenu.classList.add('open');
+                            const parentNavLink = parentSubMenu.previousElementSibling;
+                            if (parentNavLink) {
+                                parentNavLink.classList.add('expanded');
+                            }
+                        }
+                    }
+                });
+                
+                // Handle sidebar collapse
+                const collapseBtn = sidebar.querySelector('.collapse-btn');
+                if (collapseBtn) {
+                    collapseBtn.addEventListener('click', toggleSidebar);
+                }
+                
+                // Handle mobile menu
+                const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+                if (mobileMenuToggle) {
+                    mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+                }
+            }
+        }
+
+        // Toggle sidebar function
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const header = document.querySelector('.top-header');
+            
+            if (sidebar) {
+                sidebar.classList.toggle('collapsed');
+                if (mainContent) {
+                    mainContent.classList.toggle('expanded');
+                }
+                
+                // Dispatch event for header to update
+                const isCollapsed = sidebar.classList.contains('collapsed');
+                window.dispatchEvent(new CustomEvent('sidebarToggle', { 
+                    detail: { collapsed: isCollapsed } 
+                }));
+                
+                // Save sidebar state
+                localStorage.setItem('sidebarCollapsed', isCollapsed);
+            }
+        }
+
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebar) {
+                sidebar.classList.toggle('mobile-open');
+                if (overlay) {
+                    overlay.classList.toggle('active');
+                }
+                
+                // Prevent body scroll when mobile menu is open
+                if (sidebar.classList.contains('mobile-open')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            }
+        }
+
+        // Handle quick date selection
+        function handleQuickSelect(select) {
+            const today = new Date();
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            
+            endDateInput.value = today.toISOString().split('T')[0];
+            
+            switch(select.value) {
+                case '7days':
+                    const last7Days = new Date(today);
+                    last7Days.setDate(today.getDate() - 7);
+                    startDateInput.value = last7Days.toISOString().split('T')[0];
+                    break;
+                    
+                case '30days':
+                    const last30Days = new Date(today);
+                    last30Days.setDate(today.getDate() - 30);
+                    startDateInput.value = last30Days.toISOString().split('T')[0];
+                    break;
+                    
+                case '90days':
+                    const last90Days = new Date(today);
+                    last90Days.setDate(today.getDate() - 90);
+                    startDateInput.value = last90Days.toISOString().split('T')[0];
+                    break;
+                    
+                case '6months':
+                    const last6Months = new Date(today);
+                    last6Months.setMonth(today.getMonth() - 6);
+                    startDateInput.value = last6Months.toISOString().split('T')[0];
+                    break;
+                    
+                case '1year':
+                    const lastYear = new Date(today);
+                    lastYear.setFullYear(today.getFullYear() - 1);
+                    startDateInput.value = lastYear.toISOString().split('T')[0];
+                    break;
+                    
+                default:
+                    // Custom range - do nothing
+                    break;
+            }
+        }
+
+        // Select template function
+        function selectTemplate(element) {
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+
+        // Select format function
+        function selectFormat(element) {
+            document.querySelectorAll('.format-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+
+        // Reset form function
+        function resetForm() {
+            document.getElementById('reportForm').reset();
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector('.template-card').classList.add('selected');
+            document.querySelectorAll('.format-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelector('.format-btn').classList.add('selected');
+            
+            // Reset dates
+            document.getElementById('startDate').value = '2024-01-01';
+            document.getElementById('endDate').value = '2024-01-15';
+            document.getElementById('quickSelect').value = '30days';
+        }
+
+        // Form submission handler
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            const submitBtn = this.querySelector('.btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Generating...</span>';
+            submitBtn.disabled = true;
+            
+            // Simulate report generation
+            setTimeout(() => {
+                // In a real app, this would generate and download the report
+                alert('Report generated successfully! It will be downloaded shortly.');
+                
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 1500);
+        });
+
+        // Load components when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load sidebar and header
+            loadComponent('sidebar.html', 'sidebarContainer');
+            loadComponent('page-header.html', 'headerContainer');
+            
+            // Check saved sidebar state
+            const savedSidebarState = localStorage.getItem('sidebarCollapsed');
+            if (savedSidebarState === 'true') {
+                setTimeout(() => {
+                    const sidebar = document.getElementById('sidebar');
+                    const mainContent = document.getElementById('mainContent');
+                    if (sidebar && mainContent) {
+                        sidebar.classList.add('collapsed');
+                        mainContent.classList.add('expanded');
+                    }
+                }, 100);
+            }
+            
+            // Set today's date as default end date
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+            document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+            
+            // Initialize event listeners
+            document.getElementById('quickSelect').addEventListener('change', function() {
+                handleQuickSelect(this);
+            });
+        });
+
+        // Handle resize events
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (window.innerWidth > 968 && sidebar && overlay) {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    </script>
+</body>
+</html>

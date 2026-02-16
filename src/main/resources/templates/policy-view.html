@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Policy - DLP Shield</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; 
+            background: #f3f4f6; 
+            overflow-x: hidden;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        .dashboard-container { 
+            display: flex; 
+            min-height: 100vh; 
+            padding-top: 62px;
+        }
+        
+        .main-content { 
+            flex: 1; 
+            margin-left: 240px; 
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 240px);
+        }
+        
+        .main-content.expanded { 
+            margin-left: 70px; 
+            width: calc(100% - 70px);
+        }
+        
+        .content-area { 
+            padding: 24px; 
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .page-header { 
+            background: white; 
+            padding: 20px 24px; 
+            border-radius: 12px; 
+            border: 1px solid #e5e7eb; 
+            margin-bottom: 24px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .page-title-section { 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+        }
+        
+        .back-btn {
+            width: 42px;
+            height: 42px;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #374151;
+        }
+        
+        .back-btn:hover {
+            background: #e5e7eb;
+            border-color: #d1d5db;
+        }
+        
+        .page-title-text h1 { 
+            font-size: 1.75rem; 
+            color: #111827; 
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-badge.inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .page-subtitle { 
+            color: #6b7280; 
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 11px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+        }
+        
+        .btn-danger:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1.5px solid #e5e7eb;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+        
+        .policy-details {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .policy-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #e5e7eb;
+            letter-spacing: -0.01em;
+        }
+        
+        .view-section {
+            margin-bottom: 28px;
+            padding-bottom: 28px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .view-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .section-title {
+            font-size: 0.85rem;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .section-value {
+            font-size: 1rem;
+            color: #111827;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+        
+        .section-value-large {
+            font-size: 1.1rem;
+            color: #111827;
+            font-weight: 600;
+        }
+        
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: #eff6ff;
+            color: #2563eb;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid #dbeafe;
+        }
+        
+        .tag i {
+            font-size: 0.75rem;
+        }
+        
+        .operations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .operation-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #f9fafb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #374151;
+        }
+        
+        .operation-item i {
+            color: #10b981;
+            font-size: 0.9rem;
+        }
+        
+        .operation-item.disabled {
+            opacity: 0.5;
+        }
+        
+        .operation-item.disabled i {
+            color: #9ca3af;
+        }
+        
+        .path-list {
+            background: #f9fafb;
+            padding: 14px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #374151;
+            line-height: 1.8;
+            margin-top: 10px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-label i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1rem;
+            color: #111827;
+            font-weight: 600;
+        }
+        
+        .severity-badge {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .severity-critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .severity-high {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+        
+        .severity-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .severity-low {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .alert-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-left: 4px solid #3b82f6;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .alert-box-content {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .alert-box i {
+            color: #3b82f6;
+            font-size: 1.1rem;
+            margin-top: 2px;
+        }
+        
+        .alert-box-text {
+            flex: 1;
+        }
+        
+        .alert-box-title {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+        
+        .alert-box-desc {
+            color: #1e40af;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* Activity Timeline */
+        .timeline {
+            margin-top: 10px;
+        }
+        
+        .timeline-item {
+            display: flex;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+        
+        .timeline-icon {
+            width: 36px;
+            height: 36px;
+            background: #eff6ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .timeline-icon i {
+            color: #2563eb;
+            font-size: 0.9rem;
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-title {
+            font-weight: 600;
+            color: #111827;
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+        }
+        
+        .timeline-desc {
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+        
+        .timeline-time {
+            color: #9ca3af;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 14px;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content-area {
+                padding: 16px;
+            }
+            
+            .policy-details,
+            .info-card {
+                padding: 20px;
+            }
+            
+            .page-title-text h1 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-title-text h1 {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .tags-container {
+                gap: 6px;
+            }
+            
+            .tag {
+                font-size: 0.85rem;
+                padding: 6px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Container -->
+    <div id="sidebarContainer"></div>
+    
+    <!-- Header Container -->
+    <div id="headerContainer"></div>
+    
+    <div class="dashboard-container">
+        <main class="main-content" id="mainContent">
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <a href="file-policies.html" class="back-btn" title="Back to Policies">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <div class="page-title-text">
+                            <h1 id="policyName">
+                                Block Sensitive Files
+                                <span class="status-badge active">
+                                    <i class="fas fa-circle"></i> Active
+                                </span>
+                            </h1>
+                            <p class="page-subtitle">View complete policy configuration and details</p>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="policy-edit.html" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Edit Policy
+                        </a>
+                        <button class="btn btn-danger" onclick="deletePolicy()">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+
+                <div class="content-grid">
+                    <div class="policy-details">
+                        <div class="card-header">Policy Configuration</div>
+                        
+                        <div class="view-section">
+                            <div class="section-title">Description</div>
+                            <div class="section-value" id="policyDescription">
+                                Prevents copying files with sensitive extensions to unauthorized locations. This policy monitors file operations and blocks transfers that violate security protocols.
+                            </div>
+                        </div>
+
+                        <div class="view-section">
+                            <div class="section-title">Severity Level</div>
+                            <div class="section-value">
+                                <span class="severity-badge severity-high">High Priority</span>
+                            </div>
+                        </div>
+
+                        <div class="view-section">
+                            <div class="section-title">Monitored File Extensions</div>
+                            <div class="tags-container">
+                                <span class="tag"><i class="fas fa-file-pdf"></i> .pdf</span>
+                                <span class="tag"><i class="fas fa-file-word"></i> .docx</span>
+                                <span class="tag"><i class="fas fa-file-excel"></i> .xlsx</span>
+                                <span class="tag"><i class="fas fa-file-powerpoint"></i> .pptx</span>
+                                <span class="tag"><i class="fas fa-file-csv"></i> .csv</span>
+                                <span class="tag"><i class="fas fa-file-alt"></i> .txt</span>
+                            </div>
+                        </div>
+
+                        <div class="view-section">
+                            <div class="section-title">Monitored Operations</div>
+                            <div class="operations-list">
+                                <div class="operation-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    Monitor Read Access
+                                </div>
+                                <div class="operation-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    Monitor Write/Create
+                                </div>
+                                <div class="operation-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    Monitor Delete
+                                </div>
+                                <div class="operation-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    Monitor Copy/Move
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="view-section">
+                            <div class="section-title">Protected Paths</div>
+                            <div class="path-list">C:\Confidential\
+C:\Users\*\Documents\Sensitive\
+C:\CompanyData\Private\</div>
+                        </div>
+
+                        <div class="view-section">
+                            <div class="section-title">Blocked Destinations</div>
+                            <div class="path-list">D:\
+E:\
+F:\
+USB Drives
+External Storage Devices</div>
+                        </div>
+
+                        <div class="view-section">
+                            <div class="section-title">Action on Violation</div>
+                            <div class="section-value-large">Block and Alert</div>
+                            <div class="alert-box">
+                                <div class="alert-box-content">
+                                    <i class="fas fa-info-circle"></i>
+                                    <div class="alert-box-text">
+                                        <div class="alert-box-title">Automatic Response</div>
+                                        <div class="alert-box-desc">
+                                            When a violation is detected, the file operation will be blocked immediately and an alert will be sent to security administrators. Users will receive a notification explaining the policy violation.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="policy-sidebar">
+                        <div class="info-card">
+                            <div class="card-header">Deployment Stats</div>
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <i class="fas fa-desktop"></i> Active Agents
+                                </div>
+                                <div class="stat-value">245</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <i class="fas fa-shield-alt"></i> Violations Blocked
+                                </div>
+                                <div class="stat-value">1,428</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <i class="fas fa-exclamation-triangle"></i> Active Alerts
+                                </div>
+                                <div class="stat-value">12</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <i class="fas fa-chart-line"></i> Compliance Rate
+                                </div>
+                                <div class="stat-value">98.4%</div>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="card-header">Recent Activity</div>
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-edit"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Policy Updated</div>
+                                        <div class="timeline-desc">Modified severity level and added new extensions</div>
+                                        <div class="timeline-time">2 hours ago</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Violation Blocked</div>
+                                        <div class="timeline-desc">Attempted transfer to USB drive prevented</div>
+                                        <div class="timeline-time">5 hours ago</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-download"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Deployed to Agents</div>
+                                        <div class="timeline-desc">Policy deployed to 25 new agents</div>
+                                        <div class="timeline-time">1 day ago</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Policy Created</div>
+                                        <div class="timeline-desc">Initial policy configuration saved</div>
+                                        <div class="timeline-time">3 days ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check login
+         async function checkAuth() {
+           try {
+               const response = await fetch("/api/auth/check", {
+                   credentials: "include"
+               });
+
+               if (!response.ok) {
+                   throw new Error("Not authenticated");
+               }
+
+               const result = await response.json();
+
+               if (!result.success) {
+                   window.location.href = "index.html";
+               }
+
+           } catch (err) {
+               window.location.href = "index.html";
+           }
+       }
+
+
+
+        // Get policy ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const policyId = urlParams.get('id') || '1';
+
+        // Load policy data
+        function loadPolicyData() {
+            // In a real application, this would fetch from an API
+            // For now, we'll use the policy ID to customize the display
+            console.log('Loading policy:', policyId);
+        }
+
+        // Delete policy function
+        function deletePolicy() {
+            if (confirm('Are you sure you want to delete this policy?\n\nThis action cannot be undone and will remove the policy from all deployed agents.')) {
+                // Show success message
+                alert('Policy deleted successfully!');
+                // Redirect to policies list
+                window.location.href = 'file-policies.html';
+            }
+        }
+
+        // Load components
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                const container = document.getElementById(containerId);
+                
+                if (!container) {
+                    console.error(`Container ${containerId} not found`);
+                    return;
+                }
+                
+                container.innerHTML = html;
+                
+                const scripts = container.getElementsByTagName('script');
+                for (let script of scripts) {
+                    try {
+                        const newScript = document.createElement('script');
+                        if (script.src) {
+                            newScript.src = script.src;
+                        } else {
+                            newScript.textContent = script.textContent;
+                        }
+                        Array.from(script.attributes).forEach(attr => {
+                            newScript.setAttribute(attr.name, attr.value);
+                        });
+                        document.head.appendChild(newScript);
+                    } catch (err) {
+                        console.error('Error executing script:', err);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading component:', error);
+            }
+        }
+
+        // Load components when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            loadComponent('sidebar.html', 'sidebarContainer');
+            loadComponent('page-header.html', 'headerContainer');
+            loadPolicyData();
+        });
+
+        // Handle sidebar toggle
+        window.addEventListener('sidebarToggle', function(event) {
+            const mainContent = document.getElementById('mainContent');
+            if (mainContent) {
+                if (event.detail.collapsed) {
+                    mainContent.classList.add('expanded');
+                } else {
+                    mainContent.classList.remove('expanded');
+                }
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (window.innerWidth <= 968) {
+                if (mainContent) {
+                    mainContent.classList.remove('expanded');
+                    mainContent.style.marginLeft = '0';
+                    mainContent.style.width = '100%';
+                }
+            } else {
+                if (sidebar && sidebar.classList.contains('collapsed')) {
+                    if (mainContent) {
+                        mainContent.classList.add('expanded');
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

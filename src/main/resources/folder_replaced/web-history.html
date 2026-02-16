@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Browsing History - DLP Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); }
+        .table th { background: #4361ee; color: white; border: none; font-weight: 600; }
+        .table td { vertical-align: middle; }
+        .status-blocked { color: #dc3545; font-weight: 600; }
+        .status-allowed { color: #198754; font-weight: 600; }
+        .action-badge { font-size: 0.75em; padding: 4px 8px; border-radius: 6px; }
+        .browse-badge { background: #e3f2fd; color: #1565c0; }
+        .upload-badge { background: #fff3e0; color: #ef6c00; }
+        .download-badge { background: #e8f5e8; color: #2e7d32; }
+        .blocked-badge { background: #ffebee; color: #c62828; }
+        .search-box { max-width: 400px; }
+        .url-cell { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    </style>
+</head>
+<body>
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h4 class="card-title mb-0" id="page-title">
+                                <i class="fas fa-history me-2 text-primary"></i>Web Browsing History
+                            </h4>
+                        </div>
+                        <div class="col-auto">
+                            <div class="input-group search-box">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search URLs, actions...">
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-secondary" id="refreshBtn">
+                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Statistics Row -->
+                    <div class="row mb-4" id="statsRow" style="display: none;">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body py-3">
+                                    <h6 class="card-title">Total Visits</h6>
+                                    <h4 id="totalVisits">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body py-3">
+                                    <h6 class="card-title">Allowed</h6>
+                                    <h4 id="allowedCount">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-danger text-white">
+                                <div class="card-body py-3">
+                                    <h6 class="card-title">Blocked</h6>
+                                    <h4 id="blockedCount">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body py-3">
+                                    <h6 class="card-title">File Actions</h6>
+                                    <h4 id="fileActions">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- History Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Action</th>
+                                <th>URL</th>
+                                <th>Browser</th>
+                                <th>Status</th>
+                                <th>File Info</th>
+                            </tr>
+                            </thead>
+                            <tbody id="history-table-body">
+                            <!-- Data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="emptyState" class="text-center py-5" style="display: none;">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No web history found</h5>
+                        <p class="text-muted">No browsing activity has been recorded for this agent yet.</p>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="loadingState" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Loading web history...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    class WebHistoryManager {
+        constructor() {
+            this.agentId = new URLSearchParams(window.location.search).get('agentId');
+            this.agentHostname = new URLSearchParams(window.location.search).get('hostname');
+            this.historyData = [];
+            this.init();
+        }
+
+        init() {
+            if (!this.agentId) {
+                this.showError('No Agent ID specified in URL parameters.');
+                return;
+            }
+
+            if (this.agentHostname) {
+                document.getElementById('page-title').innerHTML =
+                    `<i class="fas fa-history me-2 text-primary"></i>Web History: ${this.agentHostname}`;
+            }
+
+            this.setupEventListeners();
+            this.loadHistory();
+        }
+
+        setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                this.filterTable(e.target.value);
+            });
+
+            // Refresh button
+            document.getElementById('refreshBtn').addEventListener('click', () => {
+                this.loadHistory();
+            });
+
+            // Auto-refresh every 30 seconds
+            setInterval(() => this.loadHistory(), 30000);
+        }
+
+        async loadHistory() {
+            this.showLoading();
+
+            try {
+                const response = await fetch(`/api/admin/web-history-detailed/${this.agentId}`, {
+                    credentials: 'include',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const apiResponse = await response.json();
+
+                if (apiResponse.success) {
+                    this.historyData = apiResponse.data || [];
+                    this.renderTable();
+                    this.updateStatistics();
+                } else {
+                    this.showError('Failed to load history: ' + apiResponse.message);
+                }
+            } catch (error) {
+                console.error('Error fetching web history:', error);
+                this.showError('Failed to load web history: ' + error.message);
+            }
+        }
+
+        renderTable() {
+            const tableBody = document.getElementById('history-table-body');
+            const emptyState = document.getElementById('emptyState');
+            const loadingState = document.getElementById('loadingState');
+
+            if (this.historyData.length === 0) {
+                tableBody.innerHTML = '';
+                emptyState.style.display = 'block';
+                loadingState.style.display = 'none';
+                document.getElementById('statsRow').style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            loadingState.style.display = 'none';
+            document.getElementById('statsRow').style.display = 'flex';
+
+            // Sort by timestamp descending (newest first)
+            const sortedData = [...this.historyData].sort((a, b) =>
+                new Date(b.timestamp) - new Date(a.timestamp)
+            );
+
+            tableBody.innerHTML = sortedData.map(log => this.createTableRow(log)).join('');
+        }
+
+        createTableRow(log) {
+            const timestamp = new Date(log.timestamp).toLocaleString();
+            const statusClass = log.blocked ? 'status-blocked' : 'status-allowed';
+            const statusText = log.blocked ? '🚫 BLOCKED' : '✅ ALLOWED';
+            const actionBadge = this.getActionBadge(log.action);
+
+            return `
+                <tr>
+                    <td><small class="text-muted">${timestamp}</small></td>
+                    <td>${actionBadge}</td>
+                    <td class="url-cell" title="${log.url}">
+                        <a href="${log.url}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                            ${this.truncateUrl(log.url)}
+                        </a>
+                    </td>
+                    <td><small>${this.truncateBrowser(log.browser)}</small></td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td><small class="text-muted">${log.fileInfo || '-'}</small></td>
+                </tr>
+            `;
+        }
+
+        getActionBadge(action) {
+            const badgeClass = {
+                'BROWSE': 'browse-badge',
+                'UPLOAD': 'upload-badge',
+                'DOWNLOAD': 'download-badge',
+                'UPLOAD_BLOCKED': 'blocked-badge',
+                'DOWNLOAD_BLOCKED': 'blocked-badge',
+                'BLOCKED_ACCESS': 'blocked-badge'
+            }[action] || 'browse-badge';
+
+            return `<span class="action-badge ${badgeClass}">${action}</span>`;
+        }
+
+        truncateUrl(url, maxLength = 50) {
+            return url.length > maxLength ? url.substring(0, maxLength) + '...' : url;
+        }
+
+        truncateBrowser(browser, maxLength = 30) {
+            return browser.length > maxLength ? browser.substring(0, maxLength) + '...' : browser;
+        }
+
+        filterTable(searchTerm) {
+            const rows = document.getElementById('history-table-body').getElementsByTagName('tr');
+
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm.toLowerCase()) ? '' : 'none';
+            }
+        }
+
+        updateStatistics() {
+            const total = this.historyData.length;
+            const allowed = this.historyData.filter(log => !log.blocked).length;
+            const blocked = this.historyData.filter(log => log.blocked).length;
+            const fileActions = this.historyData.filter(log =>
+                log.action.includes('UPLOAD') || log.action.includes('DOWNLOAD')
+            ).length;
+
+            document.getElementById('totalVisits').textContent = total;
+            document.getElementById('allowedCount').textContent = allowed;
+            document.getElementById('blockedCount').textContent = blocked;
+            document.getElementById('fileActions').textContent = fileActions;
+        }
+
+        showLoading() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        showError(message) {
+            document.getElementById('history-table-body').innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-danger py-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>${message}
+                    </td>
+                </tr>
+            `;
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('statsRow').style.display = 'none';
+        }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        new WebHistoryManager();
+    });
+</script>
+</body>
+</html>

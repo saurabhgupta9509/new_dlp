@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - Audit Logs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; }
+        .dashboard-container { display: flex; min-height: 100vh; }
+        .main-content { flex: 1; margin-left: 240px; transition: margin-left 0.3s; }
+        .main-content.expanded { margin-left: 70px; }
+        .content-area { padding: 24px; padding-top: 80px; } /* Added padding-top for fixed header */
+        
+        .page-header { background: white; padding: 20px 24px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title-section { display: flex; align-items: center; gap: 16px; }
+        .page-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .page-icon i { font-size: 22px; color: white; }
+        .page-title-text h1 { font-size: 1.5em; color: #111827; font-weight: 700; }
+        .page-subtitle { color: #6b7280; font-size: 0.9em; }
+        .export-btn { padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 0.9em; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .export-btn:hover { background: #1d4ed8; }
+        
+        .filters-section { background: white; padding: 16px 20px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+        .search-box { flex: 1; min-width: 250px; position: relative; }
+        .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.9em; }
+        .search-input { width: 100%; padding: 9px 12px 9px 36px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; }
+        .search-input:focus { outline: none; border-color: #3b82f6; }
+        .filter-select { padding: 9px 32px 9px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; background: white; cursor: pointer; }
+        
+        .logs-table-container { background: white; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; }
+        .table-wrapper { overflow-x: auto; }
+        .logs-table { width: 100%; border-collapse: collapse; }
+        .logs-table thead { background: #f9fafb; }
+        .logs-table th { padding: 12px 16px; text-align: left; font-size: 0.8em; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e5e7eb; }
+        .logs-table td { padding: 14px 16px; font-size: 0.9em; color: #374151; border-bottom: 1px solid #f3f4f6; }
+        .logs-table tbody tr { transition: background 0.2s; }
+        .logs-table tbody tr:hover { background: #f9fafb; }
+        
+        .action-type { display: inline-flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: 6px; font-size: 0.85em; font-weight: 600; }
+        .action-create { background: #d1fae5; color: #059669; }
+        .action-update { background: #dbeafe; color: #2563eb; }
+        .action-delete { background: #fee2e2; color: #dc2626; }
+        .action-login { background: #fef3c7; color: #f59e0b; }
+        .action-config { background: #e0e7ff; color: #6366f1; }
+        
+        .user-cell { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 32px; height: 32px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.75em; flex-shrink: 0; }
+        
+        /* Mobile responsive adjustments */
+        @media (max-width: 968px) { 
+            .main-content { 
+                margin-left: 0; 
+            } 
+            .page-header { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 12px; 
+            } 
+        }
+        
+        @media (max-width: 640px) { 
+            .content-area { 
+                padding: 16px; 
+                padding-top: 70px; 
+            } 
+            .filters-section { 
+                flex-direction: column; 
+                align-items: stretch; 
+            } 
+            .search-box { 
+                min-width: 100%; 
+            } 
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+        <main class="main-content" id="mainContent">
+            <div id="headerContainer"></div>
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <div class="page-icon"><i class="fas fa-clock-rotate-left"></i></div>
+                        <div class="page-title-text">
+                            <h1>Audit Logs</h1>
+                            <p class="page-subtitle">Track all administrative actions and system changes</p>
+                        </div>
+                    </div>
+                    <button class="export-btn" onclick="exportLogs()">
+                        <i class="fas fa-download"></i><span>Export Logs</span>
+                    </button>
+                </div>
+
+                <div class="filters-section">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="search-input" placeholder="Search logs..." id="searchInput">
+                    </div>
+                    <select class="filter-select" id="actionFilter">
+                        <option value="">All Actions</option>
+                        <option value="create">Create</option>
+                        <option value="update">Update</option>
+                        <option value="delete">Delete</option>
+                        <option value="login">Login</option>
+                        <option value="config">Configuration</option>
+                    </select>
+                    <select class="filter-select" id="userFilter">
+                        <option value="">All Users</option>
+                        <option value="admin">Admins Only</option>
+                        <option value="analyst">Analysts Only</option>
+                    </select>
+                </div>
+
+                <div class="logs-table-container">
+                    <div class="table-wrapper">
+                        <table class="logs-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Resource</th>
+                                    <th>Details</th>
+                                    <th>IP Address</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody">
+                                <tr>
+                                    <td>2024-01-15 10:23:45</td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar">JS</div>
+                                            <span>john.smith@company.com</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="action-type action-create"><i class="fas fa-plus"></i> Create</span></td>
+                                    <td>Policy</td>
+                                    <td>Created new USB blocking policy</td>
+                                    <td>192.168.1.100</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-15 10:15:22</td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar">JD</div>
+                                            <span>jane.doe@company.com</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="action-type action-update"><i class="fas fa-pen"></i> Update</span></td>
+                                    <td>User</td>
+                                    <td>Modified user role for bob.wilson</td>
+                                    <td>192.168.1.101</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-15 09:45:10</td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar">BW</div>
+                                            <span>bob.wilson@company.com</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="action-type action-login"><i class="fas fa-right-to-bracket"></i> Login</span></td>
+                                    <td>System</td>
+                                    <td>User logged in successfully</td>
+                                    <td>192.168.1.102</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-15 09:30:55</td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar">JS</div>
+                                            <span>john.smith@company.com</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="action-type action-config"><i class="fas fa-gear"></i> Configuration</span></td>
+                                    <td>Settings</td>
+                                    <td>Updated OCR detection sensitivity</td>
+                                    <td>192.168.1.100</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-15 09:12:33</td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar">AJ</div>
+                                            <span>alice.jones@company.com</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="action-type action-delete"><i class="fas fa-trash"></i> Delete</span></td>
+                                    <td>Agent</td>
+                                    <td>Removed agent DESKTOP-OLD123</td>
+                                    <td>192.168.1.103</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-15 08:58:11</td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar">CB</div>
+                                            <span>charlie.brown@company.com</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="action-type action-create"><i class="fas fa-plus"></i> Create</span></td>
+                                    <td>User</td>
+                                    <td>Created new user account</td>
+                                    <td>192.168.1.104</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-15 08:42:50</td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar">JS</div>
+                                            <span>john.smith@company.com</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="action-type action-update"><i class="fas fa-pen"></i> Update</span></td>
+                                    <td>Policy</td>
+                                    <td>Updated file monitoring policy rules</td>
+                                    <td>192.168.1.100</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-15 08:20:05</td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar">JD</div>
+                                            <span>jane.doe@company.com</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="action-type action-config"><i class="fas fa-gear"></i> Configuration</span></td>
+                                    <td>Settings</td>
+                                    <td>Changed data retention period to 90 days</td>
+                                    <td>192.168.1.101</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        // Check login status
+        async function checkAuth() {
+                try {
+                    const response = await fetch("/api/auth/check", {
+                        credentials: "include"
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Not authenticated");
+                    }
+
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        window.location.href = "index.html";
+                    }
+
+                } catch (err) {
+                    window.location.href = "index.html";
+                }
+            }
+
+        // Function to load components with script execution
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                const container = document.getElementById(containerId);
+                container.innerHTML = html;
+                
+                // Execute scripts in the loaded component
+                const scripts = container.getElementsByTagName('script');
+                for (let script of scripts) {
+                    const newScript = document.createElement('script');
+                    if (script.src) {
+                        newScript.src = script.src;
+                    } else {
+                        newScript.textContent = script.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                }
+            } catch (error) { 
+                console.error('Error loading component:', error); 
+            }
+        }
+        
+        // Load components when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            loadComponent('sidebar.html', 'sidebarContainer');
+            loadComponent('page-header.html', 'headerContainer');
+            
+            // Initialize the page functionality
+            initPage();
+        });
+        
+        // Initialize page functionality
+        function initPage() {
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('#logsTableBody tr');
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+            }
+            
+            // Filter functionality
+            const actionFilter = document.getElementById('actionFilter');
+            const userFilter = document.getElementById('userFilter');
+            
+            if (actionFilter) {
+                actionFilter.addEventListener('change', filterTable);
+            }
+            if (userFilter) {
+                userFilter.addEventListener('change', filterTable);
+            }
+        }
+        
+        // Filter table based on selected filters
+        function filterTable() {
+            const actionFilter = document.getElementById('actionFilter')?.value.toLowerCase() || '';
+            const userFilter = document.getElementById('userFilter')?.value.toLowerCase() || '';
+            const rows = document.querySelectorAll('#logsTableBody tr');
+            
+            rows.forEach(row => {
+                const actionText = row.querySelector('.action-type').textContent.toLowerCase();
+                const userEmail = row.querySelector('.user-cell span').textContent.toLowerCase();
+                
+                const actionMatch = !actionFilter || actionText.includes(actionFilter);
+                const userMatch = !userFilter || (userFilter === 'admin' && userEmail.includes('admin')) || 
+                                 (userFilter === 'analyst' && (userEmail.includes('analyst') || userEmail.includes('jane') || userEmail.includes('bob')));
+                
+                row.style.display = (actionMatch && userMatch) ? '' : 'none';
+            });
+        }
+        
+        // Export logs function
+        function exportLogs() { 
+            alert('Exporting audit logs to CSV...'); 
+            // Here you would typically make an API call to export logs
+            // For now, we'll just show an alert
+        }
+        
+        // Handle sidebar toggle for mobile
+        window.addEventListener('sidebarToggle', function(event) {
+            const mainContent = document.getElementById('mainContent');
+            if (mainContent) {
+                if (event.detail.collapsed) {
+                    mainContent.classList.add('expanded');
+                } else {
+                    mainContent.classList.remove('expanded');
+                }
+            }
+        });
+        
+        // Adjust header position on page load
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
+                
+                if (sidebar && mainContent) {
+                    if (sidebar.classList.contains('collapsed')) {
+                        mainContent.classList.add('expanded');
+                    } else {
+                        mainContent.classList.remove('expanded');
+                    }
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

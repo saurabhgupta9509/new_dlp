@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - File Policies</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; 
+            background: #f3f4f6; 
+            overflow-x: hidden;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        .dashboard-container { 
+            display: flex; 
+            min-height: 100vh; 
+            padding-top: 62px;
+        }
+        
+        .main-content { 
+            flex: 1; 
+            margin-left: 240px; 
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 240px);
+        }
+        
+        .main-content.expanded { 
+            margin-left: 70px; 
+            width: calc(100% - 70px);
+        }
+        
+        .content-area { 
+            padding: 24px; 
+           
+            width: 100%;
+        }
+        
+        .page-header { 
+            background: white; 
+            padding: 20px 24px; 
+            border-radius: 12px; 
+            border: 1px solid #e5e7eb; 
+            margin-bottom: 24px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .page-title-section { 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+        }
+        
+        .page-icon { 
+            width: 48px; 
+            height: 48px; 
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+        
+        .page-icon i { 
+            font-size: 22px; 
+            color: white; 
+        }
+        
+        .page-title-text h1 { 
+            font-size: 1.75rem; 
+            color: #111827; 
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        
+        .page-subtitle { 
+            color: #6b7280; 
+            font-size: 0.95rem;
+            margin-top: 2px;
+        }
+        
+        .create-btn { 
+            padding: 11px 22px; 
+            background: #2563eb; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 0.95rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+            text-decoration: none;
+        }
+        
+        .create-btn:hover { 
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.4);
+        }
+        
+        .content-grid { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 20px; 
+        }
+        
+        .policies-list { 
+            background: white; 
+            padding: 24px; 
+            border-radius: 12px; 
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-header { 
+            font-size: 1.15rem; 
+            font-weight: 700; 
+            color: #111827; 
+            margin-bottom: 20px; 
+            padding-bottom: 14px; 
+            border-bottom: 2px solid #e5e7eb;
+            letter-spacing: -0.01em;
+        }
+        
+        .policy-item { 
+            padding: 18px; 
+            border-radius: 10px; 
+            margin-bottom: 12px; 
+            border: 1.5px solid #e5e7eb; 
+            cursor: pointer; 
+            transition: all 0.2s;
+            position: relative;
+            background: white;
+        }
+        
+        .policy-item:hover { 
+            border-color: #3b82f6; 
+            background: #f9fafb;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
+        
+        .policy-item.active { 
+            border-color: #3b82f6; 
+            background: #eff6ff;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+        }
+        
+        .policy-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 10px; 
+        }
+        
+        .policy-name-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        
+        .policy-name { 
+            font-weight: 600; 
+            color: #111827; 
+            font-size: 1rem;
+            letter-spacing: -0.01em;
+        }
+        
+        .policy-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .toggle-switch { 
+            position: relative; 
+            width: 44px; 
+            height: 24px; 
+        }
+        
+        .toggle-switch input { 
+            opacity: 0; 
+            width: 0; 
+            height: 0; 
+        }
+        
+        .toggle-slider { 
+            position: absolute; 
+            cursor: pointer; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            background-color: #cbd5e1; 
+            border-radius: 24px; 
+            transition: .3s; 
+        }
+        
+        .toggle-slider:before { 
+            position: absolute; 
+            content: ""; 
+            height: 18px; 
+            width: 18px; 
+            left: 3px; 
+            bottom: 3px; 
+            background-color: white; 
+            border-radius: 50%; 
+            transition: .3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        input:checked + .toggle-slider { 
+            background-color: #10b981; 
+        }
+        
+        input:checked + .toggle-slider:before { 
+            transform: translateX(20px); 
+        }
+        
+        .three-dots-menu {
+            position: relative;
+        }
+        
+        .three-dots-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 10px;
+            color: #6b7280;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .three-dots-btn:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 160px;
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+            animation: slideDown 0.2s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .dropdown-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: #374151;
+            transition: all 0.15s;
+            border-bottom: 1px solid #f3f4f6;
+            text-decoration: none;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: #f9fafb;
+        }
+        
+        .dropdown-item.delete {
+            color: #dc2626;
+        }
+        
+        .dropdown-item.delete:hover {
+            background: #fef2f2;
+        }
+        
+        .dropdown-item i {
+            width: 16px;
+            font-size: 0.9rem;
+        }
+        
+        .policy-desc { 
+            font-size: 0.9rem; 
+            color: #6b7280; 
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .policy-meta { 
+            display: flex; 
+            gap: 16px; 
+            font-size: 0.85rem; 
+            color: #9ca3af;
+            flex-wrap: wrap;
+        }
+        
+        .policy-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            
+            .dashboard-container {
+                padding-top: 62px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content-area {
+                padding: 16px;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 14px;
+                padding: 18px 20px;
+            }
+            
+            .page-title-text h1 {
+                font-size: 1.5rem;
+            }
+            
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .create-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .card-header {
+                font-size: 1.05rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .policy-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .policy-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .page-icon {
+                width: 42px;
+                height: 42px;
+            }
+            
+            .page-icon i {
+                font-size: 20px;
+            }
+            
+            .page-title-text h1 {
+                font-size: 1.35rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Container -->
+    <div id="sidebarContainer"></div>
+    
+    <!-- Header Container -->
+    <div id="headerContainer"></div>
+    
+    <div class="dashboard-container">
+        <main class="main-content" id="mainContent">
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <div class="page-icon"><i class="fas fa-file-shield"></i></div>
+                        <div class="page-title-text">
+                            <h1>File Policies</h1>
+                            <p class="page-subtitle">Configure file monitoring and protection rules</p>
+                        </div>
+                    </div>
+                    <a href="policy-create.html" class="create-btn">
+                        <i class="fas fa-plus"></i><span>Create Policy</span>
+                    </a>
+                </div>
+
+                <div class="content-grid">
+                    <div class="policies-list">
+                        <div class="card-header">Active Policies (3)</div>
+                        
+                        <div class="policy-item active" data-policy-id="1">
+                            <div class="policy-header">
+                                <div class="policy-name-section">
+                                    <div class="policy-name">Block Sensitive Files</div>
+                                </div>
+                                <div class="policy-actions">
+                                    <label class="toggle-switch" onclick="event.stopPropagation()">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <div class="three-dots-menu">
+                                        <button class="three-dots-btn" onclick="toggleDropdown(event, this)">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a href="policy-view.html?id=1" class="dropdown-item">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                            <a href="policy-edit.html?id=1" class="dropdown-item">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <div class="dropdown-item delete" onclick="deletePolicy(1, event)">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="policy-desc">Prevents copying files with sensitive extensions to unauthorized locations</div>
+                            <div class="policy-meta">
+                                <span><i class="fas fa-desktop"></i> 245 agents</span>
+                                <span><i class="fas fa-shield-alt"></i> High</span>
+                                <span><i class="fas fa-clock"></i> Updated 2h ago</span>
+                            </div>
+                        </div>
+
+                        <div class="policy-item" data-policy-id="2">
+                            <div class="policy-header">
+                                <div class="policy-name-section">
+                                    <div class="policy-name">Monitor Document Access</div>
+                                </div>
+                                <div class="policy-actions">
+                                    <label class="toggle-switch" onclick="event.stopPropagation()">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <div class="three-dots-menu">
+                                        <button class="three-dots-btn" onclick="toggleDropdown(event, this)">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a href="policy-view.html?id=2" class="dropdown-item">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                            <a href="policy-edit.html?id=2" class="dropdown-item">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <div class="dropdown-item delete" onclick="deletePolicy(2, event)">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="policy-desc">Logs all access to confidential documents and monitors usage patterns</div>
+                            <div class="policy-meta">
+                                <span><i class="fas fa-desktop"></i> 198 agents</span>
+                                <span><i class="fas fa-shield-alt"></i> Medium</span>
+                                <span><i class="fas fa-clock"></i> Updated 5h ago</span>
+                            </div>
+                        </div>
+
+                        <div class="policy-item" data-policy-id="3">
+                            <div class="policy-header">
+                                <div class="policy-name-section">
+                                    <div class="policy-name">Restrict USB Transfers</div>
+                                </div>
+                                <div class="policy-actions">
+                                    <label class="toggle-switch" onclick="event.stopPropagation()">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <div class="three-dots-menu">
+                                        <button class="three-dots-btn" onclick="toggleDropdown(event, this)">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a href="policy-view.html?id=3" class="dropdown-item">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                            <a href="policy-edit.html?id=3" class="dropdown-item">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <div class="dropdown-item delete" onclick="deletePolicy(3, event)">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="policy-desc">Blocks file transfers to USB devices and external storage media</div>
+                            <div class="policy-meta">
+                                <span><i class="fas fa-desktop"></i> 310 agents</span>
+                                <span><i class="fas fa-shield-alt"></i> Critical</span>
+                                <span><i class="fas fa-clock"></i> Updated 1d ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Overlay (for header notifications) -->
+    <div class="notification-overlay" id="notificationOverlay" onclick="closeNotifications()"></div>
+    
+    <!-- Sidebar Overlay (for mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <script>
+        // Check login
+        async function checkAuth() {
+           try {
+               const response = await fetch("/api/auth/check", {
+                   credentials: "include"
+               });
+
+               if (!response.ok) {
+                   throw new Error("Not authenticated");
+               }
+
+               const result = await response.json();
+
+               if (!result.success) {
+                   window.location.href = "index.html";
+               }
+
+           } catch (err) {
+               window.location.href = "index.html";
+           }
+       }
+
+
+        // Sample policy data for reference
+        const policiesData = {
+            1: { name: 'Block Sensitive Files', agents: 245 },
+            2: { name: 'Monitor Document Access', agents: 198 },
+            3: { name: 'Restrict USB Transfers', agents: 310 }
+        };
+
+        // Load components with script execution
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                const container = document.getElementById(containerId);
+                
+                if (!container) {
+                    console.error(`Container ${containerId} not found`);
+                    return;
+                }
+                
+                container.innerHTML = html;
+                
+                const scripts = container.getElementsByTagName('script');
+                for (let script of scripts) {
+                    try {
+                        const newScript = document.createElement('script');
+                        if (script.src) {
+                            newScript.src = script.src;
+                        } else {
+                            newScript.textContent = script.textContent;
+                        }
+                        Array.from(script.attributes).forEach(attr => {
+                            newScript.setAttribute(attr.name, attr.value);
+                        });
+                        document.head.appendChild(newScript);
+                    } catch (err) {
+                        console.error('Error executing script:', err);
+                    }
+                }
+                
+                console.log(`Loaded component: ${containerId}`);
+            } catch (error) {
+                console.error('Error loading component:', error);
+            }
+        }
+
+        // Load components when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            loadComponent('sidebar.html', 'sidebarContainer');
+            loadComponent('page-header.html', 'headerContainer');
+        });
+
+        // Three dots menu toggle
+        function toggleDropdown(event, button) {
+            event.stopPropagation();
+            
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu !== button.nextElementSibling) {
+                    menu.classList.remove('show');
+                }
+            });
+            
+            // Toggle current dropdown
+            const dropdown = button.nextElementSibling;
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.three-dots-menu')) {
+                document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
+        });
+
+        // Delete Policy
+        function deletePolicy(policyId, event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const policy = policiesData[policyId];
+            const policyName = policy ? policy.name : 'this policy';
+            
+            if (confirm(`Are you sure you want to delete "${policyName}"?\n\nThis action cannot be undone.`)) {
+                // Close dropdown
+                document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+
+                // Remove policy item from DOM
+                const policyItem = document.querySelector(`[data-policy-id="${policyId}"]`);
+                if (policyItem) {
+                    policyItem.style.opacity = '0';
+                    policyItem.style.transform = 'translateX(-20px)';
+                    policyItem.style.transition = 'all 0.3s ease';
+                    
+                    setTimeout(() => {
+                        policyItem.remove();
+                        // Update count
+                        updatePolicyCount();
+                        showNotification('Policy deleted successfully', 'success');
+                    }, 300);
+                }
+            }
+        }
+
+        // Update policy count
+        function updatePolicyCount() {
+            const count = document.querySelectorAll('.policy-item').length;
+            const header = document.querySelector('.card-header');
+            if (header) {
+                header.textContent = `Active Policies (${count})`;
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 10000;
+                font-weight: 500;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Handle sidebar toggle
+        window.addEventListener('sidebarToggle', function(event) {
+            const mainContent = document.getElementById('mainContent');
+            if (mainContent) {
+                if (event.detail.collapsed) {
+                    mainContent.classList.add('expanded');
+                } else {
+                    mainContent.classList.remove('expanded');
+                }
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (window.innerWidth <= 968) {
+                if (mainContent) {
+                    mainContent.classList.remove('expanded');
+                    mainContent.style.marginLeft = '0';
+                    mainContent.style.width = '100%';
+                }
+            } else {
+                if (sidebar && sidebar.classList.contains('collapsed')) {
+                    if (mainContent) {
+                        mainContent.classList.add('expanded');
+                    }
+                }
+            }
+        });
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    
+</body>
+</html>

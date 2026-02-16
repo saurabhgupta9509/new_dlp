@@ -1,0 +1,830 @@
+<!-- Sidebar Navigation Component -->
+<!-- <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="fas fa-shield-halved"></i>
+        </div>
+        <div class="sidebar-title">DLP Shield</div>
+    </div>
+
+    <nav class="nav-menu">
+        <div class="nav-item">
+            <a href="dashboard.html" class="nav-link" data-page="dashboard">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="alerts.html" class="nav-link" data-page="alerts">
+                <i class="fas fa-triangle-exclamation"></i>
+                <span>Alerts & Incidents</span>
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <div class="nav-link" onclick="toggleSubMenu(this)">
+                <i class="fas fa-shield-alt"></i>
+                <span>Policies</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="sub-menu">
+                <a href="manage-agents.html" class="sub-menu-item">Manage Agents</a>
+                <a href="file-policies.html" class="sub-menu-item">File Policies</a>
+                <a href="assign-policy.html" class="sub-menu-item">Assign Policy</a>
+            </div>
+        </div>
+
+        <div class="nav-item">
+            <a href="agents.html" class="nav-link" data-page="agents">
+                <i class="fas fa-desktop"></i>
+                <span>Agents / Endpoints</span>
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <div class="nav-link" onclick="toggleSubMenu(this)">
+                <i class="fas fa-eye"></i>
+                <span>OCR & Image Analysis</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="sub-menu">
+                <a href="ocr-dashboard.html" class="sub-menu-item">OCR Dashboard</a>
+                <a href="ocr-policies.html" class="sub-menu-item">OCR Policies</a>
+            </div>
+        </div>
+
+        <div class="nav-item">
+            <div class="nav-link" onclick="toggleSubMenu(this)">
+                <i class="fas fa-file-lines"></i>
+                <span>Reports & Logs</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="sub-menu">
+                <a href="reports.html" class="sub-menu-item">Reports</a>
+                <a href="generate-report.html" class="sub-menu-item">Generate Report</a>
+                <a href="audit-logs.html" class="sub-menu-item">Audit Logs</a>
+                <a href="device-logs.html" class="sub-menu-item">Device Logs</a>
+            </div>
+        </div>
+
+        <div class="nav-item">
+            <div class="nav-link" onclick="toggleSubMenu(this)">
+                <i class="fas fa-users"></i>
+                <span>Users & Roles</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="sub-menu">
+                <a href="users.html" class="sub-menu-item">Users</a>
+                <a href="roles.html" class="sub-menu-item">Roles & Permissions</a>
+            </div>
+        </div>
+
+        <div class="nav-item">
+            <div class="nav-link" onclick="toggleSubMenu(this)">
+                <i class="fas fa-gear"></i>
+                <span>Settings</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="sub-menu">
+                <a href="settings-general.html" class="sub-menu-item">General</a>
+                <a href="settings-security.html" class="sub-menu-item">Security</a>
+                <a href="settings-integrations.html" class="sub-menu-item">Integrations</a>
+                <a href="settings-retention.html" class="sub-menu-item">Data Retention</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar-footer">
+        <button class="collapse-btn" onclick="toggleSidebar()">
+            <i class="fas fa-chevron-left"></i>
+            <span>Collapse</span>
+        </button>
+    </div>
+</aside>
+
+<style>
+/* Sidebar Styles */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+    color: white;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 4px;
+}
+
+.sidebar-header {
+    padding: 18px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-logo {
+    width: 38px;
+    height: 38px;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sidebar-logo i {
+    font-size: 20px;
+    color: #2563eb;
+}
+
+.sidebar-title {
+    font-size: 1.2em;
+    font-weight: 700;
+}
+
+.nav-menu {
+    padding: 12px 0;
+}
+
+.nav-item {
+    margin: 2px 8px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.nav-link:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.nav-link.active {
+    background: rgba(255,255,255,0.15);
+    color: white;
+}
+
+.nav-link i {
+    width: 20px;
+    font-size: 0.95em;
+    margin-right: 10px;
+}
+
+.nav-link .fa-chevron-down {
+    margin-left: auto;
+    font-size: 0.7em;
+    transition: transform 0.3s;
+}
+
+.nav-link.expanded .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.sub-menu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.sub-menu.open {
+    max-height: 300px;
+}
+
+.sub-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px 8px 42px;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.85em;
+    transition: all 0.2s;
+}
+
+.sub-menu-item:hover {
+    color: white;
+    background: rgba(255,255,255,0.05);
+}
+
+.sub-menu-item::before {
+    content: '•';
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+.sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin-top: auto;
+}
+
+.collapse-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 0.85em;
+    transition: all 0.2s;
+}
+
+.collapse-btn:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+/* Sidebar collapsed */
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar.collapsed .sidebar-title,
+.sidebar.collapsed .nav-link span,
+.sidebar.collapsed .collapse-btn span,
+.sidebar.collapsed .sub-menu {
+    display: none;
+}
+
+.sidebar.collapsed .nav-link {
+    justify-content: center;
+}
+
+.sidebar.collapsed .nav-link i {
+    margin-right: 0;
+}
+
+.sidebar.collapsed .collapse-btn i {
+    transform: rotate(180deg);
+}
+
+/* Mobile responsive */
+@media (max-width: 968px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.mobile-open {
+        transform: translateX(0);
+        box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+    }
+}
+</style>
+
+<script>
+// Toggle submenu
+function toggleSubMenu(element) {
+    const subMenu = element.nextElementSibling;
+    element.classList.toggle('expanded');
+    subMenu.classList.toggle('open');
+}
+
+// Toggle sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    sidebar.classList.toggle('collapsed');
+    if (mainContent) {
+        mainContent.classList.toggle('expanded');
+    }
+}
+
+// Set active menu item based on current page
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
+    const navLinks = document.querySelectorAll('.nav-link[data-page]');
+    
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPage) {
+            link.classList.add('active');
+        }
+    });
+});
+</script> -->
+
+
+
+
+
+<!-- Sidebar Navigation Component -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="fas fa-shield-halved"></i>
+        </div>
+        <div class="sidebar-title">DLP Shield</div>
+    </div>
+
+    <nav class="nav-menu">
+        <div class="nav-item">
+            <a href="../templates/dashboard.html" class="nav-link" data-page="dashboard">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="../templates/alerts.html" class="nav-link" data-page="alerts">
+                <i class="fas fa-triangle-exclamation"></i>
+                <span>Alerts & Incidents</span>
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                <i class="fas fa-shield-alt"></i>
+                <span>Policies</span>
+                <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu">
+                <a href="../templates/manage-agents.html" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
+                <a href="../templates/file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a>
+                <a href="../templates/assign-policy.html" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
+            </div>
+        </div>
+
+        <div class="nav-item">
+            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                <i class="fas fa-eye"></i>
+                <span>OCR & Image Analysis</span>
+                <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu">
+                <a href="../templates/ocr-dashboard.html" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
+                <a href="../templates/ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>
+            </div>
+        </div>
+
+        <div class="nav-item">
+            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                <i class="fas fa-file-lines"></i>
+                <span>Reports & Logs</span>
+                <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu">
+                <a href="../templates/reports.html" class="sub-menu-item" data-page="reports">Reports</a>
+                <a href="../templates/generate-report.html" class="sub-menu-item" data-page="generate-report">Generate Report</a>
+                <a href="../templates/audit-logs.html" class="sub-menu-item" data-page="audit-logs">Audit Logs</a>
+                <a href="../templates/device-logs.html" class="sub-menu-item" data-page="device-logs">Device Logs</a>
+            </div>
+        </div>
+
+        <div class="nav-item">
+            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                <i class="fas fa-users"></i>
+                <span>Users & Roles</span>
+                <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu">
+                <a href="../templates/users.html" class="sub-menu-item" data-page="users">Users</a>
+                <a href="../templates/roles.html" class="sub-menu-item" data-page="roles">Roles & Permissions</a>
+                <a href="../templates/permissions.html" class="sub-menu-item" data-page="permissions">Permissions</a>
+            </div>
+        </div>
+
+        <div class="nav-item">
+            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                <i class="fas fa-gear"></i>
+                <span>Settings</span>
+                <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu">
+                <a href="../templates/general.html" class="sub-menu-item" data-page="general">General</a>
+                <a href="../templates/security.html" class="sub-menu-item" data-page="security">Security</a>
+                <a href="../templates/integrations.html" class="sub-menu-item" data-page="integrations">Integrations</a>
+                <a href="../templates/data-retention.html" class="sub-menu-item" data-page="data-retention">Data Retention</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar-footer">
+        <button class="collapse-btn" onclick="toggleSidebar()">
+            <i class="fas fa-chevron-left"></i>
+            <span>Collapse</span>
+        </button>
+    </div>
+</aside>
+
+<!-- Mobile Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+<style>
+/* Sidebar Styles */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+    color: white;
+    position: fixed;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 4px;
+}
+
+.sidebar-header {
+    padding: 18px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+}
+
+.sidebar-logo {
+    width: 38px;
+    height: 38px;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sidebar-logo i {
+    font-size: 20px;
+    color: #2563eb;
+}
+
+.sidebar-title {
+    font-size: 1.2em;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: opacity 0.3s;
+}
+
+.nav-menu {
+    padding: 12px 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+}
+
+.nav-item {
+    margin: 2px 8px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s;
+    font-size: 0.9em;
+    cursor: pointer;
+    position: relative;
+}
+
+.nav-link:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.nav-link.active,
+.sub-menu-item.active {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    font-weight: 600;
+}
+
+.nav-link i:first-child {
+    width: 20px;
+    font-size: 0.95em;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.chevron-icon {
+    margin-left: auto !important;
+    font-size: 0.7em !important;
+    transition: transform 0.3s;
+    width: auto !important;
+}
+
+.nav-link.expanded .chevron-icon {
+    transform: rotate(180deg);
+}
+
+.sub-menu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.sub-menu.open {
+    max-height: 500px;
+}
+
+.sub-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px 8px 42px;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.85em;
+    transition: all 0.2s;
+    border-radius: 8px;
+    margin: 2px 0;
+}
+
+.sub-menu-item:hover {
+    color: white;
+    background: rgba(255,255,255,0.08);
+}
+
+.sub-menu-item::before {
+    content: '•';
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+.sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+}
+
+.collapse-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 0.85em;
+    transition: all 0.2s;
+}
+
+.collapse-btn:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.collapse-btn i {
+    transition: transform 0.3s;
+}
+
+/* Sidebar collapsed state */
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar.collapsed .sidebar-title {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+}
+
+.sidebar.collapsed .nav-link span,
+.sidebar.collapsed .collapse-btn span {
+    display: none;
+}
+
+.sidebar.collapsed .sub-menu {
+    display: none !important;
+}
+
+.sidebar.collapsed .nav-link {
+    justify-content: center;
+    padding: 10px;
+}
+
+.sidebar.collapsed .nav-link i:first-child {
+    margin-right: 0;
+}
+
+.sidebar.collapsed .chevron-icon {
+    display: none;
+}
+
+.sidebar.collapsed .collapse-btn {
+    justify-content: center;
+}
+
+.sidebar.collapsed .collapse-btn i {
+    transform: rotate(180deg);
+}
+
+/* Mobile Overlay */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Mobile responsive */
+@media (max-width: 968px) {
+    .sidebar {
+        transform: translateX(-100%);
+        box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+    }
+
+    .sidebar.mobile-open {
+        transform: translateX(0);
+    }
+
+    .sidebar.collapsed {
+        transform: translateX(-100%);
+    }
+}
+
+/* Tablet */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .sidebar {
+        width: 220px;
+    }
+    
+    .sidebar.collapsed {
+        width: 65px;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+    .sidebar {
+        width: 280px;
+    }
+}
+</style>
+
+<script>
+// Toggle submenu
+function toggleSubMenu(element) {
+    const sidebar = document.getElementById('sidebar');
+    
+    // Don't open submenu if sidebar is collapsed
+    if (sidebar.classList.contains('collapsed')) {
+        return;
+    }
+    
+    const subMenu = element.nextElementSibling;
+    const allSubMenus = document.querySelectorAll('.sub-menu');
+    const allNavLinks = document.querySelectorAll('.nav-dropdown');
+    
+    // Close other submenus
+    allSubMenus.forEach(menu => {
+        if (menu !== subMenu) {
+            menu.classList.remove('open');
+        }
+    });
+    
+    allNavLinks.forEach(link => {
+        if (link !== element) {
+            link.classList.remove('expanded');
+        }
+    });
+    
+    // Toggle current submenu
+    element.classList.toggle('expanded');
+    subMenu.classList.toggle('open');
+}
+
+// Toggle sidebar collapse
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    
+    sidebar.classList.toggle('collapsed');
+    
+    if (mainContent) {
+        mainContent.classList.toggle('expanded');
+    }
+    
+    // Dispatch custom event for header to listen
+    const isCollapsed = sidebar.classList.contains('collapsed');
+    window.dispatchEvent(new CustomEvent('sidebarToggle', { 
+        detail: { collapsed: isCollapsed } 
+    }));
+    
+    // Close all submenus when collapsing
+    if (isCollapsed) {
+        document.querySelectorAll('.sub-menu').forEach(menu => {
+            menu.classList.remove('open');
+        });
+        document.querySelectorAll('.nav-dropdown').forEach(link => {
+            link.classList.remove('expanded');
+        });
+    }
+}
+
+// Close mobile sidebar
+function closeMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('active');
+}
+
+// Open mobile sidebar (call this from hamburger menu)
+function openMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    sidebar.classList.add('mobile-open');
+    overlay.classList.add('active');
+}
+
+// Set active menu item based on current page
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
+    
+    // Check main nav links
+    const navLinks = document.querySelectorAll('.nav-link[data-page]');
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPage) {
+            link.classList.add('active');
+        }
+    });
+    
+    // Check submenu items
+    const subMenuItems = document.querySelectorAll('.sub-menu-item[data-page]');
+    subMenuItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPage) {
+            item.classList.add('active');
+            
+            // Open parent submenu
+            const parentSubMenu = item.closest('.sub-menu');
+            const parentNavLink = parentSubMenu.previousElementSibling;
+            
+            if (parentSubMenu && parentNavLink) {
+                parentSubMenu.classList.add('open');
+                parentNavLink.classList.add('expanded');
+            }
+        }
+    });
+    
+    // Handle mobile resize
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            if (window.innerWidth > 968) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+            }
+        }, 250);
+    });
+});
+
+// Make function available globally for header hamburger menu
+window.openMobileSidebar = openMobileSidebar;
+</script></document_content>

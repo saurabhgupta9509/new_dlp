@@ -1,0 +1,1969 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DLP Shield - OCR & Image Analysis</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #f3f4f6;
+        padding-top: 70px; /* Added for fixed header */
+      }
+
+      /* Remove old sidebar margin styles since sidebar is fixed */
+      .main-content {
+        margin-left: 240px;
+        transition: margin-left 0.3s;
+        padding-top: 20px; /* Added for content spacing */
+      }
+      .main-content.expanded {
+        margin-left: 70px;
+      }
+      .main-content.full-width {
+        margin-left: 0;
+      }
+
+      .content-area {
+        padding: 24px;
+      }
+
+      .page-header {
+        background: white;
+        padding: 20px 24px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .page-title-section {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .page-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .page-icon i {
+        font-size: 22px;
+        color: white;
+      }
+      .page-title-text h1 {
+        font-size: 1.5em;
+        color: #111827;
+        font-weight: 700;
+      }
+      .page-subtitle {
+        color: #6b7280;
+        font-size: 0.9em;
+      }
+      .refresh-btn {
+        padding: 10px 18px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9em;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .refresh-btn:hover {
+        background: #1d4ed8;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .stat-card {
+        background: white;
+        padding: 18px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+      }
+      .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+      }
+      .stat-label {
+        font-size: 0.8em;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+      }
+      .stat-value {
+        font-size: 1.7em;
+        font-weight: 700;
+        color: #111827;
+      }
+      .stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1em;
+      }
+      .stat-icon.blue {
+        background: #dbeafe;
+        color: #3b82f6;
+      }
+      .stat-icon.green {
+        background: #d1fae5;
+        color: #10b981;
+      }
+      .stat-icon.red {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+      .stat-icon.yellow {
+        background: #fef3c7;
+        color: #f59e0b;
+      }
+      .stat-subtitle {
+        font-size: 0.8em;
+        color: #10b981;
+        font-weight: 600;
+      }
+      .stat-subtitle.warning {
+        color: #dc2626;
+      }
+
+      .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+      .card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+      }
+      .card-header {
+        font-size: 1.05em;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .agent-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .agent-table thead {
+        background: #f9fafb;
+      }
+      .agent-table th {
+        padding: 10px 12px;
+        text-align: left;
+        font-size: 0.75em;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .agent-table td {
+        padding: 12px 12px;
+        font-size: 0.85em;
+        color: #374151;
+        border-bottom: 1px solid #f3f4f6;
+      }
+      .agent-table tbody tr {
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .agent-table tbody tr:hover {
+        background: #f9fafb;
+      }
+
+      .status-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 6px;
+      }
+      .status-dot.active {
+        background: #10b981;
+      }
+      .status-dot.inactive {
+        background: #9ca3af;
+      }
+
+      .threat-bar {
+        width: 100%;
+        height: 6px;
+        background: #e5e7eb;
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .threat-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          #10b981 0%,
+          #f59e0b 50%,
+          #dc2626 100%
+        );
+        transition: width 0.3s;
+      }
+
+      .violation-item {
+        padding: 12px;
+        background: #f9fafb;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .violation-item:hover {
+        background: #f3f4f6;
+        transform: translateX(2px);
+      }
+      .violation-item:last-child {
+        margin-bottom: 0;
+      }
+      .violation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .violation-title {
+        font-size: 0.9em;
+        font-weight: 600;
+        color: #111827;
+      }
+      .violation-time {
+        font-size: 0.75em;
+        color: #9ca3af;
+      }
+      .violation-details {
+        font-size: 0.8em;
+        color: #6b7280;
+      }
+      .violation-score {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 0.75em;
+        font-weight: 600;
+        margin-top: 6px;
+      }
+      .score-high {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+      .score-medium {
+        background: #fef3c7;
+        color: #f59e0b;
+      }
+      .score-low {
+        background: #d1fae5;
+        color: #059669;
+      }
+
+      /* Enhanced Responsive Styles */
+      @media (max-width: 1200px) {
+        .content-grid {
+          grid-template-columns: 1.5fr 1fr;
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .content-grid {
+          grid-template-columns: 1fr;
+        }
+        .main-content {
+          margin-left: 70px;
+        }
+        .main-content.expanded {
+          margin-left: 70px;
+        }
+      }
+
+      @media (max-width: 968px) {
+        body {
+          padding-top: 65px;
+        }
+        .main-content {
+          margin-left: 0 !important;
+          width: 100%;
+        }
+        .main-content.expanded {
+          margin-left: 0 !important;
+        }
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .content-area {
+          padding: 16px;
+        }
+        .page-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+          padding: 16px;
+        }
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+        .page-title-section {
+          width: 100%;
+          justify-content: space-between;
+        }
+        .refresh-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .content-area {
+          padding: 12px;
+        }
+        .stat-card {
+          padding: 14px;
+        }
+        .card {
+          padding: 16px;
+        }
+        .agent-table td,
+        .agent-table th {
+          padding: 8px 10px;
+          font-size: 0.8em;
+        }
+        .violation-item {
+          padding: 10px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .page-icon {
+          width: 40px;
+          height: 40px;
+        }
+        .page-icon i {
+          font-size: 18px;
+        }
+        .page-title-text h1 {
+          font-size: 1.3em;
+        }
+        .stat-value {
+          font-size: 1.5em;
+        }
+        .stat-icon {
+          width: 36px;
+          height: 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Load Sidebar First -->
+    <div id="sidebarContainer"></div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <!-- Load Header -->
+      <div id="headerContainer"></div>
+
+      <div class="content-area">
+        <div class="page-header">
+          <div class="page-title-section">
+            <div class="page-icon"><i class="fas fa-eye"></i></div>
+            <div class="page-title-text">
+              <h1>OCR & Image Analysis</h1>
+              <p class="page-subtitle">
+                Monitor screen content and detect sensitive data
+              </p>
+            </div>
+          </div>
+          <button class="refresh-btn" onclick="refreshData()">
+            <i class="fas fa-rotate"></i><span>Refresh (5s)</span>
+          </button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">OCR-Capable Agents</div>
+                <div class="stat-value" id="totalCapableAgents"> </div>
+              </div>
+              <div class="stat-icon blue"><i class="fas fa-desktop"></i></div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Active OCR Agents</div>
+                <div class="stat-value" id="activeOcrAgents"> </div>
+              </div>
+              <div class="stat-icon green">
+                <i class="fas fa-chart-line"></i>
+              </div>
+            </div>
+            <div class="stat-subtitle" id="coveragePercentage">
+              92% coverage
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">High Threat Agents</div>
+                <div class="stat-value" id="highThreatCount">  </div>
+              </div>
+              <div class="stat-icon red">
+                <i class="fas fa-triangle-exclamation"></i>
+              </div>
+            </div>
+            <div class="stat-subtitle warning">Threat score > </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Violations (24h)</div>
+                <div class="stat-value" id="totalViolations24h"> </div>
+              </div>
+              <div class="stat-icon yellow"><i class="fas fa-bell"></i></div>
+            </div>
+            <div class="stat-subtitle">+23 from yesterday</div>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <div class="card">
+            <div class="card-header">OCR Agent Status</div>
+            <table class="agent-table">
+              <thead>
+                <tr>
+                  <th>Agent</th>
+                  <th>OCR Status</th>
+                  <th>Threat Score</th>
+                  <th>Last Screenshot</th>
+                  <th>Violations</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr onclick="viewAgentDetails('DESKTOP-ABC123')">
+                  <td>
+                    <strong></strong><br /><span
+                      style="font-size: 0.75em; color: #6b7280"
+                      > </span
+                    >
+                  </td>
+                  <td><span class="status-dot active"></span> </td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 8px">
+                      <div class="threat-bar" style="width: 60px">
+                        <div class="threat-fill" style="width: 85%"></div>
+                      </div>
+                      <span style="font-weight: 600"> </span>
+                    </div>
+                  </td>
+                  <td> </td>
+                  <td><strong style="color: #dc2626"> </strong></td>
+                </tr>
+                <tr onclick="viewAgentDetails('LAPTOP-XYZ789')">
+                  <td>
+                    <strong> </strong><br /><span
+                      style="font-size: 0.75em; color: #6b7280"
+                      > </span
+                    >
+                  </td>
+                  <td><span class="status-dot active"></span> </td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 8px">
+                      <div class="threat-bar" style="width: 60px">
+                        <div class="threat-fill" style="width: 45%"></div>
+                      </div>
+                      <span style="font-weight: 600"> </span>
+                    </div>
+                  </td>
+                  <td> </td>
+                  <td><strong style="color: #f59e0b"> </strong></td>
+                </tr>
+                <tr onclick="viewAgentDetails('WORKSTATION-001')">
+                  <td>
+                    <strong> </strong><br /><span
+                      style="font-size: 0.75em; color: #6b7280"
+                      > </span
+                    >
+                  </td>
+                  <td><span class="status-dot active"></span> </td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 8px">
+                      <div class="threat-bar" style="width: 60px">
+                        <div class="threat-fill" style="width: 92%"></div>
+                      </div>
+                      <span style="font-weight: 600"> </span>
+                    </div>
+                  </td>
+                  <td> </td>
+                  <td><strong style="color: #dc2626"> </strong></td>
+                </tr>
+                <tr onclick="viewAgentDetails('DESKTOP-DEF456')">
+                  <td>
+                    <strong> </strong><br /><span
+                      style="font-size: 0.75em; color: #6b7280"
+                      > </span
+                    >
+                  </td>
+                  <td><span class="status-dot inactive"></span> </td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 8px">
+                      <div class="threat-bar" style="width: 60px">
+                        <div class="threat-fill" style="width: 0%"></div>
+                      </div>
+                      <span style="font-weight: 600"></span>
+                    </div>
+                  </td>
+                  <td>N/A</td>
+                  <td><strong style="color: #6b7280">0</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- <div class="card">
+                    <div class="card-header">Recent Violations</div>
+                    <div class="violation-item" onclick="viewViolation('1')">
+                        <div class="violation-header">
+                            <div class="violation-title">DESKTOP-ABC123</div>
+                            <div class="violation-time">2 min ago</div>
+                        </div>
+                        <div class="violation-details">Credit Card Number</div>
+                        <span class="violation-score score-high">98% confidence</span>
+                    </div>
+                    <div class="violation-item" onclick="viewViolation('2')">
+                        <div class="violation-header">
+                            <div class="violation-title">WORKSTATION-001</div>
+                            <div class="violation-time">5 min ago</div>
+                        </div>
+                        <div class="violation-details">Social Security</div>
+                        <span class="violation-score score-high">95% confidence</span>
+                    </div>
+                    <div class="violation-item" onclick="viewViolation('3')">
+                        <div class="violation-header">
+                            <div class="violation-title">LAPTOP-XYZ789</div>
+                            <div class="violation-time">15 min ago</div>
+                        </div>
+                        <div class="violation-details">Bank Account</div>
+                        <span class="violation-score score-medium">87% confidence</span>
+                    </div>
+                </div> -->
+          <div class="card">
+            <div class="card-header">Recent Violations</div>
+            <div id="recentViolationsList">
+              <!-- Violations will be dynamically loaded here -->
+              <div class="loading-placeholder">
+                <div class="violation-item" style="opacity: 0.6">
+                  <div class="violation-header">
+                    <div class="violation-title">Loading...</div>
+                    <div class="violation-time">--:--</div>
+                  </div>
+                  <div class="violation-details">
+                    Fetching recent violations
+                  </div>
+                  <span class="violation-score score-low">0% confidence</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!--    <script>-->
+    <!--        // Check if user is logged in-->
+    <!--        // Check login status-->
+    <!--        async function checkAuth() {-->
+    <!--                try {-->
+    <!--                    const response = await fetch("/api/auth/check", {-->
+    <!--                        credentials: "include"-->
+    <!--                    });-->
+
+    <!--                    if (!response.ok) {-->
+    <!--                        throw new Error("Not authenticated");-->
+    <!--                    }-->
+
+    <!--                    const result = await response.json();-->
+
+    <!--                    if (!result.success) {-->
+    <!--                        window.location.href = "indexn.html";-->
+    <!--                    }-->
+
+    <!--                } catch (err) {-->
+    <!--                    window.location.href = "indexn.html";-->
+    <!--                }-->
+    <!--            }-->
+
+    <!--        // Enhanced loadComponent function that executes scripts-->
+    <!--        async function loadComponent(url, containerId) {-->
+    <!--            try {-->
+    <!--                const response = await fetch(url);-->
+    <!--                if (!response.ok) {-->
+    <!--                    console.error(`Failed to load ${url}: ${response.status}`);-->
+    <!--                    return;-->
+    <!--                }-->
+
+    <!--                const html = await response.text();-->
+    <!--                const container = document.getElementById(containerId);-->
+    <!--                container.innerHTML = html;-->
+
+    <!--                // Execute any script tags inside the loaded HTML-->
+    <!--                const scripts = container.querySelectorAll('script');-->
+    <!--                scripts.forEach(oldScript => {-->
+    <!--                    const newScript = document.createElement('script');-->
+    <!--                    if (oldScript.src) {-->
+    <!--                        newScript.src = oldScript.src;-->
+    <!--                    } else {-->
+    <!--                        newScript.textContent = oldScript.textContent;-->
+    <!--                    }-->
+
+    <!--                    // Copy attributes-->
+    <!--                    Array.from(oldScript.attributes).forEach(attr => {-->
+    <!--                        newScript.setAttribute(attr.name, attr.value);-->
+    <!--                    });-->
+
+    <!--                    oldScript.parentNode.removeChild(oldScript);-->
+    <!--                    document.head.appendChild(newScript);-->
+    <!--                });-->
+
+    <!--                console.log(`Loaded component: ${url}`);-->
+    <!--                return true;-->
+    <!--            } catch (error) {-->
+    <!--                console.error(`Error loading component ${url}:`, error);-->
+    <!--                return false;-->
+    <!--            }-->
+    <!--        }-->
+
+    <!--        // Load components in sequence to ensure dependencies-->
+    <!--        async function loadAllComponents() {-->
+    <!--            try {-->
+    <!--                // First load sidebar-->
+    <!--                const sidebarLoaded = await loadComponent('sidebaro.html', 'sidebarContainer');-->
+
+    <!--                // Then load header-->
+    <!--                const headerLoaded = await loadComponent('page-header.html', 'headerContainer');-->
+
+    <!--                if (sidebarLoaded && headerLoaded) {-->
+    <!--                    console.log('All components loaded successfully');-->
+
+    <!--                    // Initialize sidebar position based on window size-->
+    <!--                    setTimeout(() => {-->
+    <!--                        const sidebar = document.getElementById('sidebar');-->
+    <!--                        const mainContent = document.getElementById('mainContent');-->
+
+    <!--                        if (window.innerWidth <= 968) {-->
+    <!--                            mainContent.classList.add('full-width');-->
+    <!--                        } else {-->
+    <!--                            // Check if sidebar is collapsed from localStorage-->
+    <!--                            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';-->
+    <!--                            if (isCollapsed && sidebar) {-->
+    <!--                                sidebar.classList.add('collapsed');-->
+    <!--                                mainContent.classList.add('expanded');-->
+    <!--                            }-->
+    <!--                        }-->
+    <!--                    }, 100);-->
+    <!--                }-->
+    <!--            } catch (error) {-->
+    <!--                console.error('Error loading components:', error);-->
+    <!--            }-->
+    <!--        }-->
+
+    <!--        // Initialize on DOMContentLoaded-->
+    <!--        document.addEventListener('DOMContentLoaded', function() {-->
+
+    <!--         checkAuth();-->
+
+    <!--            loadAllComponents();-->
+
+    <!--            // Add event listener for window resize-->
+    <!--            window.addEventListener('resize', function() {-->
+    <!--                const mainContent = document.getElementById('mainContent');-->
+    <!--                if (window.innerWidth <= 968) {-->
+    <!--                    mainContent.classList.add('full-width');-->
+    <!--                    mainContent.classList.remove('expanded');-->
+    <!--                } else {-->
+    <!--                    mainContent.classList.remove('full-width');-->
+    <!--                    // Restore previous state-->
+    <!--                    const sidebar = document.getElementById('sidebar');-->
+    <!--                    if (sidebar && sidebar.classList.contains('collapsed')) {-->
+    <!--                        mainContent.classList.add('expanded');-->
+    <!--                    }-->
+    <!--                }-->
+    <!--            });-->
+    <!--        });-->
+
+    <!--        // Dashboard functions-->
+    <!--        function refreshData() {-->
+    <!--            alert('Refreshing OCR data...');-->
+    <!--            // In real implementation, you would fetch new data here-->
+    <!--            }-->
+
+    <!--            function updateOcrDashboardStats(agents) {-->
+    <!--        if (!agents || !Array.isArray(agents)) {-->
+    <!--            console.error('Invalid agents data:', agents);-->
+    <!--            // Set default values-->
+    <!--            updateDashboardUI(0, 0, 0, 0, 0, '');-->
+    <!--            return;-->
+    <!--        }-->
+
+    <!--        // Ensure all agents are normalized-->
+    <!--        const normalizedAgents = agents.map(agent => normalizeAgent(agent));-->
+
+    <!--        const totalCapable = ocrDashboardStats.summary?.totalCapableAgents || normalizedAgents.length;-->
+    <!--        const activeOcr = ocrDashboardStats.summary?.activeOcr || normalizedAgents.filter(a => a.ocrEnabled === true).length;-->
+    <!--        const highThreat = normalizedAgents.filter(a => (a.currentThreatScore || 0) >= 70).length;-->
+    <!--        const violations24h = normalizedAgents.reduce((sum, a) => sum + (a.violationsLast24h || 0), 0);-->
+
+    <!--        // Calculate coverage percentage-->
+    <!--        const coveragePercentage = totalCapable > 0 ? Math.round((activeOcr / totalCapable) * 100) : 0;-->
+
+    <!--        // Get trend (you'll need to implement trend calculation)-->
+    <!--        const trendText = calculateViolationsTrend();-->
+
+    <!--        updateDashboardUI(totalCapable, activeOcr, highThreat, violations24h, coveragePercentage, trendText);-->
+
+    <!--        console.log('📊 Dashboard stats:', ocrDashboardStats);-->
+    <!--    }-->
+    <!--    function normalizeAgent(agent) {-->
+    <!--        return {-->
+    <!--            agentId: agent.agent_id ?? agent.agentId,-->
+    <!--            agentHostname: agent.agent_hostname ?? agent.agentHostname,-->
+    <!--            agent_username: agent.agent_username ?? agent.agentUsername,-->
+    <!--            ocrEnabled: agent.ocr_enabled ?? agent.ocrEnabled ?? false,-->
+    <!--            currentThreatScore: agent.current_threat_score ?? agent.currentThreatScore ?? 0,-->
+    <!--            violationsLast24h: agent.violations_last_24h ?? agent.violationsLast24h ?? 0,-->
+    <!--            lastScreenshotTime: agent.last_screenshot_time ?? agent.lastScreenshotTime,-->
+    <!--            screenLocked: agent.screen_locked ?? agent.screenLocked ?? false,-->
+    <!--            ocrActive: agent.ocr_active ?? agent.ocrActive ?? false,-->
+    <!--            lastHeartbeat: agent.last_heartbeat ?? agent.lastHeartbeat,-->
+    <!--            threatArrow: agent.threat_arrow ?? agent.threatArrow ?? "→",-->
+    <!--            trendColor: agent.trend_color ?? agent.trendColor ?? "gray"-->
+    <!--        };-->
+    <!--    }-->
+
+    <!--        function updateDashboardUI(totalCapable, activeOcr, highThreat, violations24h, coveragePercentage, trendText) {-->
+    <!--            // Update the HTML elements-->
+    <!--            document.getElementById('totalCapableAgents').textContent = totalCapable;-->
+    <!--            document.getElementById('activeOcrAgents').textContent = activeOcr;-->
+    <!--            document.getElementById('highThreatCount').textContent = highThreat;-->
+    <!--            document.getElementById('totalViolations24h').textContent = violations24h;-->
+    <!--            document.getElementById('coveragePercentage').textContent = `${coveragePercentage}% coverage`;-->
+    <!--            document.getElementById('violationsTrend').textContent = trendText;-->
+
+    <!--            // Update the global stats object-->
+    <!--            ocrDashboardStats = {-->
+    <!--                totalCapableAgents: totalCapable,-->
+    <!--                activeOcrAgents: activeOcr,-->
+    <!--                highThreatCount: highThreat,-->
+    <!--                totalViolations24h: violations24h,-->
+    <!--                coveragePercentage: coveragePercentage,-->
+    <!--                lastUpdated: new Date(),-->
+    <!--                summary: ocrDashboardStats.summary-->
+    <!--            };-->
+    <!--        }-->
+
+    <!--          let ocrDashboardStats = {-->
+    <!--            totalCapableAgents: 0,-->
+    <!--            activeOcrAgents: 0,-->
+    <!--            highThreatCount: 0,-->
+    <!--            totalViolations24h: 0,-->
+    <!--            coveragePercentage: 0,-->
+    <!--            lastUpdated: null,-->
+    <!--            summary: null-->
+    <!--        };-->
+
+    <!--        // Helper function to calculate trend (you need to implement based on your data)-->
+    <!--        function calculateViolationsTrend() {-->
+    <!--            // This would compare with previous day's data-->
+    <!--            // For now, return a placeholder-->
+    <!--            return "+23 from yesterday";-->
+
+    <!--            // Implementation example:-->
+    <!--            // 1. Store previous day's violation count-->
+    <!--            // 2. Compare with current count-->
+    <!--            // 3. Return formatted string like "+23 from yesterday" or "-5 from yesterday"-->
+    <!--        }-->
+    <!--        function viewAgentDetails(agent) {-->
+    <!--            alert('Viewing details for: ' + agent);-->
+    <!--            // In real implementation, you would navigate to agent details page-->
+    <!--        }-->
+
+    <!--        function viewViolation(id) {-->
+    <!--            alert('Viewing violation details: ' + id);-->
+    <!--            // In real implementation, you would navigate to violation details page-->
+    <!--        }-->
+    <!--    </script>-->
+
+    <script>
+      // Check if user is logged in
+      async function checkAuth() {
+        try {
+          const response = await fetch("/api/auth/check", {
+            credentials: "include",
+          });
+
+          if (!response.ok) {
+            throw new Error("Not authenticated");
+          }
+
+          const result = await response.json();
+
+          if (!result.success) {
+            window.location.href = "index.html";
+          }
+        } catch (err) {
+          window.location.href = "index.html";
+        }
+      }
+
+       async function callApi(path, options = {}) {
+          const defaultOptions = {
+            method: "GET",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+          };
+
+          const opts = { ...defaultOptions, ...options };
+
+          const response = await fetch(path, opts);
+          const text = await response.text();
+          const json = text ? JSON.parse(text) : null;
+
+          if (!response.ok) {
+            throw new Error(json?.message || "Login failed");
+          }
+
+          return json;
+        }
+
+
+      // Enhanced loadComponent function that executes scripts
+      async function loadComponent(url, containerId) {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            console.error(`Failed to load ${url}: ${response.status}`);
+            return false;
+          }
+
+          const html = await response.text();
+          const container = document.getElementById(containerId);
+          if (!container) {
+            console.error(`Container ${containerId} not found`);
+            return false;
+          }
+
+          container.innerHTML = html;
+
+          // Execute any script tags inside the loaded HTML
+          const scripts = container.querySelectorAll("script");
+          scripts.forEach((oldScript) => {
+            const newScript = document.createElement("script");
+            if (oldScript.src) {
+              newScript.src = oldScript.src;
+            } else {
+              newScript.textContent = oldScript.textContent;
+            }
+
+            // Copy attributes
+            Array.from(oldScript.attributes).forEach((attr) => {
+              newScript.setAttribute(attr.name, attr.value);
+            });
+
+            oldScript.parentNode.removeChild(oldScript);
+            document.head.appendChild(newScript);
+          });
+
+          console.log(`✅ Loaded component: ${url}`);
+          return true;
+        } catch (error) {
+          console.error(`❌ Error loading component ${url}:`, error);
+          return false;
+        }
+      }
+
+      // Load components in sequence to ensure dependencies
+      async function loadAllComponents() {
+        try {
+          // First load sidebar
+          const sidebarLoaded = await loadComponent(
+            "sidebar.html",
+            "sidebarContainer",
+          );
+
+          // Then load header
+          const headerLoaded = await loadComponent(
+            "page-header.html",
+            "headerContainer",
+          );
+
+          if (sidebarLoaded && headerLoaded) {
+            console.log("✅ All components loaded successfully");
+
+            // Initialize sidebar position based on window size
+            setTimeout(() => {
+              const sidebar = document.getElementById("sidebar");
+              const mainContent = document.getElementById("mainContent");
+
+              if (window.innerWidth <= 968) {
+                mainContent.classList.add("full-width");
+              } else {
+                // Check if sidebar is collapsed from localStorage
+                const isCollapsed =
+                  localStorage.getItem("sidebarCollapsed") === "true";
+                if (isCollapsed && sidebar) {
+                  sidebar.classList.add("collapsed");
+                  mainContent.classList.add("expanded");
+                }
+              }
+
+              // Load OCR data after components are loaded
+              setTimeout(() => {
+                loadOcrDashboardData();
+                startAutoRefresh();
+              }, 500);
+            }, 100);
+          } else {
+            console.error("❌ Failed to load components");
+          }
+        } catch (error) {
+          console.error("❌ Error loading components:", error);
+        }
+      }
+
+      // Initialize on DOMContentLoaded
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("📄 DOM loaded, initializing OCR dashboard...");
+        checkAuth();
+        loadAllComponents();
+
+        // Add event listener for window resize
+        window.addEventListener("resize", function () {
+          const mainContent = document.getElementById("mainContent");
+          if (window.innerWidth <= 968) {
+            mainContent.classList.add("full-width");
+            mainContent.classList.remove("expanded");
+          } else {
+            mainContent.classList.remove("full-width");
+            // Restore previous state
+            const sidebar = document.getElementById("sidebar");
+            if (sidebar && sidebar.classList.contains("collapsed")) {
+              mainContent.classList.add("expanded");
+            }
+          }
+        });
+      });
+
+      // ========== OCR DASHBOARD FUNCTIONS ==========
+
+      // Global variables
+      let ocrDashboardStats = {
+        totalCapableAgents: 0,
+        activeOcrAgents: 0,
+        highThreatCount: 0,
+        totalViolations24h: 0,
+        coveragePercentage: 0,
+        lastUpdated: null,
+        summary: null,
+        agents: [],
+      };
+
+      let autoRefreshInterval = null;
+
+      // Safe element getter with null check
+      function getElementSafe(id) {
+        const element = document.getElementById(id);
+        if (!element) {
+          console.warn(`⚠️ Element with id "${id}" not found`);
+        }
+        return element;
+      }
+
+      // Update element text safely
+      function updateElementText(id, text) {
+        const element = getElementSafe(id);
+        if (element) {
+          element.textContent = text;
+        }
+      }
+
+      // Main function to load OCR dashboard data
+      async function loadOcrDashboardData() {
+        try {
+          console.log("🔄 Loading OCR dashboard data...");
+               
+          // Show loading state safely
+          updateElementText("totalCapableAgents", "...");
+          updateElementText("activeOcrAgents", "...");
+          updateElementText("highThreatCount", "...");
+          updateElementText("totalViolations24h", "...");
+          updateElementText("coveragePercentage", "Loading...");
+
+          // Fetch data from backend APIs
+          const [statusResult, summaryResult ,highThreatResult] = await Promise.all([
+            fetch("/api/admin/ocr/status", { credentials: "include" }),
+            fetch("/api/admin/ocr/summary", { credentials: "include" }),
+            fetch("/api/admin/ocr/high-threat-agents/count",{ credentials: "include" })
+          ]);
+
+          if (!statusResult.ok) {
+            throw new Error(`Status API failed: ${statusResult.status}`);
+          }
+
+          if (!summaryResult.ok) {
+            throw new Error(`Summary API failed: ${summaryResult.status}`);
+          }
+
+          const statusData = await statusResult.json();
+          const summaryData = await summaryResult.json();
+         const highThreatData = highThreatResult.ok ? await highThreatResult.json() : null;
+
+          console.log("📊 Status data:", statusData);
+          console.log("📈 Summary data:", summaryData);
+          console.log("⚠️ High threat data:", highThreatData);
+
+          if (!statusData.success) {
+            throw new Error(
+              `Status API error: ${statusData.message || "Unknown error"}`,
+            );
+          }
+
+          // Update stats
+          const agents = statusData.data || [];
+          const summary = summaryData;
+
+          // Calculate statistics
+          const totalCapable = summary.totalCapableAgents || agents.length;
+          const activeOcr =
+            summary.activeOcr ||
+            agents.filter(
+              (a) => a.ocrEnabled === true || a.ocr_enabled === true,
+            ).length;
+
+          // const highThreat = agents.filter((a) => {
+          //   const score = a.currentThreatScore || a.current_threat_score || 0;
+          //   return score >= 70;
+          // }).length;
+         // Use the dedicated high threat endpoint if available
+             const highThreat = highThreatData?.data?.count || 
+                           agents.filter(a => {
+                              const score = a.currentThreatScore || a.current_threat_score || 0;
+                              return score >= 70;
+                          }).length;
+
+          const violations24h = agents.reduce((sum, a) => {
+            return sum + (a.violationsLast24h || a.violations_last_24h || 0);
+          }, 0);
+
+          const coveragePercentage =
+            totalCapable > 0 ? Math.round((activeOcr / totalCapable) * 100) : 0;
+
+          // Update UI
+          updateDashboardUI(
+            totalCapable,
+            activeOcr,
+            highThreat,
+            violations24h,
+            coveragePercentage,
+          );
+
+          // Store data for later use
+          ocrDashboardStats = {
+            totalCapableAgents: totalCapable,
+            activeOcrAgents: activeOcr,
+            highThreatCount: highThreat,
+            totalViolations24h: violations24h,
+            coveragePercentage: coveragePercentage,
+            lastUpdated: new Date(),
+            summary: summary,
+            agents: agents,
+          };
+
+          // Also update the agent table with real data
+          updateAgentTable(agents);
+
+          // Load recent violations
+          await loadRecentViolations();
+
+          console.log("✅ OCR dashboard data loaded:", ocrDashboardStats);
+        } catch (error) {
+          console.error("❌ Error loading OCR dashboard:", error);
+
+          // Show error in UI safely
+          updateElementText("totalCapableAgents", "Error");
+          updateElementText("activeOcrAgents", "Error");
+          updateElementText("highThreatCount", "Error");
+          updateElementText("totalViolations24h", "Error");
+          updateElementText("coveragePercentage", "Error");
+
+          // Show error toast
+          setTimeout(() => {
+            const errorEl = getElementSafe("violationsTrend");
+            if (errorEl) {
+              errorEl.textContent = "Failed to load data";
+              errorEl.style.color = "#dc2626";
+            }
+          }, 100);
+
+          // Optional: Show alert for debugging
+          // alert('Failed to load OCR data. Check console for details.');
+        }
+      }
+   // Load OCR high threat alerts for the Alerts tab
+async function loadOcrHighThreatAlerts() {
+    try {
+        const response = await fetch("/api/admin/ocr/high-threat-alerts?limit=20", {
+            credentials: "include"
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+                console.log(`✅ Loaded ${result.data?.length || 0} OCR high threat alerts`);
+                return result.data || [];
+            }
+        }
+        return [];
+    } catch (error) {
+        console.error("❌ Failed to load OCR high threat alerts:", error);
+        return [];
+    }
+}
+
+      // Update the dashboard UI with new data
+      function updateDashboardUI(
+        totalCapable,
+        activeOcr,
+        highThreat,
+        violations24h,
+        coveragePercentage,
+      ) {
+        // Update the HTML elements
+        updateElementText("totalCapableAgents", totalCapable);
+        updateElementText("activeOcrAgents", activeOcr);
+        updateElementText("highThreatCount", highThreat);
+        updateElementText("totalViolations24h", violations24h);
+
+        const coverageEl = getElementSafe("coveragePercentage");
+        if (coverageEl) {
+          coverageEl.textContent = `${coveragePercentage}% coverage`;
+        }
+
+        // Update last updated time
+        const now = new Date();
+        const trendEl = getElementSafe("violationsTrend");
+        if (trendEl) {
+          trendEl.textContent = `Updated: ${now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+          trendEl.style.color = "#6b7280";
+        }
+      }
+
+    async function loadRecentViolations() {
+    try {
+        console.log('🔄 Loading recent violations...');
+        
+        // First, get all agents with OCR status
+        const statusResult = await callApi("/api/admin/ocr/status", {
+            credentials: "include"
+        });
+
+        if (!statusResult || !statusResult.success) {
+            throw new Error(`Status API failed: ${statusResult?.message || 'Unknown error'}`);
+        }
+
+        const agents = statusResult.data || [];
+        console.log("📊 Agents from OCR status API:", agents);
+        // Create a mapping of agent ID to hostname
+        const agentHostnameMap = {};
+
+        agents.forEach(agent => {
+            const agentId = agent.agentId || agent.agent_id;
+
+            // Try different property names
+            const hostname = agent.hostname ||  // Camel case from DTO
+                           agent.agent_hostname ||   // Snake case from JSON property
+                           agent.agentHostname  ||
+                           `Agent ${agentId}`;
+
+             const username = agent.username ||  // Camel case from DTO
+                           agent.agent_username ||   // Snake case from JSON property
+                           agent.agentUsername ||
+                           'N/A';
+
+            const ip = agent.agent_ip || agent.agentIp || agent.ip;
+            
+             if (agentId) {
+                console.log(`📊 Agent ${agentId}:`, {
+                    agentId,
+                    agentHostname: agent.agentHostname,
+                    agent_hostname: agent.agent_hostname,
+                       username: username,
+                    hostname: hostname,
+                    allProperties: Object.keys(agent)
+                });
+                
+                // Store both hostname and IP for reference
+                agentHostnameMap[agentId] = {
+                    hostname: hostname || `Agent ${agentId}`,
+                    username: username || 'N/A',
+                    rawAgentData: agent  // Store raw for debugging
+                };
+            }
+
+        });
+     console.log("📊 Agent hostname mapping:", agentHostnameMap);
+        if (agents.length === 0) {
+            displayRecentViolations([], agentHostnameMap);
+            return [];
+        }
+
+        // Get violations for ALL agents in parallel
+        const violationPromises = agents.map(async (agent) => {
+            try {
+                const agentId = agent.agentId || agent.agent_id;
+                
+                // Call the existing endpoint for each agent
+                const response = await fetch(`/api/admin/ocr/violations/${agentId}`, {
+                    credentials: "include"
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        // Add agent info to each violation
+                        return result.data.map(violation => ({
+                            ...violation,
+                            // Add agent metadata
+                            agent_id: agentId,
+                            // agent_hostname: agent.agent_hostname || agent.agentHostname || `Agent ${agentId}`,
+                            // agent_username: agent.agent_username || agent.agentUsername || 'N/A'
+                              agent_hostname: agentHostnameMap[agentId]?.hostname || 
+                                          violation.agent_hostname || 
+                                          violation.agentHostname || 
+                                          `Agent ${agentId}`,
+                              agent_username: agentHostnameMap[agentId]?.username || 
+                                          violation.agent_username || 
+                                          violation.agentUsername || 
+                                          'N/A'
+                        }));
+                    }
+                }
+                return [];
+            } catch (error) {
+                console.warn(`Failed to get violations for agent ${agent.agentId}:`, error);
+                return [];
+            }
+        });
+
+        // Wait for all requests to complete
+        const violationsArrays = await Promise.all(violationPromises);
+        
+        // Flatten the array and sort by timestamp
+        let allViolations = [];
+        violationsArrays.forEach(arr => {
+            allViolations = allViolations.concat(arr);
+        });
+        
+        // Sort by timestamp (newest first)
+        allViolations.sort((a, b) => {
+            const timeA = new Date(a.timestamp || 0);
+            const timeB = new Date(b.timestamp || 0);
+            return timeB - timeA;
+        });
+        
+        // Take only the 5 most recent violations
+        const recentViolations = allViolations.slice(0, 7);
+        
+        console.log(`✅ Loaded ${recentViolations.length} recent violations`);
+        
+        // Display the violations
+        displayRecentViolations(recentViolations ,agentHostnameMap);
+        
+        return recentViolations;
+        
+    } catch (error) {
+        console.error('❌ Error loading recent violations:', error);
+        
+        // // Show error in UI
+        const container = document.getElementById('recentViolationsList');
+        if (container) {
+            container.innerHTML = `
+                <div class="violation-item" style="background: #fee2e2; border-left: 3px solid #dc2626;">
+                    <div class="violation-header">
+                        <div class="violation-title" style="color: #dc2626;">Error</div>
+                        <div class="violation-time">Failed to load</div>
+                    </div>
+                    <div class="violation-details">${error.message}</div>
+                    <span class="violation-score score-high" onclick="retryLoadViolations()" 
+                          style="cursor: pointer; background: #dc2626; color: white;">
+                        Click to retry
+                    </span>
+                </div>
+            `;
+        }
+             // Show error in UI - FIXED: call displayRecentViolations with empty array
+        // displayRecentViolations([], {});
+        return [];
+    }
+}
+
+// Add this helper function if not already defined
+function retryLoadViolations() {
+    loadRecentViolations();
+    }
+
+<!--      // Function to display violations in the desired format-->
+<!--      function displayRecentViolations(violations , agentHostnameMap = {}) {-->
+<!--        const container = document.getElementById("recentViolationsList");-->
+<!--        if (!container) {-->
+<!--          console.warn("⚠️ Recent violations container not found");-->
+<!--          return;-->
+<!--        }-->
+
+<!--        if (violations.length === 0) {-->
+<!--          container.innerHTML = `-->
+<!--            <div class="violation-item" style="opacity: 0.7;">-->
+<!--                <div class="violation-header">-->
+<!--                    <div class="violation-title">No violations found</div>-->
+<!--                    <div class="violation-time">&#45;&#45;:&#45;&#45;</div>-->
+<!--                </div>-->
+<!--                <div class="violation-details">No recent violations detected</div>-->
+<!--                <span class="violation-score score-low">0% confidence</span>-->
+<!--            </div>-->
+<!--        `;-->
+<!--          return;-->
+<!--        }-->
+
+<!--        // Sort violations by timestamp (newest first)-->
+<!--        violations.sort(-->
+<!--          (a, b) => new Date(b.timestamp) - new Date(a.timestamp),-->
+<!--        );-->
+
+<!--        // Take only the first 5 violations-->
+<!--        const recentViolations = violations.slice(0, 7);-->
+
+<!--        // Create HTML for each violation-->
+<!--        const violationsHtml = recentViolations-->
+<!--          .map((violation, index) => {-->
+<!--            // Extract data with fallbacks-->
+<!--            const agentId =-->
+<!--              violation.agent_id || violation.agentId || "Unknown";-->
+<!--            let hostname =-->
+<!--              violation.agent_hostname ||-->
+<!--              violation.agentHostname ||-->
+<!--               agentHostnameMap[agentId]?.hostname || -->
+<!--             `Agent ${agentId}`;-->
+<!--               // If hostname is an IP address, try to get the actual hostname-->
+<!--            // You might want to check if it looks like an IP address-->
+<!--            const ipPattern = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;-->
+<!--            if (ipPattern.test(hostname) && agentHostnameMap[agentId]?.hostname) {-->
+<!--                hostname = agentHostnameMap[agentId].hostname;-->
+<!--            }-->
+
+<!--            const username =-->
+<!--              violation.agent_username ||-->
+<!--              violation.agentUsername ||-->
+<!--              agentHostnameMap[agentId]?.username || -->
+<!--              "N/A";-->
+
+<!--            // Format display name-->
+<!--            let displayName = hostname;-->
+<!--            if (username !== 'N/A') {-->
+<!--                displayName = `${hostname} (${username})`;-->
+<!--            }-->
+<!--             // Remove "(agent)" suffix if present-->
+<!--            displayName = displayName.replace(/\s*\(agent\)$/i, '');-->
+<!--            // Format time-->
+<!--            const timeAgo = formatTimeAgo(violation.timestamp);-->
+
+<!--            // Get violation type-->
+<!--            const violationType = getViolationTypeDisplay(-->
+<!--              violation.rule_type || violation.ruleType,-->
+<!--            );-->
+
+<!--            // Calculate confidence-->
+<!--            const confidence = Math.round((violation.confidence || 0) * 100);-->
+<!--            const confidenceClass = getConfidenceClass(-->
+<!--              violation.confidence || 0,-->
+<!--            );-->
+
+<!--            // Get matched text snippet-->
+<!--            const matchedText =-->
+<!--              violation.matched_text ||-->
+<!--              violation.matchedText ||-->
+<!--              "No text available";-->
+<!--            const textSnippet =-->
+<!--              matchedText.length > 50-->
+<!--                ? matchedText.substring(0, 50) + "..."-->
+<!--                : matchedText;-->
+
+<!--            // Create violation item-->
+<!--            return `-->
+<!--            <div class="violation-item" onclick="viewViolationDetail(${violation.id || index}, '${agentId}')">-->
+<!--                <div class="violation-header">-->
+<!--                    <div class="violation-title">${escapeHtml(displayName)}</div>-->
+<!--                    <div class="violation-time">${timeAgo}</div>-->
+<!--                </div>-->
+<!--                <div class="violation-details">${escapeHtml(violationType)}</div>-->
+<!--                <div class="violation-snippet" style="font-size: 0.75em; color: #6b7280; margin-top: 4px;">-->
+<!--                    "${escapeHtml(textSnippet)}"-->
+<!--                </div>-->
+<!--                <span class="violation-score ${confidenceClass}">${confidence}% confidence</span>-->
+<!--            </div>-->
+<!--        `;-->
+<!--          })-->
+<!--          .join("");-->
+
+<!--        container.innerHTML = violationsHtml;-->
+<!--      }-->
+
+function displayRecentViolations(violations, agentHostnameMap = {}) {
+    const container = document.getElementById("recentViolationsList");
+    if (!container) {
+        console.warn("⚠️ Recent violations container not found");
+        return;
+    }
+
+    if (violations.length === 0) {
+        container.innerHTML = `
+            <div class="violation-item" style="opacity: 0.7;">
+                <div class="violation-header">
+                    <div class="violation-title">No violations found</div>
+                    <div class="violation-time">--:--</div>
+                </div>
+                <div class="violation-details">No recent violations detected</div>
+                <span class="violation-score score-low">0% confidence</span>
+            </div>
+        `;
+        return;
+    }
+
+    // Sort violations by timestamp (newest first)
+    violations.sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp),
+    );
+
+    // Take only the first 7 violations
+    const recentViolations = violations.slice(0, 7);
+
+    // Create HTML for each violation
+    const violationsHtml = recentViolations
+        .map((violation, index) => {
+            const agentId = violation.agent_id || violation.agentId || "Unknown";
+
+            // Get hostname from the map - your API has hostname field
+            const hostname = agentHostnameMap[agentId]?.hostname ||
+                            violation.agent_hostname ||
+                            violation.agentHostname ||
+                            `Agent ${agentId}`;
+
+            // Get username from the map - your API has username field
+            const username = agentHostnameMap[agentId]?.username ||
+                            violation.agent_username ||
+                            violation.agentUsername ||
+                            '';
+
+            // FORMAT: laptop-c9dfsd61 (Saurabh)
+            // Only add username in brackets if it exists and is not 'N/A'
+            let displayName = hostname;
+            if (username && username !== 'N/A' && username !== '') {
+                displayName = `${hostname} (${username})`;
+            }
+
+            // Format time
+            const timeAgo = formatTimeAgo(violation.timestamp);
+
+            // Get violation type
+            const violationType = getViolationTypeDisplay(
+                violation.rule_type || violation.ruleType,
+            );
+
+            // Calculate confidence
+            const confidence = Math.round((violation.confidence || 0) * 100);
+            const confidenceClass = getConfidenceClass(
+                violation.confidence || 0,
+            );
+
+            // Get matched text snippet
+            const matchedText = violation.matched_text ||
+                              violation.matchedText ||
+                              "No text available";
+            const textSnippet = matchedText.length > 50
+                ? matchedText.substring(0, 50) + "..."
+                : matchedText;
+
+            // Create violation item
+            return `
+            <div class="violation-item" onclick="viewViolationDetail(${violation.id || index}, '${agentId}')">
+                <div class="violation-header">
+                    <div class="violation-title">${escapeHtml(displayName)}</div>
+                    <div class="violation-time">${timeAgo}</div>
+                </div>
+                <div class="violation-details">${escapeHtml(violationType.toLowerCase())}</div>
+                <div class="violation-snippet" style="font-size: 0.75em; color: #6b7280; margin-top: 4px; font-family: monospace;">
+                    "${escapeHtml(textSnippet)}"
+                </div>
+                <span class="violation-score ${confidenceClass}">${confidence}% confidence</span>
+            </div>
+        `;
+        })
+        .join("");
+
+    container.innerHTML = violationsHtml;
+}
+
+      // Helper function to get violation type display name
+      function getViolationTypeDisplay(ruleType) {
+        if (!ruleType) return "Unknown Violation";
+
+        const typeMap = {
+          CREDIT_CARD: "Credit Card Number",
+          CREDIT_CARD_NUMBER: "Credit Card Number",
+          SSN: "Social Security Number",
+          SOCIAL_SECURITY: "Social Security Number",
+          BANK_ACCOUNT: "Bank Account",
+          BANK_ACCOUNT_NUMBER: "Bank Account",
+          AADHAAR: "Aadhaar Number",
+          PASSWORD: "Password",
+          PII: "Personal Information",
+          PERSONAL_INFO: "Personal Information",
+          PHONE_NUMBER: "Phone Number",
+          EMAIL_ADDRESS: "Email Address",
+          DRIVER_LICENSE: "Driver License",
+          PASSPORT: "Passport Number",
+          TAX_ID: "Tax ID",
+        };
+
+        return typeMap[ruleType] || ruleType.replace(/_/g, " ");
+      }
+
+      // Helper function to get confidence class
+      function getConfidenceClass(confidence) {
+        if (confidence >= 0.9) return "score-high";
+        if (confidence >= 0.7) return "score-medium";
+        return "score-low";
+      }
+
+      // Function to view violation details
+      async function viewViolationDetail(violationId, agentId) {
+        console.log(
+          `🔍 Viewing violation detail: ${violationId} for agent ${agentId}`,
+        );
+
+        try {
+          // Fetch detailed violation info
+          const response = await fetch(
+            `/api/admin/ocr/violation/${violationId}`,
+            {
+              credentials: "include",
+            },
+          );
+
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+              const violation = result.data;
+              showViolationModal(violation);
+            } else {
+              showBasicViolationInfo(violationId, agentId);
+            }
+          } else {
+            showBasicViolationInfo(violationId, agentId);
+          }
+        } catch (error) {
+          console.error("Error fetching violation details:", error);
+          showBasicViolationInfo(violationId, agentId);
+        }
+      }
+
+      // Function to show violation in a modal
+      function showViolationModal(violation) {
+        const confidence = Math.round((violation.confidence || 0) * 100);
+        const ruleType = getViolationTypeDisplay(
+          violation.rule_type || violation.ruleType,
+        );
+        const matchedText =
+          violation.matched_text ||
+          violation.matchedText ||
+          "No text available";
+        const timestamp = new Date(violation.timestamp).toLocaleString();
+        const agentName =
+          violation.agent_hostname ||
+          violation.agentHostname ||
+          "Unknown Agent";
+        const username =
+          violation.agent_username || violation.agentUsername || "N/A";
+
+        const modalHtml = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+            <div style="background: white; padding: 24px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h3 style="margin: 0;">Violation Details</h3>
+                    <button onclick="closeModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280;">×</button>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; color: #111827;">${agentName} (${username})</div>
+                    <div style="font-size: 0.875em; color: #6b7280;">${timestamp}</div>
+                </div>
+                
+                <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-weight: 600;">Violation Type:</span>
+                        <span>${ruleType}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-weight: 600;">Confidence:</span>
+                        <span style="background: ${confidence >= 90 ? "#fee2e2" : confidence >= 70 ? "#fef3c7" : "#d1fae5"}; 
+                              color: ${confidence >= 90 ? "#dc2626" : confidence >= 70 ? "#d97706" : "#059669"}; 
+                              padding: 4px 8px; border-radius: 4px; font-weight: 600;">
+                            ${confidence}%
+                        </span>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 8px;">Matched Text:</div>
+                    <div style="background: #f3f4f6; padding: 12px; border-radius: 6px; font-family: monospace; white-space: pre-wrap; word-break: break-all;">
+                        ${escapeHtml(matchedText)}
+                    </div>
+                </div>
+                
+                ${
+                  violation.screenshot_path || violation.screenshotPath
+                    ? `
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 8px;">Screenshot:</div>
+                    <div style="text-align: center;">
+                        <img src="/api/admin/ocr/screenshot/${violation.id}" 
+                             alt="Violation Screenshot" 
+                             style="max-width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;"
+                             onerror="this.style.display='none'">
+                    </div>
+                </div>
+                `
+                    : ""
+                }
+                
+                <div style="display: flex; gap: 8px; margin-top: 20px;">
+                    <button onclick="closeModal()" style="flex: 1; padding: 10px; background: #e5e7eb; border: none; border-radius: 6px; cursor: pointer;">Close</button>
+                    <button onclick="takeActionOnViolation(${violation.id})" style="flex: 1; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">Take Action</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+        const modal = document.createElement("div");
+        modal.innerHTML = modalHtml;
+        document.body.appendChild(modal);
+      }
+
+      // Function to show basic violation info
+      function showBasicViolationInfo(violationId, agentId) {
+        alert(
+          `Violation ID: ${violationId}\nAgent ID: ${agentId}\n\nThis would show detailed information from the API.`,
+        );
+      }
+
+      // Function to close modal
+      function closeModal() {
+        const modal = document.querySelector(
+          'div[style*="position: fixed; top: 0; left: 0"]',
+        );
+        if (modal) {
+          modal.remove();
+        }
+      }
+
+      // Function to take action on violation
+      function takeActionOnViolation(violationId) {
+        alert(
+          `Taking action on violation ${violationId}\n\nThis would trigger automated remediation actions.`,
+        );
+        closeModal();
+      }
+
+      // Function to retry loading violations
+      function retryLoadViolations() {
+        loadRecentViolations();
+      }
+
+      // Update the agent table with real data
+      function updateAgentTable(agents) {
+        const tbody = document.querySelector(".agent-table tbody");
+        if (!tbody) {
+          console.warn("⚠️ Agent table tbody not found");
+          return;
+        }
+
+        // Clear existing rows
+        tbody.innerHTML = "";
+
+        if (agents.length === 0) {
+          // Show empty state
+          tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #6b7280;">
+                            No OCR agents found
+                        </td>
+                    </tr>
+                `;
+          return;
+        }
+
+        // Create rows for each agent
+        agents.forEach((agent, index) => {
+          const hostname =
+            agent.agentHostname ||
+            agent.agent_hostname ||
+            `Agent ${agent.agentId || agent.agent_id || "Unknown"}`;
+
+          const username =
+            agent.agent_username ||
+            agent.agentUsername ||
+            agent.agentHostname ||
+            agent.agent_hostname ||
+            "Unknown";
+
+          const isActive =
+            agent.ocrEnabled === true || agent.ocr_enabled === true;
+          const threatScore =
+            agent.currentThreatScore || agent.current_threat_score || 0;
+          const violations =
+            agent.violationsLast24h || agent.violations_last_24h || 0;
+          const lastScreenshot =
+            agent.lastScreenshotTime || agent.last_screenshot_time;
+          const agentId = agent.agentId || agent.agent_id || index;
+
+          // Determine color for violations count
+          let color = "#dc2626"; // red
+          if (violations === 0)
+            color = "#6b7280"; // gray
+          else if (violations < 5) color = "#f59e0b"; // orange
+
+          const row = document.createElement("tr");
+          row.setAttribute("onclick", `viewAgentDetails('${agentId}')`);
+          row.style.cursor = "pointer";
+
+          row.innerHTML = `
+                    <td>
+                        <strong>${escapeHtml(hostname)}</strong>
+                        <br>
+                        <span style="font-size: 0.75em; color: #6b7280;">${escapeHtml(username)}</span>
+                    </td>
+                    <td>
+                        <span class="status-dot ${isActive ? "active" : "inactive"}"></span>
+                        ${isActive ? "Active" : "Inactive"}
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="threat-bar" style="width: 60px;">
+                                <div class="threat-fill" style="width: ${Math.min(threatScore, 100)}%;"></div>
+                            </div>
+                            <span style="font-weight: 600;">${threatScore}%</span>
+                        </div>
+                    </td>
+                    <td>${lastScreenshot ? formatTimeAgo(lastScreenshot) : "N/A"}</td>
+                    <td><strong style="color: ${color};">${violations}</strong></td>
+                `;
+
+          tbody.appendChild(row);
+        });
+      }
+
+      // Helper function to escape HTML
+      function escapeHtml(text) {
+        if (!text) return "";
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Helper function to format time ago
+      function formatTimeAgo(timestamp) {
+        if (!timestamp) return "N/A";
+
+        try {
+          const date = new Date(timestamp);
+          const now = new Date();
+
+          const diffMs = now.getTime() - date.getTime();
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+
+          console.log('Timestamp:', timestamp);
+          console.log('Parsed date:', date.toISOString());
+          console.log('Now:', now.toISOString());
+          console.log('Diff mins:', diffMins);
+
+          if (diffMins < 1) return "Just now";
+          if (diffMins < 60) return `${diffMins}m ago`;
+          if (diffHours < 24) return `${diffHours}h ago`;
+          return `${diffDays}d ago`;
+        } catch (e) {
+          console.error('Error parsing date:', e);
+          return "Invalid date";
+        }
+      }
+
+      // Dashboard functions
+      function refreshData() {
+        console.log("🔄 Manual refresh triggered");
+        loadOcrDashboardData();
+
+        // Show visual feedback
+        const btn = document.querySelector(".refresh-btn");
+        if (btn) {
+          const originalText = btn.innerHTML;
+          btn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i><span>Refreshing...</span>';
+          btn.disabled = true;
+
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }, 1000);
+        }
+      }
+
+      // Start auto-refresh
+      function startAutoRefresh() {
+        stopAutoRefresh(); // Clear any existing interval
+
+        autoRefreshInterval = setInterval(() => {
+          console.log("🔄 Auto-refreshing OCR data...");
+          loadOcrDashboardData();
+        }, 5000); // Refresh every 5 seconds
+
+        console.log("✅ Auto-refresh started (5s interval)");
+      }
+
+      window.viewViolationDetail = viewViolationDetail;
+      window.closeModal = closeModal;
+      window.takeActionOnViolation = takeActionOnViolation;
+      window.retryLoadViolations = retryLoadViolations;
+      // Stop auto-refresh
+      function stopAutoRefresh() {
+        if (autoRefreshInterval) {
+          clearInterval(autoRefreshInterval);
+          autoRefreshInterval = null;
+          console.log("⏹️ Auto-refresh stopped");
+        }
+      }
+
+      // View agent details
+      async function viewAgentDetails(agentId) {
+        console.log(`👁️ Viewing details for agent: ${agentId}`);
+
+        // Fetch agent violations
+        try {
+          const response = await fetch(`/api/admin/ocr/violations/${agentId}`, {
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+              const violations = result.data || [];
+
+              // Create a simple modal to show violations
+              const violationTypes = violations
+                .map((v) => v.ruleType || v.rule_type || "Unknown")
+                .join(", ");
+
+              alert(
+                `Agent ${agentId} Details:\n\n` +
+                  `Total Violations: ${violations.length}\n` +
+                  `Violation Types: ${violationTypes || "None"}\n\n` +
+                  `Click OK to view more details in the console.`,
+              );
+
+              console.log(`Agent ${agentId} violations:`, violations);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching agent violations:", error);
+          alert(
+            `Viewing details for agent: ${agentId}\n\nCheck console for API errors.`,
+          );
+        }
+      }
+
+      // View violation details
+      async function viewViolation(id) {
+        console.log(`🔍 Viewing violation details: ${id}`);
+
+        // Update the demo violation items to use real data
+        const violationItems = document.querySelectorAll(".violation-item");
+        if (violationItems.length > 0 && ocrDashboardStats.agents.length > 0) {
+          // Use real agent data for demo
+          const agent = ocrDashboardStats.agents[0];
+          if (agent) {
+            const hostname =
+              agent.agentHostname || agent.agent_hostname || "Unknown";
+            const violations =
+              agent.violationsLast24h || agent.violations_last_24h || 0;
+
+            alert(
+              `Violation Details:\n\n` +
+                `Agent: ${hostname}\n` +
+                `Total Violations: ${violations}\n` +
+                `Violation ID: ${id}\n\n` +
+                `Note: Full violation details would be fetched from /api/admin/ocr/violation/${id}`,
+            );
+          }
+        } else {
+          alert(
+            `Viewing violation details: ${id}\n\nThis would fetch data from /api/admin/ocr/violation/${id}`,
+          );
+        }
+      }
+
+      // Make functions globally available
+      window.refreshData = refreshData;
+      window.viewAgentDetails = viewAgentDetails;
+      window.viewViolation = viewViolation;
+      window.loadOcrDashboardData = loadOcrDashboardData;
+    </script>
+  </body>
+</html>

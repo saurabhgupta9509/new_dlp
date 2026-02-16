@@ -1,0 +1,3632 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - Alerts & Incidents</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f3f4f6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 70px;
+        }
+
+        .content-area {
+            padding: 24px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .page-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page-icon i {
+            font-size: 22px;
+            color: white;
+        }
+
+        .page-title-text h1 {
+            font-size: 1.5em;
+            color: #111827;
+            font-weight: 700;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+
+        .export-btn {
+            padding: 10px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .export-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #6b7280;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .stat-value.critical { color: #dc2626; }
+        .stat-value.high { color: #f59e0b; }
+        .stat-value.pending { color: #3b82f6; }
+
+        .filters-section {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 0.9em;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 9px 12px 9px 36px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .filter-select {
+            padding: 9px 32px 9px 12px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9em;
+            background: white;
+            cursor: pointer;
+        }
+
+        .filter-btn {
+            padding: 9px 16px;
+            background: #f3f4f6;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .alerts-table-container {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .alerts-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .alerts-table thead {
+            background: #f9fafb;
+        }
+
+        .alerts-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .alerts-table td {
+            padding: 14px 16px;
+            font-size: 0.9em;
+            color: #374151;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .alerts-table tbody tr {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .alerts-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .alert-type-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+        }
+
+        .icon-usb {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .icon-file {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .icon-network {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .icon-ocr {
+            background: #e0e7ff;
+            color: #6366f1;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .severity-critical {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .severity-high {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .severity-medium {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .severity-low {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .status-open {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-investigating {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .status-resolved {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .actions-menu {
+            position: relative;
+        }
+
+        .actions-btn {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 6px;
+            font-size: 1.1em;
+        }
+
+        .actions-btn:hover {
+            color: #111827;
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .content-area {
+                padding: 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .alerts-table {
+                font-size: 0.85em;
+            }
+
+            .alerts-table th,
+            .alerts-table td {
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content" id="mainContent">
+            <div id="headerContainer"></div>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <div class="page-icon">
+                            <i class="fas fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="page-title-text">
+                            <h1>Alerts & Incidents</h1>
+                            <p class="page-subtitle">Monitor and manage security alerts across your organization</p>
+                        </div>
+                    </div>
+                    <button class="export-btn" onclick="exportAlerts()">
+                        <i class="fas fa-download"></i>
+                        <span>Export Alerts</span>
+                    </button>
+                </div>
+
+                
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Alerts</div>
+                        <div class="stat-value">247</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Critical</div>
+                        <div class="stat-value critical">12</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">High</div>
+                        <div class="stat-value high">45</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pending</div>
+                        <div class="stat-value pending">89</div>
+                    </div>
+                </div>
+
+                <div class="filters-section">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="search-input" placeholder="Search alerts..." id="searchInput">
+                    </div>
+                    <select class="filter-select" id="severityFilter">
+                        <option value="">All Severity</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                    <select class="filter-select" id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="usb">USB</option>
+                        <option value="file">File</option>
+                        <option value="network">Network</option>
+                        <option value="ocr">OCR</option>
+                    </select>
+                    <button class="filter-btn">
+                        <i class="fas fa-filter"></i>
+                        <span>More Filters</span>
+                    </button>
+                </div>
+
+                <div class="alerts-table-container">
+                    <div class="table-wrapper">
+                        <table class="alerts-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Alert ID</th>
+                                    <th>Description</th>
+                                    <th>Agent</th>
+                                    <th>User</th>
+                                    <th>Severity</th>
+                                    <th>Status</th>
+                                    <th>Timestamp</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alertsTableBody">
+                                <tr onclick="viewAlertDetails('ALT-001')">
+                                    <td><div class="alert-type-icon icon-usb"><i class="fas fa-usb"></i></div></td>
+                                    <td><strong>ALT-001</strong></td>
+                                    <td>Unauthorized USB device conn...</td>
+                                    <td>DESKTOP-ABC123</td>
+                                    <td>john.doe@company.com</td>
+                                    <td><span class="severity-badge severity-critical">Critical</span></td>
+                                    <td><span class="status-badge status-open">Open</span></td>
+                                    <td>2024-01-15 09:23:45</td>
+                                    <td>
+                                        <div class="actions-menu">
+                                            <button class="actions-btn" onclick="event.stopPropagation(); showActions(this)">
+                                                <i class="fas fa-ellipsis-vertical"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr onclick="viewAlertDetails('ALT-002')">
+                                    <td><div class="alert-type-icon icon-file"><i class="fas fa-file"></i></div></td>
+                                    <td><strong>ALT-002</strong></td>
+                                    <td>Sensitive file transfer detected</td>
+                                    <td>LAPTOP-XYZ789</td>
+                                    <td>jane.smith@company.com</td>
+                                    <td><span class="severity-badge severity-high">High</span></td>
+                                    <td><span class="status-badge status-open">Open</span></td>
+                                    <td>2024-01-15 09:18:32</td>
+                                    <td>
+                                        <div class="actions-menu">
+                                            <button class="actions-btn" onclick="event.stopPropagation(); showActions(this)">
+                                                <i class="fas fa-ellipsis-vertical"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr onclick="viewAlertDetails('ALT-003')">
+                                    <td><div class="alert-type-icon icon-network"><i class="fas fa-wifi"></i></div></td>
+                                    <td><strong>ALT-003</strong></td>
+                                    <td>Blocked network connection at...</td>
+                                    <td>WORKSTATION-001</td>
+                                    <td>bob.wilson@company.com</td>
+                                    <td><span class="severity-badge severity-medium">Medium</span></td>
+                                    <td><span class="status-badge status-investigating">Investigating</span></td>
+                                    <td>2024-01-15 08:45:12</td>
+                                    <td>
+                                        <div class="actions-menu">
+                                            <button class="actions-btn" onclick="event.stopPropagation(); showActions(this)">
+                                                <i class="fas fa-ellipsis-vertical"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr onclick="viewAlertDetails('ALT-004')">
+                                    <td><div class="alert-type-icon icon-usb"><i class="fas fa-usb"></i></div></td>
+                                    <td><strong>ALT-004</strong></td>
+                                    <td>USB file copy attempt blocked</td>
+                                    <td>DESKTOP-DEF456</td>
+                                    <td>alice.jones@company.com</td>
+                                    <td><span class="severity-badge severity-high">High</span></td>
+                                    <td><span class="status-badge status-resolved">Resolved</span></td>
+                                    <td>2024-01-15 08:12:01</td>
+                                    <td>
+                                        <div class="actions-menu">
+                                            <button class="actions-btn" onclick="event.stopPropagation(); showActions(this)">
+                                                <i class="fas fa-ellipsis-vertical"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr onclick="viewAlertDetails('ALT-005')">
+                                    <td><div class="alert-type-icon icon-file"><i class="fas fa-file"></i></div></td>
+                                    <td><strong>ALT-005</strong></td>
+                                    <td>Confidential document accessed</td>
+                                    <td>LAPTOP-GHI789</td>
+                                    <td>charlie.brown@company.com</td>
+                                    <td><span class="severity-badge severity-low">Low</span></td>
+                                    <td><span class="status-badge status-open">Open</span></td>
+                                    <td>2024-01-15 07:56:23</td>
+                                    <td>
+                                        <div class="actions-menu">
+                                            <button class="actions-btn" onclick="event.stopPropagation(); showActions(this)">
+                                                <i class="fas fa-ellipsis-vertical"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = '../indexn.html';
+        }
+
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                document.getElementById(containerId).innerHTML = html;
+            } catch (error) {
+                console.error('Error loading component:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadComponent('../sidebaro.html', 'sidebarContainer');
+            loadComponent('../page-header.html', 'headerContainer');
+        });
+
+        function viewAlertDetails(alertId) {
+            window.location.href = `alert-details.html?id=${alertId}`;
+        }
+
+        function showActions(btn) {
+            alert('Actions: View Details, Investigate, Mark as Resolved');
+        }
+
+        function exportAlerts() {
+            alert('Exporting alerts to CSV...');
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#alertsTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Filter functionality
+        document.getElementById('severityFilter').addEventListener('change', filterTable);
+        document.getElementById('typeFilter').addEventListener('change', filterTable);
+
+        function filterTable() {
+            const severityFilter = document.getElementById('severityFilter').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value.toLowerCase();
+            const rows = document.querySelectorAll('#alertsTableBody tr');
+            
+            rows.forEach(row => {
+                const severity = row.querySelector('.severity-badge').textContent.toLowerCase();
+                const type = row.querySelector('.alert-type-icon i').className.includes('usb') ? 'usb' :
+                            row.querySelector('.alert-type-icon i').className.includes('file') ? 'file' :
+                            row.querySelector('.alert-type-icon i').className.includes('wifi') ? 'network' : 'ocr';
+                
+                const severityMatch = !severityFilter || severity.includes(severityFilter);
+                const typeMatch = !typeFilter || type === typeFilter;
+                
+                row.style.display = (severityMatch && typeMatch) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - Alerts & Incidents</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f3f4f6;
+            overflow-x: hidden; /* Prevent body horizontal scroll */
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            max-width: 100vw; /* Constrain to viewport */
+            overflow-x: hidden; /* Prevent container overflow */
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+            max-width: calc(100vw - 240px); /* Constrain to remaining space */
+            overflow-x: hidden; /* Prevent content overflow */
+        }
+
+        .main-content.expanded {
+            margin-left: 70px;
+            max-width: calc(100vw - 70px);
+        }
+
+        .content-area {
+            padding: 24px;
+            padding-top: 100px;
+            max-width: 100%;
+            overflow-x: hidden; /* Prevent area overflow */
+        }
+
+        .page-header {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .page-title-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 0; /* Allow text truncation */
+            flex: 1;
+        }
+
+        .page-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0; /* Prevent icon shrinking */
+        }
+
+        .page-icon i {
+            font-size: 22px;
+            color: white;
+        }
+
+        .page-title-text {
+            min-width: 0; /* Allow text truncation */
+            flex: 1;
+        }
+
+        .page-title-text h1 {
+            font-size: 1.5em;
+            color: #111827;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 0.9em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .export-btn {
+            padding: 10px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            flex-shrink: 0; /* Prevent button shrinking */
+            white-space: nowrap;
+        }
+
+        .export-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+            max-width: 100%;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            min-width: 0; /* Allow card to shrink */
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #6b7280;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #111827;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .stat-value.critical { color: #dc2626; }
+        .stat-value.high { color: #f59e0b; }
+        .stat-value.pending { color: #3b82f6; }
+
+        .filters-section {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            max-width: 100%;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px; /* Reduced from 250px */
+            position: relative;
+            max-width: 100%;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 0.9em;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 9px 12px 9px 36px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9em;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .filter-select {
+            padding: 9px 32px 9px 12px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9em;
+            background: white;
+            cursor: pointer;
+            min-width: 120px; /* Set minimum width */
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .filter-btn {
+            padding: 9px 16px;
+            background: #f3f4f6;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .filter-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .alerts-table-container {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            max-width: 100%;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+        }
+
+        .alerts-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px; /* Minimum table width for all columns */
+        }
+
+        .alerts-table thead {
+            background: #f9fafb;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .alerts-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+            min-width: 80px; /* Minimum column width */
+        }
+
+        .alerts-table td {
+            padding: 14px 16px;
+            font-size: 0.9em;
+            color: #374151;
+            border-bottom: 1px solid #f3f4f6;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px; /* Limit cell width */
+        }
+
+        .alerts-table tbody tr {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .alerts-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        /* Make specific columns more compact */
+        .alerts-table th:nth-child(1), /* Type */
+        .alerts-table td:nth-child(1) {
+            width: 60px;
+            min-width: 60px;
+            max-width: 60px;
+            text-align: center;
+        }
+
+        .alerts-table th:nth-child(2), /* Alert ID */
+        .alerts-table td:nth-child(2) {
+            width: 100px;
+            min-width: 100px;
+            max-width: 100px;
+        }
+
+        .alerts-table th:nth-child(4), /* Agent */
+        .alerts-table td:nth-child(4),
+        .alerts-table th:nth-child(5), /* User */
+        .alerts-table td:nth-child(5) {
+            width: 150px;
+            min-width: 150px;
+            max-width: 150px;
+        }
+
+        .alerts-table th:nth-child(6), /* Severity */
+        .alerts-table td:nth-child(6),
+        .alerts-table th:nth-child(7), /* Status */
+        .alerts-table td:nth-child(7) {
+            width: 100px;
+            min-width: 100px;
+            max-width: 100px;
+        }
+
+        .alerts-table th:nth-child(8), /* Timestamp */
+        .alerts-table td:nth-child(8) {
+            width: 160px;
+            min-width: 160px;
+            max-width: 160px;
+        }
+
+        .alerts-table th:nth-child(9), /* Actions */
+        .alerts-table td:nth-child(9) {
+            width: 80px;
+            min-width: 80px;
+            max-width: 80px;
+            text-align: center;
+        }
+
+        .alert-type-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            margin: 0 auto;
+        }
+
+        .icon-usb {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .icon-file {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .icon-network {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .icon-ocr {
+            background: #e0e7ff;
+            color: #6366f1;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .severity-critical {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .severity-high {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .severity-medium {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .severity-low {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-open {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-investigating {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .status-resolved {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .actions-menu {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .actions-btn {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 6px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .actions-btn:hover {
+            color: #111827;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                margin-left: 70px;
+                max-width: calc(100vw - 70px);
+            }
+            
+            .main-content.expanded {
+                margin-left: 70px;
+                max-width: calc(100vw - 70px);
+            }
+            
+            .alerts-table {
+                min-width: 900px;
+            }
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                margin-left: 0;
+                max-width: 100vw;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .export-btn {
+                align-self: stretch;
+                justify-content: center;
+            }
+            
+            .filters-section {
+                padding: 12px;
+            }
+            
+            .search-box {
+                min-width: 100%;
+            }
+            
+            .filter-select {
+                min-width: calc(50% - 6px);
+                flex: 1;
+            }
+            
+            .filter-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-area {
+                padding: 16px;
+                padding-top: 80px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .page-title-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .page-title-text h1 {
+                font-size: 1.3em;
+            }
+            
+            .export-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .filters-section {
+                flex-direction: column;
+            }
+            
+            .filter-select {
+                width: 100%;
+                min-width: 100%;
+            }
+            
+            .alerts-table {
+                font-size: 0.85em;
+                min-width: 800px;
+            }
+
+            .alerts-table th,
+            .alerts-table td {
+                padding: 10px 12px;
+            }
+            
+            /* Make table cells more compact on mobile */
+            .alerts-table th:nth-child(4),
+            .alerts-table td:nth-child(4),
+            .alerts-table th:nth-child(5),
+            .alerts-table td:nth-child(5) {
+                width: 120px;
+                min-width: 120px;
+                max-width: 120px;
+            }
+            
+            .alerts-table th:nth-child(8),
+            .alerts-table td:nth-child(8) {
+                width: 140px;
+                min-width: 140px;
+                max-width: 140px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content-area {
+                padding: 12px;
+                padding-top: 70px;
+            }
+            
+            .page-header {
+                padding: 16px;
+            }
+            
+            .page-icon {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .page-icon i {
+                font-size: 18px;
+            }
+            
+            .stat-value {
+                font-size: 1.5em;
+            }
+            
+            .alerts-table {
+                min-width: 700px;
+            }
+            
+            /* Further reduce column widths on very small screens */
+            .alerts-table th:nth-child(2),
+            .alerts-table td:nth-child(2) {
+                width: 80px;
+                min-width: 80px;
+                max-width: 80px;
+            }
+            
+            .alerts-table th:nth-child(4),
+            .alerts-table td:nth-child(4),
+            .alerts-table th:nth-child(5),
+            .alerts-table td:nth-child(5) {
+                width: 100px;
+                min-width: 100px;
+                max-width: 100px;
+            }
+            
+            .alerts-table th:nth-child(8),
+            .alerts-table td:nth-child(8) {
+                width: 120px;
+                min-width: 120px;
+                max-width: 120px;
+            }
+        }
+        
+        /* Hide less important columns on smaller screens */
+        @media (max-width: 640px) {
+            .alerts-table th:nth-child(4), /* Hide Agent on very small */
+            .alerts-table td:nth-child(4),
+            .alerts-table th:nth-child(9), /* Hide Actions */
+            .alerts-table td:nth-child(9) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+
+        <main class="main-content" id="mainContent">
+            <div id="headerContainer"></div>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <div class="page-icon">
+                            <i class="fas fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="page-title-text">
+                            <h1>Alerts & Incidents</h1>
+                            <p class="page-subtitle">Monitor and manage security alerts across your organization</p>
+                        </div>
+                    </div>
+                    <button class="export-btn" onclick="exportAlerts()">
+                        <i class="fas fa-download"></i>
+                        <span>Export Alerts</span>
+                    </button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Alerts</div>
+                        <div class="stat-value" id="totalAlerts"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Critical</div>
+                        <div class="stat-value critical" id="criticalAlerts"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">High</div>
+                        <div class="stat-value high" id="highAlerts"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pending</div>
+                        <div class="stat-value pending" id="pendingAlertsCount"></div>
+                    </div>
+                </div>
+
+                <div class="filters-section">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="search-input" placeholder="Search alerts..." id="searchInput">
+                    </div>
+                    <select class="filter-select" id="severityFilter">
+                        <option value="">All Severity</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                    <select class="filter-select" id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="usb">USB</option>
+                        <option value="file">File</option>
+                        <option value="network">Network</option>
+                        <option value="ocr">OCR</option>
+                    </select>
+                    <button class="filter-btn">
+                        <i class="fas fa-filter"></i>
+                        <span>More Filters</span>
+                    </button>
+                </div>
+
+                <div class="alerts-table-container">
+                    <div class="table-wrapper">
+                        <table class="alerts-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Alert ID</th>
+                                    <th>Description</th>
+                                    <th>Agent</th>
+                                    <th>User</th>
+                                    <th>Severity</th>
+                                    <th>Status</th>
+                                    <th>Timestamp</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alertsTableBody">
+<!--                                <tr onclick="viewAlertDetails('ALT-001')">-->
+<!--                                    <td><div class="alert-type-icon icon-usb"><i class="fas fa-usb"></i></div></td>-->
+<!--                                    <td><strong>ALT-001</strong></td>-->
+<!--                                    <td title="Unauthorized USB device connection detected">Unauthorized USB device conn...</td>-->
+<!--                                    <td title="DESKTOP-ABC123">DESKTOP-ABC123</td>-->
+<!--                                    <td title="john.doe@company.com">john.doe@company.com</td>-->
+<!--                                    <td><span class="severity-badge severity-critical">Critical</span></td>-->
+<!--                                    <td><span class="status-badge status-open">Open</span></td>-->
+<!--                                    <td>2024-01-15 09:23:45</td>-->
+<!--                                    <td>-->
+<!--                                        <div class="actions-menu">-->
+<!--                                            <button class="actions-btn" onclick="event.stopPropagation(); showActions(this)">-->
+<!--                                                <i class="fas fa-ellipsis-vertical"></i>-->
+<!--                                            </button>-->
+<!--                                        </div>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr onclick="viewAlertDetails('ALT-002')">-->
+<!--                                    <td><div class="alert-type-icon icon-file"><i class="fas fa-file"></i></div></td>-->
+<!--                                    <td><strong>ALT-002</strong></td>-->
+<!--                                    <td title="Sensitive file transfer detected">Sensitive file transfer detected</td>-->
+<!--                                    <td title="LAPTOP-XYZ789">LAPTOP-XYZ789</td>-->
+<!--                                    <td title="jane.smith@company.com">jane.smith@company.com</td>-->
+<!--                                    <td><span class="severity-badge severity-high">High</span></td>-->
+<!--                                    <td><span class="status-badge status-open">Open</span></td>-->
+<!--                                    <td>2024-01-15 09:18:32</td>-->
+<!--                                    <td>-->
+<!--                                        <div class="actions-menu">-->
+<!--                                            <button class="actions-btn" onclick="event.stopPropagation(); showActions(this)">-->
+<!--                                                <i class="fas fa-ellipsis-vertical"></i>-->
+<!--                                            </button>-->
+<!--                                        </div>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr onclick="viewAlertDetails('ALT-003')">-->
+<!--                                    <td><div class="alert-type-icon icon-network"><i class="fas fa-wifi"></i></div></td>-->
+<!--                                    <td><strong>ALT-003</strong></td>-->
+<!--                                    <td title="Blocked network connection attempt">Blocked network connection at...</td>-->
+<!--                                    <td title="WORKSTATION-001">WORKSTATION-001</td>-->
+<!--                                    <td title="bob.wilson@company.com">bob.wilson@company.com</td>-->
+<!--                                    <td><span class="severity-badge severity-medium">Medium</span></td>-->
+<!--                                    <td><span class="status-badge status-investigating">Investigating</span></td>-->
+<!--                                    <td>2024-01-15 08:45:12</td>-->
+<!--                                    <td>-->
+<!--                                        <div class="actions-menu">-->
+<!--                                            <button class="actions-btn" onclick="event.stopPropagation(); showActions(this)">-->
+<!--                                                <i class="fas fa-ellipsis-vertical"></i>-->
+<!--                                            </button>-->
+<!--                                        </div>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr onclick="viewAlertDetails('ALT-004')">-->
+<!--                                    <td><div class="alert-type-icon icon-usb"><i class="fas fa-usb"></i></div></td>-->
+<!--                                    <td><strong>ALT-004</strong></td>-->
+<!--                                    <td title="USB file copy attempt blocked">USB file copy attempt blocked</td>-->
+<!--                                    <td title="DESKTOP-DEF456">DESKTOP-DEF456</td>-->
+<!--                                    <td title="alice.jones@company.com">alice.jones@company.com</td>-->
+<!--                                    <td><span class="severity-badge severity-high">High</span></td>-->
+<!--                                    <td><span class="status-badge status-resolved">Resolved</span></td>-->
+<!--                                    <td>2024-01-15 08:12:01</td>-->
+<!--                                    <td>-->
+<!--                                        <div class="actions-menu">-->
+<!--                                            <button class="actions-btn" onclick="event.stopPropagation(); showActions(this)">-->
+<!--                                                <i class="fas fa-ellipsis-vertical"></i>-->
+<!--                                            </button>-->
+<!--                                        </div>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr onclick="viewAlertDetails('ALT-005')">-->
+<!--                                    <td><div class="alert-type-icon icon-file"><i class="fas fa-file"></i></div></td>-->
+<!--                                    <td><strong>ALT-005</strong></td>-->
+<!--                                    <td title="Confidential document accessed">Confidential document accessed</td>-->
+<!--                                    <td title="LAPTOP-GHI789">LAPTOP-GHI789</td>-->
+<!--                                    <td title="charlie.brown@company.com">charlie.brown@company.com</td>-->
+<!--                                    <td><span class="severity-badge severity-low">Low</span></td>-->
+<!--                                    <td><span class="status-badge status-open">Open</span></td>-->
+<!--                                    <td>2024-01-15 07:56:23</td>-->
+<!--                                    <td>-->
+<!--                                        <div class="actions-menu">-->
+<!--                                            <button class="actions-btn" onclick="event.stopPropagation(); showActions(this)">-->
+<!--                                                <i class="fas fa-ellipsis-vertical"></i>-->
+<!--                                            </button>-->
+<!--                                        </div>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+<!--    <script>-->
+
+<!--        let allAlerts = [];-->
+
+<!--        // Check login status-->
+<!--      async function checkAuth() {-->
+<!--           try {-->
+<!--               const response = await fetch("/api/auth/check", {-->
+<!--                   credentials: "include"-->
+<!--               });-->
+
+<!--               if (!response.ok) {-->
+<!--                   throw new Error("Not authenticated");-->
+<!--               }-->
+
+<!--               const result = await response.json();-->
+
+<!--               if (!result.success) {-->
+<!--                   window.location.href = "indexn.html";-->
+<!--               }-->
+
+<!--           } catch (err) {-->
+<!--               window.location.href = "indexn.html";-->
+<!--           }-->
+<!--       }-->
+
+<!--        async function callApi(path, options = {}) {-->
+<!--                const defaultOptions = {-->
+<!--                  method: "GET",-->
+<!--                  credentials: "include",-->
+<!--                  headers: { "Content-Type": "application/json" },-->
+<!--                };-->
+<!--                const opts = { ...defaultOptions, ...options };-->
+
+<!--                try {-->
+<!--                  const response = await fetch(path, opts);-->
+<!--                  const text = await response.text();-->
+
+<!--                  let json;-->
+<!--                  try {-->
+<!--                    json = text ? JSON.parse(text) : null;-->
+<!--                  } catch (e) {-->
+<!--                    throw new Error("Invalid JSON response from server.");-->
+<!--                  }-->
+
+<!--                  if (!response.ok) {-->
+<!--                    const message =-->
+<!--                      json && json.message-->
+<!--                        ? json.message-->
+<!--                        : `HTTP ${response.status}: ${response.statusText}`;-->
+<!--                    throw new Error(message);-->
+<!--                  }-->
+<!--                  return json;-->
+<!--                } catch (error) {-->
+<!--                  console.error(`API call to ${path} failed:`, error);-->
+<!--                  throw error;-->
+<!--                }-->
+<!--              }-->
+
+
+<!--        // -&#45;&#45; Alerts Tab -&#45;&#45;-->
+<!--      async function loadAlerts() {-->
+<!--        const container = document.getElementById("alertsList");-->
+<!--        container.innerHTML = `<div class="loading">Loading alerts...</div>`;-->
+<!--        try {-->
+<!--          const result = await callApi("/api/admin/alerts/all");-->
+
+<!--          if (!result || !result.success) {-->
+<!--            throw new Error(result?.message || "Failed to load alerts");-->
+<!--          }-->
+<!--          allAlerts = result && result.success ? result.data || [] : [];-->
+
+<!--          updateAlertStatistics();-->
+<!--          displayFilteredAlerts();-->
+
+<!--          const pendingCount = allAlerts.filter(-->
+<!--            (a) => a.status === "PENDING"-->
+<!--          ).length;-->
+<!--          const badge = document.getElementById("alertBadge");-->
+<!--          badge.textContent = pendingCount;-->
+<!--          badge.classList.toggle("hidden", pendingCount === 0);-->
+<!--        } catch (error) {-->
+<!--          console.error("❌ Error loading alerts:", error.message);-->
+<!--          showAlertError(error.message);-->
+<!--        }-->
+<!--      }-->
+
+<!--       function updateAlertStatistics() {-->
+<!--        const totalAlerts = allAlerts.length;-->
+<!--        const usbAlerts = allAlerts.filter(-->
+<!--          (a) => a.alertType && a.alertType.includes("USB")-->
+<!--        ).length;-->
+<!--        const pendingAlerts = allAlerts.filter(-->
+<!--          (a) => a.status === "PENDING"-->
+<!--        ).length;-->
+<!--        const criticalAlerts = allAlerts.filter(-->
+<!--          (a) => a.severity === "CRITICAL" || a.severity === "HIGH"-->
+<!--        ).length;-->
+
+<!--        document.getElementById("totalAlerts").textContent = totalAlerts;-->
+<!--        document.getElementById("usbAlerts").textContent = usbAlerts;-->
+<!--        document.getElementById("pendingAlertsCount").textContent =-->
+<!--          pendingAlerts;-->
+<!--        document.getElementById("criticalAlerts").textContent = criticalAlerts;-->
+<!--      }-->
+
+<!--       async function loadComponent(url, containerId) {-->
+<!--           try {-->
+<!--               const response = await fetch(url);-->
+<!--               if (!response.ok) {-->
+<!--                   console.error(`Failed to load ${url}: ${response.status}`);-->
+<!--                   return;-->
+<!--               }-->
+<!--               const html = await response.text();-->
+<!--               document.getElementById(containerId).innerHTML = html;-->
+
+<!--               // Execute any scripts in the loaded HTML-->
+<!--               const container = document.getElementById(containerId);-->
+<!--               const scripts = container.querySelectorAll('script');-->
+<!--               scripts.forEach(oldScript => {-->
+<!--                   const newScript = document.createElement('script');-->
+<!--                   if (oldScript.src) {-->
+<!--                       newScript.src = oldScript.src;-->
+<!--                   } else {-->
+<!--                       newScript.textContent = oldScript.textContent;-->
+<!--                   }-->
+<!--                   oldScript.parentNode.removeChild(oldScript);-->
+<!--                   document.body.appendChild(newScript);-->
+<!--               });-->
+<!--           } catch (error) {-->
+<!--               console.error('Error loading component:', error);-->
+<!--           }-->
+<!--       }-->
+
+<!--       document.addEventListener('DOMContentLoaded', function() {-->
+<!--           loadComponent('sidebaro.html', 'sidebarContainer');-->
+<!--           loadComponent('page-header.html', 'headerContainer');-->
+
+<!--           // Check for URL filter parameter-->
+<!--           const urlParams = new URLSearchParams(window.location.search);-->
+<!--           const filterType = urlParams.get('filter');-->
+<!--           if (filterType) {-->
+<!--               // Apply filter from dashboard-->
+<!--               setTimeout(() => {-->
+<!--                   applyFilterFromDashboard(filterType);-->
+<!--               }, 500);-->
+<!--           }-->
+<!--       });-->
+
+<!--       function viewAlertDetails(alertId) {-->
+<!--           window.location.href = `alert-details.html?id=${alertId}`;-->
+<!--       }-->
+
+<!--       function showActions(btn) {-->
+<!--           // Create a custom dropdown instead of alert-->
+<!--           const dropdown = document.createElement('div');-->
+<!--           dropdown.className = 'actions-dropdown';-->
+<!--           dropdown.innerHTML = `-->
+<!--               <div class="dropdown-item" onclick="viewAlertDetails('${btn.closest('tr').querySelector('td:nth-child(2) strong').textContent}')">-->
+<!--                   <i class="fas fa-eye"></i> View Details-->
+<!--               </div>-->
+<!--               <div class="dropdown-item" onclick="changeAlertStatus(this, 'investigating')">-->
+<!--                   <i class="fas fa-search"></i> Investigate-->
+<!--               </div>-->
+<!--               <div class="dropdown-item" onclick="changeAlertStatus(this, 'resolved')">-->
+<!--                   <i class="fas fa-check"></i> Mark Resolved-->
+<!--               </div>-->
+<!--           `;-->
+
+<!--           // Position dropdown-->
+<!--           const rect = btn.getBoundingClientRect();-->
+<!--           dropdown.style.position = 'fixed';-->
+<!--           dropdown.style.top = (rect.bottom + 5) + 'px';-->
+<!--           dropdown.style.left = (rect.left - 100) + 'px';-->
+<!--           dropdown.style.zIndex = '1000';-->
+
+<!--           // Style dropdown-->
+<!--           dropdown.style.background = 'white';-->
+<!--           dropdown.style.border = '1px solid #e5e7eb';-->
+<!--           dropdown.style.borderRadius = '8px';-->
+<!--           dropdown.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';-->
+<!--           dropdown.style.minWidth = '160px';-->
+
+<!--           // Style dropdown items-->
+<!--           const items = dropdown.querySelectorAll('.dropdown-item');-->
+<!--           items.forEach(item => {-->
+<!--               item.style.padding = '10px 12px';-->
+<!--               item.style.cursor = 'pointer';-->
+<!--               item.style.display = 'flex';-->
+<!--               item.style.alignItems = 'center';-->
+<!--               item.style.gap = '8px';-->
+<!--               item.style.fontSize = '0.9em';-->
+<!--               item.style.transition = 'background 0.2s';-->
+<!--               item.style.borderBottom = '1px solid #f3f4f6';-->
+
+<!--               item.onmouseenter = () => item.style.background = '#f9fafb';-->
+<!--               item.onmouseleave = () => item.style.background = '';-->
+
+<!--               item.querySelector('i').style.width = '16px';-->
+<!--               item.querySelector('i').style.textAlign = 'center';-->
+<!--           });-->
+
+<!--           // Remove last item border-->
+<!--           items[items.length - 1].style.borderBottom = 'none';-->
+
+<!--           document.body.appendChild(dropdown);-->
+
+<!--           // Close dropdown when clicking outside-->
+<!--           function closeDropdown(e) {-->
+<!--               if (!dropdown.contains(e.target) && e.target !== btn) {-->
+<!--                   document.body.removeChild(dropdown);-->
+<!--                   document.removeEventListener('click', closeDropdown);-->
+<!--               }-->
+<!--           }-->
+
+<!--           setTimeout(() => {-->
+<!--               document.addEventListener('click', closeDropdown);-->
+<!--           }, 10);-->
+<!--       }-->
+
+<!--       function changeAlertStatus(element, status) {-->
+<!--           const row = element.closest('.dropdown-item').parentElement.parentElement.closest('tr');-->
+<!--           const statusBadge = row.querySelector('.status-badge');-->
+
+<!--           if (status === 'investigating') {-->
+<!--               statusBadge.className = 'status-badge status-investigating';-->
+<!--               statusBadge.textContent = 'Investigating';-->
+<!--           } else if (status === 'resolved') {-->
+<!--               statusBadge.className = 'status-badge status-resolved';-->
+<!--               statusBadge.textContent = 'Resolved';-->
+<!--           }-->
+
+<!--           // Close dropdown-->
+<!--           element.closest('.actions-dropdown').remove();-->
+
+<!--           // Show confirmation-->
+<!--           alert(`Alert status changed to ${status}`);-->
+<!--       }-->
+
+<!--       function exportAlerts() {-->
+<!--           // Simulate export process-->
+<!--           const exportBtn = document.querySelector('.export-btn');-->
+<!--           const originalText = exportBtn.innerHTML;-->
+
+<!--           exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Exporting...</span>';-->
+<!--           exportBtn.disabled = true;-->
+
+<!--           setTimeout(() => {-->
+<!--               exportBtn.innerHTML = '<i class="fas fa-check"></i><span>Exported!</span>';-->
+<!--               setTimeout(() => {-->
+<!--                   exportBtn.innerHTML = originalText;-->
+<!--                   exportBtn.disabled = false;-->
+<!--                   alert('Alerts exported to CSV successfully!');-->
+<!--               }, 1000);-->
+<!--           }, 1500);-->
+<!--       }-->
+
+<!--       // Search functionality-->
+<!--       document.getElementById('searchInput').addEventListener('input', function(e) {-->
+<!--           const searchTerm = e.target.value.toLowerCase();-->
+<!--           const rows = document.querySelectorAll('#alertsTableBody tr');-->
+
+<!--           rows.forEach(row => {-->
+<!--               const text = row.textContent.toLowerCase();-->
+<!--               row.style.display = text.includes(searchTerm) ? '' : 'none';-->
+<!--           });-->
+<!--       });-->
+
+<!--       // Filter functionality-->
+<!--       document.getElementById('severityFilter').addEventListener('change', filterTable);-->
+<!--       document.getElementById('typeFilter').addEventListener('change', filterTable);-->
+
+<!--       function filterTable() {-->
+<!--           const severityFilter = document.getElementById('severityFilter').value.toLowerCase();-->
+<!--           const typeFilter = document.getElementById('typeFilter').value.toLowerCase();-->
+<!--           const rows = document.querySelectorAll('#alertsTableBody tr');-->
+
+<!--           rows.forEach(row => {-->
+<!--               const severity = row.querySelector('.severity-badge').textContent.toLowerCase();-->
+<!--               const typeIcon = row.querySelector('.alert-type-icon i');-->
+<!--               let type = '';-->
+
+<!--               if (typeIcon.classList.contains('fa-usb')) type = 'usb';-->
+<!--               else if (typeIcon.classList.contains('fa-file')) type = 'file';-->
+<!--               else if (typeIcon.classList.contains('fa-wifi')) type = 'network';-->
+<!--               else if (typeIcon.classList.contains('fa-eye')) type = 'ocr';-->
+
+<!--               const severityMatch = !severityFilter || severity.includes(severityFilter);-->
+<!--               const typeMatch = !typeFilter || type === typeFilter;-->
+
+<!--               row.style.display = (severityMatch && typeMatch) ? '' : 'none';-->
+<!--           });-->
+<!--       }-->
+
+<!--       // Handle filter from dashboard-->
+<!--       function applyFilterFromDashboard(filterType) {-->
+<!--           if (filterType === 'usb' || filterType === 'file' || filterType === 'network' || filterType === 'ocr') {-->
+<!--               document.getElementById('typeFilter').value = filterType;-->
+<!--           } else if (filterType === 'critical' || filterType === 'high' || filterType === 'medium' || filterType === 'low') {-->
+<!--               document.getElementById('severityFilter').value = filterType;-->
+<!--           }-->
+<!--           filterTable();-->
+<!--       }-->
+
+<!--       // Handle sidebar toggle-->
+<!--       window.addEventListener('sidebarToggle', function(event) {-->
+<!--           const mainContent = document.getElementById('mainContent');-->
+<!--           if (mainContent) {-->
+<!--               if (event.detail.collapsed) {-->
+<!--                   mainContent.classList.add('expanded');-->
+<!--               } else {-->
+<!--                   mainContent.classList.remove('expanded');-->
+<!--               }-->
+<!--           }-->
+<!--       });-->
+<!--    </script>-->
+
+
+
+
+    <!-- //1st from dpsk -->
+
+<!--    <script>-->
+<!--        // Global variable for alerts-->
+<!--        let allAlerts = [];-->
+
+<!--        // Check authentication-->
+<!--        async function checkAuth() {-->
+<!--            try {-->
+<!--                const response = await fetch("/api/auth/check", {-->
+<!--                    credentials: "include"-->
+<!--                });-->
+
+<!--                if (!response.ok) {-->
+<!--                    throw new Error("Not authenticated");-->
+<!--                }-->
+
+<!--                const result = await response.json();-->
+
+<!--                if (!result.success) {-->
+<!--                    window.location.href = "../indexn.html";-->
+<!--                }-->
+<!--            } catch (err) {-->
+<!--                window.location.href = "../indexn.html";-->
+<!--            }-->
+<!--        }-->
+
+<!--        async function callApi(path, options = {}) {-->
+<!--            const defaultOptions = {-->
+<!--                method: "GET",-->
+<!--                credentials: "include",-->
+<!--                headers: { "Content-Type": "application/json" },-->
+<!--            };-->
+<!--            const opts = { ...defaultOptions, ...options };-->
+
+<!--            try {-->
+<!--                const response = await fetch(path, opts);-->
+<!--                const text = await response.text();-->
+
+<!--                let json;-->
+<!--                try {-->
+<!--                    json = text ? JSON.parse(text) : null;-->
+<!--                } catch (e) {-->
+<!--                    throw new Error("Invalid JSON response from server.");-->
+<!--                }-->
+
+<!--                if (!response.ok) {-->
+<!--                    const message = json && json.message-->
+<!--                        ? json.message-->
+<!--                        : `HTTP ${response.status}: ${response.statusText}`;-->
+<!--                    throw new Error(message);-->
+<!--                }-->
+<!--                return json;-->
+<!--            } catch (error) {-->
+<!--                console.error(`API call to ${path} failed:`, error);-->
+<!--                throw error;-->
+<!--            }-->
+<!--        }-->
+
+<!--        // Load alerts from API-->
+<!--        async function loadAlerts() {-->
+<!--            try {-->
+<!--                console.log("Loading alerts from API...");-->
+<!--                const result = await callApi("/api/admin/alerts/all");-->
+
+<!--                if (!result || !result.success) {-->
+<!--                    throw new Error(result?.message || "Failed to load alerts");-->
+<!--                }-->
+
+<!--                allAlerts = result.data || [];-->
+<!--                console.log("Loaded alerts:", allAlerts.length);-->
+
+<!--                updateAlertStatistics();-->
+<!--                displayAlertsTable();-->
+
+<!--            } catch (error) {-->
+<!--                console.error("❌ Error loading alerts:", error.message);-->
+<!--                // Show error but keep static data as fallback-->
+<!--                showToast("Failed to load alerts. Using cached data.", "error");-->
+<!--            }-->
+<!--        }-->
+
+<!--        function updateAlertStatistics() {-->
+<!--            const totalAlerts = allAlerts.length;-->
+<!--            const criticalAlerts = allAlerts.filter(a =>-->
+<!--                a.severity === "CRITICAL" || a.severity === "HIGH"-->
+<!--            ).length;-->
+<!--            const pendingAlerts = allAlerts.filter(a =>-->
+<!--                a.status === "PENDING" || a.status === "OPEN" || a.status === "INVESTIGATING"-->
+<!--            ).length;-->
+<!--            const usbAlerts = allAlerts.filter(a =>-->
+<!--                a.alertType && a.alertType.includes("USB")-->
+<!--            ).length;-->
+
+<!--            document.getElementById("totalAlerts").textContent = totalAlerts;-->
+<!--            document.getElementById("criticalAlerts").textContent = criticalAlerts;-->
+<!--            document.getElementById("pendingAlertsCount").textContent = pendingAlerts;-->
+
+<!--            // Optional: Update other stats if you have elements for them-->
+<!--            // document.getElementById("usbAlerts").textContent = usbAlerts;-->
+<!--        }-->
+
+<!--        function displayAlertsTable() {-->
+<!--            const tableBody = document.getElementById("alertsTableBody");-->
+
+<!--            // Clear existing rows-->
+<!--            tableBody.innerHTML = "";-->
+
+<!--            if (allAlerts.length === 0) {-->
+<!--                tableBody.innerHTML = `-->
+<!--                    <tr>-->
+<!--                        <td colspan="9" style="text-align: center; padding: 40px;">-->
+<!--                            <div style="color: #6b7280; font-size: 0.9em;">-->
+<!--                                <i class="fas fa-inbox" style="font-size: 2em; margin-bottom: 10px; display: block;"></i>-->
+<!--                                <p>No alerts found</p>-->
+<!--                            </div>-->
+<!--                        </td>-->
+<!--                    </tr>-->
+<!--                `;-->
+<!--                return;-->
+<!--            }-->
+
+<!--            // Sort alerts by timestamp (newest first)-->
+<!--            const sortedAlerts = [...allAlerts].sort((a, b) =>-->
+<!--                new Date(b.timestamp) - new Date(a.timestamp)-->
+<!--            );-->
+
+<!--            // Add each alert as a row-->
+<!--            sortedAlerts.forEach(alert => {-->
+<!--                const row = createAlertRow(alert);-->
+<!--                tableBody.appendChild(row);-->
+<!--            });-->
+<!--        }-->
+
+<!--        function createAlertRow(alert) {-->
+<!--            const row = document.createElement("tr");-->
+<!--            row.onclick = () => viewAlertDetails(alert.alertId || alert.id);-->
+
+<!--            // Get icon and color based on alert type-->
+<!--            const { iconClass, icon } = getAlertTypeIcon(alert.alertType);-->
+
+<!--            // Format timestamp-->
+<!--            const timestamp = formatTimestamp(alert.timestamp);-->
+
+<!--            // Get severity badge-->
+<!--            const severityBadge = getSeverityBadge(alert.severity);-->
+
+<!--            // Get status badge-->
+<!--            const statusBadge = getStatusBadge(alert.status);-->
+
+<!--            row.innerHTML = `-->
+<!--                <td><div class="alert-type-icon ${iconClass}"><i class="${icon}"></i></div></td>-->
+<!--                <td><strong>${alert.alertId || alert.id || "N/A"}</strong></td>-->
+<!--                <td title="${alert.description || alert.message || 'No description'}">-->
+<!--                    ${truncateText(alert.description || alert.message || "No description", 30)}-->
+<!--                </td>-->
+<!--                <td title="${alert.agentId || alert.agent || 'Unknown'}">-->
+<!--                    ${truncateText(alert.agentId || alert.agent || "Unknown", 15)}-->
+<!--                </td>-->
+<!--                <td title="${alert.userId || alert.user || 'Unknown'}">-->
+<!--                    ${truncateText(alert.userId || alert.user || "Unknown", 20)}-->
+<!--                </td>-->
+<!--                <td>${severityBadge}</td>-->
+<!--                <td>${statusBadge}</td>-->
+<!--                <td>${timestamp}</td>-->
+<!--                <td>-->
+<!--                    <div class="actions-menu">-->
+<!--                        <button class="actions-btn" onclick="event.stopPropagation(); showActions(this, '${alert.alertId || alert.id}')">-->
+<!--                            <i class="fas fa-ellipsis-vertical"></i>-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                </td>-->
+<!--            `;-->
+
+<!--            return row;-->
+<!--        }-->
+
+<!--        function getAlertTypeIcon(alertType) {-->
+<!--            if (!alertType) return { iconClass: "icon-file", icon: "fas fa-bell" };-->
+
+<!--            const type = alertType.toLowerCase();-->
+<!--            if (type.includes("usb")) return { iconClass: "icon-usb", icon: "fas fa-usb" };-->
+<!--            if (type.includes("file")) return { iconClass: "icon-file", icon: "fas fa-file" };-->
+<!--            if (type.includes("network")) return { iconClass: "icon-network", icon: "fas fa-wifi" };-->
+<!--            if (type.includes("ocr") || type.includes("screen")) return { iconClass: "icon-ocr", icon: "fas fa-eye" };-->
+<!--            return { iconClass: "icon-file", icon: "fas fa-bell" };-->
+<!--        }-->
+
+<!--        function getSeverityBadge(severity) {-->
+<!--            if (!severity) return '<span class="severity-badge severity-low">Low</span>';-->
+
+<!--            const sev = severity.toLowerCase();-->
+<!--            if (sev.includes("critical")) return '<span class="severity-badge severity-critical">Critical</span>';-->
+<!--            if (sev.includes("high")) return '<span class="severity-badge severity-high">High</span>';-->
+<!--            if (sev.includes("medium")) return '<span class="severity-badge severity-medium">Medium</span>';-->
+<!--            return '<span class="severity-badge severity-low">Low</span>';-->
+<!--        }-->
+
+<!--        function getStatusBadge(status) {-->
+<!--            if (!status) return '<span class="status-badge status-open">Open</span>';-->
+
+<!--            const stat = status.toLowerCase();-->
+<!--            if (stat.includes("resolved") || stat.includes("closed"))-->
+<!--                return '<span class="status-badge status-resolved">Resolved</span>';-->
+<!--            if (stat.includes("investigating"))-->
+<!--                return '<span class="status-badge status-investigating">Investigating</span>';-->
+<!--            return '<span class="status-badge status-open">Open</span>';-->
+<!--        }-->
+
+<!--        function formatTimestamp(timestamp) {-->
+<!--            if (!timestamp) return "N/A";-->
+
+<!--            try {-->
+<!--                const date = new Date(timestamp);-->
+<!--                if (isNaN(date.getTime())) return timestamp;-->
+
+<!--                return date.toLocaleString('en-US', {-->
+<!--                    year: 'numeric',-->
+<!--                    month: '2-digit',-->
+<!--                    day: '2-digit',-->
+<!--                    hour: '2-digit',-->
+<!--                    minute: '2-digit',-->
+<!--                    second: '2-digit',-->
+<!--                    hour12: false-->
+<!--                });-->
+<!--            } catch (e) {-->
+<!--                return timestamp;-->
+<!--            }-->
+<!--        }-->
+
+<!--        function truncateText(text, maxLength) {-->
+<!--            if (!text) return "";-->
+<!--            if (text.length <= maxLength) return text;-->
+<!--            return text.substring(0, maxLength) + "...";-->
+<!--        }-->
+
+<!--        async function loadComponent(url, containerId) {-->
+<!--            try {-->
+<!--                const response = await fetch(url);-->
+<!--                if (!response.ok) {-->
+<!--                    console.error(`Failed to load ${url}: ${response.status}`);-->
+<!--                    return;-->
+<!--                }-->
+<!--                const html = await response.text();-->
+<!--                document.getElementById(containerId).innerHTML = html;-->
+<!--            } catch (error) {-->
+<!--                console.error('Error loading component:', error);-->
+<!--            }-->
+<!--        }-->
+
+<!--        document.addEventListener('DOMContentLoaded', function() {-->
+<!--            // Load components-->
+<!--            loadComponent('sidebaro.html', 'sidebarContainer');-->
+<!--            loadComponent('page-header.html', 'headerContainer');-->
+
+<!--            // Check authentication-->
+<!--            checkAuth().then(() => {-->
+<!--                // Load alerts from API-->
+<!--                loadAlerts();-->
+
+<!--                // Set up auto-refresh every 30 seconds-->
+<!--                setInterval(loadAlerts, 30000);-->
+<!--            });-->
+
+<!--            // Check for URL filter parameter-->
+<!--            const urlParams = new URLSearchParams(window.location.search);-->
+<!--            const filterType = urlParams.get('filter');-->
+<!--            if (filterType) {-->
+<!--                setTimeout(() => {-->
+<!--                    applyFilterFromDashboard(filterType);-->
+<!--                }, 1000); // Wait for table to load-->
+<!--            }-->
+<!--        });-->
+
+<!--        function viewAlertDetails(alertId) {-->
+<!--            window.location.href = `alert-details.html?id=${alertId}`;-->
+<!--        }-->
+
+<!--        function showActions(btn, alertId) {-->
+<!--            const row = btn.closest('tr');-->
+
+<!--            // Create dropdown-->
+<!--            const dropdown = document.createElement('div');-->
+<!--            dropdown.className = 'actions-dropdown';-->
+<!--            dropdown.innerHTML = `-->
+<!--                <div class="dropdown-item" onclick="viewAlertDetails('${alertId}')">-->
+<!--                    <i class="fas fa-eye"></i> View Details-->
+<!--                </div>-->
+<!--                <div class="dropdown-item" onclick="changeAlertStatus('${alertId}', 'investigating')">-->
+<!--                    <i class="fas fa-search"></i> Investigate-->
+<!--                </div>-->
+<!--                <div class="dropdown-item" onclick="changeAlertStatus('${alertId}', 'resolved')">-->
+<!--                    <i class="fas fa-check"></i> Mark Resolved-->
+<!--                </div>-->
+<!--            `;-->
+
+<!--            // Position dropdown-->
+<!--            const rect = btn.getBoundingClientRect();-->
+<!--            dropdown.style.position = 'fixed';-->
+<!--            dropdown.style.top = (rect.bottom + 5) + 'px';-->
+<!--            dropdown.style.left = (rect.left - 100) + 'px';-->
+<!--            dropdown.style.zIndex = '1000';-->
+<!--            dropdown.style.background = 'white';-->
+<!--            dropdown.style.border = '1px solid #e5e7eb';-->
+<!--            dropdown.style.borderRadius = '8px';-->
+<!--            dropdown.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';-->
+<!--            dropdown.style.minWidth = '160px';-->
+
+<!--            // Style dropdown items-->
+<!--            const items = dropdown.querySelectorAll('.dropdown-item');-->
+<!--            items.forEach(item => {-->
+<!--                item.style.padding = '10px 12px';-->
+<!--                item.style.cursor = 'pointer';-->
+<!--                item.style.display = 'flex';-->
+<!--                item.style.alignItems = 'center';-->
+<!--                item.style.gap = '8px';-->
+<!--                item.style.fontSize = '0.9em';-->
+<!--                item.style.transition = 'background 0.2s';-->
+<!--                item.style.borderBottom = '1px solid #f3f4f6';-->
+
+<!--                item.onmouseenter = () => item.style.background = '#f9fafb';-->
+<!--                item.onmouseleave = () => item.style.background = '';-->
+
+<!--                item.querySelector('i').style.width = '16px';-->
+<!--                item.querySelector('i').style.textAlign = 'center';-->
+<!--            });-->
+
+<!--            // Remove last item border-->
+<!--            items[items.length - 1].style.borderBottom = 'none';-->
+
+<!--            document.body.appendChild(dropdown);-->
+
+<!--            // Close dropdown when clicking outside-->
+<!--            function closeDropdown(e) {-->
+<!--                if (!dropdown.contains(e.target) && e.target !== btn) {-->
+<!--                    document.body.removeChild(dropdown);-->
+<!--                    document.removeEventListener('click', closeDropdown);-->
+<!--                }-->
+<!--            }-->
+
+<!--            setTimeout(() => {-->
+<!--                document.addEventListener('click', closeDropdown);-->
+<!--            }, 10);-->
+<!--        }-->
+
+<!--        async function changeAlertStatus(alertId, status) {-->
+<!--            try {-->
+<!--                // Call API to update status-->
+<!--                const response = await callApi(`/api/admin/alerts/${alertId}/status`, {-->
+<!--                    method: 'PUT',-->
+<!--                    body: JSON.stringify({ status: status.toUpperCase() })-->
+<!--                });-->
+
+<!--                if (response && response.success) {-->
+<!--                    // Reload alerts to reflect changes-->
+<!--                    loadAlerts();-->
+<!--                    showToast(`Alert status updated to ${status}`, "success");-->
+<!--                } else {-->
+<!--                    throw new Error(response?.message || "Failed to update status");-->
+<!--                }-->
+<!--            } catch (error) {-->
+<!--                console.error("Error updating alert status:", error);-->
+<!--                showToast("Failed to update alert status", "error");-->
+<!--            }-->
+<!--        }-->
+
+<!--        function exportAlerts() {-->
+<!--            // Convert alerts to CSV-->
+<!--            if (allAlerts.length === 0) {-->
+<!--                alert("No alerts to export");-->
+<!--                return;-->
+<!--            }-->
+
+<!--            const exportBtn = document.querySelector('.export-btn');-->
+<!--            const originalText = exportBtn.innerHTML;-->
+
+<!--            exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Exporting...</span>';-->
+<!--            exportBtn.disabled = true;-->
+
+<!--            // Create CSV content-->
+<!--            const headers = ["Alert ID", "Type", "Description", "Agent", "User", "Severity", "Status", "Timestamp"];-->
+<!--            const rows = allAlerts.map(alert => [-->
+<!--                alert.alertId || alert.id,-->
+<!--                alert.alertType,-->
+<!--                `"${(alert.description || alert.message || '').replace(/"/g, '""')}"`,-->
+<!--                alert.agentId || alert.agent,-->
+<!--                alert.userId || alert.user,-->
+<!--                alert.severity,-->
+<!--                alert.status,-->
+<!--                alert.timestamp-->
+<!--            ]);-->
+
+<!--            const csvContent = [headers, ...rows]-->
+<!--                .map(row => row.join(","))-->
+<!--                .join("\n");-->
+
+<!--            // Create download link-->
+<!--            const blob = new Blob([csvContent], { type: 'text/csv' });-->
+<!--            const url = window.URL.createObjectURL(blob);-->
+<!--            const a = document.createElement('a');-->
+<!--            a.href = url;-->
+<!--            a.download = `alerts_${new Date().toISOString().split('T')[0]}.csv`;-->
+<!--            document.body.appendChild(a);-->
+<!--            a.click();-->
+<!--            document.body.removeChild(a);-->
+<!--            window.URL.revokeObjectURL(url);-->
+
+<!--            setTimeout(() => {-->
+<!--                exportBtn.innerHTML = '<i class="fas fa-check"></i><span>Exported!</span>';-->
+<!--                setTimeout(() => {-->
+<!--                    exportBtn.innerHTML = originalText;-->
+<!--                    exportBtn.disabled = false;-->
+<!--                }, 1000);-->
+<!--            }, 500);-->
+<!--        }-->
+
+<!--        // Search functionality-->
+<!--        document.getElementById('searchInput').addEventListener('input', function(e) {-->
+<!--            const searchTerm = e.target.value.toLowerCase();-->
+<!--            const rows = document.querySelectorAll('#alertsTableBody tr');-->
+
+<!--            rows.forEach(row => {-->
+<!--                const text = row.textContent.toLowerCase();-->
+<!--                row.style.display = text.includes(searchTerm) ? '' : 'none';-->
+<!--            });-->
+<!--        });-->
+
+<!--        // Filter functionality-->
+<!--        document.getElementById('severityFilter').addEventListener('change', filterTable);-->
+<!--        document.getElementById('typeFilter').addEventListener('change', filterTable);-->
+
+<!--        function filterTable() {-->
+<!--            const severityFilter = document.getElementById('severityFilter').value.toLowerCase();-->
+<!--            const typeFilter = document.getElementById('typeFilter').value.toLowerCase();-->
+<!--            const rows = document.querySelectorAll('#alertsTableBody tr');-->
+
+<!--            rows.forEach(row => {-->
+<!--                if (row.cells.length < 6) return; // Skip empty row-->
+
+<!--                const severity = row.cells[5].textContent.toLowerCase();-->
+<!--                const typeIcon = row.cells[0].querySelector('i');-->
+<!--                let type = '';-->
+
+<!--                if (typeIcon.classList.contains('fa-usb')) type = 'usb';-->
+<!--                else if (typeIcon.classList.contains('fa-file')) type = 'file';-->
+<!--                else if (typeIcon.classList.contains('fa-wifi')) type = 'network';-->
+<!--                else if (typeIcon.classList.contains('fa-eye')) type = 'ocr';-->
+<!--                else type = 'other';-->
+
+<!--                const severityMatch = !severityFilter || severity.includes(severityFilter);-->
+<!--                const typeMatch = !typeFilter || type === typeFilter;-->
+
+<!--                row.style.display = (severityMatch && typeMatch) ? '' : 'none';-->
+<!--            });-->
+<!--        }-->
+
+<!--        // Handle filter from dashboard-->
+<!--        function applyFilterFromDashboard(filterType) {-->
+<!--            if (filterType === 'usb' || filterType === 'file' || filterType === 'network' || filterType === 'ocr') {-->
+<!--                document.getElementById('typeFilter').value = filterType;-->
+<!--            } else if (filterType === 'critical' || filterType === 'high' || filterType === 'medium' || filterType === 'low') {-->
+<!--                document.getElementById('severityFilter').value = filterType;-->
+<!--            }-->
+<!--            filterTable();-->
+<!--        }-->
+
+<!--        // Toast notification helper-->
+<!--        function showToast(message, type = "info") {-->
+<!--            // Remove existing toasts-->
+<!--            const existingToast = document.querySelector('.toast-notification');-->
+<!--            if (existingToast) existingToast.remove();-->
+
+<!--            const toast = document.createElement('div');-->
+<!--            toast.className = `toast-notification toast-${type}`;-->
+<!--            toast.innerHTML = `-->
+<!--                <div class="toast-content">-->
+<!--                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>-->
+<!--                    <span>${message}</span>-->
+<!--                </div>-->
+<!--            `;-->
+
+<!--            // Add styles-->
+<!--            toast.style.position = 'fixed';-->
+<!--            toast.style.top = '20px';-->
+<!--            toast.style.right = '20px';-->
+<!--            toast.style.zIndex = '9999';-->
+<!--            toast.style.padding = '12px 20px';-->
+<!--            toast.style.borderRadius = '8px';-->
+<!--            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';-->
+<!--            toast.style.fontSize = '0.9em';-->
+<!--            toast.style.display = 'flex';-->
+<!--            toast.style.alignItems = 'center';-->
+<!--            toast.style.gap = '10px';-->
+
+<!--            if (type === 'success') {-->
+<!--                toast.style.background = '#d1fae5';-->
+<!--                toast.style.color = '#059669';-->
+<!--                toast.style.border = '1px solid #a7f3d0';-->
+<!--            } else if (type === 'error') {-->
+<!--                toast.style.background = '#fee2e2';-->
+<!--                toast.style.color = '#dc2626';-->
+<!--                toast.style.border = '1px solid #fecaca';-->
+<!--            } else {-->
+<!--                toast.style.background = '#dbeafe';-->
+<!--                toast.style.color = '#3b82f6';-->
+<!--                toast.style.border = '1px solid #bfdbfe';-->
+<!--            }-->
+
+<!--            document.body.appendChild(toast);-->
+
+<!--            // Auto-remove after 3 seconds-->
+<!--            setTimeout(() => {-->
+<!--                toast.style.opacity = '0';-->
+<!--                toast.style.transition = 'opacity 0.3s ease';-->
+<!--                setTimeout(() => {-->
+<!--                    if (toast.parentNode) toast.parentNode.removeChild(toast);-->
+<!--                }, 300);-->
+<!--            }, 3000);-->
+<!--        }-->
+<!--    </script>-->
+
+
+
+
+
+<!--    <script>-->
+<!--        // Global variables-->
+<!--        let allAlerts = [];-->
+
+<!--        // Check authentication-->
+<!--        async function checkAuth() {-->
+<!--            try {-->
+<!--                const response = await fetch("/api/auth/check", {-->
+<!--                    credentials: "include"-->
+<!--                });-->
+
+<!--                if (!response.ok) {-->
+<!--                    throw new Error("Not authenticated");-->
+<!--                }-->
+
+<!--                const result = await response.json();-->
+
+<!--                if (!result.success) {-->
+<!--                    window.location.href = "../indexn.html";-->
+<!--                }-->
+<!--            } catch (err) {-->
+<!--                window.location.href = "../indexn.html";-->
+<!--            }-->
+<!--        }-->
+
+<!--        // Fixed callApi function-->
+<!--        async function callApi(path, options = {}) {-->
+<!--            const defaultOptions = {-->
+<!--                method: "GET",-->
+<!--                credentials: "include",-->
+<!--                headers: { "Content-Type": "application/json" },-->
+<!--            };-->
+<!--            const opts = { ...defaultOptions, ...options };-->
+
+<!--            try {-->
+<!--                const response = await fetch(path, opts);-->
+
+<!--                // Get response as text first-->
+<!--                const text = await response.text();-->
+
+<!--                // Handle empty responses-->
+<!--                if (!text) {-->
+<!--                    return { success: false, error: "Empty response" };-->
+<!--                }-->
+
+<!--                // Try to parse JSON-->
+<!--                let json;-->
+<!--                try {-->
+<!--                    json = JSON.parse(text);-->
+<!--                } catch (e) {-->
+<!--                    console.error("Failed to parse JSON:", text);-->
+<!--                    throw new Error("Invalid JSON response from server.");-->
+<!--                }-->
+
+<!--                if (!response.ok) {-->
+<!--                    const message = json && json.message-->
+<!--                        ? json.message-->
+<!--                        : `HTTP ${response.status}: ${response.statusText}`;-->
+<!--                    throw new Error(message);-->
+<!--                }-->
+
+<!--                return json;-->
+
+<!--            } catch (error) {-->
+<!--                console.error(`API call to ${path} failed:`, error);-->
+<!--                // Return error object instead of throwing-->
+<!--                return {-->
+<!--                    success: false,-->
+<!--                    error: error.message || "API call failed"-->
+<!--                };-->
+<!--            }-->
+<!--        }-->
+
+<!--        // Fixed loadAlerts function-->
+<!--        async function loadAlerts() {-->
+<!--            try {-->
+<!--                console.log("Loading alerts from API...");-->
+<!--                const result = await callApi("/api/admin/alerts/all");-->
+
+<!--                // Debug log-->
+<!--                console.log("API Response:", result);-->
+
+<!--                if (!result) {-->
+<!--                    console.error("No response from API");-->
+<!--                    return;-->
+<!--                }-->
+
+<!--                if (result.success) {-->
+<!--                    allAlerts = Array.isArray(result.data) ? result.data : [];-->
+<!--                    console.log("Loaded alerts:", allAlerts.length);-->
+
+<!--                    updateAlertStatistics();-->
+<!--&lt;!&ndash;                    displayAlertsTable();&ndash;&gt;-->
+
+<!--                    // Update notification badge if exists-->
+<!--                    const badge = document.getElementById("alertBadge");-->
+<!--                    if (badge) {-->
+<!--                        const pendingCount = allAlerts.filter(a =>-->
+<!--                            a.status === "PENDING" || a.status === "OPEN"-->
+<!--                        ).length;-->
+<!--                        badge.textContent = pendingCount;-->
+<!--                        badge.classList.toggle("hidden", pendingCount === 0);-->
+<!--                    }-->
+<!--                } else {-->
+<!--                    console.error("API returned error:", result.error);-->
+<!--                    // Use fallback data if API fails-->
+<!--                    useFallbackData();-->
+<!--                }-->
+
+<!--            } catch (error) {-->
+<!--                console.error("Error loading alerts:", error.message);-->
+<!--                useFallbackData();-->
+<!--            }-->
+<!--        }-->
+
+<!--        function useFallbackData() {-->
+<!--            console.log("Using fallback data for alerts");-->
+<!--            // Keep the static table data that's already in HTML-->
+<!--            // We just won't update it with API data-->
+<!--        }-->
+
+<!--        function updateAlertStatistics() {-->
+<!--            if (!allAlerts || allAlerts.length === 0) return;-->
+
+<!--            const totalAlerts = allAlerts.length;-->
+<!--            const criticalAlerts = allAlerts.filter(a =>-->
+<!--                a.severity === "CRITICAL" || a.severity === "HIGH"-->
+<!--            ).length;-->
+<!--            const pendingAlerts = allAlerts.filter(a =>-->
+<!--                a.status === "PENDING" || a.status === "OPEN"-->
+<!--            ).length;-->
+<!--            const usbAlerts = allAlerts.filter(a =>-->
+<!--                a.alertType && a.alertType.includes("USB")-->
+<!--            ).length;-->
+
+<!--            // Update stats cards-->
+<!--            const totalEl = document.getElementById("totalAlerts");-->
+<!--            const criticalEl = document.getElementById("criticalAlerts");-->
+<!--            const pendingEl = document.getElementById("pendingAlertsCount");-->
+
+<!--            if (totalEl) totalEl.textContent = totalAlerts;-->
+<!--            if (criticalEl) criticalEl.textContent = criticalAlerts;-->
+<!--            if (pendingEl) pendingEl.textContent = pendingAlerts;-->
+<!--        }-->
+
+<!--&lt;!&ndash;        function displayAlertsTable() {&ndash;&gt;-->
+<!--&lt;!&ndash;            const tableBody = document.getElementById("alertsTableBody");&ndash;&gt;-->
+<!--&lt;!&ndash;            if (!tableBody || !allAlerts || allAlerts.length === 0) {&ndash;&gt;-->
+<!--&lt;!&ndash;                // If no alerts, show empty state&ndash;&gt;-->
+<!--&lt;!&ndash;                if (tableBody) {&ndash;&gt;-->
+<!--&lt;!&ndash;                    tableBody.innerHTML = `&ndash;&gt;-->
+<!--&lt;!&ndash;                        <tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <td colspan="9" style="text-align: center; padding: 40px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <div style="color: #6b7280; font-size: 0.9em;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <i class="fas fa-inbox" style="font-size: 2em; margin-bottom: 10px; display: block;"></i>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <p>No alerts found</p>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                    `;&ndash;&gt;-->
+<!--&lt;!&ndash;                }&ndash;&gt;-->
+<!--&lt;!&ndash;                return;&ndash;&gt;-->
+<!--&lt;!&ndash;            }&ndash;&gt;-->
+
+<!--&lt;!&ndash;            // Clear existing rows (except static ones if we want to keep them)&ndash;&gt;-->
+<!--&lt;!&ndash;            // Or replace with API data&ndash;&gt;-->
+<!--&lt;!&ndash;            tableBody.innerHTML = "";&ndash;&gt;-->
+
+<!--&lt;!&ndash;            // Sort alerts by timestamp (newest first)&ndash;&gt;-->
+<!--&lt;!&ndash;            const sortedAlerts = [...allAlerts].sort((a, b) =>&ndash;&gt;-->
+<!--&lt;!&ndash;                new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt)&ndash;&gt;-->
+<!--&lt;!&ndash;            );&ndash;&gt;-->
+
+<!--&lt;!&ndash;            // Add each alert as a row&ndash;&gt;-->
+<!--&lt;!&ndash;            sortedAlerts.forEach(alert => {&ndash;&gt;-->
+<!--&lt;!&ndash;                const row = createAlertRow(alert);&ndash;&gt;-->
+<!--&lt;!&ndash;                tableBody.appendChild(row);&ndash;&gt;-->
+<!--&lt;!&ndash;            });&ndash;&gt;-->
+<!--&lt;!&ndash;        }&ndash;&gt;-->
+
+<!--        function createAlertRow(alert) {-->
+<!--            const row = document.createElement("tr");-->
+<!--            const alertId = alert.alertId || alert.id || "N/A";-->
+<!--            row.onclick = () => viewAlertDetails(alertId);-->
+
+<!--            // Get icon and color based on alert type-->
+<!--            const { iconClass, icon } = getAlertTypeIcon(alert.alertType);-->
+
+<!--            // Format timestamp-->
+<!--            const timestamp = formatTimestamp(alert.timestamp || alert.createdAt);-->
+
+<!--            // Get severity badge-->
+<!--            const severityBadge = getSeverityBadge(alert.severity);-->
+
+<!--            // Get status badge-->
+<!--            const statusBadge = getStatusBadge(alert.status);-->
+
+<!--            // Safely get all text values-->
+<!--            const description = safeString(alert.description || alert.message || 'No description');-->
+<!--            const agent = safeString(alert.agentName || alert.agentId || alert.agent || 'Unknown');-->
+<!--            const user = safeString(alert.userName || alert.userId || alert.user || 'Unknown');-->
+
+<!--            row.innerHTML = `-->
+<!--                <td><div class="alert-type-icon ${iconClass}"><i class="${icon}"></i></div></td>-->
+<!--                <td><strong>${safeString(alertId)}</strong></td>-->
+<!--                <td title="${description}">-->
+<!--                    ${truncateText(description, 30)}-->
+<!--                </td>-->
+<!--                <td title="${agent}">-->
+<!--                    ${truncateText(agent, 15)}-->
+<!--                </td>-->
+<!--                <td title="${user}">-->
+<!--                    ${truncateText(user, 20)}-->
+<!--                </td>-->
+<!--                <td>${severityBadge}</td>-->
+<!--                <td>${statusBadge}</td>-->
+<!--                <td>${timestamp}</td>-->
+<!--                <td>-->
+<!--                    <div class="actions-menu">-->
+<!--                        <button class="actions-btn" onclick="event.stopPropagation(); showActions(this, '${safeString(alertId)}')">-->
+<!--                            <i class="fas fa-ellipsis-vertical"></i>-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                </td>-->
+<!--            `;-->
+
+<!--            return row;-->
+<!--        }-->
+
+<!--        // Helper function to safely convert to string-->
+<!--        function safeString(value) {-->
+<!--            if (value === null || value === undefined) return '';-->
+<!--            if (typeof value === 'string') return value;-->
+<!--            if (typeof value === 'number' || typeof value === 'boolean') return String(value);-->
+<!--            if (typeof value === 'object') return JSON.stringify(value);-->
+<!--            return String(value);-->
+<!--        }-->
+
+<!--        // Fixed truncateText function-->
+<!--        function truncateText(text, maxLength) {-->
+<!--            const str = safeString(text);-->
+<!--            if (str.length <= maxLength) return str;-->
+<!--            return str.substring(0, maxLength) + "...";-->
+<!--        }-->
+
+<!--        function getAlertTypeIcon(alertType) {-->
+<!--            const type = safeString(alertType).toLowerCase();-->
+<!--            if (type.includes("usb")) return { iconClass: "icon-usb", icon: "fas fa-usb" };-->
+<!--            if (type.includes("file")) return { iconClass: "icon-file", icon: "fas fa-file" };-->
+<!--            if (type.includes("network")) return { iconClass: "icon-network", icon: "fas fa-wifi" };-->
+<!--            if (type.includes("ocr") || type.includes("screen")) return { iconClass: "icon-ocr", icon: "fas fa-eye" };-->
+<!--            return { iconClass: "icon-file", icon: "fas fa-bell" };-->
+<!--        }-->
+
+<!--        function getSeverityBadge(severity) {-->
+<!--            const sev = safeString(severity).toLowerCase();-->
+<!--            if (sev.includes("critical")) return '<span class="severity-badge severity-critical">Critical</span>';-->
+<!--            if (sev.includes("high")) return '<span class="severity-badge severity-high">High</span>';-->
+<!--            if (sev.includes("medium")) return '<span class="severity-badge severity-medium">Medium</span>';-->
+<!--            return '<span class="severity-badge severity-low">Low</span>';-->
+<!--        }-->
+
+<!--        function getStatusBadge(status) {-->
+<!--            const stat = safeString(status).toLowerCase();-->
+<!--            if (stat.includes("resolved") || stat.includes("closed"))-->
+<!--                return '<span class="status-badge status-resolved">Resolved</span>';-->
+<!--            if (stat.includes("investigating"))-->
+<!--                return '<span class="status-badge status-investigating">Investigating</span>';-->
+<!--            return '<span class="status-badge status-open">Open</span>';-->
+<!--        }-->
+
+<!--        function formatTimestamp(timestamp) {-->
+<!--            if (!timestamp) return "N/A";-->
+
+<!--            try {-->
+<!--                const date = new Date(timestamp);-->
+<!--                if (isNaN(date.getTime())) return safeString(timestamp);-->
+
+<!--                return date.toLocaleString('en-US', {-->
+<!--                    year: 'numeric',-->
+<!--                    month: '2-digit',-->
+<!--                    day: '2-digit',-->
+<!--                    hour: '2-digit',-->
+<!--                    minute: '2-digit',-->
+<!--                    second: '2-digit',-->
+<!--                    hour12: false-->
+<!--                });-->
+<!--            } catch (e) {-->
+<!--                return safeString(timestamp);-->
+<!--            }-->
+<!--        }-->
+
+<!--        async function loadComponent(url, containerId) {-->
+<!--            try {-->
+<!--                const response = await fetch(url);-->
+<!--                if (!response.ok) {-->
+<!--                    console.error(`Failed to load ${url}: ${response.status}`);-->
+<!--                    return;-->
+<!--                }-->
+<!--                const html = await response.text();-->
+<!--                document.getElementById(containerId).innerHTML = html;-->
+<!--            } catch (error) {-->
+<!--                console.error('Error loading component:', error);-->
+<!--            }-->
+<!--        }-->
+
+<!--        document.addEventListener('DOMContentLoaded', function() {-->
+<!--            // Load components-->
+<!--            loadComponent('sidebaro.html', 'sidebarContainer');-->
+<!--            loadComponent('page-header.html', 'headerContainer');-->
+
+<!--            // Check authentication-->
+<!--            checkAuth().then(() => {-->
+<!--                // Load alerts from API-->
+<!--                loadAlerts();-->
+
+<!--                // Set up auto-refresh every 30 seconds-->
+<!--                setInterval(loadAlerts, 30000);-->
+<!--            });-->
+
+<!--            // Check for URL filter parameter-->
+<!--            const urlParams = new URLSearchParams(window.location.search);-->
+<!--            const filterType = urlParams.get('filter');-->
+<!--            if (filterType) {-->
+<!--                setTimeout(() => {-->
+<!--                    applyFilterFromDashboard(filterType);-->
+<!--                }, 1000);-->
+<!--            }-->
+<!--        });-->
+
+<!--        function viewAlertDetails(alertId) {-->
+<!--            window.location.href = `alert-details.html?id=${alertId}`;-->
+<!--        }-->
+
+<!--        function showActions(btn, alertId) {-->
+<!--            // Your existing showActions function-->
+<!--            const dropdown = document.createElement('div');-->
+<!--            dropdown.className = 'actions-dropdown';-->
+<!--            dropdown.innerHTML = `-->
+<!--                <div class="dropdown-item" onclick="viewAlertDetails('${alertId}')">-->
+<!--                    <i class="fas fa-eye"></i> View Details-->
+<!--                </div>-->
+<!--                <div class="dropdown-item" onclick="changeAlertStatus('${alertId}', 'investigating')">-->
+<!--                    <i class="fas fa-search"></i> Investigate-->
+<!--                </div>-->
+<!--                <div class="dropdown-item" onclick="changeAlertStatus('${alertId}', 'resolved')">-->
+<!--                    <i class="fas fa-check"></i> Mark Resolved-->
+<!--                </div>-->
+<!--            `;-->
+
+<!--            // Position and style dropdown (your existing code)-->
+<!--            const rect = btn.getBoundingClientRect();-->
+<!--            dropdown.style.position = 'fixed';-->
+<!--            dropdown.style.top = (rect.bottom + 5) + 'px';-->
+<!--            dropdown.style.left = (rect.left - 100) + 'px';-->
+<!--            dropdown.style.zIndex = '1000';-->
+<!--            dropdown.style.background = 'white';-->
+<!--            dropdown.style.border = '1px solid #e5e7eb';-->
+<!--            dropdown.style.borderRadius = '8px';-->
+<!--            dropdown.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';-->
+<!--            dropdown.style.minWidth = '160px';-->
+
+<!--            // Style dropdown items-->
+<!--            const items = dropdown.querySelectorAll('.dropdown-item');-->
+<!--            items.forEach(item => {-->
+<!--                item.style.padding = '10px 12px';-->
+<!--                item.style.cursor = 'pointer';-->
+<!--                item.style.display = 'flex';-->
+<!--                item.style.alignItems = 'center';-->
+<!--                item.style.gap = '8px';-->
+<!--                item.style.fontSize = '0.9em';-->
+<!--                item.style.transition = 'background 0.2s';-->
+<!--                item.style.borderBottom = '1px solid #f3f4f6';-->
+
+<!--                item.onmouseenter = () => item.style.background = '#f9fafb';-->
+<!--                item.onmouseleave = () => item.style.background = '';-->
+
+<!--                const icon = item.querySelector('i');-->
+<!--                if (icon) {-->
+<!--                    icon.style.width = '16px';-->
+<!--                    icon.style.textAlign = 'center';-->
+<!--                }-->
+<!--            });-->
+
+<!--            // Remove last item border-->
+<!--            if (items.length > 0) {-->
+<!--                items[items.length - 1].style.borderBottom = 'none';-->
+<!--            }-->
+
+<!--            document.body.appendChild(dropdown);-->
+
+<!--            // Close dropdown when clicking outside-->
+<!--            function closeDropdown(e) {-->
+<!--                if (!dropdown.contains(e.target) && e.target !== btn) {-->
+<!--                    if (dropdown.parentNode) {-->
+<!--                        document.body.removeChild(dropdown);-->
+<!--                    }-->
+<!--                    document.removeEventListener('click', closeDropdown);-->
+<!--                }-->
+<!--            }-->
+
+<!--            setTimeout(() => {-->
+<!--                document.addEventListener('click', closeDropdown);-->
+<!--            }, 10);-->
+<!--        }-->
+
+<!--        async function changeAlertStatus(alertId, status) {-->
+<!--            try {-->
+<!--                const response = await callApi(`/api/admin/alerts/${alertId}/status`, {-->
+<!--                    method: 'PUT',-->
+<!--                    body: JSON.stringify({ status: status.toUpperCase() })-->
+<!--                });-->
+
+<!--                if (response && response.success) {-->
+<!--                    loadAlerts();-->
+<!--                    showToast(`Alert status updated to ${status}`, "success");-->
+<!--                }-->
+<!--            } catch (error) {-->
+<!--                console.error("Error updating alert status:", error);-->
+<!--            }-->
+<!--        }-->
+
+<!--        function exportAlerts() {-->
+<!--            if (!allAlerts || allAlerts.length === 0) {-->
+<!--                alert("No alerts to export");-->
+<!--                return;-->
+<!--            }-->
+
+<!--            const exportBtn = document.querySelector('.export-btn');-->
+<!--            if (!exportBtn) return;-->
+
+<!--            const originalText = exportBtn.innerHTML;-->
+
+<!--            exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Exporting...</span>';-->
+<!--            exportBtn.disabled = true;-->
+
+<!--            // Create CSV content-->
+<!--            const headers = ["Alert ID", "Type", "Description", "Agent", "User", "Severity", "Status", "Timestamp"];-->
+<!--            const rows = allAlerts.map(alert => [-->
+<!--                alert.alertId || alert.id,-->
+<!--                alert.alertType,-->
+<!--                `"${(alert.description || alert.message || '').replace(/"/g, '""')}"`,-->
+<!--                alert.agentName || alert.agentId || alert.agent,-->
+<!--                alert.userName || alert.userId || alert.user,-->
+<!--                alert.severity,-->
+<!--                alert.status,-->
+<!--                alert.timestamp || alert.createdAt-->
+<!--            ]);-->
+
+<!--            const csvContent = [headers, ...rows]-->
+<!--                .map(row => row.join(","))-->
+<!--                .join("\n");-->
+
+<!--            // Create download link-->
+<!--            const blob = new Blob([csvContent], { type: 'text/csv' });-->
+<!--            const url = window.URL.createObjectURL(blob);-->
+<!--            const a = document.createElement('a');-->
+<!--            a.href = url;-->
+<!--            a.download = `alerts_${new Date().toISOString().split('T')[0]}.csv`;-->
+<!--            document.body.appendChild(a);-->
+<!--            a.click();-->
+<!--            document.body.removeChild(a);-->
+<!--            window.URL.revokeObjectURL(url);-->
+
+<!--            setTimeout(() => {-->
+<!--                exportBtn.innerHTML = '<i class="fas fa-check"></i><span>Exported!</span>';-->
+<!--                setTimeout(() => {-->
+<!--                    exportBtn.innerHTML = originalText;-->
+<!--                    exportBtn.disabled = false;-->
+<!--                }, 1000);-->
+<!--            }, 500);-->
+<!--        }-->
+
+<!--        // Search functionality-->
+<!--        const searchInput = document.getElementById('searchInput');-->
+<!--        if (searchInput) {-->
+<!--            searchInput.addEventListener('input', function(e) {-->
+<!--                const searchTerm = e.target.value.toLowerCase();-->
+<!--                const rows = document.querySelectorAll('#alertsTableBody tr');-->
+
+<!--                rows.forEach(row => {-->
+<!--                    const text = row.textContent.toLowerCase();-->
+<!--                    row.style.display = text.includes(searchTerm) ? '' : 'none';-->
+<!--                });-->
+<!--            });-->
+<!--        }-->
+
+<!--        // Filter functionality-->
+<!--        const severityFilter = document.getElementById('severityFilter');-->
+<!--        const typeFilter = document.getElementById('typeFilter');-->
+
+<!--        if (severityFilter) {-->
+<!--            severityFilter.addEventListener('change', filterTable);-->
+<!--        }-->
+
+<!--        if (typeFilter) {-->
+<!--            typeFilter.addEventListener('change', filterTable);-->
+<!--        }-->
+
+<!--        function filterTable() {-->
+<!--            const severityFilter = document.getElementById('severityFilter');-->
+<!--            const typeFilter = document.getElementById('typeFilter');-->
+
+<!--            if (!severityFilter || !typeFilter) return;-->
+
+<!--            const severityValue = severityFilter.value.toLowerCase();-->
+<!--            const typeValue = typeFilter.value.toLowerCase();-->
+<!--            const rows = document.querySelectorAll('#alertsTableBody tr');-->
+
+<!--            rows.forEach(row => {-->
+<!--                if (row.cells.length < 6) return;-->
+
+<!--                const severity = row.cells[5].textContent.toLowerCase();-->
+<!--                const typeIcon = row.cells[0].querySelector('i');-->
+<!--                let type = '';-->
+
+<!--                if (typeIcon) {-->
+<!--                    if (typeIcon.classList.contains('fa-usb')) type = 'usb';-->
+<!--                    else if (typeIcon.classList.contains('fa-file')) type = 'file';-->
+<!--                    else if (typeIcon.classList.contains('fa-wifi')) type = 'network';-->
+<!--                    else if (typeIcon.classList.contains('fa-eye')) type = 'ocr';-->
+<!--                }-->
+
+<!--                const severityMatch = !severityValue || severity.includes(severityValue);-->
+<!--                const typeMatch = !typeValue || type === typeValue;-->
+
+<!--                row.style.display = (severityMatch && typeMatch) ? '' : 'none';-->
+<!--            });-->
+<!--        }-->
+
+<!--        // Handle filter from dashboard-->
+<!--        function applyFilterFromDashboard(filterType) {-->
+<!--            const typeFilter = document.getElementById('typeFilter');-->
+<!--            const severityFilter = document.getElementById('severityFilter');-->
+
+<!--            if (!typeFilter || !severityFilter) return;-->
+
+<!--            if (filterType === 'usb' || filterType === 'file' || filterType === 'network' || filterType === 'ocr') {-->
+<!--                typeFilter.value = filterType;-->
+<!--            } else if (filterType === 'critical' || filterType === 'high' || filterType === 'medium' || filterType === 'low') {-->
+<!--                severityFilter.value = filterType;-->
+<!--            }-->
+<!--            filterTable();-->
+<!--        }-->
+
+<!--        // Toast notification helper-->
+<!--        function showToast(message, type = "info") {-->
+<!--            const existingToast = document.querySelector('.toast-notification');-->
+<!--            if (existingToast) existingToast.remove();-->
+
+<!--            const toast = document.createElement('div');-->
+<!--            toast.className = `toast-notification toast-${type}`;-->
+<!--            toast.innerHTML = `-->
+<!--                <div class="toast-content">-->
+<!--                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>-->
+<!--                    <span>${message}</span>-->
+<!--                </div>-->
+<!--            `;-->
+
+<!--            toast.style.position = 'fixed';-->
+<!--            toast.style.top = '20px';-->
+<!--            toast.style.right = '20px';-->
+<!--            toast.style.zIndex = '9999';-->
+<!--            toast.style.padding = '12px 20px';-->
+<!--            toast.style.borderRadius = '8px';-->
+<!--            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';-->
+<!--            toast.style.fontSize = '0.9em';-->
+<!--            toast.style.display = 'flex';-->
+<!--            toast.style.alignItems = 'center';-->
+<!--            toast.style.gap = '10px';-->
+
+<!--            if (type === 'success') {-->
+<!--                toast.style.background = '#d1fae5';-->
+<!--                toast.style.color = '#059669';-->
+<!--                toast.style.border = '1px solid #a7f3d0';-->
+<!--            } else if (type === 'error') {-->
+<!--                toast.style.background = '#fee2e2';-->
+<!--                toast.style.color = '#dc2626';-->
+<!--                toast.style.border = '1px solid #fecaca';-->
+<!--            } else {-->
+<!--                toast.style.background = '#dbeafe';-->
+<!--                toast.style.color = '#3b82f6';-->
+<!--                toast.style.border = '1px solid #bfdbfe';-->
+<!--            }-->
+
+<!--            document.body.appendChild(toast);-->
+
+<!--            setTimeout(() => {-->
+<!--                toast.style.opacity = '0';-->
+<!--                toast.style.transition = 'opacity 0.3s ease';-->
+<!--                setTimeout(() => {-->
+<!--                    if (toast.parentNode) toast.parentNode.removeChild(toast);-->
+<!--                }, 300);-->
+<!--            }, 3000);-->
+<!--        }-->
+
+<!--        // Handle sidebar toggle-->
+<!--        window.addEventListener('sidebarToggle', function(event) {-->
+<!--            const mainContent = document.getElementById('mainContent');-->
+<!--            if (mainContent) {-->
+<!--                if (event.detail.collapsed) {-->
+<!--                    mainContent.classList.add('expanded');-->
+<!--                } else {-->
+<!--                    mainContent.classList.remove('expanded');-->
+<!--                }-->
+<!--            }-->
+<!--        });-->
+<!--    </script>-->
+
+
+    <script>
+        // Global variables
+        let allAlerts = [];
+
+        // Check authentication
+        async function checkAuth() {
+            try {
+                const response = await fetch("/api/auth/check", {
+                    credentials: "include"
+                });
+
+                if (!response.ok) {
+                    throw new Error("Not authenticated");
+                }
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    window.location.href = "../index.html";
+                }
+            } catch (err) {
+                window.location.href = "../index.html";
+            }
+        }
+
+        // Fixed callApi function
+        async function callApi(path, options = {}) {
+            const defaultOptions = {
+                method: "GET",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+            };
+            const opts = { ...defaultOptions, ...options };
+
+            try {
+                const response = await fetch(path, opts);
+
+                // Get response as text first
+                const text = await response.text();
+
+                // Handle empty responses
+                if (!text) {
+                    return { success: false, error: "Empty response" };
+                }
+
+                // Try to parse JSON
+                let json;
+                try {
+                    json = JSON.parse(text);
+                } catch (e) {
+                    console.error("Failed to parse JSON:", text);
+                    throw new Error("Invalid JSON response from server.");
+                }
+
+                if (!response.ok) {
+                    const message = json && json.message
+                        ? json.message
+                        : `HTTP ${response.status}: ${response.statusText}`;
+                    throw new Error(message);
+                }
+
+                return json;
+
+            } catch (error) {
+                console.error(`API call to ${path} failed:`, error);
+                // Return error object instead of throwing
+                return {
+                    success: false,
+                    error: error.message || "API call failed"
+                };
+            }
+        }
+
+        // Fixed loadAlerts function
+        async function loadAlerts() {
+            try {
+                console.log("Loading alerts from API...");
+                const result = await callApi("/api/admin/alerts/all");
+
+                // Debug log
+                console.log("API Response:", result);
+
+                if (!result) {
+                    console.error("No response from API");
+                    return;
+                }
+
+                if (result.success) {
+                    allAlerts = Array.isArray(result.data) ? result.data : [];
+                    console.log("Loaded alerts:", allAlerts.length);
+
+                    // Debug: Show first alert structure
+                    if (allAlerts.length > 0) {
+                        console.log("First alert data:", allAlerts[0]);
+                    }
+
+                    updateAlertStatistics();
+                    displayAlertsTable();  // UNCOMMENTED THIS LINE
+
+                    // Update notification badge if exists
+                    const badge = document.getElementById("alertBadge");
+                    if (badge) {
+                        const pendingCount = allAlerts.filter(a =>
+                            a.status === "PENDING"
+                        ).length;
+                        badge.textContent = pendingCount;
+                        badge.classList.toggle("hidden", pendingCount === 0);
+                    }
+                } else {
+                    console.error("API returned error:", result.error);
+                    // Use fallback data if API fails
+                    useFallbackData();
+                }
+
+            } catch (error) {
+                console.error("Error loading alerts:", error.message);
+                useFallbackData();
+            }
+        }
+
+        function useFallbackData() {
+            console.log("Using fallback data for alerts");
+            // You can add fallback data here if needed
+            const tableBody = document.getElementById("alertsTableBody");
+            if (tableBody) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px;">
+                            <div style="color: #6b7280; font-size: 0.9em;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 2em; margin-bottom: 10px; display: block; color: #f59e0b;"></i>
+                                <p>Unable to load alerts from API</p>
+                                <p style="font-size: 0.8em; margin-top: 5px;">Please check your connection</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function updateAlertStatistics() {
+            if (!allAlerts || allAlerts.length === 0) {
+                // Reset to 0 if no alerts
+                const totalEl = document.getElementById("totalAlerts");
+                const criticalEl = document.getElementById("criticalAlerts");
+                const pendingEl = document.getElementById("pendingAlertsCount");
+
+                if (totalEl) totalEl.textContent = "0";
+                if (criticalEl) criticalEl.textContent = "0";
+                if (pendingEl) pendingEl.textContent = "0";
+                return;
+            }
+
+            const totalAlerts = allAlerts.length;
+
+            // Count CRITICAL severity alerts (ONLY "CRITICAL", not "HIGH")
+            const criticalAlerts = allAlerts.filter(a => {
+                const severity = String(a.severity || "").toUpperCase();
+                return severity === "CRITICAL"; // ONLY Critical
+            }).length;
+
+            // Count HIGH severity alerts
+            const highAlerts = allAlerts.filter(a => {
+                const severity = String(a.severity || "").toUpperCase();
+                return severity === "HIGH";
+            }).length;
+
+            // Count PENDING status alerts (ONLY "PENDING", not "OPEN")
+            const pendingAlerts = allAlerts.filter(a => {
+                const status = String(a.status || "").toUpperCase();
+                return status === "PENDING"; // ONLY Pending, not Open
+            }).length;
+
+            // Update stats cards
+            const totalEl = document.getElementById("totalAlerts");
+            const criticalEl = document.getElementById("criticalAlerts");
+            const highEl = document.querySelector(".stat-value.high"); // Get the High card
+            const pendingEl = document.getElementById("pendingAlertsCount");
+
+            if (totalEl) totalEl.textContent = totalAlerts;
+            if (criticalEl) criticalEl.textContent = criticalAlerts;
+            if (highEl) highEl.textContent = highAlerts; // Update High count
+            if (pendingEl) pendingEl.textContent = pendingAlerts;
+        }
+
+        function displayAlertsTable() {
+            const tableBody = document.getElementById("alertsTableBody");
+            if (!tableBody) {
+                console.error("Table body not found!");
+                return;
+            }
+
+            if (!allAlerts || allAlerts.length === 0) {
+                // If no alerts, show empty state
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px;">
+                            <div style="color: #6b7280; font-size: 0.9em;">
+                                <i class="fas fa-inbox" style="font-size: 2em; margin-bottom: 10px; display: block;"></i>
+                                <p>No alerts found</p>
+                                <p style="font-size: 0.8em; margin-top: 5px;">Alerts will appear here when detected</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Clear existing rows
+            tableBody.innerHTML = "";
+
+            // Sort alerts by timestamp (newest first)
+            const sortedAlerts = [...allAlerts].sort((a, b) => {
+                const timeA = new Date(a.timestamp || a.createdAt || a.date || 0);
+                const timeB = new Date(b.timestamp || b.createdAt || b.date || 0);
+                return timeB - timeA;
+            });
+
+            // Add each alert as a row
+            sortedAlerts.forEach(alert => {
+                const row = createAlertRow(alert);
+                tableBody.appendChild(row);
+            });
+        }
+
+        function createAlertRow(alert) {
+                const row = document.createElement("tr");
+
+                // Get alert ID from alertCode (capital C)
+                const alertId = alert.alertCode || alert.alertcode || alert.id || alert.alertId || alert.alert_id || "N/A";
+
+                // Set click handler
+                row.onclick = () => viewAlertDetails(alertId);
+
+                // Determine alert type from alertType
+                let alertType = alert.alertType || "UNKNOWN";
+
+                // Get icon and color based on alert type
+                const { iconClass, icon } = getAlertTypeIcon(alertType);
+
+                // Format timestamp from createdAt
+                let timestampStr = alert.createdAt || alert.timestamp || alert.date || alert.time || "";
+                const timestamp = formatTimestamp(timestampStr);
+
+                // Get severity
+                let severity = alert.severity || "MEDIUM";
+                const severityBadge = getSeverityBadge(severity);
+
+                // Get status
+                let status = alert.status || "OPEN";
+                const statusBadge = getStatusBadge(status);
+
+                // Get description
+                const description = safeString(alert.description || alert.message || alert.details || 'No description');
+
+                // Get AGENT from agentName
+                const agent = safeString(alert.agentName || alert.agent || alert.hostname || 'Unknown');
+
+                // Get USER from username (shows "Unknown" if null)
+                const user = safeString(alert.username || alert.user || alert.userName || 'Unknown');
+
+                row.innerHTML = `
+                    <td><div class="alert-type-icon ${iconClass}"><i class="${icon}"></i></div></td>
+                    <td><strong>${safeString(alertId)}</strong></td>
+                    <td title="${description}">
+                        ${truncateText(description, 30)}
+                    </td>
+                    <td title="${agent}">
+                        ${truncateText(agent, 15)}
+                    </td>
+                    <td title="${user}">
+                        ${truncateText(user, 20)}
+                    </td>
+                    <td>${severityBadge}</td>
+                    <td>${statusBadge}</td>
+                    <td>${timestamp}</td>
+                    <td>
+                        <div class="actions-menu">
+                            <button class="actions-btn" onclick="event.stopPropagation(); showActions(this, '${safeString(alertId)}')">
+                                <i class="fas fa-ellipsis-vertical"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+
+                return row;
+            }
+
+        // Helper function to safely convert to string
+        function safeString(value) {
+            if (value === null || value === undefined) return '';
+            if (typeof value === 'string') return value;
+            if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+            if (typeof value === 'object') return JSON.stringify(value);
+            return String(value);
+        }
+
+        // Fixed truncateText function
+        function truncateText(text, maxLength) {
+            const str = safeString(text);
+            if (str.length <= maxLength) return str;
+            return str.substring(0, maxLength) + "...";
+        }
+
+       function getAlertTypeIcon(alertType) {
+            const type = safeString(alertType).toLowerCase();
+
+            if (type.includes("usb")) {
+                return { iconClass: "icon-usb", icon: "fas fa-usb" };
+            }
+            else if (type.includes("file")) {
+                return { iconClass: "icon-file", icon: "fas fa-file" };
+            }
+            else if (type.includes("network") || type.includes("dns")) {
+                return { iconClass: "icon-network", icon: "fas fa-wifi" };
+            }
+            else if (type.includes("ocr") || type.includes("screen")) {
+                return { iconClass: "icon-ocr", icon: "fas fa-eye" };
+            }
+            else if (type.includes("printer") || type.includes("print")) {
+                return { iconClass: "icon-file", icon: "fas fa-print" };
+            }
+            else {
+                return { iconClass: "icon-file", icon: "fas fa-bell" };
+            }
+        }
+
+        function getSeverityBadge(severity) {
+            const sev = safeString(severity).toLowerCase();
+            if (sev.includes("critical")) {
+                return '<span class="severity-badge severity-critical">Critical</span>';
+            }
+            if (sev.includes("high")) {
+                return '<span class="severity-badge severity-high">High</span>';
+            }
+            if (sev.includes("medium")) {
+                return '<span class="severity-badge severity-medium">Medium</span>';
+            }
+            if (sev.includes("low")) {
+                return '<span class="severity-badge severity-low">Low</span>';
+            }
+            // Default to medium if unknown
+            return '<span class="severity-badge severity-medium">Medium</span>';
+        }
+
+        function getStatusBadge(status) {
+            const stat = safeString(status).toLowerCase();
+            if (stat.includes("resolved") || stat.includes("closed")) {
+                return '<span class="status-badge status-resolved">Resolved</span>';
+            }
+            if (stat.includes("investigating") || stat.includes("in progress")) {
+                return '<span class="status-badge status-investigating">Investigating</span>';
+            }
+            // Default to open
+            return '<span class="status-badge status-open">Open</span>';
+        }
+
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return "N/A";
+
+            try {
+                const date = new Date(timestamp);
+                if (isNaN(date.getTime())) {
+                    // Try to parse as string if not a valid date
+                    return safeString(timestamp);
+                }
+
+                return date.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+            } catch (e) {
+                return safeString(timestamp);
+            }
+        }
+
+       async function loadComponent(url, containerId) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            console.error(`Failed to load ${url}: ${response.status}`);
+            return;
+        }
+        const html = await response.text();
+        document.getElementById(containerId).innerHTML = html;
+
+        // ADD THIS: Execute any scripts in the loaded HTML
+        const container = document.getElementById(containerId);
+        const scripts = container.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            if (oldScript.src) {
+                newScript.src = oldScript.src;
+            } else {
+                newScript.textContent = oldScript.textContent;
+            }
+            oldScript.parentNode.removeChild(oldScript);
+            document.body.appendChild(newScript);
+        });
+    } catch (error) {
+        console.error('Error loading component:', error);
+    }
+}
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load components
+            loadComponent('sidebar.html', 'sidebarContainer');
+            loadComponent('page-header.html', 'headerContainer');
+
+            // Check authentication
+            checkAuth().then(() => {
+                // Load alerts from API
+                loadAlerts();
+
+                // Set up auto-refresh every 30 seconds
+                setInterval(loadAlerts, 30000);
+            });
+
+            // Check for URL filter parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const filterType = urlParams.get('filter');
+            if (filterType) {
+                setTimeout(() => {
+                    applyFilterFromDashboard(filterType);
+                }, 1000);
+            }
+        });
+
+        function viewAlertDetails(alertId) {
+            window.location.href = `alert-details.html?id=${alertId}`;
+        }
+
+        function showActions(btn, alertId) {
+            // Your existing showActions function
+            const dropdown = document.createElement('div');
+            dropdown.className = 'actions-dropdown';
+            dropdown.innerHTML = `
+                <div class="dropdown-item" onclick="viewAlertDetails('${alertId}')">
+                    <i class="fas fa-eye"></i> View Details
+                </div>
+                <div class="dropdown-item" onclick="changeAlertStatus('${alertId}', 'investigating')">
+                    <i class="fas fa-search"></i> Investigate
+                </div>
+                <div class="dropdown-item" onclick="changeAlertStatus('${alertId}', 'resolved')">
+                    <i class="fas fa-check"></i> Mark Resolved
+                </div>
+            `;
+
+            // Position and style dropdown (your existing code)
+            const rect = btn.getBoundingClientRect();
+            dropdown.style.position = 'fixed';
+            dropdown.style.top = (rect.bottom + 5) + 'px';
+            dropdown.style.left = (rect.left - 100) + 'px';
+            dropdown.style.zIndex = '1000';
+            dropdown.style.background = 'white';
+            dropdown.style.border = '1px solid #e5e7eb';
+            dropdown.style.borderRadius = '8px';
+            dropdown.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+            dropdown.style.minWidth = '160px';
+
+            // Style dropdown items
+            const items = dropdown.querySelectorAll('.dropdown-item');
+            items.forEach(item => {
+                item.style.padding = '10px 12px';
+                item.style.cursor = 'pointer';
+                item.style.display = 'flex';
+                item.style.alignItems = 'center';
+                item.style.gap = '8px';
+                item.style.fontSize = '0.9em';
+                item.style.transition = 'background 0.2s';
+                item.style.borderBottom = '1px solid #f3f4f6';
+
+                item.onmouseenter = () => item.style.background = '#f9fafb';
+                item.onmouseleave = () => item.style.background = '';
+
+                const icon = item.querySelector('i');
+                if (icon) {
+                    icon.style.width = '16px';
+                    icon.style.textAlign = 'center';
+                }
+            });
+
+            // Remove last item border
+            if (items.length > 0) {
+                items[items.length - 1].style.borderBottom = 'none';
+            }
+
+            document.body.appendChild(dropdown);
+
+            // Close dropdown when clicking outside
+            function closeDropdown(e) {
+                if (!dropdown.contains(e.target) && e.target !== btn) {
+                    if (dropdown.parentNode) {
+                        document.body.removeChild(dropdown);
+                    }
+                    document.removeEventListener('click', closeDropdown);
+                }
+            }
+
+            setTimeout(() => {
+                document.addEventListener('click', closeDropdown);
+            }, 10);
+        }
+
+        async function changeAlertStatus(alertId, status) {
+            try {
+                const response = await callApi(`/api/admin/alerts/${alertId}/status`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ status: status.toUpperCase() })
+                });
+
+                if (response && response.success) {
+                    loadAlerts();
+                    showToast(`Alert status updated to ${status}`, "success");
+                }
+            } catch (error) {
+                console.error("Error updating alert status:", error);
+            }
+        }
+
+        function exportAlerts() {
+    if (!allAlerts || allAlerts.length === 0) {
+        alert("No alerts to export");
+        return;
+    }
+
+    const exportBtn = document.querySelector('.export-btn');
+    if (!exportBtn) return;
+
+    const originalText = exportBtn.innerHTML;
+
+    exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Exporting...</span>';
+    exportBtn.disabled = true;
+
+    // Create CSV content with correct field mapping
+    const headers = ["Alert ID", "Type", "Description", "Agent", "User", "Severity", "Status", "Timestamp"];
+    const rows = allAlerts.map(alert => {
+        // Determine alert type
+        let alertType = "";
+        if (alert.alertType) alertType = alert.alertType;
+        else if (alert.type) alertType = alert.type;
+        else if (alert.alert_type) alertType = alert.alert_type;
+        else if (alert.description && alert.description.includes("USB")) alertType = "USB";
+        else if (alert.description && alert.description.includes("OCR")) alertType = "OCR";
+        else if (alert.description && alert.description.includes("Network")) alertType = "NETWORK";
+        else alertType = "UNKNOWN";
+
+        return [
+            alert.alertcode || alert.id || "N/A",  // Alert ID from alertcode
+            alertType,                              // Type
+            `"${(alert.description || alert.message || '').replace(/"/g, '""')}"`,  // Description
+            alert.hostname || alert.agent || 'Unknown',  // Agent from hostname
+            alert.username || alert.user || 'Unknown',   // User from username
+            alert.severity || "MEDIUM",              // Severity
+            alert.status || "OPEN",                  // Status
+            alert.timestamp || alert.createdAt || alert.date  // Timestamp
+        ];
+    });
+
+    const csvContent = [headers, ...rows]
+        .map(row => row.join(","))
+        .join("\n");
+
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `alerts_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+
+    setTimeout(() => {
+        exportBtn.innerHTML = '<i class="fas fa-check"></i><span>Exported!</span>';
+        setTimeout(() => {
+            exportBtn.innerHTML = originalText;
+            exportBtn.disabled = false;
+        }, 1000);
+    }, 500);
+}
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('#alertsTableBody tr');
+
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+
+        // Filter functionality
+        const severityFilter = document.getElementById('severityFilter');
+        const typeFilter = document.getElementById('typeFilter');
+
+        if (severityFilter) {
+            severityFilter.addEventListener('change', filterTable);
+        }
+
+        if (typeFilter) {
+            typeFilter.addEventListener('change', filterTable);
+        }
+
+        function filterTable() {
+            const severityValue = severityFilter.value.toLowerCase();
+            const typeValue = typeFilter.value.toLowerCase();
+            const rows = document.querySelectorAll('#alertsTableBody tr');
+
+            rows.forEach(row => {
+                if (row.cells.length < 6) return;
+
+                const severity = row.cells[5].textContent.toLowerCase();
+                const typeIcon = row.cells[0].querySelector('i');
+                let type = '';
+
+                if (typeIcon) {
+                    if (typeIcon.classList.contains('fa-usb')) type = 'usb';
+                    else if (typeIcon.classList.contains('fa-file')) type = 'file';
+                    else if (typeIcon.classList.contains('fa-wifi')) type = 'network';
+                    else if (typeIcon.classList.contains('fa-eye')) type = 'ocr';
+                    else if (typeIcon.classList.contains('fa-print')) type = 'printer';
+                    else type = 'other';
+                }
+
+                const severityMatch = !severityValue || severity.includes(severityValue);
+                const typeMatch = !typeValue || type === typeValue;
+
+                row.style.display = (severityMatch && typeMatch) ? '' : 'none';
+            });
+        }
+
+        // Handle filter from dashboard
+        function applyFilterFromDashboard(filterType) {
+            if (!typeFilter || !severityFilter) return;
+
+            if (filterType === 'usb' || filterType === 'file' || filterType === 'network' || filterType === 'ocr') {
+                typeFilter.value = filterType;
+            } else if (filterType === 'critical' || filterType === 'high' || filterType === 'medium' || filterType === 'low') {
+                severityFilter.value = filterType;
+            }
+            filterTable();
+        }
+
+        // Toast notification helper
+        function showToast(message, type = "info") {
+            const existingToast = document.querySelector('.toast-notification');
+            if (existingToast) existingToast.remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            toast.style.position = 'fixed';
+            toast.style.top = '20px';
+            toast.style.right = '20px';
+            toast.style.zIndex = '9999';
+            toast.style.padding = '12px 20px';
+            toast.style.borderRadius = '8px';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            toast.style.fontSize = '0.9em';
+            toast.style.display = 'flex';
+            toast.style.alignItems = 'center';
+            toast.style.gap = '10px';
+
+            if (type === 'success') {
+                toast.style.background = '#d1fae5';
+                toast.style.color = '#059669';
+                toast.style.border = '1px solid #a7f3d0';
+            } else if (type === 'error') {
+                toast.style.background = '#fee2e2';
+                toast.style.color = '#dc2626';
+                toast.style.border = '1px solid #fecaca';
+            } else {
+                toast.style.background = '#dbeafe';
+                toast.style.color = '#3b82f6';
+                toast.style.border = '1px solid #bfdbfe';
+            }
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // Handle sidebar toggle
+        window.addEventListener('sidebarToggle', function(event) {
+            const mainContent = document.getElementById('mainContent');
+            if (mainContent) {
+                if (event.detail.collapsed) {
+                    mainContent.classList.add('expanded');
+                } else {
+                    mainContent.classList.remove('expanded');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

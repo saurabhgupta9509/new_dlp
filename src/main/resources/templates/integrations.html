@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - Integrations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #f3f4f6; 
+            overflow-x: hidden;
+        }
+        
+        .dashboard-container { 
+            display: flex; 
+            min-height: 100vh; 
+            padding-top: 60px;
+        }
+        
+        .main-content { 
+            flex: 1; 
+            margin-left: 240px; 
+            transition: margin-left 0.3s ease;
+            padding-top: 14px;
+        }
+        
+        .main-content.expanded { 
+            margin-left: 70px; 
+        }
+        
+        /* .content-area { 
+            padding: 24px; 
+            max-width: 1100px;
+        } */
+
+
+        .content-area { 
+            padding: 24px; 
+        }
+        
+        .page-header { 
+            background: white; 
+            padding: 20px 24px; 
+            border-radius: 12px; 
+            border: 1px solid #e5e7eb; 
+            margin-bottom: 24px; 
+        }
+        
+        .page-title-section { 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+        }
+        
+        .page-icon { 
+            width: 48px; 
+            height: 48px; 
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        .page-icon i { 
+            font-size: 22px; 
+            color: white; 
+        }
+        
+        .page-title-text h1 { 
+            font-size: 1.5em; 
+            color: #111827; 
+            font-weight: 700; 
+        }
+        
+        .page-subtitle { 
+            color: #6b7280; 
+            font-size: 0.9em; 
+        }
+        
+        .integrations-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); 
+            gap: 18px; 
+        }
+        
+        .integration-card { 
+            background: white; 
+            padding: 22px; 
+            border-radius: 12px; 
+            border: 1px solid #e5e7eb; 
+            transition: all 0.2s; 
+        }
+        
+        .integration-card:hover { 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+            transform: translateY(-2px);
+        }
+        
+        .integration-header { 
+            display: flex; 
+            align-items: center; 
+            gap: 14px; 
+            margin-bottom: 14px; 
+        }
+        
+        .integration-icon { 
+            width: 52px; 
+            height: 52px; 
+            border-radius: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.3em; 
+        }
+        
+        .icon-slack { background: #e8f5e9; color: #4caf50; }
+        .icon-teams { background: #e3f2fd; color: #2196f3; }
+        .icon-email { background: #fff3e0; color: #ff9800; }
+        .icon-siem { background: #f3e5f5; color: #9c27b0; }
+        .icon-splunk { background: #e0f2f1; color: #009688; }
+        .icon-aws { background: #fff8e1; color: #fbc02d; }
+        .icon-jira { background: #e3f2fd; color: #0052cc; }
+        .icon-webhook { background: #f3e5f5; color: #7e57c2; }
+        
+        .integration-info { 
+            flex: 1; 
+        }
+        
+        .integration-name { 
+            font-weight: 600; 
+            color: #111827; 
+            font-size: 1em; 
+        }
+        
+        .integration-category { 
+            font-size: 0.75em; 
+            color: #9ca3af; 
+            margin-top: 2px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
+        
+        .integration-desc { 
+            font-size: 0.85em; 
+            color: #6b7280; 
+            margin-bottom: 14px; 
+            line-height: 1.5; 
+        }
+        
+        .integration-footer { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        
+        .status-badge { 
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            font-size: 0.75em; 
+            font-weight: 600; 
+        }
+        
+        .status-connected { 
+            background: #d1fae5; 
+            color: #059669; 
+        }
+        
+        .status-disconnected { 
+            background: #f3f4f6; 
+            color: #6b7280; 
+        }
+        
+        .btn-small { 
+            padding: 8px 16px; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 0.85em; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+        }
+        
+        .btn-configure { 
+            background: #2563eb; 
+            color: white; 
+        }
+        
+        .btn-configure:hover { 
+            background: #1d4ed8; 
+        }
+        
+        .btn-disconnect { 
+            background: white; 
+            color: #dc2626; 
+            border: 1.5px solid #e5e7eb; 
+        }
+        
+        .btn-disconnect:hover { 
+            background: #fee2e2; 
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 1024px) {
+            .integrations-grid { 
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            }
+        }
+        
+        @media (max-width: 968px) { 
+            .main-content { 
+                margin-left: 0 !important; 
+                width: 100%;
+            } 
+            
+            .dashboard-container {
+                padding-top: 60px;
+            }
+            
+            .integrations-grid { 
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            } 
+        }
+        
+        @media (max-width: 768px) {
+            .integrations-grid { 
+                grid-template-columns: 1fr; 
+            }
+        }
+        
+        @media (max-width: 640px) { 
+            .content-area { 
+                padding: 16px; 
+            } 
+            
+            .integrations-grid { 
+                grid-template-columns: 1fr; 
+            } 
+            
+            .page-header {
+                padding: 16px;
+            }
+            
+            .page-title-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .integration-card {
+                padding: 18px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .integration-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .integration-footer .btn-small {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+        <main class="main-content" id="mainContent">
+            <div id="headerContainer"></div>
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <div class="page-icon"><i class="fas fa-plug"></i></div>
+                        <div class="page-title-text">
+                            <h1>Integrations</h1>
+                            <p class="page-subtitle">Connect DLP Shield with your existing tools and platforms</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="integrations-grid">
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-icon icon-slack"><i class="fab fa-slack"></i></div>
+                            <div class="integration-info">
+                                <div class="integration-name">Slack</div>
+                                <div class="integration-category">Collaboration</div>
+                            </div>
+                        </div>
+                        <div class="integration-desc">Receive real-time alerts and notifications in your Slack channels</div>
+                        <div class="integration-footer">
+                            <span class="status-badge status-connected"><i class="fas fa-check"></i> Connected</span>
+                            <button class="btn-small btn-disconnect" onclick="disconnectIntegration('Slack')">Disconnect</button>
+                        </div>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-icon icon-teams"><i class="fab fa-microsoft"></i></div>
+                            <div class="integration-info">
+                                <div class="integration-name">Microsoft Teams</div>
+                                <div class="integration-category">Collaboration</div>
+                            </div>
+                        </div>
+                        <div class="integration-desc">Send security alerts to Microsoft Teams channels</div>
+                        <div class="integration-footer">
+                            <span class="status-badge status-disconnected">Not Connected</span>
+                            <button class="btn-small btn-configure" onclick="configureIntegration('Microsoft Teams')">Configure</button>
+                        </div>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-icon icon-email"><i class="fas fa-envelope"></i></div>
+                            <div class="integration-info">
+                                <div class="integration-name">Email (SMTP)</div>
+                                <div class="integration-category">Notifications</div>
+                            </div>
+                        </div>
+                        <div class="integration-desc">Configure custom SMTP server for email notifications</div>
+                        <div class="integration-footer">
+                            <span class="status-badge status-connected"><i class="fas fa-check"></i> Connected</span>
+                            <button class="btn-small btn-disconnect" onclick="disconnectIntegration('Email')">Disconnect</button>
+                        </div>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-icon icon-siem"><i class="fas fa-shield-alt"></i></div>
+                            <div class="integration-info">
+                                <div class="integration-name">SIEM Integration</div>
+                                <div class="integration-category">Security</div>
+                            </div>
+                        </div>
+                        <div class="integration-desc">Forward security events to your SIEM platform</div>
+                        <div class="integration-footer">
+                            <span class="status-badge status-connected"><i class="fas fa-check"></i> Connected</span>
+                            <button class="btn-small btn-disconnect" onclick="disconnectIntegration('SIEM')">Disconnect</button>
+                        </div>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-icon icon-splunk"><i class="fas fa-chart-line"></i></div>
+                            <div class="integration-info">
+                                <div class="integration-name">Splunk</div>
+                                <div class="integration-category">Analytics</div>
+                            </div>
+                        </div>
+                        <div class="integration-desc">Send logs and metrics to Splunk for advanced analysis</div>
+                        <div class="integration-footer">
+                            <span class="status-badge status-disconnected">Not Connected</span>
+                            <button class="btn-small btn-configure" onclick="configureIntegration('Splunk')">Configure</button>
+                        </div>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-icon icon-aws"><i class="fab fa-aws"></i></div>
+                            <div class="integration-info">
+                                <div class="integration-name">AWS S3</div>
+                                <div class="integration-category">Storage</div>
+                            </div>
+                        </div>
+                        <div class="integration-desc">Archive logs and evidence files to Amazon S3</div>
+                        <div class="integration-footer">
+                            <span class="status-badge status-disconnected">Not Connected</span>
+                            <button class="btn-small btn-configure" onclick="configureIntegration('AWS S3')">Configure</button>
+                        </div>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-icon icon-jira"><i class="fab fa-jira"></i></div>
+                            <div class="integration-info">
+                                <div class="integration-name">Jira</div>
+                                <div class="integration-category">Project Management</div>
+                            </div>
+                        </div>
+                        <div class="integration-desc">Create Jira tickets automatically from security alerts</div>
+                        <div class="integration-footer">
+                            <span class="status-badge status-disconnected">Not Connected</span>
+                            <button class="btn-small btn-configure" onclick="configureIntegration('Jira')">Configure</button>
+                        </div>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-icon icon-webhook"><i class="fas fa-code"></i></div>
+                            <div class="integration-info">
+                                <div class="integration-name">Custom Webhooks</div>
+                                <div class="integration-category">Developer</div>
+                            </div>
+                        </div>
+                        <div class="integration-desc">Send alerts to custom webhook endpoints</div>
+                        <div class="integration-footer">
+                            <span class="status-badge status-disconnected">Not Connected</span>
+                            <button class="btn-small btn-configure" onclick="configureIntegration('Webhooks')">Configure</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        // Check login status
+        async function checkAuth() {
+                try {
+                    const response = await fetch("/api/auth/check", {
+                        credentials: "include"
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Not authenticated");
+                    }
+
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        window.location.href = "index.html";
+                    }
+
+                } catch (err) {
+                    window.location.href = "index.html";
+                }
+            }
+        
+        // Function to load components with script execution
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                const container = document.getElementById(containerId);
+                
+                if (!container) {
+                    console.error(`Container ${containerId} not found`);
+                    return;
+                }
+                
+                container.innerHTML = html;
+                
+                // Execute any scripts within the loaded component
+                const scripts = container.getElementsByTagName('script');
+                for (let script of scripts) {
+                    if (script.src) {
+                        // For external scripts
+                        const newScript = document.createElement('script');
+                        newScript.src = script.src;
+                        document.head.appendChild(newScript);
+                    } else {
+                        // For inline scripts
+                        try {
+                            eval(script.textContent);
+                        } catch (e) {
+                            console.error('Error executing script:', e);
+                        }
+                    }
+                }
+                
+                // Initialize components after loading
+                initializeComponents();
+                
+            } catch (error) { 
+                console.error('Error loading component:', error); 
+            }
+        }
+        
+        // Function to initialize components
+        function initializeComponents() {
+            // Check if sidebar is loaded
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const header = document.querySelector('.top-header');
+            
+            if (sidebar && mainContent) {
+                // Set initial sidebar state
+                if (sidebar.classList.contains('collapsed')) {
+                    mainContent.classList.add('expanded');
+                    if (header) {
+                        header.style.left = '70px';
+                    }
+                }
+                
+                // Dispatch sidebar toggle event
+                window.dispatchEvent(new CustomEvent('sidebarToggle', { 
+                    detail: { collapsed: sidebar.classList.contains('collapsed') } 
+                }));
+            }
+            
+            // Set active menu item
+            setActiveMenuItem();
+        }
+        
+        // Function to set active menu item
+        function setActiveMenuItem() {
+            const currentPage = 'integrations.html';
+            const sidebar = document.getElementById('sidebar');
+            
+            if (!sidebar) return;
+            
+            // Check main nav links
+            const navLinks = sidebar.querySelectorAll('.nav-link[data-page]');
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Check submenu items
+            const subMenuItems = sidebar.querySelectorAll('.sub-menu-item[data-page]');
+            subMenuItems.forEach(item => {
+                const href = item.getAttribute('href');
+                if (href === currentPage) {
+                    item.classList.add('active');
+                    
+                    // Open parent submenu
+                    const parentSubMenu = item.closest('.sub-menu');
+                    const parentNavLink = parentSubMenu ? parentSubMenu.previousElementSibling : null;
+                    
+                    if (parentSubMenu && parentNavLink) {
+                        parentSubMenu.classList.add('open');
+                        parentNavLink.classList.add('expanded');
+                    }
+                }
+            });
+        }
+        
+        // Load components when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load sidebar and header from current directory
+            loadComponent('sidebar.html', 'sidebarContainer');
+            loadComponent('page-header.html', 'headerContainer');
+        });
+        
+        // Integration functions
+        function configureIntegration(name) {
+            if (confirm(`Configure ${name} integration?`)) {
+                alert(`Opening ${name} configuration...`);
+                // Add actual configuration logic here
+            }
+        }
+        
+        function disconnectIntegration(name) {
+            if (confirm(`Are you sure you want to disconnect ${name}?`)) {
+                alert(`${name} has been disconnected.`);
+                // Add actual disconnect logic here
+            }
+        }
+        
+        // Handle window resize
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (window.innerWidth > 968) {
+                    const sidebar = document.getElementById('sidebar');
+                    const overlay = document.getElementById('sidebarOverlay');
+                    if (sidebar) sidebar.classList.remove('mobile-open');
+                    if (overlay) overlay.classList.remove('active');
+                }
+            }, 250);
+        });
+        
+        // Expose functions globally for sidebar and header
+        window.configureIntegration = configureIntegration;
+        window.disconnectIntegration = disconnectIntegration;
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const header = document.querySelector('.top-header');
+            
+            if (sidebar && mainContent) {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                
+                if (header) {
+                    header.style.left = sidebar.classList.contains('collapsed') ? '70px' : '240px';
+                }
+                
+                // Dispatch event for header to update
+                window.dispatchEvent(new CustomEvent('sidebarToggle', { 
+                    detail: { collapsed: sidebar.classList.contains('collapsed') } 
+                }));
+            }
+        };
+        
+        window.openMobileSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebar) {
+                sidebar.classList.add('mobile-open');
+            }
+            if (overlay) {
+                overlay.classList.add('active');
+            }
+        };
+        
+        window.toggleMobileMenu = function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebar) {
+                if (sidebar.classList.contains('mobile-open')) {
+                    sidebar.classList.remove('mobile-open');
+                    if (overlay) overlay.classList.remove('active');
+                } else {
+                    sidebar.classList.add('mobile-open');
+                    if (overlay) overlay.classList.add('active');
+                }
+            }
+        };
+    </script>
+</body>
+</html>

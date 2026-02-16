@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - Roles & Permissions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; overflow-x: hidden; }
+        .dashboard-container { display: flex; min-height: 100vh; }
+        .main-content { flex: 1; margin-left: 240px; transition: margin-left 0.3s; width: calc(100% - 240px); }
+        .main-content.expanded { margin-left: 70px; width: calc(100% - 70px); }
+        .content-area { padding: 24px; padding-top: 90px; } /* Added padding-top for fixed header */
+        
+        .page-header { background: white; padding: 20px 24px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title-section { display: flex; align-items: center; gap: 16px; }
+        .page-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .page-icon i { font-size: 22px; color: white; }
+        .page-title-text h1 { font-size: 1.5em; color: #111827; font-weight: 700; }
+        .page-subtitle { color: #6b7280; font-size: 0.9em; }
+        .create-btn { padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 0.9em; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+        .create-btn:hover { background: #1d4ed8; }
+        
+        .roles-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        .roles-list { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; height: fit-content; }
+        .section-header { font-size: 1em; font-weight: 600; color: #111827; margin-bottom: 16px; }
+        
+        .role-item { padding: 14px 16px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; border: 1.5px solid transparent; }
+        .role-item:hover { background: #f9fafb; }
+        .role-item.active { background: #eff6ff; border-color: #3b82f6; }
+        .role-name { font-weight: 600; color: #111827; margin-bottom: 4px; }
+        .role-desc { font-size: 0.8em; color: #6b7280; }
+        .role-users { font-size: 0.75em; color: #9ca3af; margin-top: 4px; }
+        
+        .permissions-panel { background: white; padding: 24px; border-radius: 12px; border: 1px solid #e5e7eb; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #e5e7eb; }
+        .edit-btn { padding: 8px 16px; background: white; color: #374151; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.85em; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .edit-btn:hover { background: #f9fafb; border-color: #d1d5db; }
+        
+        .permissions-group { margin-bottom: 24px; }
+        .group-title { font-size: 0.9em; font-weight: 600; color: #111827; margin-bottom: 12px; padding: 8px 12px; background: #f9fafb; border-radius: 6px; }
+        .permission-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid #f3f4f6; }
+        .permission-item:last-child { border-bottom: none; }
+        .permission-label { font-size: 0.9em; color: #374151; }
+        .check-icon { color: #10b981; font-size: 1.1em; }
+        
+        /* Fixed header adjustment */
+        .top-header { left: 240px !important; }
+        
+        @media (max-width: 1200px) {
+            .roles-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 968px) {
+            .main-content { margin-left: 0 !important; width: 100% !important; }
+            .content-area { padding: 16px; padding-top: 70px; }
+            .top-header { left: 0 !important; }
+        }
+        
+        @media (max-width: 768px) {
+            .roles-grid { grid-template-columns: 1fr; }
+            .permissions-panel, .roles-list { padding: 16px; }
+        }
+        
+        @media (max-width: 640px) {
+            .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .create-btn { width: 100%; justify-content: center; }
+            .panel-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .edit-btn { width: 100%; justify-content: center; }
+        }
+        
+        @media (max-width: 480px) {
+            .content-area { padding: 12px; padding-top: 70px; }
+            .page-header { padding: 16px; }
+            .page-title-section { flex-direction: column; align-items: flex-start; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+        <div id="headerContainer"></div>
+        
+        <main class="main-content" id="mainContent">
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <div class="page-icon"><i class="fas fa-shield"></i></div>
+                        <div class="page-title-text">
+                            <h1>Roles & Permissions</h1>
+                            <p class="page-subtitle">Manage role-based access control</p>
+                        </div>
+                    </div>
+                    <button class="create-btn" onclick="createRole()">
+                        <i class="fas fa-plus"></i><span>Create Role</span>
+                    </button>
+                </div>
+
+                <div class="roles-grid">
+                    <div class="roles-list">
+                        <div class="section-header">Roles</div>
+                        
+                        <div class="role-item active" onclick="selectRole('admin')">
+                            <div class="role-name">Admin</div>
+                            <div class="role-desc">Full system access</div>
+                            <div class="role-users">5 users</div>
+                        </div>
+                        
+                        <div class="role-item" onclick="selectRole('analyst')">
+                            <div class="role-name">Analyst</div>
+                            <div class="role-desc">View and manage alerts</div>
+                            <div class="role-users">32 users</div>
+                        </div>
+                        
+                        <div class="role-item" onclick="selectRole('auditor')">
+                            <div class="role-name">Auditor</div>
+                            <div class="role-desc">View reports and logs only</div>
+                            <div class="role-users">8 users</div>
+                        </div>
+                        
+                        <div class="role-item" onclick="selectRole('viewer')">
+                            <div class="role-name">Viewer</div>
+                            <div class="role-desc">Read-only access</div>
+                            <div class="role-users">12 users</div>
+                        </div>
+                        
+                        <div class="role-item" onclick="selectRole('operator')">
+                            <div class="role-name">Operator</div>
+                            <div class="role-desc">Limited management access</div>
+                            <div class="role-users">15 users</div>
+                        </div>
+                    </div>
+
+                    <div class="permissions-panel">
+                        <div class="panel-header">
+                            <div>
+                                <div class="section-header">Permissions for Admin</div>
+                                <p class="page-subtitle">Full system access with all permissions</p>
+                            </div>
+                            <button class="edit-btn" onclick="editRole()">
+                                <i class="fas fa-pen"></i><span>Edit Role</span>
+                            </button>
+                        </div>
+
+                        <div class="permissions-group">
+                            <div class="group-title">Dashboard</div>
+                            <div class="permission-item">
+                                <div class="permission-label">View Dashboard</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Manage Dashboard Widgets</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="permissions-group">
+                            <div class="group-title">Alerts</div>
+                            <div class="permission-item">
+                                <div class="permission-label">View Alerts</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Manage Alerts</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Resolve Incidents</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="permissions-group">
+                            <div class="group-title">Policies</div>
+                            <div class="permission-item">
+                                <div class="permission-label">View Policies</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Create Policies</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Edit Policies</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Delete Policies</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="permissions-group">
+                            <div class="group-title">Agents</div>
+                            <div class="permission-item">
+                                <div class="permission-label">View Agents</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Manage Agents</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Deploy Agents</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="permissions-group">
+                            <div class="group-title">OCR & Image Analysis</div>
+                            <div class="permission-item">
+                                <div class="permission-label">View OCR Dashboard</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Manage OCR Policies</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="permissions-group">
+                            <div class="group-title">Reports & Logs</div>
+                            <div class="permission-item">
+                                <div class="permission-label">View Reports</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Generate Reports</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">View Audit Logs</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Export Data</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="permissions-group">
+                            <div class="group-title">Users & Roles</div>
+                            <div class="permission-item">
+                                <div class="permission-label">View Users</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Manage Users</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Manage Roles</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Assign Permissions</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="permissions-group">
+                            <div class="group-title">System Settings</div>
+                            <div class="permission-item">
+                                <div class="permission-label">General Settings</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Security Settings</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Integration Settings</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                            <div class="permission-item">
+                                <div class="permission-label">Data Retention Settings</div>
+                                <i class="fas fa-check check-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check if user is logged in
+       // Check login status
+        async function checkAuth() {
+                try {
+                    const response = await fetch("/api/auth/check", {
+                        credentials: "include"
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Not authenticated");
+                    }
+
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        window.location.href = "index.html";
+                    }
+
+                } catch (err) {
+                    window.location.href = "index.html";
+                }
+            }
+
+        // Improved component loader with script execution
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                const container = document.getElementById(containerId);
+                
+                if (!container) {
+                    console.error('Container not found:', containerId);
+                    return;
+                }
+                
+                container.innerHTML = html;
+                
+                // Execute any scripts in the loaded component
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    
+                    // Copy attributes
+                    Array.from(oldScript.attributes).forEach(attr => {
+                        newScript.setAttribute(attr.name, attr.value);
+                    });
+                    
+                    // Copy content if no src
+                    if (!oldScript.src && oldScript.textContent) {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    
+                    // Replace old script with new one to execute
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+                
+                console.log('Loaded component:', containerId);
+            } catch (error) {
+                console.error('Error loading component:', error);
+                // Fallback to direct content if fetch fails
+                if (containerId === 'sidebarContainer') {
+                    document.getElementById(containerId).innerHTML = `<div class="sidebar-error">Sidebar failed to load. <a href="#" onclick="location.reload()">Retry</a></div>`;
+                }
+            }
+        }
+
+        // Load components
+        document.addEventListener('DOMContentLoaded', function() {
+            // Try different path patterns
+            const basePath = window.location.pathname.includes('/pages/') ? '../' : './';
+            
+            loadComponent(basePath + 'sidebar.html', 'sidebarContainer');
+            loadComponent(basePath + 'page-header.html', 'headerContainer');
+            
+            // Set active page in sidebar
+            setTimeout(() => {
+                const currentPage = window.location.pathname.split('/').pop() || 'roles.html';
+                const sidebarLinks = document.querySelectorAll('.nav-link, .sub-menu-item');
+                
+                sidebarLinks.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && href.includes(currentPage.replace('.html', ''))) {
+                        link.classList.add('active');
+                        
+                        // Open parent submenu if this is a submenu item
+                        const parentSubMenu = link.closest('.sub-menu');
+                        if (parentSubMenu) {
+                            parentSubMenu.classList.add('open');
+                            const parentNavLink = parentSubMenu.previousElementSibling;
+                            if (parentNavLink && parentNavLink.classList.contains('nav-dropdown')) {
+                                parentNavLink.classList.add('expanded');
+                            }
+                        }
+                    }
+                });
+            }, 500);
+        });
+
+        // Role management functions
+        function selectRole(role) {
+            const roleItems = document.querySelectorAll('.role-item');
+            roleItems.forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            // Update panel header
+            const panelHeader = document.querySelector('.panel-header .section-header');
+            const roleNames = {
+                'admin': 'Admin',
+                'analyst': 'Analyst',
+                'auditor': 'Auditor',
+                'viewer': 'Viewer',
+                'operator': 'Operator'
+            };
+            
+            const roleDescriptions = {
+                'admin': 'Full system access with all permissions',
+                'analyst': 'View and manage alerts and incidents',
+                'auditor': 'View reports and logs only (read-only)',
+                'viewer': 'Read-only access to dashboard and reports',
+                'operator': 'Limited management access for daily operations'
+            };
+            
+            if (panelHeader) {
+                panelHeader.textContent = `Permissions for ${roleNames[role]}`;
+                
+                // Update subtitle
+                const subtitle = document.querySelector('.panel-header .page-subtitle');
+                if (subtitle) {
+                    subtitle.textContent = roleDescriptions[role];
+                }
+            }
+            
+            // In a real app, you would fetch and display permissions for the selected role
+            console.log('Selected role:', role);
+        }
+
+        function createRole() {
+            const roleName = prompt('Enter new role name:');
+            if (roleName) {
+                alert(`Creating new role: ${roleName}\n\nIn a real application, this would open a modal with role configuration options.`);
+                
+                // Add new role to the list
+                const rolesList = document.querySelector('.roles-list');
+                const newRole = document.createElement('div');
+                newRole.className = 'role-item';
+                newRole.innerHTML = `
+                    <div class="role-name">${roleName}</div>
+                    <div class="role-desc">New role - configure permissions</div>
+                    <div class="role-users">0 users</div>
+                `;
+                newRole.onclick = function() { selectRole(roleName.toLowerCase()); };
+                
+                // Insert before the last item (or wherever appropriate)
+                rolesList.appendChild(newRole);
+                
+                // Select the new role
+                setTimeout(() => {
+                    const roleItems = document.querySelectorAll('.role-item');
+                    roleItems.forEach(item => item.classList.remove('active'));
+                    newRole.classList.add('active');
+                    selectRole(roleName.toLowerCase());
+                }, 100);
+            }
+        }
+
+        function editRole() {
+            const activeRole = document.querySelector('.role-item.active .role-name').textContent;
+            alert(`Editing role: ${activeRole}\n\nIn a real application, this would open a modal to modify permissions for this role.`);
+        }
+
+        // Handle window resize for responsive behavior
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                const mainContent = document.getElementById('mainContent');
+                const sidebar = document.querySelector('.sidebar');
+                
+                if (window.innerWidth <= 968) {
+                    // Mobile view
+                    if (mainContent) {
+                        mainContent.style.marginLeft = '0';
+                        mainContent.style.width = '100%';
+                    }
+                } else {
+                    // Desktop view
+                    if (sidebar && sidebar.classList.contains('collapsed')) {
+                        if (mainContent) {
+                            mainContent.classList.add('expanded');
+                        }
+                    } else {
+                        if (mainContent) {
+                            mainContent.classList.remove('expanded');
+                        }
+                    }
+                }
+            }, 250);
+        });
+
+        // Listen for sidebar toggle events
+        window.addEventListener('sidebarToggle', function(event) {
+            const mainContent = document.getElementById('mainContent');
+            if (mainContent) {
+                if (event.detail.collapsed) {
+                    mainContent.classList.add('expanded');
+                } else {
+                    mainContent.classList.remove('expanded');
+                }
+            }
+        });
+
+        // Initialize on load
+        window.addEventListener('load', function() {
+            // Trigger resize handler to set initial layout
+            window.dispatchEvent(new Event('resize'));
+            
+            // Check if components loaded
+            setTimeout(() => {
+                if (!document.querySelector('.sidebar') && !document.querySelector('.top-header')) {
+                    console.warn('Components not loaded, retrying...');
+                    location.reload();
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - OCR Policies</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; overflow-x: hidden; }
+        .dashboard-container { display: flex; min-height: 100vh; }
+        .main-content { flex: 1; margin-left: 240px; transition: margin-left 0.3s; padding-top: 62px; }
+        .main-content.expanded { margin-left: 70px; }
+        .content-area { padding: 24px; max-width: 1400px; }
+        
+        .page-header { background: white; padding: 20px 24px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title-section { display: flex; align-items: center; gap: 16px; }
+        .page-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .page-icon i { font-size: 22px; color: white; }
+        .page-title-text h1 { font-size: 1.5em; color: #111827; font-weight: 700; }
+        .page-subtitle { color: #6b7280; font-size: 0.9em; }
+        .create-btn { padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 0.9em; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .create-btn:hover { background: #1d4ed8; }
+        
+        .content-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        .policies-list { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; }
+        .card-header { font-size: 1.05em; font-weight: 600; color: #111827; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb; }
+        
+        .policy-item { padding: 16px; border-radius: 8px; margin-bottom: 10px; border: 1.5px solid #e5e7eb; cursor: pointer; transition: all 0.2s; }
+        .policy-item:hover { border-color: #3b82f6; background: #f9fafb; }
+        .policy-item.active { border-color: #3b82f6; background: #eff6ff; }
+        .policy-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .policy-name { font-weight: 600; color: #111827; font-size: 0.95em; }
+        .toggle-switch { position: relative; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; border-radius: 24px; transition: .3s; }
+        .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: .3s; }
+        input:checked + .toggle-slider { background-color: #10b981; }
+        input:checked + .toggle-slider:before { transform: translateX(20px); }
+        .policy-desc { font-size: 0.8em; color: #6b7280; margin-bottom: 6px; }
+        .policy-meta { display: flex; gap: 12px; font-size: 0.75em; color: #9ca3af; }
+        
+        .policy-config { background: white; padding: 24px; border-radius: 12px; border: 1px solid #e5e7eb; }
+        .config-section { margin-bottom: 24px; }
+        .section-title { font-size: 0.95em; font-weight: 600; color: #111827; margin-bottom: 12px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 0.85em; color: #374151; font-weight: 500; margin-bottom: 6px; }
+        .form-input { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; }
+        .form-input:focus { outline: none; border-color: #3b82f6; }
+        .form-select { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; background: white; }
+        .form-textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; min-height: 80px; resize: vertical; }
+        
+        .checkbox-group { display: flex; flex-direction: column; gap: 10px; }
+        .checkbox-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: #f9fafb; border-radius: 6px; cursor: pointer; }
+        .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .checkbox-item label { flex: 1; cursor: pointer; font-size: 0.9em; color: #374151; }
+        
+        .sensitivity-slider { width: 100%; height: 6px; background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #dc2626 100%); border-radius: 3px; margin: 16px 0; }
+        .slider-labels { display: flex; justify-content: space-between; font-size: 0.75em; color: #6b7280; margin-top: 8px; }
+        
+        .keywords-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .keyword-tag { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: #eff6ff; color: #2563eb; border-radius: 6px; font-size: 0.85em; }
+        .keyword-tag i { cursor: pointer; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+        .btn { padding: 10px 20px; border-radius: 8px; font-size: 0.9em; font-weight: 600; cursor: pointer; border: none; display: flex; align-items: center; gap: 8px; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: white; color: #374151; border: 1.5px solid #e5e7eb; }
+        .btn-secondary:hover { background: #f9fafb; }
+        
+        @media (max-width: 1024px) { 
+            .content-grid { grid-template-columns: 1fr; } 
+        }
+        @media (max-width: 968px) { 
+            .main-content { margin-left: 0 !important; padding-top: 0; } 
+        }
+        @media (max-width: 640px) { 
+            .content-area { padding: 16px; } 
+            .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .btn-group { flex-direction: column; }
+            .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+        <div id="headerContainer"></div>
+        <main class="main-content" id="mainContent">
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <div class="page-icon"><i class="fas fa-eye"></i></div>
+                        <div class="page-title-text">
+                            <h1>OCR Policies</h1>
+                            <p class="page-subtitle">Configure screen monitoring and OCR detection rules</p>
+                        </div>
+                    </div>
+                    <button class="create-btn" onclick="createPolicy()">
+                        <i class="fas fa-plus"></i><span>Create Policy</span>
+                    </button>
+                </div>
+
+                <div class="content-grid">
+                    <div class="policies-list">
+                        <div class="card-header">Active Policies</div>
+                        
+                        <div class="policy-item active" onclick="selectPolicy(this)">
+                            <div class="policy-header">
+                                <div class="policy-name">Screen Capture Block</div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="policy-desc">Blocks screenshot attempts when sensitive data detected</div>
+                            <div class="policy-meta">
+                                <span><i class="fas fa-desktop"></i> 156 agents</span>
+                                <span><i class="fas fa-shield-alt"></i> High</span>
+                            </div>
+                        </div>
+
+                        <div class="policy-item" onclick="selectPolicy(this)">
+                            <div class="policy-header">
+                                <div class="policy-name">PII Detection</div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="policy-desc">Detects credit cards, SSN, and other PII data</div>
+                            <div class="policy-meta">
+                                <span><i class="fas fa-desktop"></i> 198 agents</span>
+                                <span><i class="fas fa-shield-alt"></i> Critical</span>
+                            </div>
+                        </div>
+
+                        <div class="policy-item" onclick="selectPolicy(this)">
+                            <div class="policy-header">
+                                <div class="policy-name">Document Classification</div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="policy-desc">Identifies confidential documents and labels</div>
+                            <div class="policy-meta">
+                                <span><i class="fas fa-desktop"></i> 145 agents</span>
+                                <span><i class="fas fa-shield-alt"></i> Medium</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="policy-config">
+                        <div class="card-header">Screen Capture Block Configuration</div>
+
+                        <div class="config-section">
+                            <div class="section-title">Basic Settings</div>
+                            <div class="form-group">
+                                <label class="form-label">Policy Name</label>
+                                <input type="text" class="form-input" value="Screen Capture Block">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-textarea">Blocks screenshot attempts when sensitive data detected on screen</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Severity Level</label>
+                                <select class="form-select">
+                                    <option>Critical</option>
+                                    <option selected>High</option>
+                                    <option>Medium</option>
+                                    <option>Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="config-section">
+                            <div class="section-title">OCR Detection Settings</div>
+                            <div class="form-group">
+                                <label class="form-label">Detection Sensitivity</label>
+                                <input type="range" class="form-input" min="0" max="100" value="75" style="height: 6px;">
+                                <div class="sensitivity-slider"></div>
+                                <div class="slider-labels">
+                                    <span>Low</span>
+                                    <span>Medium</span>
+                                    <span>High</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Data Types to Detect</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="cc" checked>
+                                        <label for="cc">Credit Card Numbers</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="ssn" checked>
+                                        <label for="ssn">Social Security Numbers</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="bank" checked>
+                                        <label for="bank">Bank Account Numbers</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="email">
+                                        <label for="email">Email Addresses</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="phone">
+                                        <label for="phone">Phone Numbers</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Custom Keywords</label>
+                                <input type="text" class="form-input" placeholder="Add keyword and press Enter">
+                                <div class="keywords-list">
+                                    <span class="keyword-tag">confidential <i class="fas fa-times"></i></span>
+                                    <span class="keyword-tag">secret <i class="fas fa-times"></i></span>
+                                    <span class="keyword-tag">internal <i class="fas fa-times"></i></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="config-section">
+                            <div class="section-title">Actions</div>
+                            <div class="form-group">
+                                <label class="form-label">When sensitive data is detected</label>
+                                <select class="form-select">
+                                    <option selected>Block screenshot and alert</option>
+                                    <option>Alert only</option>
+                                    <option>Log silently</option>
+                                    <option>Block and quarantine</option>
+                                </select>
+                            </div>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="notify" checked>
+                                    <label for="notify">Notify user when blocked</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="admin" checked>
+                                    <label for="admin">Send alert to administrators</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="screenshot">
+                                    <label for="screenshot">Save screenshot evidence</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="savePolicy()">
+                                <i class="fas fa-check"></i><span>Save Changes</span>
+                            </button>
+                            <button class="btn btn-secondary" onclick="cancelEdit()">
+                                <i class="fas fa-times"></i><span>Cancel</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        // Check login status
+        async function checkAuth() {
+                try {
+                    const response = await fetch("/api/auth/check", {
+                        credentials: "include"
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Not authenticated");
+                    }
+
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        window.location.href = "index.html";
+                    }
+
+                } catch (err) {
+                    window.location.href = "index.html";
+                }
+            }
+
+        // Function to load components
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                document.getElementById(containerId).innerHTML = html;
+                
+                // Execute any scripts in the loaded component
+                const scripts = document.getElementById(containerId).querySelectorAll('script');
+                scripts.forEach(script => {
+                    const newScript = document.createElement('script');
+                    if (script.src) {
+                        newScript.src = script.src;
+                    } else {
+                        newScript.textContent = script.textContent;
+                    }
+                    document.head.appendChild(newScript).parentNode.removeChild(newScript);
+                });
+            } catch (error) { 
+                console.error('Error loading component:', error); 
+            }
+        }
+
+        // Load components when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            loadComponent('sidebar.html', 'sidebarContainer');
+            loadComponent('page-header.html', 'headerContainer');
+            
+            // Set active menu item for OCR Policies
+            setTimeout(() => {
+                const currentPage = 'ocr-policies.html';
+                const navLinks = document.querySelectorAll('.nav-link[data-page], .sub-menu-item[data-page]');
+                navLinks.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href === currentPage) {
+                        link.classList.add('active');
+                        
+                        // Open parent submenu if it's a submenu item
+                        const parentSubMenu = link.closest('.sub-menu');
+                        if (parentSubMenu) {
+                            parentSubMenu.classList.add('open');
+                            const parentNavLink = parentSubMenu.previousElementSibling;
+                            if (parentNavLink) {
+                                parentNavLink.classList.add('expanded');
+                            }
+                        }
+                    }
+                });
+            }, 500);
+        });
+
+        // Policy functions
+        function selectPolicy(element) {
+            document.querySelectorAll('.policy-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            
+            // Update config header to match selected policy
+            const policyName = element.querySelector('.policy-name').textContent;
+            document.querySelector('.policy-config .card-header').textContent = policyName + ' Configuration';
+        }
+        
+        function createPolicy() { 
+            alert('Opening policy creation form...'); 
+        }
+        
+        function savePolicy() { 
+            alert('Policy saved successfully!'); 
+        }
+        
+        function cancelEdit() { 
+            alert('Changes discarded'); 
+        }
+
+        // Handle sidebar toggle for main content
+        window.addEventListener('sidebarToggle', function(event) {
+            const mainContent = document.getElementById('mainContent');
+            if (event.detail.collapsed) {
+                mainContent.classList.add('expanded');
+            } else {
+                mainContent.classList.remove('expanded');
+            }
+        });
+
+        // Mobile responsive adjustments
+        window.addEventListener('resize', function() {
+            const mainContent = document.getElementById('mainContent');
+            if (window.innerWidth <= 968) {
+                mainContent.classList.remove('expanded');
+                mainContent.style.marginLeft = '0';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - Data Retention</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #f3f4f6; 
+            overflow-x: hidden;
+        }
+        .dashboard-container { 
+            display: flex; 
+            min-height: 100vh; 
+            padding-top: 60px;
+        }
+        .main-content { 
+            flex: 1; 
+            margin-left: 240px; 
+            transition: margin-left 0.3s;
+            width: calc(100% - 240px);
+            min-height: calc(100vh - 60px);
+        }
+        .main-content.expanded { 
+            margin-left: 70px; 
+            width: calc(100% - 70px);
+        }
+        /* .content-area { 
+            padding: 24px; 
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        } */
+
+
+         .content-area { 
+            padding: 24px; 
+          
+            margin: 0 auto;
+         
+        }
+        
+        .page-header { 
+            background: white; 
+            padding: 20px 24px; 
+            border-radius: 12px; 
+            border: 1px solid #e5e7eb; 
+            margin-bottom: 24px; 
+        }
+        .page-title-section { 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+        }
+        .page-icon { 
+            width: 48px; 
+            height: 48px; 
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        .page-icon i { 
+            font-size: 22px; 
+            color: white; 
+        }
+        .page-title-text h1 { 
+            font-size: 1.5em; 
+            color: #111827; 
+            font-weight: 700; 
+        }
+        .page-subtitle { 
+            color: #6b7280; 
+            font-size: 0.9em; 
+        }
+        
+        .settings-form { 
+            background: white; 
+            padding: 28px; 
+            border-radius: 12px; 
+            border: 1px solid #e5e7eb; 
+        }
+        .form-section { 
+            margin-bottom: 28px; 
+            padding-bottom: 28px; 
+            border-bottom: 1px solid #e5e7eb; 
+        }
+        .form-section:last-child { 
+            border-bottom: none; 
+            margin-bottom: 0; 
+            padding-bottom: 0; 
+        }
+        .section-title { 
+            font-size: 1.05em; 
+            font-weight: 600; 
+            color: #111827; 
+            margin-bottom: 16px; 
+        }
+        
+        .retention-item { 
+            padding: 16px; 
+            background: #f9fafb; 
+            border-radius: 8px; 
+            margin-bottom: 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .retention-item:last-child { 
+            margin-bottom: 0; 
+        }
+        .retention-info { 
+            flex: 1; 
+        }
+        .retention-title { 
+            font-weight: 600; 
+            color: #111827; 
+            font-size: 0.9em; 
+            margin-bottom: 4px; 
+        }
+        .retention-title i {
+            margin-right: 8px;
+            color: #6b7280;
+        }
+        .retention-desc { 
+            font-size: 0.8em; 
+            color: #6b7280; 
+        }
+        .form-select { 
+            padding: 8px 12px; 
+            border: 1.5px solid #e5e7eb; 
+            border-radius: 6px; 
+            font-size: 0.85em; 
+            background: white; 
+            min-width: 150px; 
+            cursor: pointer;
+        }
+        
+        .toggle-group { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 12px 0; 
+        }
+        .toggle-label { 
+            flex: 1; 
+        }
+        .toggle-title { 
+            font-size: 0.9em; 
+            font-weight: 600; 
+            color: #111827; 
+        }
+        .toggle-desc { 
+            font-size: 0.8em; 
+            color: #6b7280; 
+            margin-top: 2px; 
+        }
+        .toggle-switch { 
+            position: relative; 
+            width: 50px; 
+            height: 26px; 
+        }
+        .toggle-switch input { 
+            opacity: 0; 
+            width: 0; 
+            height: 0; 
+        }
+        .toggle-slider { 
+            position: absolute; 
+            cursor: pointer; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            background-color: #cbd5e1; 
+            border-radius: 26px; 
+            transition: .3s; 
+        }
+        .toggle-slider:before { 
+            position: absolute; 
+            content: ""; 
+            height: 20px; 
+            width: 20px; 
+            left: 3px; 
+            bottom: 3px; 
+            background-color: white; 
+            border-radius: 50%; 
+            transition: .3s; 
+        }
+        input:checked + .toggle-slider { 
+            background-color: #10b981; 
+        }
+        input:checked + .toggle-slider:before { 
+            transform: translateX(24px); 
+        }
+        
+        .warning-box { 
+            padding: 14px; 
+            background: #fef3c7; 
+            border: 1px solid #fbbf24; 
+            border-radius: 8px; 
+            margin-top: 16px; 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 12px; 
+        }
+        .warning-box i { 
+            color: #f59e0b; 
+            font-size: 1.1em; 
+            margin-top: 2px; 
+        }
+        .warning-text { 
+            font-size: 0.85em; 
+            color: #92400e; 
+            line-height: 1.5; 
+        }
+        
+        .storage-stats { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 12px; 
+            margin-top: 16px; 
+        }
+        .stat-box { 
+            padding: 14px; 
+            background: white; 
+            border: 1px solid #e5e7eb; 
+            border-radius: 8px; 
+            text-align: center; 
+        }
+        .stat-value { 
+            font-size: 1.4em; 
+            font-weight: 700; 
+            color: #2563eb; 
+            margin-bottom: 4px; 
+        }
+        .stat-label { 
+            font-size: 0.8em; 
+            color: #6b7280; 
+        }
+        
+        .btn-group { 
+            display: flex; 
+            gap: 12px; 
+            margin-top: 28px; 
+        }
+        .btn { 
+            flex: 1; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            font-size: 0.95em; 
+            font-weight: 600; 
+            cursor: pointer; 
+            border: none; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            transition: all 0.2s;
+        }
+        .btn-primary { 
+            background: #2563eb; 
+            color: white; 
+        }
+        .btn-primary:hover { 
+            background: #1d4ed8; 
+        }
+        .btn-secondary { 
+            background: white; 
+            color: #374151; 
+            border: 1.5px solid #e5e7eb; 
+        }
+        .btn-secondary:hover { 
+            background: #f9fafb; 
+        }
+        .btn-danger { 
+            background: #dc2626; 
+            color: white; 
+        }
+        .btn-danger:hover { 
+            background: #b91c1c; 
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-left: 220px;
+                width: calc(100% - 220px);
+            }
+            .main-content.expanded {
+                margin-left: 65px;
+                width: calc(100% - 65px);
+            }
+        }
+        
+        @media (max-width: 968px) { 
+            .dashboard-container {
+                padding-top: 56px;
+            }
+            .main-content { 
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            .main-content.expanded {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content-area { 
+                padding: 16px; 
+            }
+            .settings-form {
+                padding: 20px;
+            }
+            .storage-stats { 
+                grid-template-columns: repeat(2, 1fr); 
+            }
+        }
+        
+        @media (max-width: 640px) { 
+            .btn-group { 
+                flex-direction: column; 
+            } 
+            .retention-item { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 12px; 
+            } 
+            .form-select { 
+                width: 100%; 
+            } 
+            .storage-stats { 
+                grid-template-columns: 1fr; 
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-title-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .page-icon {
+                width: 40px;
+                height: 40px;
+            }
+            .page-icon i {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar will be loaded here -->
+        <div id="sidebarContainer"></div>
+        
+        <main class="main-content" id="mainContent">
+            <!-- Header will be loaded here -->
+            <div id="headerContainer"></div>
+            
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <div class="page-icon"><i class="fas fa-database"></i></div>
+                        <div class="page-title-text">
+                            <h1>Data Retention</h1>
+                            <p class="page-subtitle">Manage data storage and retention policies</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form class="settings-form" id="settingsForm">
+                    <div class="form-section">
+                        <div class="section-title">Retention Periods</div>
+                        
+                        <div class="retention-item">
+                            <div class="retention-info">
+                                <div class="retention-title"><i class="fas fa-triangle-exclamation"></i> Alert Data</div>
+                                <div class="retention-desc">How long to keep alert records</div>
+                            </div>
+                            <select class="form-select">
+                                <option>30 days</option>
+                                <option selected>90 days</option>
+                                <option>180 days</option>
+                                <option>1 year</option>
+                                <option>2 years</option>
+                                <option>Forever</option>
+                            </select>
+                        </div>
+
+                        <div class="retention-item">
+                            <div class="retention-info">
+                                <div class="retention-title"><i class="fas fa-clock-rotate-left"></i> Audit Logs</div>
+                                <div class="retention-desc">Admin action and system logs</div>
+                            </div>
+                            <select class="form-select">
+                                <option>90 days</option>
+                                <option>180 days</option>
+                                <option selected>1 year</option>
+                                <option>2 years</option>
+                                <option>5 years</option>
+                                <option>Forever</option>
+                            </select>
+                        </div>
+
+                        <div class="retention-item">
+                            <div class="retention-info">
+                                <div class="retention-title"><i class="fas fa-desktop"></i> Device Logs</div>
+                                <div class="retention-desc">Endpoint activity logs</div>
+                            </div>
+                            <select class="form-select">
+                                <option>30 days</option>
+                                <option>90 days</option>
+                                <option selected>180 days</option>
+                                <option>1 year</option>
+                                <option>Forever</option>
+                            </select>
+                        </div>
+
+                        <div class="retention-item">
+                            <div class="retention-info">
+                                <div class="retention-title"><i class="fas fa-file"></i> Evidence Files</div>
+                                <div class="retention-desc">Screenshots and file samples</div>
+                            </div>
+                            <select class="form-select">
+                                <option>30 days</option>
+                                <option selected>90 days</option>
+                                <option>180 days</option>
+                                <option>1 year</option>
+                                <option>Forever</option>
+                            </select>
+                        </div>
+
+                        <div class="retention-item">
+                            <div class="retention-info">
+                                <div class="retention-title"><i class="fas fa-chart-line"></i> Reports</div>
+                                <div class="retention-desc">Generated report files</div>
+                            </div>
+                            <select class="form-select">
+                                <option>90 days</option>
+                                <option>180 days</option>
+                                <option selected>1 year</option>
+                                <option>2 years</option>
+                                <option>Forever</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Auto-Purge Settings</div>
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Enable Auto-Purge</div>
+                                <div class="toggle-desc">Automatically delete data after retention period</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Notification Before Purge</div>
+                                <div class="toggle-desc">Send alert 7 days before auto-purge</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="warning-box">
+                            <i class="fas fa-triangle-exclamation"></i>
+                            <div class="warning-text">
+                                <strong>Warning:</strong> Deleted data cannot be recovered. Ensure compliance with your organization's data retention requirements before enabling auto-purge.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Storage Statistics</div>
+                        <div class="storage-stats">
+                            <div class="stat-box">
+                                <div class="stat-value">2.4 GB</div>
+                                <div class="stat-label">Alert Data</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">856 MB</div>
+                                <div class="stat-label">Logs</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">1.2 GB</div>
+                                <div class="stat-label">Evidence Files</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Data Export</div>
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Export Before Deletion</div>
+                                <div class="toggle-desc">Automatically export data before purging</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="retention-item">
+                            <div class="retention-info">
+                                <div class="retention-title">Export Destination</div>
+                                <div class="retention-desc">Where to store exported data</div>
+                            </div>
+                            <select class="form-select">
+                                <option selected>AWS S3</option>
+                                <option>Azure Blob Storage</option>
+                                <option>Google Cloud Storage</option>
+                                <option>Local Archive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i><span>Save Changes</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                            <i class="fas fa-rotate-left"></i><span>Reset</span>
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="purgeNow()">
+                            <i class="fas fa-trash"></i><span>Purge Now</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check if user is logged in
+       // Check login status
+        async function checkAuth() {
+                try {
+                    const response = await fetch("/api/auth/check", {
+                        credentials: "include"
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Not authenticated");
+                    }
+
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        window.location.href = "index.html";
+                    }
+
+                } catch (err) {
+                    window.location.href = "index.html";
+                }
+            }
+
+        // Enhanced loadComponent function that executes scripts
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                const container = document.getElementById(containerId);
+                container.innerHTML = html;
+                
+                // Execute any scripts in the loaded component
+                const scripts = container.getElementsByTagName('script');
+                for (let script of scripts) {
+                    const newScript = document.createElement('script');
+                    if (script.src) {
+                        newScript.src = script.src;
+                    } else {
+                        newScript.textContent = script.textContent;
+                    }
+                    // Copy all attributes
+                    Array.from(script.attributes).forEach(attr => {
+                        newScript.setAttribute(attr.name, attr.value);
+                    });
+                    document.body.appendChild(newScript);
+                }
+                
+                // Initialize components that need DOM ready
+                setTimeout(() => {
+                    if (typeof initializeSidebar === 'function') {
+                        initializeSidebar();
+                    }
+                    if (typeof initializeHeader === 'function') {
+                        initializeHeader();
+                    }
+                }, 100);
+                
+            } catch (error) { 
+                console.error('Error loading component:', error); 
+            }
+        }
+
+        // Load components when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load components from correct paths
+            loadComponent('../sidebar.html', 'sidebarContainer');
+            loadComponent('../page-header.html', 'headerContainer');
+            
+            // Fix for main content adjustment on load
+            setTimeout(() => {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
+                const header = document.querySelector('.top-header');
+                
+                if (sidebar && mainContent) {
+                    if (sidebar.classList.contains('collapsed')) {
+                        mainContent.classList.add('expanded');
+                        if (header) header.style.left = '70px';
+                    } else {
+                        mainContent.classList.remove('expanded');
+                        if (header) header.style.left = '240px';
+                    }
+                }
+            }, 300);
+        });
+        
+        // Form submission handler
+        document.getElementById('settingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Data retention settings saved successfully!');
+        });
+        
+        // Reset form function
+        function resetForm() {
+            if (confirm('Reset all retention settings to default?')) {
+                document.getElementById('settingsForm').reset();
+            }
+        }
+        
+        // Purge now function
+        function purgeNow() {
+            if (confirm('WARNING: This will permanently delete all expired data based on current retention policies. This action cannot be undone. Continue?')) {
+                alert('Data purge initiated. You will receive a notification when complete.');
+            }
+        }
+        
+        // Make functions globally available
+        window.resetForm = resetForm;
+        window.purgeNow = purgeNow;
+        
+        // Handle window resize for responsive behavior
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (window.innerWidth <= 968) {
+                if (sidebar) sidebar.classList.remove('collapsed');
+                if (mainContent) {
+                    mainContent.classList.remove('expanded');
+                    mainContent.style.marginLeft = '0';
+                    mainContent.style.width = '100%';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

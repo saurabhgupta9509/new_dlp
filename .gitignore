@@ -1,0 +1,9 @@
+target/
+.idea/
+.vscode/
+*.log
+*.class
+.Dockerfile
+*.jar
+.docker-compose.yml
+*.env

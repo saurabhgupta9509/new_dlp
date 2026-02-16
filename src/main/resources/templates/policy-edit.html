@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Policy - DLP Shield</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; 
+            background: #f3f4f6; 
+            overflow-x: hidden;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        .dashboard-container { 
+            display: flex; 
+            min-height: 100vh; 
+            padding-top: 62px;
+        }
+        
+        .main-content { 
+            flex: 1; 
+            margin-left: 240px; 
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 240px);
+        }
+        
+        .main-content.expanded { 
+            margin-left: 70px; 
+            width: calc(100% - 70px);
+        }
+        
+        .content-area { 
+            padding: 24px; 
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        .page-header { 
+            background: white; 
+            padding: 20px 24px; 
+            border-radius: 12px; 
+            border: 1px solid #e5e7eb; 
+            margin-bottom: 24px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .page-title-section { 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+        }
+        
+        .back-btn {
+            width: 42px;
+            height: 42px;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #374151;
+        }
+        
+        .back-btn:hover {
+            background: #e5e7eb;
+            border-color: #d1d5db;
+        }
+        
+        .page-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+        
+        .page-icon i {
+            font-size: 22px;
+            color: white;
+        }
+        
+        .page-title-text h1 { 
+            font-size: 1.75rem; 
+            color: #111827; 
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        
+        .page-subtitle { 
+            color: #6b7280; 
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+        
+        .form-container {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .config-section {
+            margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        
+        .config-section:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 20px;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: #2563eb;
+            font-size: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.95rem;
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .form-label .required {
+            color: #dc2626;
+            margin-left: 4px;
+        }
+        
+        .form-help {
+            display: block;
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            min-height: 120px;
+            resize: vertical;
+            transition: all 0.2s;
+            font-family: inherit;
+            line-height: 1.6;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .toggle-switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .toggle-label {
+            font-size: 0.95rem;
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            border-radius: 28px;
+            transition: .3s;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #10b981;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .checkbox-item:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #2563eb;
+        }
+        
+        .checkbox-item label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        .extensions-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        
+        .extensions-input input {
+            flex: 1;
+        }
+        
+        .btn-add {
+            padding: 12px 20px;
+            background: #f3f4f6;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            color: #374151;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        
+        .btn-add:hover {
+            background: #e5e7eb;
+            border-color: #d1d5db;
+        }
+        
+        .tags-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+            min-height: 60px;
+            border: 1px dashed #d1d5db;
+        }
+        
+        .tags-list.empty::after {
+            content: "No extensions added yet. Add extensions using the input above.";
+            color: #9ca3af;
+            font-size: 0.9rem;
+            font-style: italic;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: #eff6ff;
+            color: #2563eb;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid #dbeafe;
+        }
+        
+        .tag i {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tag i:hover {
+            color: #1d4ed8;
+            transform: scale(1.1);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 2px solid #e5e7eb;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1.5px solid #e5e7eb;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+        
+        .alert-info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-left: 4px solid #3b82f6;
+            padding: 16px 18px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .alert-info i {
+            color: #3b82f6;
+            font-size: 1.1rem;
+            margin-top: 2px;
+        }
+        
+        .alert-info-content {
+            flex: 1;
+        }
+        
+        .alert-info-text {
+            color: #1e40af;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content-area {
+                padding: 16px;
+            }
+            
+            .form-container {
+                padding: 24px;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 14px;
+            }
+            
+            .page-title-text h1 {
+                font-size: 1.5rem;
+            }
+            
+            .btn-group {
+                flex-direction: column-reverse;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .extensions-input {
+                flex-direction: column;
+            }
+            
+            .btn-add {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Container -->
+    <div id="sidebarContainer"></div>
+    
+    <!-- Header Container -->
+    <div id="headerContainer"></div>
+    
+    <div class="dashboard-container">
+        <main class="main-content" id="mainContent">
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <a href="file-policies.html" class="back-btn" title="Back to Policies">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <div class="page-icon"><i class="fas fa-edit"></i></div>
+                        <div class="page-title-text">
+                            <h1>Edit Policy</h1>
+                            <p class="page-subtitle">Modify policy settings and configuration</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <div class="alert-info-content">
+                        <div class="alert-info-text">
+                            Changes to this policy will be applied to all <strong>245 active agents</strong> within 5 minutes. Make sure to review all settings before saving.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-container">
+                    <form id="editPolicyForm">
+                        <div class="config-section">
+                            <div class="section-title">
+                                <i class="fas fa-cog"></i> Basic Settings
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Policy Name <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" id="policyName" value="Block Sensitive Files" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-textarea" id="policyDescription">Prevents copying files with sensitive extensions to unauthorized locations</textarea>
+                                <span class="form-help">Provide a clear description of what this policy does and why it's needed.</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Severity Level <span class="required">*</span>
+                                </label>
+                                <select class="form-select" id="policySeverity" required>
+                                    <option value="critical">Critical - Highest Priority</option>
+                                    <option value="high" selected>High - Important</option>
+                                    <option value="medium">Medium - Moderate</option>
+                                    <option value="low">Low - Informational</option>
+                                </select>
+                                <span class="form-help">Select the severity level to determine alert priority and response urgency.</span>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="toggle-switch-container">
+                                    <label class="toggle-label">Enable this policy</label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="policyEnabled" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="config-section">
+                            <div class="section-title">
+                                <i class="fas fa-file"></i> File Extensions
+                            </div>
+                            
+                            <div class="extensions-input">
+                                <input type="text" class="form-input" placeholder="Add extension (e.g., .pdf, .docx)" id="extensionInput">
+                                <button type="button" class="btn-add" onclick="addExtension()">
+                                    <i class="fas fa-plus"></i> Add Extension
+                                </button>
+                            </div>
+                            
+                            <div class="tags-list" id="tagsList">
+                                <span class="tag">.pdf <i class="fas fa-times" onclick="removeTag(this)"></i></span>
+                                <span class="tag">.docx <i class="fas fa-times" onclick="removeTag(this)"></i></span>
+                                <span class="tag">.xlsx <i class="fas fa-times" onclick="removeTag(this)"></i></span>
+                                <span class="tag">.pptx <i class="fas fa-times" onclick="removeTag(this)"></i></span>
+                                <span class="tag">.csv <i class="fas fa-times" onclick="removeTag(this)"></i></span>
+                            </div>
+                            <span class="form-help">Specify file extensions to monitor. Include the dot (.) before the extension.</span>
+                        </div>
+
+                        <div class="config-section">
+                            <div class="section-title">
+                                <i class="fas fa-tasks"></i> File Operations
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Select operations to monitor</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="opRead" checked>
+                                        <label for="opRead">Monitor Read Access</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="opWrite" checked>
+                                        <label for="opWrite">Monitor Write/Create</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="opDelete" checked>
+                                        <label for="opDelete">Monitor Delete</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="opCopy" checked>
+                                        <label for="opCopy">Monitor Copy/Move</label>
+                                    </div>
+                                </div>
+                                <span class="form-help">Choose which file operations should trigger this policy.</span>
+                            </div>
+                        </div>
+
+                        <div class="config-section">
+                            <div class="section-title">
+                                <i class="fas fa-folder"></i> Path Rules
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Protected Paths</label>
+                                <textarea class="form-textarea" id="protectedPaths" placeholder="Enter paths to protect, one per line&#10;Example:&#10;C:\Confidential\&#10;C:\Users\*\Documents\Sensitive\&#10;/home/*/private/">C:\Confidential\
+C:\Users\*\Documents\Sensitive\</textarea>
+                                <span class="form-help">Specify paths where this policy should monitor files. Use * as a wildcard for any folder/user name.</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Blocked Destinations</label>
+                                <textarea class="form-textarea" id="blockedDestinations" placeholder="Enter destinations to block, one per line&#10;Example:&#10;D:\&#10;E:\&#10;USB Drives">D:\
+E:\
+USB Drives</textarea>
+                                <span class="form-help">Specify destinations where file transfers should be blocked (e.g., USB drives, network shares, specific folders).</span>
+                            </div>
+                        </div>
+
+                        <div class="config-section">
+                            <div class="section-title">
+                                <i class="fas fa-shield-alt"></i> Response Actions
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Action when violation is detected <span class="required">*</span>
+                                </label>
+                                <select class="form-select" id="violationAction" required>
+                                    <option value="block-alert" selected>Block and Alert - Prevent action and notify administrators</option>
+                                    <option value="alert">Alert Only - Allow action but send alert</option>
+                                    <option value="log">Log Silently - Record event without alerting</option>
+                                    <option value="ask">Ask User - Prompt user for justification</option>
+                                </select>
+                                <span class="form-help">Define what happens when a policy violation is detected.</span>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a href="file-policies.html" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check login
+         async function checkAuth() {
+           try {
+               const response = await fetch("/api/auth/check", {
+                   credentials: "include"
+               });
+
+               if (!response.ok) {
+                   throw new Error("Not authenticated");
+               }
+
+               const result = await response.json();
+
+               if (!result.success) {
+                   window.location.href = "index.html";
+               }
+
+           } catch (err) {
+               window.location.href = "index.html";
+           }
+       }
+
+
+
+        // Get policy ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const policyId = urlParams.get('id') || '1';
+
+        // Load policy data
+        function loadPolicyData() {
+            // In a real application, this would fetch from an API
+            console.log('Loading policy for editing:', policyId);
+        }
+
+        // Add extension function
+        function addExtension() {
+            const input = document.getElementById('extensionInput');
+            const tagsList = document.getElementById('tagsList');
+            
+            if (input.value.trim()) {
+                let extension = input.value.trim();
+                
+                // Add dot if not present
+                if (!extension.startsWith('.')) {
+                    extension = '.' + extension;
+                }
+                
+                // Check if extension already exists
+                const existingTags = Array.from(tagsList.querySelectorAll('.tag')).map(tag => 
+                    tag.textContent.trim().replace('×', '').trim()
+                );
+                
+                if (existingTags.includes(extension)) {
+                    alert('This extension has already been added.');
+                    return;
+                }
+                
+                // Remove empty class if present
+                tagsList.classList.remove('empty');
+                
+                const tag = document.createElement('span');
+                tag.className = 'tag';
+                tag.innerHTML = `${extension} <i class="fas fa-times" onclick="removeTag(this)"></i>`;
+                tagsList.appendChild(tag);
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        // Remove tag function
+        function removeTag(element) {
+            const tagsList = document.getElementById('tagsList');
+            element.parentElement.remove();
+            
+            // Add empty class if no tags left
+            if (tagsList.children.length === 0) {
+                tagsList.classList.add('empty');
+            }
+        }
+
+        // Handle Enter key in extension input
+        document.addEventListener('DOMContentLoaded', function() {
+            const extensionInput = document.getElementById('extensionInput');
+            if (extensionInput) {
+                extensionInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addExtension();
+                    }
+                });
+            }
+        });
+
+        // Form submission
+        document.getElementById('editPolicyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const policyName = document.getElementById('policyName').value;
+            const policyDescription = document.getElementById('policyDescription').value;
+            const policySeverity = document.getElementById('policySeverity').value;
+            const policyEnabled = document.getElementById('policyEnabled').checked;
+            
+            // Get extensions
+            const tags = Array.from(document.querySelectorAll('.tag')).map(tag => 
+                tag.textContent.trim().replace('×', '').trim()
+            );
+            
+            // Get operations
+            const operations = {
+                read: document.getElementById('opRead').checked,
+                write: document.getElementById('opWrite').checked,
+                delete: document.getElementById('opDelete').checked,
+                copy: document.getElementById('opCopy').checked
+            };
+            
+            // Get paths
+            const protectedPaths = document.getElementById('protectedPaths').value;
+            const blockedDestinations = document.getElementById('blockedDestinations').value;
+            const violationAction = document.getElementById('violationAction').value;
+            
+            // Validate
+            if (!policyName.trim()) {
+                alert('Please enter a policy name');
+                return;
+            }
+            
+            if (tags.length === 0) {
+                alert('Please add at least one file extension');
+                return;
+            }
+            
+            if (!Object.values(operations).some(v => v)) {
+                alert('Please select at least one operation to monitor');
+                return;
+            }
+            
+            // In a real application, this would send data to an API
+            console.log('Saving policy:', {
+                id: policyId,
+                name: policyName,
+                description: policyDescription,
+                severity: policySeverity,
+                enabled: policyEnabled,
+                extensions: tags,
+                operations: operations,
+                protectedPaths: protectedPaths,
+                blockedDestinations: blockedDestinations,
+                action: violationAction
+            });
+            
+            // Show success message
+            alert('Policy updated successfully!');
+            
+            // Redirect to policies list
+            window.location.href = 'file-policies.html';
+        });
+
+        // Load components
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                const container = document.getElementById(containerId);
+                
+                if (!container) {
+                    console.error(`Container ${containerId} not found`);
+                    return;
+                }
+                
+                container.innerHTML = html;
+                
+                const scripts = container.getElementsByTagName('script');
+                for (let script of scripts) {
+                    try {
+                        const newScript = document.createElement('script');
+                        if (script.src) {
+                            newScript.src = script.src;
+                        } else {
+                            newScript.textContent = script.textContent;
+                        }
+                        Array.from(script.attributes).forEach(attr => {
+                            newScript.setAttribute(attr.name, attr.value);
+                        });
+                        document.head.appendChild(newScript);
+                    } catch (err) {
+                        console.error('Error executing script:', err);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading component:', error);
+            }
+        }
+
+        // Load components when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            loadComponent('sidebar.html', 'sidebarContainer');
+            loadComponent('page-header.html', 'headerContainer');
+            loadPolicyData();
+        });
+
+        // Handle sidebar toggle
+        window.addEventListener('sidebarToggle', function(event) {
+            const mainContent = document.getElementById('mainContent');
+            if (mainContent) {
+                if (event.detail.collapsed) {
+                    mainContent.classList.add('expanded');
+                } else {
+                    mainContent.classList.remove('expanded');
+                }
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (window.innerWidth <= 968) {
+                if (mainContent) {
+                    mainContent.classList.remove('expanded');
+                    mainContent.style.marginLeft = '0';
+                    mainContent.style.width = '100%';
+                }
+            } else {
+                if (sidebar && sidebar.classList.contains('collapsed')) {
+                    if (mainContent) {
+                        mainContent.classList.add('expanded');
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

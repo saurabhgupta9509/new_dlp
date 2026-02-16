@@ -1,0 +1,3645 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>DLP Shield - Manage Agents</title>-->
+<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">-->
+<!--    <style>-->
+<!--        * { -->
+<!--            margin: 0; -->
+<!--            padding: 0; -->
+<!--            box-sizing: border-box; -->
+<!--        }-->
+<!--        -->
+<!--        body { -->
+<!--            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -->
+<!--            background: #f3f4f6; -->
+<!--            overflow-x: hidden; /* Prevent horizontal scroll on body */-->
+<!--        }-->
+<!--        -->
+<!--        .dashboard-container { -->
+<!--            display: flex; -->
+<!--            min-height: 100vh; -->
+<!--            overflow-x: hidden; /* Prevent horizontal scroll */-->
+<!--        }-->
+<!--        -->
+<!--        .main-content { -->
+<!--            flex: 1; -->
+<!--            margin-left: 240px; -->
+<!--            transition: margin-left 0.3s ease;-->
+<!--            padding-top: 70px;-->
+<!--            width: calc(100vw - 240px); /* Fixed width calculation */-->
+<!--            max-width: 100%; /* Ensure it doesn't overflow */-->
+<!--            overflow-x: hidden; /* Hide horizontal overflow */-->
+<!--        }-->
+<!--        -->
+<!--        .main-content.expanded { -->
+<!--            margin-left: 70px; -->
+<!--            width: calc(100vw - 70px); /* Adjust width when sidebar collapsed */-->
+<!--        }-->
+<!--        -->
+<!--        .content-area { -->
+<!--            padding: 24px;-->
+<!--            width: 100%;-->
+<!--            max-width: 100%;-->
+<!--            overflow-x: hidden; /* Prevent horizontal scroll in content area */-->
+<!--        }-->
+<!--        -->
+<!--        .page-header { -->
+<!--            background: white; -->
+<!--            padding: 20px 24px; -->
+<!--            border-radius: 12px; -->
+<!--            border: 1px solid #e5e7eb; -->
+<!--            margin-bottom: 24px; -->
+<!--            display: flex; -->
+<!--            justify-content: space-between; -->
+<!--            align-items: center;-->
+<!--            width: 100%;-->
+<!--            max-width: 100%;-->
+<!--            flex-wrap: wrap; /* Allow wrapping on smaller screens */-->
+<!--        }-->
+<!--        -->
+<!--        .page-title-section { -->
+<!--            display: flex; -->
+<!--            align-items: center; -->
+<!--            gap: 16px; -->
+<!--            flex-wrap: wrap; /* Allow wrapping */-->
+<!--        }-->
+<!--        -->
+<!--        .page-icon { -->
+<!--            width: 48px; -->
+<!--            height: 48px; -->
+<!--            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); -->
+<!--            border-radius: 12px; -->
+<!--            display: flex; -->
+<!--            align-items: center; -->
+<!--            justify-content: center; -->
+<!--            flex-shrink: 0; /* Prevent icon from shrinking */-->
+<!--        }-->
+<!--        -->
+<!--        .page-icon i { -->
+<!--            font-size: 22px; -->
+<!--            color: white; -->
+<!--        }-->
+<!--        -->
+<!--        .page-title-text h1 { -->
+<!--            font-size: 1.5em; -->
+<!--            color: #111827; -->
+<!--            font-weight: 700; -->
+<!--            line-height: 1.2;-->
+<!--        }-->
+<!--        -->
+<!--        .page-subtitle { -->
+<!--            color: #6b7280; -->
+<!--            font-size: 0.9em; -->
+<!--            margin-top: 4px;-->
+<!--        }-->
+<!--        -->
+<!--        .add-btn { -->
+<!--            padding: 10px 20px; -->
+<!--            background: #2563eb; -->
+<!--            color: white; -->
+<!--            border: none; -->
+<!--            border-radius: 8px; -->
+<!--            font-size: 0.9em; -->
+<!--            font-weight: 600; -->
+<!--            cursor: pointer; -->
+<!--            display: flex; -->
+<!--            align-items: center; -->
+<!--            gap: 8px; -->
+<!--            transition: background 0.2s;-->
+<!--            flex-shrink: 0; /* Prevent button from shrinking */-->
+<!--        }-->
+<!--        -->
+<!--        .add-btn:hover { -->
+<!--            background: #1d4ed8; -->
+<!--        }-->
+<!--        -->
+<!--        .stats-grid { -->
+<!--            display: grid; -->
+<!--            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); -->
+<!--            gap: 16px; -->
+<!--            margin-bottom: 24px;-->
+<!--            width: 100%;-->
+<!--            max-width: 100%;-->
+<!--        }-->
+<!--        -->
+<!--        .stat-card { -->
+<!--            background: white; -->
+<!--            padding: 16px; -->
+<!--            border-radius: 12px; -->
+<!--            border: 1px solid #e5e7eb;-->
+<!--            width: 100%;-->
+<!--        }-->
+<!--        -->
+<!--        .stat-header { -->
+<!--            display: flex; -->
+<!--            justify-content: space-between; -->
+<!--            align-items: center; -->
+<!--            margin-bottom: 6px; -->
+<!--        }-->
+<!--        -->
+<!--        .stat-icon { -->
+<!--            width: 40px; -->
+<!--            height: 40px; -->
+<!--            border-radius: 10px; -->
+<!--            display: flex; -->
+<!--            align-items: center; -->
+<!--            justify-content: center; -->
+<!--            font-size: 1em; -->
+<!--            flex-shrink: 0;-->
+<!--        }-->
+<!--        -->
+<!--        .stat-icon.blue { -->
+<!--            background: #dbeafe; -->
+<!--            color: #3b82f6; -->
+<!--        }-->
+<!--        -->
+<!--        .stat-icon.green { -->
+<!--            background: #d1fae5; -->
+<!--            color: #10b981; -->
+<!--        }-->
+<!--        -->
+<!--        .stat-icon.red { -->
+<!--            background: #fee2e2; -->
+<!--            color: #dc2626; -->
+<!--        }-->
+<!--        -->
+<!--        .stat-icon.yellow { -->
+<!--            background: #fef3c7; -->
+<!--            color: #f59e0b; -->
+<!--        }-->
+<!--        -->
+<!--        .stat-label { -->
+<!--            font-size: 0.75em; -->
+<!--            color: #6b7280; -->
+<!--            margin-bottom: 6px; -->
+<!--            text-transform: uppercase; -->
+<!--            letter-spacing: 0.5px; -->
+<!--        }-->
+<!--        -->
+<!--        .stat-value { -->
+<!--            font-size: 1.6em; -->
+<!--            font-weight: 700; -->
+<!--            color: #111827; -->
+<!--        }-->
+<!--        -->
+<!--        .filters-section { -->
+<!--            background: white; -->
+<!--            padding: 16px 20px; -->
+<!--            border-radius: 12px; -->
+<!--            border: 1px solid #e5e7eb; -->
+<!--            margin-bottom: 20px; -->
+<!--            display: flex; -->
+<!--            gap: 12px; -->
+<!--            flex-wrap: wrap; -->
+<!--            align-items: center;-->
+<!--            width: 100%;-->
+<!--            max-width: 100%;-->
+<!--        }-->
+<!--        -->
+<!--        .search-box { -->
+<!--            flex: 1; -->
+<!--            min-width: 250px; -->
+<!--            position: relative; -->
+<!--        }-->
+<!--        -->
+<!--        .search-box i { -->
+<!--            position: absolute; -->
+<!--            left: 12px; -->
+<!--            top: 50%; -->
+<!--            transform: translateY(-50%); -->
+<!--            color: #9ca3af; -->
+<!--            font-size: 0.9em; -->
+<!--        }-->
+<!--        -->
+<!--        .search-input { -->
+<!--            width: 100%; -->
+<!--            padding: 9px 12px 9px 36px; -->
+<!--            border: 1.5px solid #e5e7eb; -->
+<!--            border-radius: 8px; -->
+<!--            font-size: 0.9em; -->
+<!--            background: #f9fafb;-->
+<!--            transition: all 0.3s ease;-->
+<!--            max-width: 100%;-->
+<!--        }-->
+<!--        -->
+<!--        .search-input:focus { -->
+<!--            outline: none; -->
+<!--            border-color: #3b82f6; -->
+<!--            background: white;-->
+<!--            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);-->
+<!--        }-->
+<!--        -->
+<!--        .filter-select { -->
+<!--            padding: 9px 32px 9px 12px; -->
+<!--            border: 1.5px solid #e5e7eb; -->
+<!--            border-radius: 8px; -->
+<!--            font-size: 0.9em; -->
+<!--            background: white; -->
+<!--            cursor: pointer;-->
+<!--            transition: all 0.3s ease;-->
+<!--            min-width: 120px;-->
+<!--        }-->
+<!--        -->
+<!--        .filter-select:focus {-->
+<!--            outline: none;-->
+<!--            border-color: #3b82f6;-->
+<!--        }-->
+<!--        -->
+<!--        .agents-table-container { -->
+<!--            background: white; -->
+<!--            border-radius: 12px; -->
+<!--            border: 1px solid #e5e7eb; -->
+<!--            overflow: hidden;-->
+<!--            width: 100%;-->
+<!--            max-width: 100%;-->
+<!--        }-->
+<!--        -->
+<!--        .table-wrapper { -->
+<!--            overflow-x: auto; -->
+<!--            width: 100%;-->
+<!--            max-width: 100%;-->
+<!--            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */-->
+<!--        }-->
+<!--        -->
+<!--        .agents-table { -->
+<!--            width: 100%; -->
+<!--            border-collapse: collapse;-->
+<!--            min-width: 1200px; /* Minimum width for the table */-->
+<!--        }-->
+<!--        -->
+<!--        .agents-table thead { -->
+<!--            background: #f9fafb; -->
+<!--        }-->
+<!--        -->
+<!--        .agents-table th { -->
+<!--            padding: 12px 16px; -->
+<!--            text-align: left; -->
+<!--            font-size: 0.8em; -->
+<!--            font-weight: 600; -->
+<!--            color: #6b7280; -->
+<!--            text-transform: uppercase; -->
+<!--            letter-spacing: 0.5px; -->
+<!--            border-bottom: 1px solid #e5e7eb;-->
+<!--            white-space: nowrap; /* Prevent header text wrapping */-->
+<!--        }-->
+<!--        -->
+<!--        .agents-table td { -->
+<!--            padding: 14px 16px; -->
+<!--            font-size: 0.9em; -->
+<!--            color: #374151; -->
+<!--            border-bottom: 1px solid #f3f4f6;-->
+<!--            white-space: nowrap; /* Prevent cell text wrapping */-->
+<!--        }-->
+<!--        -->
+<!--        .agents-table tbody tr { -->
+<!--            cursor: pointer; -->
+<!--            transition: background 0.2s; -->
+<!--        }-->
+<!--        -->
+<!--        .agents-table tbody tr:hover { -->
+<!--            background: #f9fafb; -->
+<!--        }-->
+<!--        -->
+<!--        /* Responsive table cells - allow text truncation on small screens */-->
+<!--        .agents-table td:nth-child(1), /* Agent Name */-->
+<!--        .agents-table td:nth-child(2), /* User */-->
+<!--        .agents-table td:nth-child(3) { /* OS */-->
+<!--            max-width: 180px;-->
+<!--            overflow: hidden;-->
+<!--            text-overflow: ellipsis;-->
+<!--            white-space: nowrap;-->
+<!--        }-->
+<!--        -->
+<!--        .status-indicator { -->
+<!--            display: inline-flex; -->
+<!--            align-items: center; -->
+<!--            gap: 6px; -->
+<!--            padding: 4px 10px; -->
+<!--            border-radius: 6px; -->
+<!--            font-size: 0.8em; -->
+<!--            font-weight: 600;-->
+<!--            white-space: nowrap;-->
+<!--        }-->
+<!--        -->
+<!--        .status-online { -->
+<!--            background: #d1fae5; -->
+<!--            color: #059669; -->
+<!--        }-->
+<!--        -->
+<!--        .status-online::before { -->
+<!--            content: ''; -->
+<!--            width: 6px; -->
+<!--            height: 6px; -->
+<!--            background: #10b981; -->
+<!--            border-radius: 50%; -->
+<!--        }-->
+<!--        -->
+<!--        .status-offline { -->
+<!--            background: #f3f4f6; -->
+<!--            color: #6b7280; -->
+<!--        }-->
+<!--        -->
+<!--        .status-offline::before { -->
+<!--            content: ''; -->
+<!--            width: 6px; -->
+<!--            height: 6px; -->
+<!--            background: #9ca3af; -->
+<!--            border-radius: 50%; -->
+<!--        }-->
+<!--        -->
+<!--        .os-badge { -->
+<!--            display: inline-flex; -->
+<!--            align-items: center; -->
+<!--            gap: 6px; -->
+<!--            padding: 4px 10px; -->
+<!--            background: #f3f4f6; -->
+<!--            border-radius: 6px; -->
+<!--            font-size: 0.8em; -->
+<!--            color: #374151;-->
+<!--            white-space: nowrap;-->
+<!--            max-width: 180px;-->
+<!--            overflow: hidden;-->
+<!--            text-overflow: ellipsis;-->
+<!--        }-->
+<!--        -->
+<!--        .policies-count { -->
+<!--            display: inline-block; -->
+<!--            padding: 4px 10px; -->
+<!--            background: #eff6ff; -->
+<!--            color: #2563eb; -->
+<!--            border-radius: 6px; -->
+<!--            font-size: 0.8em; -->
+<!--            font-weight: 600;-->
+<!--            white-space: nowrap;-->
+<!--        }-->
+<!--        -->
+<!--        .actions-menu { -->
+<!--            position: relative; -->
+<!--        }-->
+<!--        -->
+<!--        .actions-btn { -->
+<!--            background: none; -->
+<!--            border: none; -->
+<!--            color: #6b7280; -->
+<!--            cursor: pointer; -->
+<!--            padding: 6px; -->
+<!--            font-size: 1.1em; -->
+<!--            border-radius: 4px;-->
+<!--            transition: all 0.2s;-->
+<!--            flex-shrink: 0;-->
+<!--        }-->
+<!--        -->
+<!--        .actions-btn:hover { -->
+<!--            color: #111827; -->
+<!--            background: #f3f4f6;-->
+<!--        }-->
+<!--        -->
+<!--        /* Actions Dropdown */-->
+<!--        .actions-dropdown {-->
+<!--            position: absolute;-->
+<!--            right: 0;-->
+<!--            top: 100%;-->
+<!--            background: white;-->
+<!--            border: 1px solid #e5e7eb;-->
+<!--            border-radius: 8px;-->
+<!--            box-shadow: 0 4px 12px rgba(0,0,0,0.1);-->
+<!--            min-width: 160px;-->
+<!--            z-index: 100;-->
+<!--            display: none;-->
+<!--        }-->
+<!--        -->
+<!--        .actions-dropdown.show {-->
+<!--            display: block;-->
+<!--        }-->
+<!--        -->
+<!--        .action-item {-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            gap: 10px;-->
+<!--            padding: 10px 14px;-->
+<!--            color: #374151;-->
+<!--            text-decoration: none;-->
+<!--            font-size: 0.9em;-->
+<!--            transition: background 0.2s;-->
+<!--            cursor: pointer;-->
+<!--            white-space: nowrap;-->
+<!--        }-->
+<!--        -->
+<!--        .action-item:hover {-->
+<!--            background: #f3f4f6;-->
+<!--        }-->
+<!--        -->
+<!--        .action-item i {-->
+<!--            width: 16px;-->
+<!--            color: #6b7280;-->
+<!--            font-size: 0.9em;-->
+<!--            flex-shrink: 0;-->
+<!--        }-->
+<!--        -->
+<!--        .action-item.view {-->
+<!--            color: #2563eb;-->
+<!--        }-->
+<!--        -->
+<!--        .action-item.edit {-->
+<!--            color: #059669;-->
+<!--        }-->
+<!--        -->
+<!--        .action-item.restart {-->
+<!--            color: #f59e0b;-->
+<!--        }-->
+<!--        -->
+<!--        .action-item.remove {-->
+<!--            color: #dc2626;-->
+<!--        }-->
+<!--        -->
+<!--        /* Mobile Responsive */-->
+<!--        @media (max-width: 1200px) {-->
+<!--            .main-content {-->
+<!--                margin-left: 70px;-->
+<!--                width: calc(100vw - 70px);-->
+<!--            }-->
+<!--            -->
+<!--            .main-content.expanded {-->
+<!--                margin-left: 70px;-->
+<!--                width: calc(100vw - 70px);-->
+<!--            }-->
+<!--            -->
+<!--            .agents-table {-->
+<!--                min-width: 1100px;-->
+<!--            }-->
+<!--        }-->
+<!--        -->
+<!--        @media (max-width: 968px) { -->
+<!--            .main-content { -->
+<!--                margin-left: 0 !important;-->
+<!--                padding-top: 60px;-->
+<!--                width: 100vw !important;-->
+<!--            } -->
+<!--            -->
+<!--            .main-content.expanded {-->
+<!--                margin-left: 0 !important;-->
+<!--                width: 100vw !important;-->
+<!--            }-->
+<!--            -->
+<!--            .stats-grid { -->
+<!--                grid-template-columns: repeat(2, 1fr); -->
+<!--            } -->
+<!--            -->
+<!--            .page-header { -->
+<!--                flex-direction: column; -->
+<!--                align-items: flex-start; -->
+<!--                gap: 12px; -->
+<!--            } -->
+<!--            -->
+<!--            .add-btn {-->
+<!--                width: 100%;-->
+<!--                justify-content: center;-->
+<!--            }-->
+<!--            -->
+<!--            .agents-table {-->
+<!--                min-width: 1000px;-->
+<!--            }-->
+<!--            -->
+<!--            /* Allow text wrapping on mobile for better fit */-->
+<!--            .agents-table td:nth-child(1),-->
+<!--            .agents-table td:nth-child(2),-->
+<!--            .agents-table td:nth-child(3) {-->
+<!--                white-space: normal;-->
+<!--                max-width: none;-->
+<!--            }-->
+<!--        }-->
+<!--        -->
+<!--        @media (max-width: 768px) {-->
+<!--            .agents-table {-->
+<!--                min-width: 900px;-->
+<!--            }-->
+<!--            -->
+<!--            .filters-section {-->
+<!--                flex-direction: column;-->
+<!--            }-->
+<!--            -->
+<!--            .search-box {-->
+<!--                min-width: 100%;-->
+<!--            }-->
+<!--            -->
+<!--            .filter-select {-->
+<!--                width: 100%;-->
+<!--            }-->
+<!--        }-->
+<!--        -->
+<!--        @media (max-width: 640px) { -->
+<!--            .content-area { -->
+<!--                padding: 16px; -->
+<!--            } -->
+<!--            -->
+<!--            .stats-grid { -->
+<!--                grid-template-columns: 1fr; -->
+<!--            } -->
+<!--            -->
+<!--            .filters-section { -->
+<!--                flex-direction: column; -->
+<!--                align-items: stretch; -->
+<!--            } -->
+<!--            -->
+<!--            .search-box { -->
+<!--                min-width: 100%; -->
+<!--            }-->
+<!--            -->
+<!--            .add-btn span {-->
+<!--                display: none;-->
+<!--            }-->
+<!--            -->
+<!--            .add-btn i {-->
+<!--                margin-right: 0;-->
+<!--            }-->
+<!--            -->
+<!--            .agents-table {-->
+<!--                min-width: 800px;-->
+<!--            }-->
+<!--            -->
+<!--            .page-title-text h1 {-->
+<!--                font-size: 1.2em;-->
+<!--            }-->
+<!--            -->
+<!--            .page-subtitle {-->
+<!--                font-size: 0.8em;-->
+<!--            }-->
+<!--        }-->
+<!--        -->
+<!--        @media (max-width: 480px) {-->
+<!--            .agents-table {-->
+<!--                min-width: 700px;-->
+<!--            }-->
+<!--            -->
+<!--            .stat-card {-->
+<!--                padding: 12px;-->
+<!--            }-->
+<!--            -->
+<!--            .stat-value {-->
+<!--                font-size: 1.4em;-->
+<!--            }-->
+<!--            -->
+<!--            .page-icon {-->
+<!--                width: 40px;-->
+<!--                height: 40px;-->
+<!--            }-->
+<!--            -->
+<!--            .page-icon i {-->
+<!--                font-size: 18px;-->
+<!--            }-->
+<!--        }-->
+<!--        -->
+<!--        /* Print styles */-->
+<!--        @media print {-->
+<!--            .main-content {-->
+<!--                margin-left: 0 !important;-->
+<!--                width: 100% !important;-->
+<!--                padding-top: 0;-->
+<!--            }-->
+<!--            -->
+<!--            .agents-table {-->
+<!--                min-width: 100% !important;-->
+<!--            }-->
+<!--            -->
+<!--            .table-wrapper {-->
+<!--                overflow-x: visible !important;-->
+<!--            }-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <div class="dashboard-container">-->
+<!--        &lt;!&ndash; Sidebar will be loaded here &ndash;&gt;-->
+<!--        <div id="sidebarContainer"></div>-->
+<!--        -->
+<!--        <main class="main-content" id="mainContent">-->
+<!--            &lt;!&ndash; Header will be loaded here &ndash;&gt;-->
+<!--            <div id="headerContainer"></div>-->
+<!--            -->
+<!--            <div class="content-area">-->
+<!--                <div class="page-header">-->
+<!--                    <div class="page-title-section">-->
+<!--                        <div class="page-icon"><i class="fas fa-desktop"></i></div>-->
+<!--                        <div class="page-title-text">-->
+<!--                            <h1>Manage Agents</h1>-->
+<!--                            <p class="page-subtitle">Monitor and configure endpoint agents</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <button class="add-btn" onclick="addAgent()">-->
+<!--                        <i class="fas fa-plus"></i><span>Add Agent</span>-->
+<!--                    </button>-->
+<!--                </div>-->
+
+<!--                <div class="stats-grid">-->
+<!--                    <div class="stat-card">-->
+<!--                        <div class="stat-header">-->
+<!--                            <div class="stat-icon blue"><i class="fas fa-desktop"></i></div>-->
+<!--                        </div>-->
+<!--                        <div class="stat-label">Total Agents</div>-->
+<!--                        <div class="stat-value">342</div>-->
+<!--                    </div>-->
+<!--                    <div class="stat-card">-->
+<!--                        <div class="stat-header">-->
+<!--                            <div class="stat-icon green"><i class="fas fa-circle-check"></i></div>-->
+<!--                        </div>-->
+<!--                        <div class="stat-label">Online</div>-->
+<!--                        <div class="stat-value">318</div>-->
+<!--                    </div>-->
+<!--                    <div class="stat-card">-->
+<!--                        <div class="stat-header">-->
+<!--                            <div class="stat-icon red"><i class="fas fa-circle-xmark"></i></div>-->
+<!--                        </div>-->
+<!--                        <div class="stat-label">Offline</div>-->
+<!--                        <div class="stat-value">24</div>-->
+<!--                    </div>-->
+<!--                    <div class="stat-card">-->
+<!--                        <div class="stat-header">-->
+<!--                            <div class="stat-icon yellow"><i class="fas fa-triangle-exclamation"></i></div>-->
+<!--                        </div>-->
+<!--                        <div class="stat-label">Needs Update</div>-->
+<!--                        <div class="stat-value">15</div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <div class="filters-section">-->
+<!--                    <div class="search-box">-->
+<!--                        <i class="fas fa-search"></i>-->
+<!--                        <input type="text" class="search-input" placeholder="Search agents..." id="searchInput">-->
+<!--                    </div>-->
+<!--                    <select class="filter-select" id="statusFilter">-->
+<!--                        <option value="">All Status</option>-->
+<!--                        <option value="online">Online</option>-->
+<!--                        <option value="offline">Offline</option>-->
+<!--                    </select>-->
+<!--                    <select class="filter-select" id="osFilter">-->
+<!--                        <option value="">All OS</option>-->
+<!--                        <option value="windows">Windows</option>-->
+<!--                        <option value="macos">macOS</option>-->
+<!--                        <option value="linux">Linux</option>-->
+<!--                    </select>-->
+<!--                </div>-->
+
+<!--                <div class="agents-table-container">-->
+<!--                    <div class="table-wrapper">-->
+<!--                        <table class="agents-table">-->
+<!--                            <thead>-->
+<!--                                <tr>-->
+<!--                                    <th>Agent Name</th>-->
+<!--                                    <th>User</th>-->
+<!--                                    <th>OS</th>-->
+<!--                                    <th>IP Address</th>-->
+<!--                                    <th>Status</th>-->
+<!--                                    <th>Active Policies</th>-->
+<!--                                    <th>Last Heartbeat</th>-->
+<!--                                    <th>Version</th>-->
+<!--                                    <th>Actions</th>-->
+<!--                                </tr>-->
+<!--                            </thead>-->
+<!--                            <tbody id="agentsTableBody">-->
+<!--                                &lt;!&ndash; Agent rows will be loaded here &ndash;&gt;-->
+<!--                            </tbody>-->
+<!--                        </table>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </main>-->
+<!--    </div>-->
+
+<!--    <script>-->
+<!--        let agentsData = [];-->
+
+<!--        // Check login status-->
+<!--        async function checkAuth() {-->
+<!--                try {-->
+<!--                    const response = await fetch("/api/auth/check", {-->
+<!--                        credentials: "include"-->
+<!--                    });-->
+
+<!--                    if (!response.ok) {-->
+<!--                        throw new Error("Not authenticated");-->
+<!--                    }-->
+
+<!--                    const result = await response.json();-->
+
+<!--                    if (!result.success) {-->
+<!--                        window.location.href = "indexn.html";-->
+<!--                    }-->
+
+<!--                } catch (err) {-->
+<!--                    window.location.href = "indexn.html";-->
+<!--                }-->
+<!--            }-->
+
+<!--        // Function to load components properly-->
+<!--        async function loadComponent(url, containerId) {-->
+<!--            try {-->
+<!--                const response = await fetch(url);-->
+<!--                const html = await response.text();-->
+<!--                const container = document.getElementById(containerId);-->
+<!--                -->
+<!--                if (container) {-->
+<!--                    container.innerHTML = html;-->
+<!--                    -->
+<!--                    // Execute any scripts in the loaded component-->
+<!--                    const scripts = container.getElementsByTagName('script');-->
+<!--                    for (let script of scripts) {-->
+<!--                        const newScript = document.createElement('script');-->
+<!--                        if (script.src) {-->
+<!--                            newScript.src = script.src;-->
+<!--                        } else {-->
+<!--                            newScript.textContent = script.textContent;-->
+<!--                        }-->
+<!--                        -->
+<!--                        // Copy all attributes-->
+<!--                        Array.from(script.attributes).forEach(attr => {-->
+<!--                            newScript.setAttribute(attr.name, attr.value);-->
+<!--                        });-->
+<!--                        -->
+<!--                        // Add to document body to execute-->
+<!--                        document.body.appendChild(newScript);-->
+<!--                    }-->
+<!--                }-->
+<!--            } catch (error) {-->
+<!--                console.error('Error loading component:', error);-->
+<!--            }-->
+<!--        }-->
+
+<!--        document.addEventListener('DOMContentLoaded', async function() {-->
+
+<!--            await checkAuth();-->
+
+<!--            // Load sidebar first-->
+<!--            loadComponent('sidebaro.html', 'sidebarContainer').then(() => {-->
+<!--                // Then load header-->
+<!--                loadComponent('page-header.html', 'headerContainer').then(() => {-->
+<!--                    // Adjust main content after header loads-->
+<!--                    adjustMainContent();-->
+<!--                });-->
+<!--            });-->
+
+<!--            // Render agents table with real data-->
+<!--            renderAgentsTable();-->
+
+<!--            // Initialize table filters-->
+<!--            initTableFilters();-->
+
+<!--            // Add click outside listener for actions dropdowns-->
+<!--            document.addEventListener('click', function(e) {-->
+<!--                const dropdowns = document.querySelectorAll('.actions-dropdown');-->
+<!--                dropdowns.forEach(dropdown => {-->
+<!--                    if (!dropdown.contains(e.target) &&-->
+<!--                        !dropdown.previousElementSibling.contains(e.target)) {-->
+<!--                        dropdown.classList.remove('show');-->
+<!--                    }-->
+<!--                });-->
+<!--            });-->
+
+<!--            // Listen for window resize to adjust layout-->
+<!--            window.addEventListener('resize', adjustMainContent);-->
+
+<!--            // Add refresh button event-->
+<!--            document.addEventListener('click', function(e) {-->
+<!--                if (e.target.closest('.refresh-btn')) {-->
+<!--                    renderAgentsTable();-->
+<!--                }-->
+<!--            });-->
+<!--        });-->
+
+<!--       async function fetchAgents() {-->
+<!--            try {-->
+<!--                const response = await fetch('/api/admin/agents', {-->
+<!--                    credentials: 'include'-->
+<!--                });-->
+
+<!--                if (!response.ok) {-->
+<!--                    throw new Error('Failed to fetch agents');-->
+<!--                }-->
+
+<!--                const result = await response.json();-->
+
+<!--                if (result.success) {-->
+<!--                    return result.data || [];-->
+<!--                } else {-->
+<!--                    throw new Error(result.message || 'Failed to fetch agents');-->
+<!--                }-->
+<!--            } catch (error) {-->
+<!--                console.error('Error fetching agents:', error);-->
+<!--                showToast(`Error: ${error.message}`, 'error');-->
+<!--                return [];-->
+<!--            }-->
+<!--        }-->
+
+<!--        // Updated renderAgentsTable function-->
+<!--        async function renderAgentsTable() {-->
+<!--            const tableBody = document.getElementById('agentsTableBody');-->
+<!--            if (!tableBody) return;-->
+
+<!--            tableBody.innerHTML = '<tr><td colspan="9" class="loading">Loading agents...</td></tr>';-->
+
+<!--            try {-->
+<!--                // Fetch real agents data-->
+<!--                agentsData = await fetchAgents();-->
+
+<!--                if (agentsData.length === 0) {-->
+<!--                    tableBody.innerHTML = '<tr><td colspan="9" class="empty-state">No agents found</td></tr>';-->
+<!--                    return;-->
+<!--                }-->
+
+<!--                tableBody.innerHTML = '';-->
+
+<!--                agentsData.forEach(agent => {-->
+<!--                    // Determine if agent is online/offline based on last heartbeat-->
+<!--                    let status = 'offline';-->
+<!--                    let statusText = 'Offline';-->
+
+<!--                    if (agent.lastHeartbeat) {-->
+<!--                        const lastHeartbeatTime = new Date(agent.lastHeartbeat).getTime();-->
+<!--                        const currentTime = Date.now();-->
+<!--                        const minutesSinceLastHeartbeat = (currentTime - lastHeartbeatTime) / 1000 ;-->
+
+<!--                        // Consider agent online if last heartbeat was within last 2 minutes-->
+<!--                        status = minutesSinceLastHeartbeat < 3 ? 'online' : 'offline';-->
+<!--                        statusText = status === 'online' ? 'Online' : 'Offline';-->
+<!--                    }-->
+
+<!--                    // Get OS information - You need to add this field to your backend-->
+<!--                    // For now, we'll try to extract from hostname or leave blank-->
+<!--                    const os = getOSFromHostname(agent.hostname) || 'Unknown';-->
+<!--                    const osIcon = getOSIcon(os);-->
+
+<!--                    // Format last heartbeat time-->
+<!--                    const lastHeartbeat = agent.lastHeartbeat-->
+<!--                        ? formatTimeAgo(agent.lastHeartbeat)-->
+<!--                        : 'Never';-->
+
+<!--                    const row = document.createElement('tr');-->
+<!--                    row.setAttribute('onclick', `viewAgent('${agent.id}')`);-->
+<!--                    row.innerHTML = `-->
+<!--                        <td><strong>${agent.hostname || `Agent ${agent.id}`}</strong></td>-->
+<!--                        <td>${agent.username || 'N/A'}</td>-->
+<!--                        <td><span class="os-badge"><i class="${osIcon}"></i> ${os}</span></td>-->
+<!--                        <td>${agent.ipAddress || 'N/A'}</td>-->
+<!--                        <td><span class="status-indicator status-${status}">${statusText}</span></td>-->
+<!--                        <td><span class="policies-count">${agent.activePolicyCount || 0} policies</span></td>-->
+<!--                        <td>${lastHeartbeat}</td>-->
+<!--                        <td>${agent.version || 'N/A'}</td> &lt;!&ndash; Version field missing from backend &ndash;&gt;-->
+<!--                        <td>-->
+<!--                            <div class="actions-menu">-->
+<!--                                <button class="actions-btn" onclick="event.stopPropagation(); showActions(event, this)">-->
+<!--                                    <i class="fas fa-ellipsis-vertical"></i>-->
+<!--                                </button>-->
+<!--                                <div class="actions-dropdown">-->
+<!--                                    <div class="action-item view" onclick="viewAgent('${agent.id}')">-->
+<!--                                        <i class="fas fa-eye"></i><span>View Details</span>-->
+<!--                                    </div>-->
+<!--                                    <div class="action-item edit" onclick="editAgent('${agent.id}')">-->
+<!--                                        <i class="fas fa-edit"></i><span>Edit</span>-->
+<!--                                    </div>-->
+<!--                                    <div class="action-item restart" onclick="restartAgent('${agent.id}')">-->
+<!--                                        <i class="fas fa-redo"></i><span>Restart Agent</span>-->
+<!--                                    </div>-->
+<!--                                    <div class="action-item remove" onclick="removeAgent('${agent.id}')">-->
+<!--                                        <i class="fas fa-trash"></i><span>Remove</span>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </td>-->
+<!--                    `;-->
+<!--                    tableBody.appendChild(row);-->
+<!--                });-->
+
+<!--                // Update statistics-->
+<!--                updateStatistics(agentsData);-->
+
+<!--            } catch (error) {-->
+<!--                console.error('Error rendering agents table:', error);-->
+<!--                tableBody.innerHTML = `<tr><td colspan="9" class="empty-state" style="color: #dc2626;">Error loading agents: ${error.message}</td></tr>`;-->
+<!--            }-->
+<!--        }-->
+
+<!--        // Helper functions-->
+<!--        function formatTimeAgo(timestamp) {-->
+<!--            if (!timestamp) return 'Never';-->
+
+<!--            const now = new Date();-->
+<!--            const then = new Date(timestamp);-->
+<!--            const diffMs = now - then;-->
+<!--            const diffSecs = Math.floor(diffMs / 1000);-->
+<!--            // For real-time monitoring, show exact seconds-->
+<!--            if (diffSecs < 60) {-->
+<!--                return `${diffSecs}s ago`;-->
+<!--            }-->
+<!--            const diffMins = Math.floor(diffMs / 60000);-->
+<!--            const diffHours = Math.floor(diffMs / 3600000);-->
+<!--            const diffDays = Math.floor(diffMs / 86400000);-->
+
+<!--            if (diffMins < 60) return `${diffMins}m ago`;-->
+<!--            if (diffHours < 24) return `${diffHours}h ago`;-->
+<!--            return `${diffDays}d ago`;-->
+<!--        }-->
+
+<!--        function getOSFromHostname(hostname) {-->
+<!--            if (!hostname) return null;-->
+
+<!--            const hostnameLower = hostname.toLowerCase();-->
+
+<!--            if (hostnameLower.includes('win') || hostnameLower.includes('windows')) {-->
+<!--                return 'Windows';-->
+<!--            } else if (hostnameLower.includes('mac') || hostnameLower.includes('osx')) {-->
+<!--                return 'macOS';-->
+<!--            } else if (hostnameLower.includes('linux') || hostnameLower.includes('ubuntu') || hostnameLower.includes('centos')) {-->
+<!--                return 'Linux';-->
+<!--            } else {-->
+<!--                return null;-->
+<!--            }-->
+<!--        }-->
+
+<!--        function getOSIcon(os) {-->
+<!--            switch(os.toLowerCase()) {-->
+<!--                case 'windows': return 'fab fa-windows';-->
+<!--                case 'macos': return 'fab fa-apple';-->
+<!--                case 'linux': return 'fab fa-linux';-->
+<!--                default: return 'fas fa-desktop';-->
+<!--            }-->
+<!--        }-->
+
+<!--        // Update statistics with real data-->
+<!--        function updateStatistics(agents) {-->
+<!--            if (!agents || agents.length === 0) return;-->
+
+<!--            const totalAgents = agents.length;-->
+<!--            const onlineAgents = agents.filter(agent => {-->
+<!--                if (!agent.lastHeartbeat) return false;-->
+<!--                const lastHeartbeatTime = new Date(agent.lastHeartbeat).getTime();-->
+<!--                const currentTime = Date.now();-->
+<!--                const minutesSinceLastHeartbeat = (currentTime - lastHeartbeatTime) / (1000 * 60);-->
+<!--                return minutesSinceLastHeartbeat < 2;-->
+<!--            }).length;-->
+
+<!--            const offlineAgents = totalAgents - onlineAgents;-->
+
+<!--            // Update UI-->
+<!--            document.querySelectorAll('.stat-value')[0].textContent = totalAgents;-->
+<!--            document.querySelectorAll('.stat-value')[1].textContent = onlineAgents;-->
+<!--            document.querySelectorAll('.stat-value')[2].textContent = offlineAgents;-->
+<!--            // "Needs Update" would require additional backend logic-->
+<!--        }-->
+
+<!--        // Toast notification function-->
+<!--        function showToast(message, type = 'info') {-->
+<!--            // Create a simple toast notification-->
+<!--            const toast = document.createElement('div');-->
+<!--            toast.style.cssText = `-->
+<!--                position: fixed;-->
+<!--                top: 20px;-->
+<!--                right: 20px;-->
+<!--                padding: 12px 20px;-->
+<!--                border-radius: 6px;-->
+<!--                background: ${type === 'error' ? '#dc2626' : type === 'success' ? '#059669' : '#3b82f6'};-->
+<!--                color: white;-->
+<!--                z-index: 1000;-->
+<!--                font-weight: 500;-->
+<!--                box-shadow: 0 4px 12px rgba(0,0,0,0.15);-->
+<!--            `;-->
+<!--            toast.textContent = message;-->
+<!--            document.body.appendChild(toast);-->
+
+<!--            setTimeout(() => {-->
+<!--                toast.remove();-->
+<!--            }, 3000);-->
+<!--        }-->
+
+<!--        // Adjust main content margin based on sidebar state-->
+<!--        function adjustMainContent() {-->
+<!--            const sidebar = document.getElementById('sidebar');-->
+<!--            const mainContent = document.getElementById('mainContent');-->
+<!--            -->
+<!--            if (sidebar && mainContent) {-->
+<!--                // Check if sidebar is collapsed-->
+<!--                const isCollapsed = sidebar.classList.contains('collapsed');-->
+<!--                const isMobileOpen = sidebar.classList.contains('mobile-open');-->
+<!--                const isMobile = window.innerWidth <= 968;-->
+<!--                -->
+<!--                if (isMobile) {-->
+<!--                    // Mobile view-->
+<!--                    mainContent.style.marginLeft = '0';-->
+<!--                    mainContent.style.width = '100vw';-->
+<!--                    mainContent.classList.remove('expanded');-->
+<!--                } else if (isCollapsed) {-->
+<!--                    // Desktop collapsed sidebar-->
+<!--                    mainContent.style.marginLeft = '70px';-->
+<!--                    mainContent.style.width = 'calc(100vw - 70px)';-->
+<!--                    mainContent.classList.add('expanded');-->
+<!--                } else {-->
+<!--                    // Desktop expanded sidebar-->
+<!--                    mainContent.style.marginLeft = '240px';-->
+<!--                    mainContent.style.width = 'calc(100vw - 240px)';-->
+<!--                    mainContent.classList.remove('expanded');-->
+<!--                }-->
+<!--                -->
+<!--                // Ensure content area doesn't overflow-->
+<!--                const contentArea = document.querySelector('.content-area');-->
+<!--                if (contentArea) {-->
+<!--                    contentArea.style.maxWidth = '100%';-->
+<!--                }-->
+<!--            }-->
+<!--        }-->
+
+<!--        // View agent details-->
+<!--        function viewAgent(agentId) {-->
+<!--            const agent = agentsData.find(a => a.id.toString() === agentId.toString());-->
+<!--            if (agent) {-->
+<!--                alert(`Viewing agent details for: ${agent.hostname || `Agent ${agent.id}`}\n\nUser: ${agent.username}\nStatus: ${agent.status}\nIP: ${agent.ipAddress || 'N/A'}\nPolicies: ${agent.activePolicyCount || 0}\nLast Heartbeat: ${agent.lastHeartbeat ? new Date(agent.lastHeartbeat).toLocaleString() : 'Never'}`);-->
+<!--            } else {-->
+<!--                alert('Agent not found');-->
+<!--            }-->
+<!--        }-->
+
+<!--        // Add new agent-->
+<!--        function addAgent() {-->
+<!--            alert('Opening agent installation wizard...\n\nThis would launch the agent deployment process.');-->
+<!--        }-->
+
+<!--        // Show actions dropdown-->
+<!--        function showActions(event, button) {-->
+<!--            event.stopPropagation();-->
+<!--            -->
+<!--            // Close other open dropdowns-->
+<!--            const allDropdowns = document.querySelectorAll('.actions-dropdown');-->
+<!--            allDropdowns.forEach(dropdown => {-->
+<!--                if (dropdown !== button.nextElementSibling) {-->
+<!--                    dropdown.classList.remove('show');-->
+<!--                }-->
+<!--            });-->
+<!--            -->
+<!--            // Toggle current dropdown-->
+<!--            const dropdown = button.nextElementSibling;-->
+<!--            if (dropdown) {-->
+<!--                dropdown.classList.toggle('show');-->
+<!--            }-->
+<!--        }-->
+
+<!--        // Agent actions-->
+<!--        function editAgent(agentId) {-->
+<!--            alert(`Editing agent: ${agentId}`);-->
+<!--            hideAllActionDropdowns();-->
+<!--        }-->
+
+<!--        async function restartAgent(agentId) {-->
+<!--            if (!confirm(`Are you sure you want to restart agent ${agentId}?`)) {-->
+<!--                hideAllActionDropdowns();-->
+<!--                return;-->
+<!--            }-->
+
+<!--            try {-->
+<!--                showToast('Restarting agent...', 'info');-->
+
+<!--                const response = await fetch(`/api/admin/agents/${agentId}/restart`, {-->
+<!--                    method: 'POST',-->
+<!--                    credentials: 'include',-->
+<!--                    headers: {-->
+<!--                        'Content-Type': 'application/json'-->
+<!--                    }-->
+<!--                });-->
+
+<!--                const result = await response.json();-->
+
+<!--                if (result.success) {-->
+<!--                    showToast('Agent restart command sent', 'success');-->
+<!--                    // Optionally refresh after a delay-->
+<!--                    setTimeout(() => renderAgentsTable(), 3000);-->
+<!--                } else {-->
+<!--                    showToast(`Failed to restart agent: ${result.message}`, 'error');-->
+<!--                }-->
+<!--            } catch (error) {-->
+<!--                console.error('Error restarting agent:', error);-->
+<!--                showToast(`Error: ${error.message}`, 'error');-->
+<!--            } finally {-->
+<!--                hideAllActionDropdowns();-->
+<!--            }-->
+<!--        }-->
+
+<!--       async function removeAgent(agentId) {-->
+<!--    if (!confirm(`Are you sure you want to remove agent ${agentId}? This action cannot be undone.`)) {-->
+<!--        hideAllActionDropdowns();-->
+<!--        return;-->
+<!--    }-->
+
+<!--    try {-->
+<!--        // Show loading-->
+<!--        showToast('Removing agent...', 'info');-->
+
+<!--        console.log('Sending DELETE request to:', `/api/admin/agents/${agentId}`);-->
+
+<!--        const response = await fetch(`/api/admin/agents/${agentId}`, {-->
+<!--            method: 'DELETE',-->
+<!--            credentials: 'include',-->
+<!--            headers: {-->
+<!--                'Content-Type': 'application/json'-->
+<!--            }-->
+<!--        });-->
+
+<!--        console.log('Response status:', response.status);-->
+<!--        console.log('Response headers:', response.headers);-->
+
+<!--        // Try to get response as text first-->
+<!--        const responseText = await response.text();-->
+<!--        console.log('Raw response text:', responseText);-->
+
+<!--        let result;-->
+<!--        try {-->
+<!--            result = JSON.parse(responseText);-->
+<!--            console.log('Parsed JSON result:', result);-->
+<!--        } catch (parseError) {-->
+<!--            console.error('Failed to parse JSON:', parseError);-->
+<!--            console.error('Response text was:', responseText);-->
+<!--            showToast('Server returned invalid response', 'error');-->
+<!--            return;-->
+<!--        }-->
+
+<!--        if (result && result.success) {-->
+<!--            showToast('Agent removed successfully', 'success');-->
+<!--            // Refresh the agents table-->
+<!--            renderAgentsTable();-->
+<!--        } else {-->
+<!--            // Handle both "message" and "error" fields-->
+<!--            const errorMessage = result.message || result.error || 'Unknown error';-->
+<!--            console.error('Delete failed:', errorMessage);-->
+<!--            showToast(`Failed to remove agent: ${errorMessage}`, 'error');-->
+<!--        }-->
+<!--    } catch (error) {-->
+<!--        console.error('Network/JS error removing agent:', error);-->
+<!--        showToast(`Error: ${error.message}`, 'error');-->
+<!--    } finally {-->
+<!--        hideAllActionDropdowns();-->
+<!--    }-->
+<!--}-->
+
+<!--        function hideAllActionDropdowns() {-->
+<!--            document.querySelectorAll('.actions-dropdown').forEach(dropdown => {-->
+<!--                dropdown.classList.remove('show');-->
+<!--            });-->
+<!--        }-->
+
+<!--       function initTableFilters() {-->
+<!--            const searchInput = document.getElementById('searchInput');-->
+<!--            const statusFilter = document.getElementById('statusFilter');-->
+<!--            const osFilter = document.getElementById('osFilter');-->
+
+<!--            // Search functionality-->
+<!--            searchInput.addEventListener('input', function(e) {-->
+<!--                filterTable();-->
+<!--            });-->
+
+<!--            // Filter functionality-->
+<!--            statusFilter.addEventListener('change', filterTable);-->
+<!--            osFilter.addEventListener('change', filterTable);-->
+
+<!--            function filterTable() {-->
+<!--                const searchTerm = searchInput.value.toLowerCase();-->
+<!--                const statusValue = statusFilter.value.toLowerCase();-->
+<!--                const osValue = osFilter.value.toLowerCase();-->
+<!--                const tableRows = document.querySelectorAll('#agentsTableBody tr');-->
+
+<!--                // If no rows yet, return-->
+<!--                if (tableRows.length === 0) return;-->
+
+<!--                tableRows.forEach(row => {-->
+<!--                    const rowText = row.textContent.toLowerCase();-->
+<!--                    const statusElement = row.querySelector('.status-indicator');-->
+<!--                    const osElement = row.querySelector('.os-badge');-->
+
+<!--                    // Check if elements exist before accessing properties-->
+<!--                    const status = statusElement ? statusElement.textContent.toLowerCase() : '';-->
+<!--                    const os = osElement ? osElement.textContent.toLowerCase() : '';-->
+
+<!--                    const matchesSearch = !searchTerm || rowText.includes(searchTerm);-->
+<!--                    const matchesStatus = !statusValue || status.includes(statusValue);-->
+<!--                    const matchesOS = !osValue || os.includes(osValue);-->
+
+<!--                    row.style.display = (matchesSearch && matchesStatus && matchesOS) ? '' : 'none';-->
+<!--                });-->
+<!--            }-->
+<!--        }-->
+
+<!--        // Listen for sidebar toggle events-->
+<!--        window.addEventListener('sidebarToggle', adjustMainContent);-->
+<!--    </script>-->
+<!--</body>-->
+<!--</html>-->
+
+
+
+
+
+<!-- <!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DLP Shield - Manage Agents</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #f3f4f6;
+        overflow-x: hidden;
+      }
+
+      .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .main-content {
+        flex: 1;
+        margin-left: 240px;
+        transition: margin-left 0.3s ease;
+        padding-top: 70px;
+        width: calc(100vw - 240px);
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      .main-content.expanded {
+        margin-left: 70px;
+        width: calc(100vw - 70px);
+      }
+
+      .content-area {
+        padding: 24px;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      .page-header {
+        background: white;
+        padding: 20px 24px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        flex-wrap: wrap;
+      }
+
+      .page-title-section {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .page-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .page-icon i {
+        font-size: 22px;
+        color: white;
+      }
+
+      .page-title-text h1 {
+        font-size: 1.5em;
+        color: #111827;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .page-subtitle {
+        color: #6b7280;
+        font-size: 0.9em;
+        margin-top: 4px;
+      }
+
+      .add-btn {
+        padding: 10px 20px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9em;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.2s;
+        flex-shrink: 0;
+      }
+
+      .add-btn:hover {
+        background: #1d4ed8;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+        width: 100%;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        width: 100%;
+      }
+
+      .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+
+      .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1em;
+        flex-shrink: 0;
+      }
+
+      .stat-icon.blue {
+        background: #dbeafe;
+        color: #3b82f6;
+      }
+
+      .stat-icon.green {
+        background: #d1fae5;
+        color: #10b981;
+      }
+
+      .stat-icon.red {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      .stat-icon.yellow {
+        background: #fef3c7;
+        color: #f59e0b;
+      }
+
+      .stat-label {
+        font-size: 0.75em;
+        color: #6b7280;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .stat-value {
+        font-size: 1.6em;
+        font-weight: 700;
+        color: #111827;
+      }
+
+      .filters-section {
+        background: white;
+        padding: 16px 20px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+        width: 100%;
+      }
+
+      .search-box {
+        flex: 1;
+        min-width: 250px;
+        position: relative;
+      }
+
+      .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 0.9em;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 9px 12px 9px 36px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.9em;
+        background: #f9fafb;
+        transition: all 0.3s ease;
+        max-width: 100%;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .filter-select {
+        padding: 9px 32px 9px 12px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.9em;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 120px;
+      }
+
+      .filter-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      .agents-table-container {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .table-wrapper {
+        overflow-x: auto;
+        width: 100%;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .agents-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1200px;
+      }
+
+      .agents-table thead {
+        background: #f9fafb;
+      }
+
+      .agents-table th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 0.8em;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+      }
+
+      .agents-table td {
+        padding: 14px 16px;
+        font-size: 0.9em;
+        color: #374151;
+        border-bottom: 1px solid #f3f4f6;
+        white-space: nowrap;
+      }
+
+      .agents-table tbody tr {
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .agents-table tbody tr:hover {
+        background: #f9fafb;
+      }
+
+      .os-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.9em;
+      }
+
+      .os-icon {
+        font-size: 1.1em;
+      }
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.85em;
+        font-weight: 500;
+      }
+
+      .status-badge.online {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .status-badge.online::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #10b981;
+      }
+
+      .status-badge.offline {
+        background: #f3f4f6;
+        color: #6b7280;
+      }
+
+      .status-badge.offline::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #9ca3af;
+      }
+
+      .policies-link {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .policies-link:hover {
+        text-decoration: underline;
+      }
+
+      .actions-btn {
+        background: none;
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        font-size: 1.2em;
+        padding: 4px 8px;
+        transition: color 0.2s;
+      }
+
+      .actions-btn:hover {
+        color: #111827;
+      }
+
+      .action-menu {
+        position: relative;
+        display: inline-block;
+      }
+
+      .action-dropdown {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 4px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        min-width: 160px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.2s;
+        z-index: 10;
+      }
+
+      .action-dropdown.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .action-dropdown a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        color: #374151;
+        text-decoration: none;
+        font-size: 0.9em;
+        transition: background 0.2s;
+      }
+
+      .action-dropdown a:hover {
+        background: #f9fafb;
+      }
+
+      .action-dropdown a i {
+        width: 16px;
+        color: #6b7280;
+      }
+
+      .action-dropdown a.delete-action {
+        color: #dc2626;
+      }
+
+      .action-dropdown a.delete-action i {
+        color: #dc2626;
+      }
+
+      /* Responsive styles from first version */
+      .agents-table td:nth-child(1),
+      .agents-table td:nth-child(2),
+      .agents-table td:nth-child(3) {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .loading,
+      .empty-state {
+        text-align: center;
+        padding: 40px !important;
+        color: #6b7280;
+        font-style: italic;
+      }
+
+      .empty-state {
+        color: #9ca3af;
+      }
+
+      @media (max-width: 968px) {
+        .main-content {
+          margin-left: 0;
+          width: 100%;
+          padding-top: 70px;
+        }
+
+        .main-content.expanded {
+          margin-left: 0;
+          width: 100%;
+        }
+
+        .content-area {
+          padding: 16px;
+        }
+
+        .page-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 16px;
+        }
+
+        .add-btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .filters-section {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .search-box {
+          min-width: 100%;
+        }
+
+        .filter-select {
+          width: 100%;
+        }
+
+        .agents-table td:nth-child(1),
+        .agents-table td:nth-child(2),
+        .agents-table td:nth-child(3) {
+          white-space: normal;
+          max-width: none;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .add-btn span {
+          display: none;
+        }
+
+        .add-btn i {
+          margin-right: 0;
+        }
+
+        .page-title-text h1 {
+          font-size: 1.2em;
+        }
+
+        .page-subtitle {
+          font-size: 0.8em;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .stat-card {
+          padding: 12px;
+        }
+
+        .stat-value {
+          font-size: 1.4em;
+        }
+
+        .page-icon {
+          width: 40px;
+          height: 40px;
+        }
+
+        .page-icon i {
+          font-size: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <div id="sidebarContainer"></div>
+      <main class="main-content" id="mainContent">
+        <div id="headerContainer"></div>
+        <div class="content-area">
+          <div class="page-header">
+            <div class="page-title-section">
+              <div class="page-icon"><i class="fas fa-desktop"></i></div>
+              <div class="page-title-text">
+                <h1>Manage Agents</h1>
+                <p class="page-subtitle">
+                  Monitor and configure endpoint agents
+                </p>
+              </div>
+            </div>
+            <button
+              class="add-btn"
+              onclick="window.location.href = 'agent-add.html'"
+            >
+              <i class="fas fa-plus"></i> Add Agent
+            </button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div>
+                  <div class="stat-label">Total Agents</div>
+                  <div class="stat-value" id="totalAgents"></div>
+                </div>
+                <div class="stat-icon blue"><i class="fas fa-desktop"></i></div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div>
+                  <div class="stat-label">Online</div>
+                  <div class="stat-value" id="onlineAgents"></div>
+                </div>
+                <div class="stat-icon green">
+                  <i class="fas fa-check-circle"></i>
+                </div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div>
+                  <div class="stat-label">Offline</div>
+                  <div class="stat-value" id="offlineAgents"></div>
+                </div>
+                <div class="stat-icon red">
+                  <i class="fas fa-circle-xmark"></i>
+                </div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div>
+                  <div class="stat-label">Needs Update</div>
+                  <div class="stat-value" id="needsUpdate"></div>
+                </div>
+                <div class="stat-icon yellow">
+                  <i class="fas fa-triangle-exclamation"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="filters-section">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Search agents..."
+                id="agentSearch"
+              />
+            </div>
+            <select class="filter-select" id="statusFilter">
+              <option value="">All Status</option>
+              <option value="online">Online</option>
+              <option value="offline">Offline</option>
+            </select>
+            <select class="filter-select" id="osFilter">
+              <option value="">All OS</option>
+              <option value="windows">Windows</option>
+              <option value="macos">macOS</option>
+              <option value="linux">Linux</option>
+            </select>
+          </div>
+
+          <div class="agents-table-container">
+            <div class="table-wrapper">
+              <table class="agents-table">
+                <thead>
+                  <tr>
+                    <th>AGENT NAME</th>
+                    <th>USER</th>
+                    <th>OS</th>
+                    <th>IP ADDRESS</th>
+                    <th>STATUS</th>
+                    <th>ACTIVE POLICIES</th>
+                    <th>LAST HEARTBEAT</th>
+                    <th>VERSION</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="agentsTableBody">
+                    Agents will be loaded here 
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      let agentsData = [];
+      let currentFilteredData = [];
+
+      // Check login status
+      async function checkAuth() {
+        try {
+          const response = await fetch("/api/auth/check", {
+            credentials: "include",
+          });
+
+          if (!response.ok) {
+            throw new Error("Not authenticated");
+          }
+
+          const result = await response.json();
+
+          if (!result.success) {
+            window.location.href = "index.html";
+          }
+        } catch (err) {
+          window.location.href = "index.html";
+        }
+      }
+
+      async function callApi(path, options = {}) {
+        const defaultOptions = {
+          method: "GET",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        };
+        const opts = { ...defaultOptions, ...options };
+
+        try {
+          const response = await fetch(path, opts);
+          const text = await response.text();
+
+          let json;
+          try {
+            json = text ? JSON.parse(text) : null;
+          } catch (e) {
+            throw new Error("Invalid JSON response from server.");
+          }
+
+          if (!response.ok) {
+            const message =
+              json && json.message
+                ? json.message
+                : `HTTP ${response.status}: ${response.statusText}`;
+            throw new Error(message);
+          }
+          return json;
+        } catch (error) {
+          console.error(`API call to ${path} failed:`, error);
+          throw error;
+        }
+      }
+
+      // Function to load components properly
+      async function loadComponent(url, containerId) {
+        try {
+          const response = await fetch(url);
+          const html = await response.text();
+          const container = document.getElementById(containerId);
+
+          if (container) {
+            container.innerHTML = html;
+
+            // Execute any scripts in the loaded component
+            const scripts = container.getElementsByTagName("script");
+            for (let script of scripts) {
+              const newScript = document.createElement("script");
+              if (script.src) {
+                newScript.src = script.src;
+              } else {
+                newScript.textContent = script.textContent;
+              }
+
+              // Copy all attributes
+              Array.from(script.attributes).forEach((attr) => {
+                newScript.setAttribute(attr.name, attr.value);
+              });
+
+              // Add to document body to execute
+              document.body.appendChild(newScript);
+            }
+          }
+        } catch (error) {
+          console.error("Error loading component:", error);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", async function () {
+        await checkAuth();
+
+        // Load sidebar and header
+        await loadComponent("sidebaro.html", "sidebarContainer");
+        await loadComponent("page-header.html", "headerContainer");
+
+        // Load agents data
+        await fetchAgents();
+        
+        // Initialize table filters
+        initTableFilters();
+
+        // Add click outside listener for actions dropdowns
+        document.addEventListener("click", function (event) {
+          if (!event.target.closest(".action-menu")) {
+            document.querySelectorAll(".action-dropdown").forEach((menu) => {
+              menu.classList.remove("show");
+            });
+          }
+        });
+
+        // Listen for window resize
+        window.addEventListener("resize", adjustMainContent);
+
+        // AUTO-REFRESH: Update agents table every 3 seconds
+        setInterval(async () => {
+          await fetchAgents();
+        }, 3000);
+
+        //  Also update the time display every second for "X seconds ago" updates
+        setInterval(updateHeartbeatDisplay, 1000);
+      });
+
+      async function fetchAgents() {
+        try {
+          const response = await fetch("/api/admin/agents", {
+            credentials: "include",
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch agents");
+          }
+
+          const result = await response.json();
+
+          if (result.success) {
+            agentsData = result.data || [];
+            currentFilteredData = [...agentsData];
+            renderAgentsTable();
+            updateStatistics();
+          } else {
+            throw new Error(result.message || "Failed to fetch agents");
+          }
+        } catch (error) {
+          console.error("Error fetching agents:", error);
+          showToast(`Error: ${error.message}`, "error");
+          document.getElementById("agentsTableBody").innerHTML =
+            '<tr><td colspan="9" class="empty-state">Error loading agents</td></tr>';
+        }
+      }
+
+      function renderAgentsTable() {
+        const tableBody = document.getElementById("agentsTableBody");
+        if (!tableBody) return;
+
+        if (currentFilteredData.length === 0) {
+          tableBody.innerHTML =
+            '<tr><td colspan="9" class="empty-state">No agents found</td></tr>';
+          return;
+        }
+
+        let html = "";
+
+        currentFilteredData.forEach((agent, index) => {
+          const status = getAgentStatus(agent);
+          const osInfo = getOSInfo(agent);
+          const lastHeartbeat = formatTimeAgo(agent.lastHeartbeat);
+          const policiesCount = agent.activePolicyCount || 0;
+          const menuId = `menu${index}`;
+
+          html += `
+                <tr onclick="viewAgent('${agent.id}')">
+                    <td>${agent.hostname || `Agent ${agent.id}`}</td>
+                    <td>${truncateText(agent.username || "N/A", 20)}</td>
+                    <td><span class="os-badge"><i class="${osInfo.icon} os-icon"></i> ${osInfo.name}</span></td>
+                    <td>${agent.ipAddress || "N/A"}</td>
+                    <td><span class="status-badge ${status}">${status === "online" ? "Online" : "Offline"}</span></td>
+                    <td><a href="#" class="policies-link" onclick="event.stopPropagation(); viewPolicies('${agent.id}')">${policiesCount} policies</a></td>
+                    <td>${lastHeartbeat}</td>
+                    <td>${agent.version || "N/A"}</td>
+                    <td>
+                        <div class="action-menu">
+                            <button class="actions-btn" onclick="toggleActionMenu(event, '${menuId}')">
+                                <i class="fas fa-ellipsis-vertical"></i>
+                            </button>
+                            <div class="action-dropdown" id="${menuId}">
+                                <a href="agent-view.html?id=${agent.id}" onclick="event.stopPropagation()">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a>
+                                <a href="agent-edit.html?id=${agent.id}" onclick="event.stopPropagation()">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="#" onclick="event.stopPropagation(); restartAgent('${agent.id}')">
+                                    <i class="fas fa-power-off"></i> Restart
+                                </a>
+                                <a href="#" class="delete-action" onclick="event.stopPropagation(); deleteAgent('${agent.id}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tableBody.innerHTML = html;
+      }
+
+      //     function getAgentStatus(agent) {
+      //         if (!agent.lastHeartbeat) return 'offline';
+
+      //         const lastHeartbeatTime = new Date(agent.lastHeartbeat).getTime();
+      //         const currentTime = Date.now();
+      //         const minutesSinceLastHeartbeat = (currentTime - lastHeartbeatTime) / (1000);
+
+      //         return minutesSinceLastHeartbeat < 3 ? 'online' : 'offline';
+      //         return secondsSinceLastHeartbeat < 15 ? 'online' : 'offline';
+      //     }
+      function getAgentStatus(agent) {
+        if (!agent.lastHeartbeat) return "offline";
+
+        const lastHeartbeatTime = new Date(agent.lastHeartbeat).getTime();
+        const currentTime = Date.now();
+        const secondsSinceLastHeartbeat = Math.floor(
+          (currentTime - lastHeartbeatTime) / 1000,
+        ); // Seconds
+
+        // Online if heartbeat within last 15 seconds
+        return secondsSinceLastHeartbeat <= 15 ? "online" : "offline";
+      }
+
+      function updateHeartbeatDisplay() {
+        const rows = document.querySelectorAll("#agentsTableBody tr");
+        const now = Date.now();
+
+        rows.forEach((row) => {
+          const timeCell = row.cells[6]; // LAST HEARTBEAT column (7th)
+          const statusCell = row.cells[4]; // STATUS column (5th)
+          const agentId = row.getAttribute("data-agent-id");
+
+          if (!agentId || !timeCell) return;
+
+          // Find agent data
+          const agent = agentsData.find((a) => a.id.toString() === agentId);
+          if (!agent || !agent.lastHeartbeat) return;
+
+          const lastHeartbeatTime = new Date(agent.lastHeartbeat).getTime();
+          const secondsSince = Math.floor((now - lastHeartbeatTime) / 1000);
+
+          // Update time display
+          timeCell.textContent = formatRealTime(secondsSince);
+
+          // Update status dynamically
+          const status = getRealTimeStatus(secondsSince);
+          updateStatusDisplay(statusCell, status);
+        });
+      }
+      // Format time for display
+      function formatRealTime(seconds) {
+        if (seconds < 60) return `${seconds}s ago`;
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+        return `${Math.floor(seconds / 86400)}d ago`;
+      }
+
+      // Get status based on real-time calculation
+      function getRealTimeStatus(secondsSince) {
+        // Online if heartbeat within last 45 seconds
+        if (secondsSince <= 45) return "online";
+        // Recently online (grace period)
+        if (secondsSince <= 90) return "recent";
+        // Offline
+        return "offline";
+      }
+
+      // Update status display
+      function updateStatusDisplay(statusCell, status) {
+        const badge = statusCell.querySelector(".status-badge");
+        if (!badge) return;
+
+        badge.className = `status-badge ${status}`;
+        badge.textContent =
+          status === "online"
+            ? "Online"
+            : status === "recent"
+              ? "Recently Online"
+              : "Offline";
+      }
+
+      function getOSInfo(agent) {
+        // Try to get OS from hostname or other properties
+        const hostname = (agent.hostname || "").toLowerCase();
+
+        if (hostname.includes("win") || hostname.includes("windows")) {
+          return { name: "Windows", icon: "fab fa-windows" };
+        } else if (hostname.includes("mac") || hostname.includes("osx")) {
+          return { name: "macOS", icon: "fab fa-apple" };
+        } else if (
+          hostname.includes("linux") ||
+          hostname.includes("ubuntu") ||
+          hostname.includes("centos")
+        ) {
+          return { name: "Linux", icon: "fab fa-linux" };
+        }
+
+        return { name: "Unknown", icon: "fas fa-desktop" };
+      }
+
+      function formatTimeAgo(timestamp) {
+        if (!timestamp) return "Never";
+
+        const now = new Date();
+        const then = new Date(timestamp);
+        const diffMs = now - then;
+        const diffSecs = Math.floor(diffMs / 1000);
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        // Show exact seconds for recent heartbeats
+        if (diffSecs < 60) {
+          return `${diffSecs}s ago`;
+        }
+        if (diffMins < 60) {
+          return `${diffMins}m ago`;
+        }
+        if (diffHours < 24) {
+          return `${diffHours}h ago`;
+        }
+        return `${diffDays}d ago`;
+      }
+
+      function truncateText(text, maxLength) {
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + "...";
+      }
+
+      function updateStatistics() {
+        const totalAgents = agentsData.length;
+        const onlineAgents = agentsData.filter(
+          (agent) => getAgentStatus(agent) === "online",
+        ).length;
+        const offlineAgents = totalAgents - onlineAgents;
+
+        // Count agents that need update (agents with version not matching latest)
+        const needsUpdate = agentsData.filter((agent) => {
+          // This logic would need to be implemented based on your version checking
+          return agent.version && agent.version !== "v2.4.1"; // Example
+        }).length;
+
+        document.getElementById("totalAgents").textContent = totalAgents;
+        document.getElementById("onlineAgents").textContent = onlineAgents;
+        document.getElementById("offlineAgents").textContent = offlineAgents;
+        document.getElementById("needsUpdate").textContent = needsUpdate;
+      }
+
+      function initTableFilters() {
+        const searchInput = document.getElementById("agentSearch");
+        const statusFilter = document.getElementById("statusFilter");
+        const osFilter = document.getElementById("osFilter");
+
+        searchInput.addEventListener("input", filterTable);
+        statusFilter.addEventListener("change", filterTable);
+        osFilter.addEventListener("change", filterTable);
+      }
+
+      function filterTable() {
+        const searchTerm = document
+          .getElementById("agentSearch")
+          .value.toLowerCase();
+        const statusFilter = document.getElementById("statusFilter").value;
+        const osFilter = document.getElementById("osFilter").value;
+
+        currentFilteredData = agentsData.filter((agent) => {
+          // Search filter
+          const searchMatch =
+            searchTerm === "" ||
+            (agent.hostname &&
+              agent.hostname.toLowerCase().includes(searchTerm)) ||
+            (agent.username &&
+              agent.username.toLowerCase().includes(searchTerm)) ||
+            (agent.ipAddress &&
+              agent.ipAddress.toLowerCase().includes(searchTerm));
+
+          // Status filter
+          const status = getAgentStatus(agent);
+          const statusMatch = statusFilter === "" || status === statusFilter;
+
+          // OS filter
+          const osInfo = getOSInfo(agent);
+          const osMatch =
+            osFilter === "" ||
+            osInfo.name.toLowerCase().includes(osFilter.toLowerCase());
+
+          return searchMatch && statusMatch && osMatch;
+        });
+
+        renderAgentsTable();
+      }
+
+      function toggleActionMenu(event, menuId) {
+        event.stopPropagation();
+        const menu = document.getElementById(menuId);
+        const allMenus = document.querySelectorAll(".action-dropdown");
+
+        allMenus.forEach((m) => {
+          if (m.id !== menuId) {
+            m.classList.remove("show");
+          }
+        });
+
+        if (menu) {
+          menu.classList.toggle("show");
+        }
+      }
+
+      function viewAgent(agentId) {
+        if (!event.target.closest(".action-menu")) {
+          window.location.href = `agent-view.html?id=${agentId}`;
+        }
+      }
+
+      function viewPolicies(agentId) {
+        event.preventDefault();
+        // Navigate to policies page filtered by agent
+        window.location.href = `policies.html?agent=${agentId}`;
+      }
+
+      async function restartAgent(agentId) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!confirm(`Restart agent ${agentId}?`)) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/admin/agents/${agentId}/restart`, {
+            method: "POST",
+            credentials: "include",
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            showToast("Restart command sent successfully!", "success");
+            // Refresh data after a delay
+            setTimeout(fetchAgents, 2000);
+          } else {
+            showToast(result.message || "Failed to restart agent", "error");
+          }
+        } catch (error) {
+          showToast("Error sending restart command", "error");
+        }
+      }
+
+      async function deleteAgent(agentId) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (
+          !confirm(`Delete agent ${agentId}? This action cannot be undone.`)
+        ) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/admin/agents/${agentId}`, {
+            method: "DELETE",
+            credentials: "include",
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            showToast("Agent deleted successfully!", "success");
+            // Refresh the agents list
+            fetchAgents();
+          } else {
+            showToast(result.message || "Failed to delete agent", "error");
+          }
+        } catch (error) {
+          showToast("Error deleting agent", "error");
+        }
+      }
+
+      function showToast(message, type = "info") {
+        // Remove existing toasts
+        const existingToasts = document.querySelectorAll(".toast");
+        existingToasts.forEach((toast) => toast.remove());
+
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            background: ${type === "error" ? "#dc2626" : type === "success" ? "#10b981" : "#3b82f6"};
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        `;
+
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.animation = "slideOut 0.3s ease";
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+
+        // Add CSS animations
+        const style = document.createElement("style");
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+      }
+
+      function adjustMainContent() {
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("mainContent");
+
+        if (sidebar && mainContent) {
+          const isCollapsed = sidebar.classList.contains("collapsed");
+          const isMobile = window.innerWidth <= 968;
+
+          if (isMobile) {
+            mainContent.style.marginLeft = "0";
+            mainContent.style.width = "100vw";
+            mainContent.classList.remove("expanded");
+          } else if (isCollapsed) {
+            mainContent.style.marginLeft = "70px";
+            mainContent.style.width = "calc(100vw - 70px)";
+            mainContent.classList.add("expanded");
+          } else {
+            mainContent.style.marginLeft = "240px";
+            mainContent.style.width = "calc(100vw - 240px)";
+            mainContent.classList.remove("expanded");
+          }
+        }
+      }
+
+      // Export for use in sidebar toggle
+      window.toggleActionMenu = toggleActionMenu;
+      window.viewAgent = viewAgent;
+      window.restartAgent = restartAgent;
+      window.deleteAgent = deleteAgent;
+    </script>
+  </body>
+</html> -->
+
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DLP Shield - Manage Agents</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #f3f4f6;
+        overflow-x: hidden;
+      }
+
+      .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .main-content {
+        flex: 1;
+        margin-left: 240px;
+        transition: margin-left 0.3s ease;
+        padding-top: 70px;
+        width: calc(100vw - 240px);
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      .main-content.expanded {
+        margin-left: 70px;
+        width: calc(100vw - 70px);
+      }
+
+      .content-area {
+        padding: 24px;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      .page-header {
+        background: white;
+        padding: 20px 24px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        flex-wrap: wrap;
+      }
+
+      .page-title-section {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .page-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .page-icon i {
+        font-size: 22px;
+        color: white;
+      }
+
+      .page-title-text h1 {
+        font-size: 1.5em;
+        color: #111827;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .page-subtitle {
+        color: #6b7280;
+        font-size: 0.9em;
+        margin-top: 4px;
+      }
+
+      .add-btn {
+        padding: 10px 20px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9em;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.2s;
+        flex-shrink: 0;
+      }
+
+      .add-btn:hover {
+        background: #1d4ed8;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+        width: 100%;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        width: 100%;
+      }
+
+      .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+
+      .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1em;
+        flex-shrink: 0;
+      }
+
+      .stat-icon.blue {
+        background: #dbeafe;
+        color: #3b82f6;
+      }
+
+      .stat-icon.green {
+        background: #d1fae5;
+        color: #10b981;
+      }
+
+      .stat-icon.red {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      .stat-icon.yellow {
+        background: #fef3c7;
+        color: #f59e0b;
+      }
+
+      .stat-label {
+        font-size: 0.75em;
+        color: #6b7280;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .stat-value {
+        font-size: 1.6em;
+        font-weight: 700;
+        color: #111827;
+      }
+
+      .filters-section {
+        background: white;
+        padding: 16px 20px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+        width: 100%;
+      }
+
+      .search-box {
+        flex: 1;
+        min-width: 250px;
+        position: relative;
+      }
+
+      .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 0.9em;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 9px 12px 9px 36px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.9em;
+        background: #f9fafb;
+        transition: all 0.3s ease;
+        max-width: 100%;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .filter-select {
+        padding: 9px 32px 9px 12px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.9em;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 120px;
+      }
+
+      .filter-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      .agents-table-container {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .table-wrapper {
+        overflow-x: auto;
+        width: 100%;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .agents-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1200px;
+      }
+
+      .agents-table thead {
+        background: #f9fafb;
+      }
+
+      .agents-table th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 0.8em;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+      }
+
+      .agents-table td {
+        padding: 14px 16px;
+        font-size: 0.9em;
+        color: #374151;
+        border-bottom: 1px solid #f3f4f6;
+        white-space: nowrap;
+      }
+
+      .agents-table tbody tr {
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .agents-table tbody tr:hover {
+        background: #f9fafb;
+      }
+
+      .os-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.9em;
+      }
+
+      .os-icon {
+        font-size: 1.1em;
+      }
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.85em;
+        font-weight: 500;
+      }
+
+      .status-badge.online {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .status-badge.online::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #10b981;
+      }
+
+      .status-badge.offline {
+        background: #f3f4f6;
+        color: #6b7280;
+      }
+
+      .status-badge.offline::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #9ca3af;
+      }
+
+      .policies-link {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .policies-link:hover {
+        text-decoration: underline;
+      }
+
+      .actions-btn {
+        background: none;
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        font-size: 1.2em;
+        padding: 4px 8px;
+        transition: color 0.2s;
+      }
+
+      .actions-btn:hover {
+        color: #111827;
+      }
+
+      .action-menu {
+        position: relative;
+        display: inline-block;
+      }
+
+      .action-dropdown {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 4px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        min-width: 160px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.2s;
+        z-index: 10;
+      }
+
+      .action-dropdown.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .action-dropdown a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        color: #374151;
+        text-decoration: none;
+        font-size: 0.9em;
+        transition: background 0.2s;
+      }
+
+      .action-dropdown a:hover {
+        background: #f9fafb;
+      }
+
+      .action-dropdown a i {
+        width: 16px;
+        color: #6b7280;
+      }
+
+      .action-dropdown a.delete-action {
+        color: #dc2626;
+      }
+
+      .action-dropdown a.delete-action i {
+        color: #dc2626;
+      }
+
+      .agents-table td:nth-child(1),
+      .agents-table td:nth-child(2),
+      .agents-table td:nth-child(3) {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .loading,
+      .empty-state {
+        text-align: center;
+        padding: 40px !important;
+        color: #6b7280;
+        font-style: italic;
+      }
+
+      .empty-state {
+        color: #9ca3af;
+      }
+
+      @media (max-width: 968px) {
+        .main-content {
+          margin-left: 0;
+          width: 100%;
+          padding-top: 70px;
+        }
+
+        .main-content.expanded {
+          margin-left: 0;
+          width: 100%;
+        }
+
+        .content-area {
+          padding: 16px;
+        }
+
+        .page-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 16px;
+        }
+
+        .add-btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .filters-section {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .search-box {
+          min-width: 100%;
+        }
+
+        .filter-select {
+          width: 100%;
+        }
+
+        .agents-table td:nth-child(1),
+        .agents-table td:nth-child(2),
+        .agents-table td:nth-child(3) {
+          white-space: normal;
+          max-width: none;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .add-btn span {
+          display: none;
+        }
+
+        .add-btn i {
+          margin-right: 0;
+        }
+
+        .page-title-text h1 {
+          font-size: 1.2em;
+        }
+
+        .page-subtitle {
+          font-size: 0.8em;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .stat-card {
+          padding: 12px;
+        }
+
+        .stat-value {
+          font-size: 1.4em;
+        }
+
+        .page-icon {
+          width: 40px;
+          height: 40px;
+        }
+
+        .page-icon i {
+          font-size: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <div id="sidebarContainer"></div>
+      <main class="main-content" id="mainContent">
+        <div id="headerContainer"></div>
+        <div class="content-area">
+          <div class="page-header">
+            <div class="page-title-section">
+              <div class="page-icon"><i class="fas fa-desktop"></i></div>
+              <div class="page-title-text">
+                <h1>Manage Agents</h1>
+                <p class="page-subtitle">
+                  Monitor and configure endpoint agents
+                </p>
+              </div>
+            </div>
+            <button
+              class="add-btn"
+              onclick="window.location.href = 'agent-add.html'"
+            >
+              <i class="fas fa-plus"></i> Add Agent
+            </button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div>
+                  <div class="stat-label">Total Agents</div>
+                  <div class="stat-value" id="totalAgents"></div>
+                </div>
+                <div class="stat-icon blue"><i class="fas fa-desktop"></i></div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div>
+                  <div class="stat-label">Online</div>
+                  <div class="stat-value" id="onlineAgents"></div>
+                </div>
+                <div class="stat-icon green">
+                  <i class="fas fa-check-circle"></i>
+                </div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div>
+                  <div class="stat-label">Offline</div>
+                  <div class="stat-value" id="offlineAgents"></div>
+                </div>
+                <div class="stat-icon red">
+                  <i class="fas fa-circle-xmark"></i>
+                </div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div>
+                  <div class="stat-label">Needs Update</div>
+                  <div class="stat-value" id="needsUpdate"></div>
+                </div>
+                <div class="stat-icon yellow">
+                  <i class="fas fa-triangle-exclamation"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="filters-section">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Search agents..."
+                id="agentSearch"
+              />
+            </div>
+            <select class="filter-select" id="statusFilter">
+              <option value="">All Status</option>
+              <option value="online">Online</option>
+              <option value="offline">Offline</option>
+            </select>
+            <select class="filter-select" id="osFilter">
+              <option value="">All OS</option>
+              <option value="windows">Windows</option>
+              <option value="macos">macOS</option>
+              <option value="linux">Linux</option>
+            </select>
+          </div>
+
+          <div class="agents-table-container">
+            <div class="table-wrapper">
+              <table class="agents-table">
+                <thead>
+                  <tr>
+                    <th>AGENT NAME</th>
+                    <th>USER</th>
+                    <th>OS</th>
+                    <th>IP ADDRESS</th>
+                    <th>STATUS</th>
+                    <th>ACTIVE POLICIES</th>
+                    <th>LAST HEARTBEAT</th>
+                    <th>VERSION</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="agentsTableBody">
+                  <!-- Agents will be loaded instantly when data arrives -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // ============ GLOBAL VARIABLES ============
+      let agentsData = [];
+      let currentFilteredData = [];
+      let isDataLoaded = false;
+
+      // ============ START LOADING IMMEDIATELY ============
+      // This runs BEFORE DOMContentLoaded - NO DELAY
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+      } else {
+        // DOM already loaded, start immediately
+        initApp();
+      }
+
+      // ============ MAIN INIT FUNCTION ============
+      async function initApp() {
+        try {
+          // 1. Check auth in background - DON'T BLOCK
+          checkAuth().catch(() => window.location.href = "index.html");
+          
+          // 2. START ALL REQUESTS IN PARALLEL - NO SEQUENTIAL WAITING
+          const sidebarPromise = loadComponent("sidebar.html", "sidebarContainer");
+          const headerPromise = loadComponent("page-header.html", "headerContainer");
+          const agentsPromise = fetchAgents(); // RENDERS INSTANTLY WHEN DATA ARRIVES
+          
+          // 3. Wait for components in background - doesn't block data rendering
+          Promise.allSettled([sidebarPromise, headerPromise]).then(() => {
+            adjustMainContent();
+          });
+          
+          // 4. Initialize filters AFTER agents load (but doesn't block)
+          agentsPromise.then(() => {
+            initTableFilters();
+          });
+          
+          // 5. Setup event listeners (doesn't block anything)
+          setupEventListeners();
+          
+          // 6. Setup auto refresh (doesn't block anything)
+          setupAutoRefresh();
+          
+        } catch (error) {
+          console.error("Init error:", error);
+        }
+      }
+
+      // ============ CHECK AUTH - NON BLOCKING ============
+      async function checkAuth() {
+        try {
+          const response = await fetch("/api/auth/check", {
+            credentials: "include",
+          });
+          if (!response.ok) throw new Error("Not authenticated");
+          const result = await response.json();
+          if (!result.success) window.location.href = "index.html";
+        } catch (err) {
+          window.location.href = "index.html";
+        }
+      }
+
+      // ============ LOAD COMPONENTS - NON BLOCKING ============
+      async function loadComponent(url, containerId) {
+        try {
+          const response = await fetch(url);
+          const html = await response.text();
+          const container = document.getElementById(containerId);
+          
+          if (container) {
+            container.innerHTML = html;
+            
+            // Execute scripts asynchronously
+            setTimeout(() => {
+              const scripts = container.getElementsByTagName("script");
+              for (let script of scripts) {
+                const newScript = document.createElement("script");
+                if (script.src) {
+                  newScript.src = script.src;
+                } else {
+                  newScript.textContent = script.textContent;
+                }
+                Array.from(script.attributes).forEach((attr) => {
+                  newScript.setAttribute(attr.name, attr.value);
+                });
+                document.body.appendChild(newScript);
+              }
+            }, 0);
+          }
+        } catch (error) {
+          console.error("Error loading component:", error);
+        }
+      }
+
+      // ============ FETCH AGENTS - RENDERS INSTANTLY ============
+      async function fetchAgents(silent = false) {
+        try {
+          const response = await fetch("/api/admin/agents", {
+            credentials: "include",
+          });
+
+          if (!response.ok) throw new Error("Failed to fetch agents");
+
+          const result = await response.json();
+
+          if (result.success) {
+            agentsData = result.data || [];
+            currentFilteredData = [...agentsData];
+            
+            // RENDER IMMEDIATELY - NO DELAY
+            renderAgentsTable();
+            updateStatistics();
+            
+            isDataLoaded = true;
+            return true;
+          }
+        } catch (error) {
+          console.error("Error fetching agents:", error);
+          
+          // Only show error on first load if no data ever loaded
+          if (!isDataLoaded) {
+            document.getElementById("agentsTableBody").innerHTML =
+              '<tr><td colspan="9" class="empty-state">Failed to load agents. <a href="#" onclick="location.reload()">Retry</a></td></tr>';
+          } else if (!silent) {
+            showToast(`Error: ${error.message}`, "error");
+          }
+        }
+      }
+
+      // ============ RENDER TABLE - INSTANT ============
+      function renderAgentsTable() {
+        const tableBody = document.getElementById("agentsTableBody");
+        if (!tableBody) return;
+
+        if (currentFilteredData.length === 0) {
+          tableBody.innerHTML =
+            '<tr><td colspan="9" class="empty-state">No agents found</td></tr>';
+          return;
+        }
+
+        let html = "";
+        currentFilteredData.forEach((agent, index) => {
+          const status = getAgentStatus(agent);
+          const osInfo = getOSInfo(agent);
+          const lastHeartbeat = formatTimeAgo(agent.lastHeartbeat);
+          const policiesCount = agent.activePolicyCount || 0;
+          const menuId = `menu${index}`;
+
+          html += `
+            <tr onclick="viewAgent('${agent.id}')" data-agent-id="${agent.id}">
+              <td><strong>${escapeHtml(agent.hostname) || `Agent ${agent.id}`}</strong></td>
+              <td>${escapeHtml(truncateText(agent.username || "N/A", 20))}</td>
+              <td><span class="os-badge"><i class="${osInfo.icon} os-icon"></i> ${osInfo.name}</span></td>
+              <td>${agent.ipAddress || "N/A"}</td>
+              <td><span class="status-badge ${status}">${status === "online" ? "Online" : "Offline"}</span></td>
+              <td><a href="#" class="policies-link" onclick="event.stopPropagation(); viewPolicies('${agent.id}')">${policiesCount} policies</a></td>
+              <td>${lastHeartbeat}</td>
+              <td>${agent.version || "N/A"}</td>
+              <td>
+                <div class="action-menu">
+                  <button class="actions-btn" onclick="event.stopPropagation(); toggleActionMenu(event, '${menuId}')">
+                    <i class="fas fa-ellipsis-vertical"></i>
+                  </button>
+                  <div class="action-dropdown" id="${menuId}">
+                    <a href="agent-view.html?id=${agent.id}" onclick="event.stopPropagation()">
+                      <i class="fas fa-eye"></i> View Details
+                    </a>
+                    <a href="agent-edit.html?id=${agent.id}" onclick="event.stopPropagation()">
+                      <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="#" onclick="event.stopPropagation(); restartAgent('${agent.id}')">
+                      <i class="fas fa-power-off"></i> Restart
+                    </a>
+                    <a href="#" class="delete-action" onclick="event.stopPropagation(); deleteAgent('${agent.id}')">
+                      <i class="fas fa-trash"></i> Delete
+                    </a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+
+        tableBody.innerHTML = html;
+      }
+
+      // ============ UPDATE STATISTICS - INSTANT ============
+      function updateStatistics() {
+        if (!agentsData.length) return;
+        
+        const totalAgents = agentsData.length;
+        const onlineAgents = agentsData.filter(
+          (agent) => getAgentStatus(agent) === "online"
+        ).length;
+        const offlineAgents = totalAgents - onlineAgents;
+        const needsUpdate = agentsData.filter((agent) => {
+          return agent.version && agent.version !== "v2.4.1";
+        }).length;
+
+        // Set values directly - NO PLACEHOLDERS
+        const totalEl = document.getElementById("totalAgents");
+        const onlineEl = document.getElementById("onlineAgents");
+        const offlineEl = document.getElementById("offlineAgents");
+        const updateEl = document.getElementById("needsUpdate");
+        
+        if (totalEl) totalEl.textContent = totalAgents;
+        if (onlineEl) onlineEl.textContent = onlineAgents;
+        if (offlineEl) offlineEl.textContent = offlineAgents;
+        if (updateEl) updateEl.textContent = needsUpdate;
+      }
+
+      // ============ HELPER FUNCTIONS ============
+      function getAgentStatus(agent) {
+        if (!agent.lastHeartbeat) return "offline";
+        const lastHeartbeatTime = new Date(agent.lastHeartbeat).getTime();
+        const currentTime = Date.now();
+        const secondsSince = Math.floor((currentTime - lastHeartbeatTime) / 1000);
+        return secondsSince <= 10 ? "online" : "offline";
+      }
+
+      function getOSInfo(agent) {
+        const hostname = (agent.hostname || "").toLowerCase();
+        if (hostname.includes("win") || hostname.includes("windows")) {
+          return { name: "Windows", icon: "fab fa-windows" };
+        } else if (hostname.includes("mac") || hostname.includes("osx")) {
+          return { name: "macOS", icon: "fab fa-apple" };
+        } else if (hostname.includes("linux") || hostname.includes("ubuntu") || hostname.includes("centos")) {
+          return { name: "Linux", icon: "fab fa-linux" };
+        }
+        return { name: "Unknown", icon: "fas fa-desktop" };
+      }
+
+      function formatTimeAgo(timestamp) {
+        if (!timestamp) return "Never";
+        const now = new Date();
+        const then = new Date(timestamp);
+        const diffSecs = Math.floor((now - then) / 1000);
+        
+        if (diffSecs < 60) return `${diffSecs}s ago`;
+        if (diffSecs < 3600) return `${Math.floor(diffSecs / 60)}m ago`;
+        if (diffSecs < 86400) return `${Math.floor(diffSecs / 3600)}h ago`;
+        return `${Math.floor(diffSecs / 86400)}d ago`;
+      }
+
+      function truncateText(text, maxLength) {
+        if (!text) return text;
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + "...";
+      }
+
+      function escapeHtml(text) {
+        if (!text) return text;
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+      }
+
+      // ============ FILTER FUNCTIONS ============
+      function initTableFilters() {
+        const searchInput = document.getElementById("agentSearch");
+        const statusFilter = document.getElementById("statusFilter");
+        const osFilter = document.getElementById("osFilter");
+
+        if (searchInput) {
+          searchInput.removeEventListener("input", filterTable);
+          searchInput.addEventListener("input", filterTable);
+        }
+        if (statusFilter) {
+          statusFilter.removeEventListener("change", filterTable);
+          statusFilter.addEventListener("change", filterTable);
+        }
+        if (osFilter) {
+          osFilter.removeEventListener("change", filterTable);
+          osFilter.addEventListener("change", filterTable);
+        }
+      }
+
+      function filterTable() {
+        if (!agentsData.length) return;
+        
+        const searchInput = document.getElementById("agentSearch");
+        const statusFilterEl = document.getElementById("statusFilter");
+        const osFilterEl = document.getElementById("osFilter");
+        
+        const searchTerm = searchInput?.value.toLowerCase() || "";
+        const statusFilter = statusFilterEl?.value || "";
+        const osFilter = osFilterEl?.value || "";
+
+        currentFilteredData = agentsData.filter((agent) => {
+          // Search filter
+          const searchMatch = !searchTerm ||
+            (agent.hostname?.toLowerCase().includes(searchTerm)) ||
+            (agent.username?.toLowerCase().includes(searchTerm)) ||
+            (agent.ipAddress?.toLowerCase().includes(searchTerm));
+
+          // Status filter
+          const status = getAgentStatus(agent);
+          const statusMatch = !statusFilter || status === statusFilter;
+
+          // OS filter
+          const osInfo = getOSInfo(agent);
+          const osMatch = !osFilter ||
+            osInfo.name.toLowerCase().includes(osFilter.toLowerCase());
+
+          return searchMatch && statusMatch && osMatch;
+        });
+
+        renderAgentsTable();
+      }
+
+      // ============ ACTION FUNCTIONS ============
+      function toggleActionMenu(event, menuId) {
+        event.stopPropagation();
+        const menu = document.getElementById(menuId);
+        const allMenus = document.querySelectorAll(".action-dropdown");
+        allMenus.forEach((m) => {
+          if (m.id !== menuId) m.classList.remove("show");
+        });
+        if (menu) menu.classList.toggle("show");
+      }
+
+      function viewAgent(agentId) {
+        if (!event.target.closest(".action-menu")) {
+          window.location.href = `agent-view.html?id=${agentId}`;
+        }
+      }
+
+      function viewPolicies(agentId) {
+        event.preventDefault();
+        event.stopPropagation();
+        window.location.href = `policies.html?agent=${agentId}`;
+      }
+
+      async function restartAgent(agentId) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!confirm(`Restart agent ${agentId}?`)) return;
+        
+        try {
+          showToast("Sending restart command...", "info");
+          const response = await fetch(`/api/admin/agents/${agentId}/restart`, {
+            method: "POST",
+            credentials: "include",
+          });
+          const result = await response.json();
+          if (result.success) {
+            showToast("Restart command sent successfully!", "success");
+            setTimeout(() => fetchAgents(true), 2000);
+          } else {
+            showToast(result.message || "Failed to restart agent", "error");
+          }
+        } catch (error) {
+          showToast("Error sending restart command", "error");
+        }
+      }
+
+      async function deleteAgent(agentId) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!confirm(`Delete agent ${agentId}? This action cannot be undone.`)) return;
+        
+        try {
+          showToast("Deleting agent...", "info");
+          const response = await fetch(`/api/admin/agents/${agentId}`, {
+            method: "DELETE",
+            credentials: "include",
+          });
+          const result = await response.json();
+          if (result.success) {
+            showToast("Agent deleted successfully!", "success");
+            fetchAgents(true);
+          } else {
+            showToast(result.message || "Failed to delete agent", "error");
+          }
+        } catch (error) {
+          showToast("Error deleting agent", "error");
+        }
+      }
+
+      // ============ UI UTILITIES ============
+      function showToast(message, type = "info") {
+        const existingToasts = document.querySelectorAll(".toast");
+        existingToasts.forEach((toast) => toast.remove());
+
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          padding: 12px 24px;
+          border-radius: 8px;
+          background: ${type === "error" ? "#dc2626" : type === "success" ? "#10b981" : "#3b82f6"};
+          color: white;
+          font-weight: 500;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          z-index: 9999;
+          animation: slideIn 0.2s ease;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+          toast.style.animation = "slideOut 0.2s ease";
+          setTimeout(() => toast.remove(), 200);
+        }, 3000);
+      }
+
+      // ============ EVENT LISTENERS ============
+      function setupEventListeners() {
+        // Click outside for dropdowns
+        document.addEventListener("click", function (event) {
+          if (!event.target.closest(".action-menu")) {
+            document.querySelectorAll(".action-dropdown").forEach((menu) => {
+              menu.classList.remove("show");
+            });
+          }
+        });
+
+        // Window resize
+        window.addEventListener("resize", adjustMainContent);
+      }
+
+      function setupAutoRefresh() {
+        // Refresh data every 5 seconds (silent updates)
+        setInterval(() => {
+          if (isDataLoaded) {
+            fetchAgents(true);
+          }
+        }, 5000);
+
+        // Update heartbeat display every second
+        setInterval(updateHeartbeatDisplay, 1000);
+      }
+
+      function adjustMainContent() {
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("mainContent");
+        if (sidebar && mainContent) {
+          const isCollapsed = sidebar.classList.contains("collapsed");
+          const isMobile = window.innerWidth <= 968;
+          
+          if (isMobile) {
+            mainContent.style.marginLeft = "0";
+            mainContent.style.width = "100vw";
+            mainContent.classList.remove("expanded");
+          } else if (isCollapsed) {
+            mainContent.style.marginLeft = "70px";
+            mainContent.style.width = "calc(100vw - 70px)";
+            mainContent.classList.add("expanded");
+          } else {
+            mainContent.style.marginLeft = "240px";
+            mainContent.style.width = "calc(100vw - 240px)";
+            mainContent.classList.remove("expanded");
+          }
+        }
+      }
+
+      function updateHeartbeatDisplay() {
+        if (!isDataLoaded) return;
+        
+        const rows = document.querySelectorAll("#agentsTableBody tr");
+        const now = Date.now();
+
+        rows.forEach((row) => {
+          const timeCell = row.cells[6];
+          const statusCell = row.cells[4];
+          const agentId = row.getAttribute("data-agent-id");
+          
+          if (!agentId || !timeCell) return;
+          
+          const agent = agentsData.find((a) => a.id.toString() === agentId);
+          if (!agent || !agent.lastHeartbeat) return;
+          
+          // Update time
+          timeCell.textContent = formatTimeAgo(agent.lastHeartbeat);
+          
+          // Update status
+          const lastHeartbeatTime = new Date(agent.lastHeartbeat).getTime();
+          const secondsSince = Math.floor((now - lastHeartbeatTime) / 1000);
+          const status = secondsSince <= 45 ? "online" : "offline";
+          
+          const badge = statusCell?.querySelector(".status-badge");
+          if (badge) {
+            badge.className = `status-badge ${status}`;
+            badge.textContent = status === "online" ? "Online" : "Offline";
+          }
+        });
+      }
+
+      // ============ ADD CSS ANIMATIONS ============
+      const style = document.createElement("style");
+      style.textContent = `
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(100%); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+
+      // ============ EXPORT GLOBALS ============
+      window.toggleActionMenu = toggleActionMenu;
+      window.viewAgent = viewAgent;
+      window.viewPolicies = viewPolicies;
+      window.restartAgent = restartAgent;
+      window.deleteAgent = deleteAgent;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - General Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; overflow-x: hidden; }
+        .dashboard-container { display: flex; min-height: 100vh; }
+        .main-content { flex: 1; margin-left: 240px; transition: margin-left 0.3s; padding-top: 60px; }
+        .main-content.expanded { margin-left: 70px; }
+        /* .content-area { padding: 24px; max-width: 900px; } */
+        .content-area { padding: 24px;}
+        
+        .page-header { background: white; padding: 20px 24px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 24px; }
+        .page-title-section { display: flex; align-items: center; gap: 16px; }
+        .page-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .page-icon i { font-size: 22px; color: white; }
+        .page-title-text h1 { font-size: 1.5em; color: #111827; font-weight: 700; }
+        .page-subtitle { color: #6b7280; font-size: 0.9em; }
+        
+        .settings-form { background: white; padding: 28px; border-radius: 12px; border: 1px solid #e5e7eb; }
+        .form-section { margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid #e5e7eb; }
+        .form-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .section-title { font-size: 1.05em; font-weight: 600; color: #111827; margin-bottom: 16px; }
+        
+        .form-group { margin-bottom: 18px; }
+        .form-label { display: block; font-size: 0.85em; color: #374151; font-weight: 500; margin-bottom: 6px; }
+        .form-input, .form-select { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; }
+        .form-input:focus, .form-select:focus { outline: none; border-color: #3b82f6; }
+        .form-select { background: white; }
+        .form-hint { font-size: 0.8em; color: #9ca3af; margin-top: 4px; }
+        
+        .toggle-group { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+        .toggle-label { flex: 1; }
+        .toggle-title { font-size: 0.9em; font-weight: 600; color: #111827; }
+        .toggle-desc { font-size: 0.8em; color: #6b7280; margin-top: 2px; }
+        .toggle-switch { position: relative; width: 50px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; border-radius: 26px; transition: .3s; }
+        .toggle-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: .3s; }
+        input:checked + .toggle-slider { background-color: #10b981; }
+        input:checked + .toggle-slider:before { transform: translateX(24px); }
+        
+        .btn-group { display: flex; gap: 12px; margin-top: 28px; }
+        .btn { flex: 1; padding: 12px 24px; border-radius: 8px; font-size: 0.95em; font-weight: 600; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: white; color: #374151; border: 1.5px solid #e5e7eb; }
+        .btn-secondary:hover { background: #f9fafb; }
+        
+        @media (max-width: 968px) { 
+            .main-content { margin-left: 0; } 
+            .main-content.expanded { margin-left: 0; }
+        }
+        @media (max-width: 640px) { 
+            .content-area { padding: 16px; } 
+            .btn-group { flex-direction: column; } 
+            .page-header { padding: 16px; }
+            .settings-form { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div id="sidebarContainer"></div>
+        <main class="main-content" id="mainContent">
+            <div id="headerContainer"></div>
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title-section">
+                        <div class="page-icon"><i class="fas fa-gear"></i></div>
+                        <div class="page-title-text">
+                            <h1>General Settings</h1>
+                            <p class="page-subtitle">Configure organization and system preferences</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form class="settings-form" id="settingsForm">
+                    <div class="form-section">
+                        <div class="section-title">Organization Information</div>
+                        <div class="form-group">
+                            <label class="form-label">Organization Name</label>
+                            <input type="text" class="form-input" value="Acme Corporation" placeholder="Enter organization name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Primary Contact Email</label>
+                            <input type="email" class="form-input" value="admin@acmecorp.com" placeholder="admin@company.com">
+                            <div class="form-hint">This email will receive important system notifications</div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Localization</div>
+                        <div class="form-group">
+                            <label class="form-label">Timezone</label>
+                            <select class="form-select">
+                                <option>(UTC-08:00) Pacific Time</option>
+                                <option>(UTC-07:00) Mountain Time</option>
+                                <option>(UTC-06:00) Central Time</option>
+                                <option selected>(UTC-05:00) Eastern Time</option>
+                                <option>(UTC+00:00) UTC</option>
+                                <option>(UTC+01:00) Central European Time</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Language</label>
+                            <select class="form-select">
+                                <option selected>English (US)</option>
+                                <option>English (UK)</option>
+                                <option>Spanish</option>
+                                <option>French</option>
+                                <option>German</option>
+                                <option>Japanese</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date Format</label>
+                            <select class="form-select">
+                                <option selected>MM/DD/YYYY</option>
+                                <option>DD/MM/YYYY</option>
+                                <option>YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Appearance</div>
+                        <div class="form-group">
+                            <label class="form-label">Theme</label>
+                            <select class="form-select">
+                                <option selected>Light</option>
+                                <option>Dark</option>
+                                <option>Auto (System)</option>
+                            </select>
+                        </div>
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Compact Mode</div>
+                                <div class="toggle-desc">Reduce spacing for more content on screen</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Notifications</div>
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Email Notifications</div>
+                                <div class="toggle-desc">Receive email alerts for critical events</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Browser Notifications</div>
+                                <div class="toggle-desc">Show desktop notifications in browser</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <div class="toggle-title">Daily Digest</div>
+                                <div class="toggle-desc">Receive daily summary of system activity</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i><span>Save Changes</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                            <i class="fas fa-rotate-left"></i><span>Reset</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        // Check login status
+        async function checkAuth() {
+                try {
+                    const response = await fetch("/api/auth/check", {
+                        credentials: "include"
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Not authenticated");
+                    }
+
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        window.location.href = "index.html";
+                    }
+
+                } catch (err) {
+                    window.location.href = "index.html";
+                }
+            }
+
+        async function loadComponent(url, containerId) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Failed to load ${url}: ${response.status}`);
+                }
+                const html = await response.text();
+                document.getElementById(containerId).innerHTML = html;
+                
+                // Execute any scripts in the loaded HTML
+                const container = document.getElementById(containerId);
+                const scripts = container.querySelectorAll('script');
+                for (const script of scripts) {
+                    const newScript = document.createElement('script');
+                    if (script.src) {
+                        newScript.src = script.src;
+                    } else {
+                        newScript.textContent = script.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                }
+            } catch (error) { 
+                console.error('Error loading component:', error); 
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load sidebar and header components with correct paths
+            loadComponent('../sidebar.html', 'sidebarContainer');
+            loadComponent('../page-header.html', 'headerContainer');
+            
+            // Initialize sidebar state
+            setTimeout(() => {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
+                if (sidebar && mainContent) {
+                    // Check if sidebar was previously collapsed
+                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                    if (isCollapsed) {
+                        sidebar.classList.add('collapsed');
+                        mainContent.classList.add('expanded');
+                    }
+                }
+            }, 100);
+        });
+        
+        document.getElementById('settingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Settings saved successfully!');
+        });
+        
+        function resetForm() {
+            document.getElementById('settingsForm').reset();
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (window.innerWidth <= 968) {
+                if (sidebar) sidebar.classList.remove('collapsed');
+                if (mainContent) mainContent.classList.remove('expanded');
+            }
+        });
+    </script>
+</body>
+</html>
