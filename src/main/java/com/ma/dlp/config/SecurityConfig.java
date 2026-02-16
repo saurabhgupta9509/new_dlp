@@ -213,6 +213,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/agent/active-policies").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/agent/file-events").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/agent/alerts").permitAll()
+                        // .requestMatchers(HttpMethod.POST, "/api/agent/alert-details").permitAll()
+
                         .requestMatchers(HttpMethod.POST, "/api/agent/ocr-violations").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/agent/security-certificate").permitAll()
                         .requestMatchers("/api/agent/commands/**").permitAll()
@@ -241,6 +243,7 @@ public class SecurityConfig {
                                 "/manage-agents.html",
                                 "/agent-add.html",
                                 "/agent-edit.html",
+                                "/alert-details.html",
                                 "/alerts.html",
                                 "/assign-policy.html",
                                 "/audit-logs.html",
