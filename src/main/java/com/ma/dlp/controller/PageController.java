@@ -107,10 +107,22 @@ public class PageController {
         return "agent-edit";
     }
 
+     @GetMapping("/agent-view.html")
+    public String agentViewPage(HttpSession session, Model model) {
+        addUserToModel(session, model);
+        return "agent-view";
+    }
+
     @GetMapping("/alerts.html")
     public String alertsPage(HttpSession session, Model model) {
         addUserToModel(session, model);
         return "alerts";
+    }
+
+    @GetMapping("/alert-details.html")
+    public String alertsDetailsPage(HttpSession session, Model model) {
+        addUserToModel(session, model);
+        return "alert-details";
     }
 
     @GetMapping("/assign-policy.html")
@@ -228,6 +240,6 @@ public class PageController {
 
     @GetMapping("/")
     public String rootRedirect() {
-        return "redirect:/dashboard.html";
+        return "redirect:/index.html";
     }
 }
