@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1598,87 +1598,36 @@
         </main>
     </div>
 
-    <script>
+    <script th:inline="javascript">
 
-          async function checkAuth() {
-            try {
-                const response = await fetch("/api/auth/check", {
-                    credentials: "include"
-                });
-
-                if (!response.ok) {
-                    throw new Error("Not authenticated");
-                }
-
-                const result = await response.json();
-
-               if (!result.success) {
-                    window.location.href = "../index.html";
-                    return null;
-                }
-                // Store user data in localStorage or a variable
-                if (result.data) {
-                    localStorage.setItem('userData', JSON.stringify(result.data));
-                    return result.data;
-                }
-
-                    return null;
-            } catch (err) {
-                window.location.href = "../index.html";
-            }
-        }
+         // User data from server
+    const userData = {
+        username: [[${username}]],
+        userName: [[${userName}]],
+        userInitials: [[${userInitials}]],
+        userRole: [[${userRole}]],
+        userEmail: [[${userEmail}]],
+        userId: [[${userId}]]
+    };
 
     function loadAdminInfo() {
-    // Try to get user data from localStorage first (set during login)
-    const userDataStr = localStorage.getItem('userData');
+        const userName = document.querySelector(".user-name");
+        const userAvatar = document.querySelector(".user-avatar");
+        const userRole = document.querySelector(".user-role");
 
-    if (userDataStr) {
-        try {
-            const userData = JSON.parse(userDataStr);
+        if (userName && userData.userName) {
+            userName.textContent = userData.userName;
+        }
 
-            // Update UI with admin info from backend
-            const userName = document.querySelector('.user-name');
-            const userAvatar = document.querySelector('.user-avatar');
-            const userRole = document.querySelector('.user-role');
+        if (userAvatar && userData.userInitials) {
+            userAvatar.textContent = userData.userInitials;
+        }
 
-            if (userName) {
-                // Format username to display nicely (e.g., "John Smith" from "john.smith")
-                const namePart = userData.username || 'Admin';
-                const formattedName = namePart.split('.').map(n =>
-                    n.charAt(0).toUpperCase() + n.slice(1)
-                ).join(' ');
-                userName.textContent = formattedName;
-            }
-
-            if (userAvatar) {
-                // Get initials from username
-                const namePart = userData.username || 'Admin';
-                const initials = namePart.split('.')
-                    .map(n => n[0] ? n[0].toUpperCase() : '')
-                    .join('');
-                userAvatar.textContent = initials || 'A';
-            }
-
-            if (userRole) {
-                userRole.textContent = userData.role || 'Security Admin';
-            }
-
-        } catch (e) {
-            console.error('Error parsing user data:', e);
+        if (userRole && userData.userRole) {
+            userRole.textContent = userData.userRole;
         }
     }
-}
 
-        async function refreshUserData() {
-            const userData = await checkAuth();
-            if (userData) {
-                localStorage.setItem('userData', JSON.stringify(userData));
-                loadAdminInfo();
-            }
-        }
-
-        // Refresh every 5 minutes
-        setInterval(refreshUserData, 1 * 60 * 1000);
 
    /* ==================== SIDEBAR & HEADER FUNCTIONS ==================== */
 
@@ -1814,18 +1763,8 @@
 
        function logout(event) {
             event.preventDefault();
-
-            // Call logout API
-            fetch('/api/auth/logout', {
-                method: 'POST',
-                credentials: 'include'
-            }).finally(() => {
-                // Clear all stored data
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('userEmail');
-                localStorage.removeItem('userData');
-                window.location.href = 'index.html';
-            });
+                window.location.href = '/logout';
+        
         }
 
         function setActiveMenuItem() {
@@ -1997,26 +1936,7 @@ function showAlert(message, type) {
 
         // Load components when DOM is ready
         document.addEventListener('DOMContentLoaded', async function() {
-                const userData = await checkAuth();
-
-                if (userData) {
-                    // Store in localStorage if not already there
-                    localStorage.setItem('userData', JSON.stringify(userData));
                     loadAdminInfo();
-                }
-                const emailField = document.getElementById('email');
-                if (emailField) {
-                    emailField.addEventListener('blur', function() {
-                        const email = this.value;
-                        const usernameField = document.getElementById('username');
-
-                        if (email && !usernameField.value) {
-                            // Extract username from email (before @)
-                            const username = email.split('@')[0];
-                            usernameField.value = username;
-                        }
-                });
-            }
             setActiveMenuItem();
         });
 

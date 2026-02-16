@@ -1,4 +1,4 @@
-<!doctype html>
+<!-- <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -9,34 +9,746 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <style>
+      /* All your existing styles remain exactly the same */
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
+
       body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
         background: #f3f4f6;
+        overflow-x: hidden;
       }
+
       .dashboard-container {
         display: flex;
         min-height: 100vh;
+        max-width: 100vw;
+        overflow-x: hidden;
       }
+
       .main-content {
         flex: 1;
         margin-left: 240px;
-        transition: margin-left 0.3s;
-        padding-top: 60px;
+        transition: margin-left 0.3s ease;
+        min-height: 100vh;
+        max-width: calc(100vw - 240px);
+        overflow-x: hidden;
       }
+
       .main-content.expanded {
         margin-left: 70px;
+        max-width: calc(100vw - 70px);
       }
+
       .content-area {
         padding: 24px;
+        padding-top: 100px;
+        max-width: 1400px;
         margin: 0 auto;
       }
 
+      /* ================ SIDEBAR STYLES ================ */
+      .sidebar {
+        width: 240px;
+        background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+        color: white;
+        position: fixed;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        transition: width 0.3s ease;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        overflow: hidden;
+      }
+
+      .sidebar::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+      }
+
+      .sidebar-header {
+        padding: 18px 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+      }
+
+      .sidebar-logo {
+        width: 38px;
+        height: 38px;
+        background: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .sidebar-logo i {
+        font-size: 20px;
+        color: #2563eb;
+      }
+
+      .sidebar-title {
+        font-size: 1.2em;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: opacity 0.2s, width 0.3s;
+        overflow: hidden;
+      }
+
+      .nav-menu {
+        padding: 12px 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        flex: 1;
+      }
+
+      .nav-item {
+        margin: 2px 8px;
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.2s;
+        font-size: 0.9em;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .nav-link.active,
+      .sub-menu-item.active {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        font-weight: 600;
+      }
+
+      .nav-link i:first-child {
+        width: 20px;
+        font-size: 0.95em;
+        margin-right: 10px;
+        flex-shrink: 0;
+      }
+
+      .chevron-icon {
+        margin-left: auto !important;
+        font-size: 0.7em !important;
+        transition: transform 0.3s;
+        width: auto !important;
+        flex-shrink: 0;
+      }
+
+      .nav-link.expanded .chevron-icon {
+        transform: rotate(180deg);
+      }
+
+      .sub-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+
+      .sub-menu.open {
+        max-height: 500px;
+      }
+
+      .sub-menu-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px 8px 42px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-size: 0.85em;
+        transition: all 0.2s;
+        border-radius: 8px;
+        margin: 2px 0;
+        white-space: nowrap;
+      }
+
+      .sub-menu-item:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .sub-menu-item::before {
+        content: "•";
+        margin-right: 10px;
+        font-size: 1.2em;
+      }
+
+      .sidebar-footer {
+        padding: 12px 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+      }
+
+      .collapse-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 0.85em;
+        transition: all 0.2s;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      .collapse-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .collapse-btn i {
+        transition: transform 0.3s;
+        flex-shrink: 0;
+      }
+
+      /* Sidebar collapsed state */
+      .sidebar.collapsed {
+        width: 70px;
+      }
+
+      .sidebar.collapsed .sidebar-title {
+        opacity: 0;
+        width: 0;
+      }
+
+      .sidebar.collapsed .nav-link span,
+      .sidebar.collapsed .collapse-btn span {
+        display: none;
+      }
+
+      .sidebar.collapsed .sub-menu {
+        display: none !important;
+      }
+
+      .sidebar.collapsed .nav-link {
+        justify-content: center;
+        padding: 10px;
+      }
+
+      .sidebar.collapsed .nav-link i:first-child {
+        margin-right: 0;
+      }
+
+      .sidebar.collapsed .chevron-icon {
+        display: none;
+      }
+
+      .sidebar.collapsed .collapse-btn {
+        justify-content: center;
+      }
+
+      .sidebar.collapsed .collapse-btn i {
+        transform: rotate(180deg);
+      }
+
+      /* Mobile Overlay */
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+      }
+
+      /* ================ HEADER STYLES ================ */
+      .top-header {
+        background: white;
+        padding: 14px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #e5e7eb;
+        position: fixed;
+        top: 0;
+        left: 240px;
+        right: 0;
+        z-index: 500;
+        gap: 16px;
+        transition: left 0.3s ease;
+      }
+
+      .mobile-menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: #6b7280;
+        font-size: 1.3em;
+        cursor: pointer;
+        padding: 8px;
+        transition: color 0.2s;
+      }
+
+      .mobile-menu-toggle:hover {
+        color: #111827;
+      }
+
+      .search-bar {
+        flex: 1;
+        max-width: 400px;
+        position: relative;
+      }
+
+      .search-bar i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 0.9em;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 9px 14px 9px 38px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.9em;
+        background: #f9fafb;
+        transition: all 0.3s ease;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .notification-btn {
+        position: relative;
+        background: none;
+        border: none;
+        color: #6b7280;
+        font-size: 1.1em;
+        cursor: pointer;
+        padding: 8px;
+        transition: all 0.2s;
+        border-radius: 8px;
+      }
+
+      .notification-btn:hover {
+        color: #111827;
+        background: #f3f4f6;
+      }
+
+      .notification-btn.active {
+        color: #2563eb;
+        background: #eff6ff;
+      }
+
+      .notification-badge {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        background: #ef4444;
+        color: white;
+        font-size: 0.65em;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        padding: 0 4px;
+      }
+
+      .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        padding: 6px 10px;
+        border-radius: 8px;
+        transition: background 0.2s;
+        position: relative;
+      }
+
+      .user-profile:hover {
+        background: #f3f4f6;
+      }
+
+      .user-avatar {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9em;
+        flex-shrink: 0;
+      }
+
+      .user-info {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .user-name {
+        font-size: 0.9em;
+        font-weight: 600;
+        color: #111827;
+      }
+
+      .user-role {
+        font-size: 0.75em;
+        color: #6b7280;
+      }
+
+      .dropdown-icon {
+        color: #6b7280;
+        font-size: 0.75em;
+        margin-left: 4px;
+        transition: transform 0.3s;
+      }
+
+      .user-profile.active .dropdown-icon {
+        transform: rotate(180deg);
+      }
+
+      .user-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 8px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07),
+          0 10px 15px rgba(0, 0, 0, 0.1);
+        min-width: 200px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+
+      .user-dropdown.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        color: #374151;
+        text-decoration: none;
+        font-size: 0.9em;
+        transition: background 0.2s;
+      }
+
+      .dropdown-item:first-child {
+        border-radius: 8px 8px 0 0;
+      }
+
+      .dropdown-item:last-child {
+        border-radius: 0 0 8px 8px;
+      }
+
+      .dropdown-item:hover {
+        background: #f3f4f6;
+      }
+
+      .dropdown-item i {
+        width: 18px;
+        color: #6b7280;
+        font-size: 0.95em;
+      }
+
+      .dropdown-item.danger {
+        color: #dc2626;
+      }
+
+      .dropdown-item.danger i {
+        color: #dc2626;
+      }
+
+      .dropdown-divider {
+        height: 1px;
+        background: #e5e7eb;
+        margin: 4px 0;
+      }
+
+      /* ================ NOTIFICATIONS PANEL ================ */
+      .notifications-panel {
+        position: fixed;
+        top: 0;
+        right: -50%;
+        width: 50%;
+        max-width: 600px;
+        height: 100vh;
+        background: white;
+        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+        z-index: 1001;
+        display: flex;
+        flex-direction: column;
+        transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .notifications-panel.show {
+        right: 0;
+      }
+
+      .notifications-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+      }
+
+      .notifications-header h3 {
+        font-size: 1.2em;
+        font-weight: 700;
+        color: #111827;
+      }
+
+      .close-notifications {
+        background: none;
+        border: none;
+        color: #6b7280;
+        font-size: 1.2em;
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 6px;
+        transition: all 0.2s;
+      }
+
+      .close-notifications:hover {
+        background: #f3f4f6;
+        color: #111827;
+      }
+
+      .notifications-tabs {
+        display: flex;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 0 24px;
+        flex-shrink: 0;
+      }
+
+      .tab-btn {
+        flex: 1;
+        padding: 12px;
+        background: none;
+        border: none;
+        color: #6b7280;
+        font-size: 0.9em;
+        font-weight: 500;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+      }
+
+      .tab-btn:hover {
+        color: #111827;
+      }
+
+      .tab-btn.active {
+        color: #2563eb;
+        border-bottom-color: #2563eb;
+      }
+
+      .notifications-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px 0;
+      }
+
+      .notifications-content::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .notifications-content::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 3px;
+      }
+
+      .notification-item {
+        display: flex;
+        gap: 12px;
+        padding: 14px 24px;
+        cursor: pointer;
+        transition: background 0.2s;
+        border-left: 3px solid transparent;
+      }
+
+      .notification-item:hover {
+        background: #f9fafb;
+      }
+
+      .notification-item.unread {
+        background: #eff6ff;
+        border-left-color: #3b82f6;
+      }
+
+      .notification-item.unread:hover {
+        background: #dbeafe;
+      }
+
+      .notification-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1em;
+        flex-shrink: 0;
+      }
+
+      .notification-icon.critical {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      .notification-icon.warning {
+        background: #fef3c7;
+        color: #f59e0b;
+      }
+
+      .notification-icon.info {
+        background: #dbeafe;
+        color: #3b82f6;
+      }
+
+      .notification-icon.success {
+        background: #d1fae5;
+        color: #10b981;
+      }
+
+      .notification-body {
+        flex: 1;
+      }
+
+      .notification-title {
+        font-size: 0.9em;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 4px;
+      }
+
+      .notification-text {
+        font-size: 0.85em;
+        color: #6b7280;
+        margin-bottom: 6px;
+        line-height: 1.4;
+      }
+
+      .notification-time {
+        font-size: 0.75em;
+        color: #9ca3af;
+      }
+
+      .notification-dot {
+        width: 8px;
+        height: 8px;
+        background: #3b82f6;
+        border-radius: 50%;
+        flex-shrink: 0;
+        margin-top: 8px;
+      }
+
+      .notification-item:not(.unread) .notification-dot {
+        display: none;
+      }
+
+      .notifications-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #e5e7eb;
+        flex-shrink: 0;
+      }
+
+      .view-all-btn {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background: #f3f4f6;
+        color: #2563eb;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.9em;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+
+      .view-all-btn:hover {
+        background: #e5e7eb;
+      }
+
+      .notification-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .notification-overlay.show {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* Assign Policy Page Styles */
       .page-header {
         background: white;
         padding: 20px 24px;
@@ -44,11 +756,13 @@
         border: 1px solid #e5e7eb;
         margin-bottom: 24px;
       }
+
       .page-title-section {
         display: flex;
         align-items: center;
         gap: 16px;
       }
+
       .page-icon {
         width: 48px;
         height: 48px;
@@ -58,15 +772,18 @@
         align-items: center;
         justify-content: center;
       }
+
       .page-icon i {
         font-size: 22px;
         color: white;
       }
+
       .page-title-text h1 {
         font-size: 1.5em;
         color: #111827;
         font-weight: 700;
       }
+
       .page-subtitle {
         color: #6b7280;
         font-size: 0.9em;
@@ -80,13 +797,16 @@
         margin-bottom: 20px;
         font-size: 0.85em;
       }
+
       .breadcrumb a {
         color: #6b7280;
         text-decoration: none;
       }
+
       .breadcrumb a:hover {
         color: #2563eb;
       }
+
       .breadcrumb span {
         color: #9ca3af;
       }
@@ -104,6 +824,7 @@
         margin-bottom: 32px;
         position: relative;
       }
+
       .step-indicator::before {
         content: "";
         position: absolute;
@@ -114,6 +835,7 @@
         background: #e5e7eb;
         z-index: 0;
       }
+
       .step {
         display: flex;
         flex-direction: column;
@@ -123,6 +845,7 @@
         z-index: 1;
         flex: 1;
       }
+
       .step-circle {
         width: 40px;
         height: 40px;
@@ -136,21 +859,25 @@
         color: #9ca3af;
         transition: all 0.3s;
       }
+
       .step.active .step-circle {
         background: #2563eb;
         border-color: #2563eb;
         color: white;
       }
+
       .step.completed .step-circle {
         background: #10b981;
         border-color: #10b981;
         color: white;
       }
+
       .step-label {
         font-size: 0.85em;
         color: #6b7280;
         font-weight: 500;
       }
+
       .step.active .step-label {
         color: #2563eb;
         font-weight: 600;
@@ -159,12 +886,14 @@
       .section {
         margin-bottom: 28px;
       }
+
       .section-title {
         font-size: 1.1em;
         font-weight: 600;
         color: #111827;
         margin-bottom: 16px;
       }
+
       .section-desc {
         font-size: 0.9em;
         color: #6b7280;
@@ -174,6 +903,7 @@
       .form-group {
         margin-bottom: 20px;
       }
+
       .form-label {
         display: block;
         font-size: 0.9em;
@@ -181,6 +911,7 @@
         font-weight: 500;
         margin-bottom: 8px;
       }
+
       .form-select {
         width: 100%;
         padding: 11px 14px;
@@ -190,10 +921,12 @@
         background: white;
         cursor: pointer;
       }
+
       .form-select:focus {
         outline: none;
         border-color: #3b82f6;
       }
+
       .form-select:disabled {
         background: #f9fafb;
         cursor: not-allowed;
@@ -204,6 +937,7 @@
         position: relative;
         margin-bottom: 16px;
       }
+
       .search-box i {
         position: absolute;
         left: 14px;
@@ -211,6 +945,7 @@
         transform: translateY(-50%);
         color: #9ca3af;
       }
+
       .search-input {
         width: 100%;
         padding: 11px 14px 11px 42px;
@@ -218,6 +953,7 @@
         border-radius: 8px;
         font-size: 0.9em;
       }
+
       .search-input:focus {
         outline: none;
         border-color: #3b82f6;
@@ -234,6 +970,7 @@
         border-radius: 8px;
         border: 1px solid #e5e7eb;
       }
+
       .agent-card {
         background: white;
         padding: 14px;
@@ -242,44 +979,53 @@
         cursor: pointer;
         transition: all 0.2s;
       }
+
       .agent-card:hover {
         border-color: #3b82f6;
         box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
       }
+
       .agent-card.selected {
         border-color: #2563eb;
         background: #eff6ff;
       }
+
       .agent-card-header {
         display: flex;
         align-items: center;
         gap: 10px;
         margin-bottom: 8px;
       }
+
       .agent-checkbox {
         width: 18px;
         height: 18px;
         cursor: pointer;
       }
+
       .agent-name {
         font-weight: 600;
         font-size: 0.9em;
         color: #111827;
         flex: 1;
       }
+
       .agent-status {
         font-size: 0.75em;
         padding: 3px 8px;
         border-radius: 4px;
       }
+
       .status-online {
         background: #d1fae5;
         color: #059669;
       }
+
       .status-offline {
         background: #f3f4f6;
         color: #6b7280;
       }
+
       .agent-info {
         font-size: 0.8em;
         color: #6b7280;
@@ -298,9 +1044,11 @@
         align-items: center;
         gap: 10px;
       }
+
       .selected-count i {
         color: #2563eb;
       }
+
       .selected-count span {
         font-size: 0.9em;
         color: #1e40af;
@@ -313,19 +1061,23 @@
         border-radius: 8px;
         border: 1px solid #e5e7eb;
       }
+
       .summary-row {
         display: flex;
         justify-content: space-between;
         padding: 10px 0;
         border-bottom: 1px solid #e5e7eb;
       }
+
       .summary-row:last-child {
         border-bottom: none;
       }
+
       .summary-label {
         font-size: 0.9em;
         color: #6b7280;
       }
+
       .summary-value {
         font-size: 0.9em;
         color: #111827;
@@ -339,12 +1091,14 @@
         border: 1.5px solid #3b82f6;
         margin-bottom: 16px;
       }
+
       .policy-preview-header {
         display: flex;
         align-items: center;
         gap: 10px;
         margin-bottom: 10px;
       }
+
       .policy-preview-icon {
         width: 36px;
         height: 36px;
@@ -355,10 +1109,12 @@
         justify-content: center;
         color: #2563eb;
       }
+
       .policy-preview-title {
         font-weight: 600;
         color: #111827;
       }
+
       .policy-preview-desc {
         font-size: 0.85em;
         color: #6b7280;
@@ -367,11 +1123,13 @@
       .domain-input-container {
         margin-top: 16px;
       }
+
       .domain-input-group {
         display: flex;
         gap: 8px;
         margin-bottom: 12px;
       }
+
       .domain-input {
         flex: 1;
         padding: 10px 14px;
@@ -379,10 +1137,12 @@
         border-radius: 8px;
         font-size: 0.9em;
       }
+
       .domain-input:focus {
         outline: none;
         border-color: #3b82f6;
       }
+
       .btn-add-domain {
         padding: 10px 20px;
         background: #2563eb;
@@ -393,15 +1153,18 @@
         font-size: 0.9em;
         font-weight: 600;
       }
+
       .btn-add-domain:hover {
         background: #1d4ed8;
       }
+
       .domain-tags {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
         margin-top: 12px;
       }
+
       .domain-tag {
         background: #eff6ff;
         color: #1e40af;
@@ -413,10 +1176,12 @@
         gap: 8px;
         border: 1px solid #bfdbfe;
       }
+
       .domain-tag i {
         cursor: pointer;
         color: #ef4444;
       }
+
       .domain-tag i:hover {
         color: #dc2626;
       }
@@ -428,6 +1193,7 @@
         padding-top: 24px;
         border-top: 1px solid #e5e7eb;
       }
+
       .btn {
         padding: 11px 24px;
         border-radius: 8px;
@@ -440,24 +1206,47 @@
         gap: 8px;
         transition: all 0.2s;
       }
+
       .btn-primary {
         background: #2563eb;
         color: white;
       }
+
       .btn-primary:hover {
         background: #1d4ed8;
       }
+
       .btn-primary:disabled {
         background: #9ca3af;
         cursor: not-allowed;
       }
+
       .btn-secondary {
         background: white;
         color: #374151;
         border: 1.5px solid #e5e7eb;
       }
+
       .btn-secondary:hover {
         background: #f9fafb;
+      }
+
+      .btn-danger {
+        background: #ef4444;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #dc2626;
+      }
+
+      .btn-warning {
+        background: #f59e0b;
+        color: white;
+      }
+
+      .btn-warning:hover {
+        background: #d97706;
       }
 
       .alert {
@@ -468,53 +1257,29 @@
         align-items: center;
         gap: 12px;
       }
+
       .alert-info {
         background: #eff6ff;
         border: 1px solid #bfdbfe;
         color: #1e40af;
       }
+
       .alert-success {
         background: #d1fae5;
         border: 1px solid #a7f3d0;
         color: #065f46;
       }
+
+      .alert-warning {
+        background: #fff3cd;
+        border: 1px solid #ffeeba;
+        color: #856404;
+      }
+
       .alert i {
         font-size: 1.1em;
       }
 
-      /* Mobile responsive */
-      @media (max-width: 968px) {
-        .main-content {
-          margin-left: 0;
-          padding-top: 60px;
-        }
-        .main-content.expanded {
-          margin-left: 0;
-        }
-        .agents-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      @media (max-width: 640px) {
-        .content-area {
-          padding: 16px;
-        }
-        .step-indicator {
-          flex-direction: column;
-          gap: 12px;
-        }
-        .step-indicator::before {
-          display: none;
-        }
-        .btn-group {
-          flex-direction: column;
-        }
-        .btn {
-          width: 100%;
-          justify-content: center;
-        }
-      }
       .loading {
         padding: 40px;
         text-align: center;
@@ -530,22 +1295,7 @@
         border-radius: 8px;
         border: 1px solid #fca5a5;
       }
-      .btn-danger {
-        background: #ef4444 !important;
-        color: white;
-      }
-      .btn-danger:hover {
-        background: #dc2626 !important;
-      }
 
-      .status-active {
-        color: #059669;
-        font-weight: 600;
-      }
-      .status-inactive {
-        color: #6b7280;
-        font-weight: 500;
-      }
       .summary-domain-tag {
         background: #eff6ff;
         color: #1e40af;
@@ -576,27 +1326,3855 @@
         gap: 8px;
         padding: 8px 0;
       }
-      .btn-warning {
-        background: #f59e0b !important;
-        color: white;
+
+      /* Mobile responsive */
+      @media (max-width: 1200px) {
+        .main-content {
+          margin-left: 70px;
+          max-width: calc(100vw - 70px);
+        }
+
+        .main-content.expanded {
+          margin-left: 70px;
+          max-width: calc(100vw - 70px);
+        }
+
+        .top-header {
+          left: 70px;
+        }
       }
-      .btn-warning:hover {
-        background: #d97706 !important;
+
+      @media (max-width: 968px) {
+        .main-content {
+          margin-left: 0;
+          max-width: 100vw;
+        }
+
+        .top-header {
+          left: 0;
+        }
+
+        .mobile-menu-toggle {
+          display: block;
+        }
+
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
+        }
+
+        .sidebar.mobile-open {
+          transform: translateX(0);
+        }
+
+        .agents-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .content-area {
+          padding: 16px;
+          padding-top: 80px;
+        }
+
+        .notifications-panel {
+          width: 90%;
+          right: -90%;
+        }
+
+        .step-indicator {
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .step-indicator::before {
+          display: none;
+        }
+
+        .btn-group {
+          flex-direction: column;
+        }
+
+        .btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .user-info {
+          display: none;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .content-area {
+          padding: 12px;
+          padding-top: 70px;
+        }
+
+        .page-title-section {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .page-icon {
+          width: 40px;
+          height: 40px;
+        }
+
+        .page-icon i {
+          font-size: 18px;
+        }
+
+        .page-title-text h1 {
+          font-size: 1.3em;
+        }
+
+        .assign-container {
+          padding: 16px;
+        }
       }
     </style>
   </head>
   <body>
     <div class="dashboard-container">
-      <!-- Sidebar will be loaded here -->
-      <div id="sidebarContainer"></div>
+      <-- ==================== SIDEBAR ==================== 
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-logo">
+            <i class="fas fa-shield-halved"></i>
+          </div>
+          <div class="sidebar-title">DLP Shield</div>
+        </div>
+
+        <nav class="nav-menu">
+          <div class="nav-item">
+            <a href="dashboard.html" class="nav-link" data-page="dashboard">
+              <i class="fas fa-th-large"></i>
+              <span>Dashboard</span>
+            </a>
+          </div>
+
+          <div class="nav-item">
+            <a href="alerts.html" class="nav-link" data-page="alerts">
+              <i class="fas fa-triangle-exclamation"></i>
+              <span>Alerts &amp; Incidents</span>
+            </a>
+          </div>
+
+          <div class="nav-item">
+            <div class="nav-link nav-dropdown expanded" onclick="toggleSubMenu(this)">
+              <i class="fas fa-shield-alt"></i>
+              <span>Policies</span>
+              <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu open">
+              <a
+                href="manage-agents.html"
+                class="sub-menu-item"
+                data-page="manage-agents"
+                >Manage Agents</a
+              >
+              <a
+                href="file-policies.html"
+                class="sub-menu-item"
+                data-page="file-policies"
+                >File Policies</a
+              >
+              <a
+                href="assign-policy.html"
+                class="sub-menu-item active"
+                data-page="assign-policy"
+                >Assign Policy</a
+              >
+            </div>
+          </div>
+
+          <div class="nav-item">
+            <a href="agents.html" class="nav-link" data-page="agents">
+              <i class="fas fa-desktop"></i>
+              <span>Agents / Endpoints</span>
+            </a>
+          </div>
+
+          <div class="nav-item">
+            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+              <i class="fas fa-eye"></i>
+              <span>OCR &amp; Image Analysis</span>
+              <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu">
+              <a
+                href="ocr-dashboard.html"
+                class="sub-menu-item"
+                data-page="ocr-dashboard"
+                >OCR Dashboard</a
+              >
+              <a
+                href="ocr-policies.html"
+                class="sub-menu-item"
+                data-page="ocr-policies"
+                >OCR Policies</a
+              >
+            </div>
+          </div>
+
+          <div class="nav-item">
+            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+              <i class="fas fa-file-lines"></i>
+              <span>Reports &amp; Logs</span>
+              <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu">
+              <a href="reports.html" class="sub-menu-item" data-page="reports"
+                >Reports</a
+              >
+              <a
+                href="generate-report.html"
+                class="sub-menu-item"
+                data-page="generate-report"
+                >Generate Report</a
+              >
+              <a
+                href="audit-logs.html"
+                class="sub-menu-item"
+                data-page="audit-logs"
+                >Audit Logs</a
+              >
+              <a
+                href="device-logs.html"
+                class="sub-menu-item"
+                data-page="device-logs"
+                >Device Logs</a
+              >
+            </div>
+          </div>
+
+          <div class="nav-item">
+            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+              <i class="fas fa-users"></i>
+              <span>Users &amp; Roles</span>
+              <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu">
+              <a href="users.html" class="sub-menu-item" data-page="users"
+                >Users</a
+              >
+              <a href="roles.html" class="sub-menu-item" data-page="roles"
+                >Roles &amp; Permissions</a
+              >
+              <a
+                href="permissions.html"
+                class="sub-menu-item"
+                data-page="permissions"
+                >Permissions</a
+              >
+            </div>
+          </div>
+
+          <div class="nav-item">
+            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+              <i class="fas fa-gear"></i>
+              <span>Settings</span>
+              <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu">
+              <a href="general.html" class="sub-menu-item" data-page="general"
+                >General</a
+              >
+              <a href="security.html" class="sub-menu-item" data-page="security"
+                >Security</a
+              >
+              <a
+                href="integrations.html"
+                class="sub-menu-item"
+                data-page="integrations"
+                >Integrations</a
+              >
+              <a
+                href="data-retention.html"
+                class="sub-menu-item"
+                data-page="data-retention"
+                >Data Retention</a
+              >
+            </div>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="collapse-btn" onclick="toggleSidebar()">
+            <i class="fas fa-chevron-left"></i>
+            <span>Collapse</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Mobile Overlay (for sidebar) 
+      <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="closeMobileSidebar()"
+      ></div>
+
+      <!-- ==================== HEADER ====================
+      <header class="top-header" id="topHeader">
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search alerts, agents, policies..."
+          />
+        </div>
+
+        <div class="header-actions">
+          <button class="notification-btn" onclick="toggleNotifications(event)">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="alertBadge">5</span>
+          </button>
+
+          <div class="user-profile" onclick="toggleUserDropdown(event)">
+            <div class="user-avatar">A</div>
+            <div class="user-info">
+              <div class="user-name">Admin</div>
+              <div class="user-role">Security Admin</div>
+            </div>
+            <i class="fas fa-chevron-down dropdown-icon"></i>
+
+            <div class="user-dropdown" id="userDropdown">
+              <a href="general.html" class="dropdown-item">
+                <i class="fas fa-gear"></i>
+                <span>Settings</span>
+              </a>
+              <a href="#" class="dropdown-item">
+                <i class="fas fa-circle-question"></i>
+                <span>Help &amp; Support</span>
+              </a>
+              <div class="dropdown-divider"></div>
+              <a
+                href="index.html"
+                class="dropdown-item danger"
+                onclick="logout(event)"
+              >
+                <i class="fas fa-right-from-bracket"></i>
+                <span>Sign out</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ==================== NOTIFICATIONS PANEL ==================== 
+      <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+          <h3>Notifications</h3>
+          <button class="close-notifications" onclick="closeNotifications()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="notifications-tabs">
+          <button class="tab-btn active" onclick="switchTab(event, 'all')">
+            All (5)
+          </button>
+          <button class="tab-btn" onclick="switchTab(event, 'unread')">
+            Unread (3)
+          </button>
+        </div>
+
+        <div class="notifications-content" id="notificationsContent">
+          <div class="notification-item unread">
+            <div class="notification-icon critical">
+              <i class="fas fa-shield-exclamation"></i>
+            </div>
+            <div class="notification-body">
+              <div class="notification-title">Critical Policy Violation</div>
+              <div class="notification-text">
+                User attempted to copy sensitive files to USB drive
+              </div>
+              <div class="notification-time">2 minutes ago</div>
+            </div>
+            <div class="notification-dot"></div>
+          </div>
+
+          <div class="notification-item unread">
+            <div class="notification-icon warning">
+              <i class="fas fa-triangle-exclamation"></i>
+            </div>
+            <div class="notification-body">
+              <div class="notification-title">Agent Offline</div>
+              <div class="notification-text">
+                DESKTOP-DEF456 has been offline for 2 hours
+              </div>
+              <div class="notification-time">15 minutes ago</div>
+            </div>
+            <div class="notification-dot"></div>
+          </div>
+
+          <div class="notification-item unread">
+            <div class="notification-icon info">
+              <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="notification-body">
+              <div class="notification-title">Policy Updated</div>
+              <div class="notification-text">
+                File Protection Policy has been modified by Admin
+              </div>
+              <div class="notification-time">1 hour ago</div>
+            </div>
+            <div class="notification-dot"></div>
+          </div>
+
+          <div class="notification-item">
+            <div class="notification-icon success">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="notification-body">
+              <div class="notification-title">Agent Connected</div>
+              <div class="notification-text">
+                New agent LAPTOP-XYZ789 successfully registered
+              </div>
+              <div class="notification-time">3 hours ago</div>
+            </div>
+          </div>
+
+          <div class="notification-item">
+            <div class="notification-icon info">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="notification-body">
+              <div class="notification-title">Report Generated</div>
+              <div class="notification-text">
+                Weekly security report is ready for review
+              </div>
+              <div class="notification-time">5 hours ago</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notifications-footer">
+          <a href="alerts.html" class="view-all-btn">View All Notifications</a>
+        </div>
+      </div>
+
+      <!-- Notification Overlay 
+      <div
+        class="notification-overlay"
+        id="notificationOverlay"
+        onclick="closeNotifications()"
+      ></div>
 
       <main class="main-content" id="mainContent">
-        <!-- Header will be loaded here -->
-        <div id="headerContainer"></div>
-
         <div class="content-area">
           <div class="breadcrumb">
-            <a href="../dashboard.html"><i class="fas fa-home"></i></a>
+            <a href="dashboard.html"><i class="fas fa-home"></i></a>
+            <span>/</span>
+            <a href="file-policies.html">Policies</a>
+            <span>/</span>
+            <span>Assign Policy</span>
+          </div>
+
+          <div class="page-header">
+            <div class="page-title-section">
+              <div class="page-icon"><i class="fas fa-user-shield"></i></div>
+              <div class="page-title-text">
+                <h1>Assign Policy to Agents</h1>
+                <p class="page-subtitle">
+                  Select agents and assign protection policies
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="assign-container">
+            <div class="step-indicator">
+              <div class="step active" data-step="1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Choose Agent</div>
+              </div>
+              <div class="step" data-step="2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Policy Type</div>
+              </div>
+              <div class="step" data-step="3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Select Policy</div>
+              </div>
+              <div class="step" data-step="4">
+                <div class="step-circle">4</div>
+                <div class="step-label">Review & Apply</div>
+              </div>
+            </div>
+
+            <!-- STEP 1: Choose Agent 
+            <div id="step1">
+              <div class="section">
+                <div class="section-title">Step 1: Choose Agent</div>
+                <div class="section-desc">
+                  Select the agents you want to assign a policy to
+                </div>
+
+                <div class="search-box">
+                  <i class="fas fa-search"></i>
+                  <input
+                    type="text"
+                    class="search-input"
+                    placeholder="Search agents by name, user, or IP..."
+                    id="agentSearch"
+                  />
+                </div>
+
+                <div class="selected-count" id="selectedCount">
+                  <i class="fas fa-check-circle"></i>
+                  <span>0 agents selected</span>
+                </div>
+
+                <div class="agents-grid" id="agentsGrid">
+                  <!-- Agent cards will be dynamically generated 
+                </div>
+
+                <div class="alert alert-info">
+                  <i class="fas fa-info-circle"></i>
+                  <span>Select at least one agent to continue</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 2: Policy Type 
+            <div id="step2" style="display: none">
+              <div class="section">
+                <div class="section-title">Step 2: Select Policy Type</div>
+                <div class="section-desc">
+                  Choose the type of policy you want to assign
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Policy Type</label>
+                  <select class="form-select" id="policyType">
+                    <option value="">-- Select Policy Type --</option>
+                    <option value="network">Network Policy</option>
+                    <option value="file">File Protection</option>
+                    <option value="usb">USB</option>
+                    <option value="ocr">OCR</option>
+                  </select>
+                </div>
+
+                <div class="alert alert-info">
+                  <i class="fas fa-info-circle"></i>
+                  <span
+                    >Different policy types provide different protection
+                    mechanisms</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 3: Select Policy 
+            <div id="step3" style="display: none">
+              <div class="section">
+                <div class="section-title">Step 3: Select Policy</div>
+                <div class="section-desc">
+                  Choose the specific policy to assign
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Available Policies</label>
+                  <select class="form-select" id="policySelect" disabled>
+                    <option value="">-- Select a policy type first --</option>
+                  </select>
+                </div>
+
+                <!-- DNS Domain Input (for Network Policy) 
+                <div id="dnsInputContainer" style="display: none">
+                  <div class="domain-input-container">
+                    <label class="form-label">Block Domains</label>
+                    <div class="domain-input-group">
+                      <input
+                        type="text"
+                        class="domain-input"
+                        id="domainInput"
+                        placeholder="Enter domain (e.g., www.example.com)"
+                      />
+                      <button class="btn-add-domain" onclick="addDomain()">
+                        <i class="fas fa-plus"></i> Add
+                      </button>
+                    </div>
+                    <div class="domain-tags" id="domainTags">
+                      <!-- Domain tags will appear here -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- File Protection Info 
+                <div id="fileProtectionInfo" style="display: none">
+                  <div class="alert alert-info">
+                    <i class="fas fa-shield-alt"></i>
+                    <span
+                      >File Protection policy will block unauthorized file
+                      transfers</span
+                    >
+                  </div>
+                </div>
+
+                <!-- OCR Info 
+                <div id="ocrInfo" style="display: none">
+                  <div class="alert alert-info">
+                    <i class="fas fa-eye"></i>
+                    <span
+                      >OCR policy will scan and analyze text in images and
+                      documents</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 4: Review & Apply 
+            <div id="step4" style="display: none">
+              <div class="section">
+                <div class="section-title">Step 4: Review & Apply</div>
+                <div class="section-desc">
+                  Verify the policy assignment before applying
+                </div>
+
+                <div class="summary-box">
+                  <div class="summary-row">
+                    <span class="summary-label">Agents Selected</span>
+                    <span class="summary-value" id="summaryAgentCount">0</span>
+                  </div>
+
+                  <div class="summary-row">
+                    <span class="summary-label">Policy Type</span>
+                    <span class="summary-value" id="summaryPolicyType">-</span>
+                  </div>
+
+                  <div class="summary-row">
+                    <span class="summary-label">Policy Name</span>
+                    <span class="summary-value" id="summaryPolicyName">-</span>
+                  </div>
+
+                  <!-- DNS Domains Summary with Remove Buttons 
+                  <div id="summaryDomainsContainer" style="display: none">
+                    <div
+                      class="summary-row"
+                      style="border-bottom: none; padding-bottom: 5px"
+                    >
+                      <span class="summary-label">Blocked Domains</span>
+                      <span
+                        class="summary-value"
+                        style="display: flex; align-items: center; gap: 10px"
+                      >
+                        <span id="summaryDomainsCount">0</span> domains
+                      </span>
+                    </div>
+                    <div
+                      class="domain-tags"
+                      id="summaryDomainTags"
+                      style="
+                        margin-top: 5px;
+                        margin-bottom: 10px;
+                        padding-left: 20px;
+                      "
+                    >
+                      <!-- Domain tags with remove buttons will appear here 
+                    </div>
+                  </div>
+                </div>
+
+                <div class="alert alert-success" style="margin-top: 20px">
+                  <i class="fas fa-check-circle"></i>
+                  <span
+                    >The policy will be applied to all selected agents within 5
+                    minutes.</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-group">
+              <button
+                class="btn btn-secondary"
+                onclick="previousStep()"
+                id="prevBtn"
+                style="display: none"
+              >
+                <i class="fas fa-arrow-left"></i><span>Previous</span>
+              </button>
+              <button
+                class="btn btn-secondary"
+                onclick="window.location.href = 'file-policies.html'"
+              >
+                <i class="fas fa-times"></i><span>Cancel</span>
+              </button>
+              <button class="btn btn-primary" onclick="nextStep()" id="nextBtn">
+                <span>Next</span><i class="fas fa-arrow-right"></i>
+              </button>
+              <button
+                class="btn btn-primary"
+                onclick="applyPolicy()"
+                id="applyBtn"
+                style="display: none"
+              >
+                <i class="fas fa-check"></i><span>Apply Policy</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      /* ==================== AUTHENTICATION & USER DATA ==================== */
+
+      async function checkAuth() {
+        try {
+          const response = await fetch("/api/auth/check", {
+            credentials: "include",
+          });
+
+          if (!response.ok) {
+            throw new Error("Not authenticated");
+          }
+
+          const result = await response.json();
+
+          if (!result.success) {
+            window.location.href = "index.html";
+            return null;
+          }
+
+          // Store user data in localStorage
+          if (result.data) {
+            localStorage.setItem("userData", JSON.stringify(result.data));
+            return result.data;
+          }
+
+          return null;
+        } catch (err) {
+          window.location.href = "index.html";
+          return null;
+        }
+      }
+
+      // Load admin info into header
+      function loadAdminInfo() {
+        const userDataStr = localStorage.getItem("userData");
+
+        if (userDataStr) {
+          try {
+            const userData = JSON.parse(userDataStr);
+
+            const userName = document.querySelector(".user-name");
+            const userAvatar = document.querySelector(".user-avatar");
+            const userRole = document.querySelector(".user-role");
+
+            if (userName) {
+              const namePart = userData.username || "Admin";
+              const formattedName = namePart
+                .split(".")
+                .map((n) => n.charAt(0).toUpperCase() + n.slice(1))
+                .join(" ");
+              userName.textContent = formattedName;
+            }
+
+            if (userAvatar) {
+              const namePart = userData.username || "Admin";
+              const initials = namePart
+                .split(".")
+                .map((n) => (n[0] ? n[0].toUpperCase() : ""))
+                .join("");
+              userAvatar.textContent = initials || "A";
+            }
+
+            if (userRole) {
+              userRole.textContent = userData.role || "Security Admin";
+            }
+          } catch (e) {
+            console.error("Error parsing user data:", e);
+          }
+        }
+      }
+
+      async function refreshUserData() {
+        const userData = await checkAuth();
+        if (userData) {
+          localStorage.setItem("userData", JSON.stringify(userData));
+          loadAdminInfo();
+        }
+      }
+
+      // Refresh every 5 minutes
+      setInterval(refreshUserData, 5 * 60 * 1000);
+
+      /* ==================== SIDEBAR FUNCTIONS ==================== */
+
+      function toggleSubMenu(element) {
+        var sidebar = document.getElementById("sidebar");
+        if (sidebar.classList.contains("collapsed")) return;
+
+        var subMenu = element.nextElementSibling;
+        var allSubMenus = document.querySelectorAll(".sub-menu");
+        var allDropdowns = document.querySelectorAll(".nav-dropdown");
+
+        // Close other open submenus
+        allSubMenus.forEach(function (menu) {
+          if (menu !== subMenu) menu.classList.remove("open");
+        });
+        allDropdowns.forEach(function (link) {
+          if (link !== element) link.classList.remove("expanded");
+        });
+
+        // Toggle current
+        element.classList.toggle("expanded");
+        subMenu.classList.toggle("open");
+      }
+
+      function toggleSidebar() {
+        var sidebar = document.getElementById("sidebar");
+        var mainContent = document.getElementById("mainContent");
+        var header = document.getElementById("topHeader");
+
+        sidebar.classList.toggle("collapsed");
+        var isCollapsed = sidebar.classList.contains("collapsed");
+
+        if (mainContent) mainContent.classList.toggle("expanded");
+
+        // Update header left position
+        if (header) {
+          header.style.left = isCollapsed ? "70px" : "240px";
+        }
+
+        // Close all submenus when collapsing
+        if (isCollapsed) {
+          document.querySelectorAll(".sub-menu").forEach(function (m) {
+            m.classList.remove("open");
+          });
+          document.querySelectorAll(".nav-dropdown").forEach(function (l) {
+            l.classList.remove("expanded");
+          });
+        }
+
+        // Dispatch event for other components
+        window.dispatchEvent(
+          new CustomEvent("sidebarToggle", {
+            detail: { collapsed: isCollapsed },
+          })
+        );
+      }
+
+      function openMobileSidebar() {
+        var sidebar = document.getElementById("sidebar");
+        var overlay = document.getElementById("sidebarOverlay");
+        if (sidebar) sidebar.classList.add("mobile-open");
+        if (overlay) overlay.classList.add("active");
+      }
+
+      function closeMobileSidebar() {
+        var sidebar = document.getElementById("sidebar");
+        var overlay = document.getElementById("sidebarOverlay");
+        if (sidebar) sidebar.classList.remove("mobile-open");
+        if (overlay) overlay.classList.remove("active");
+      }
+
+      function toggleMobileMenu() {
+        var sidebar = document.getElementById("sidebar");
+        var overlay = document.getElementById("sidebarOverlay");
+        if (!sidebar) return;
+
+        if (sidebar.classList.contains("mobile-open")) {
+          closeMobileSidebar();
+        } else {
+          openMobileSidebar();
+        }
+      }
+
+      function setActiveMenuItem() {
+        var currentPage = window.location.pathname.split('/').pop() || 'assign-policy.html';
+        
+        // First remove all active classes
+        document.querySelectorAll('.nav-link, .sub-menu-item').forEach(function(el) {
+          el.classList.remove('active');
+        });
+
+        // Handle sub-menu items
+        document.querySelectorAll('.sub-menu-item[data-page]').forEach(function (item) {
+          var href = item.getAttribute('href');
+          if (href === currentPage) {
+            item.classList.add('active');
+            var parentSubMenu = item.closest('.sub-menu');
+            if (parentSubMenu) {
+              parentSubMenu.classList.add('open');
+              var parentNav = parentSubMenu.previousElementSibling;
+              if (parentNav) parentNav.classList.add('expanded');
+            }
+          }
+        });
+
+        // Handle main nav links
+        document.querySelectorAll('.nav-link[data-page]').forEach(function (link) {
+          var href = link.getAttribute('href');
+          if (href === currentPage) {
+            link.classList.add('active');
+          }
+        });
+      }
+
+      /* ==================== HEADER FUNCTIONS ==================== */
+
+      function toggleNotifications(event) {
+        event.stopPropagation();
+        var panel = document.getElementById("notificationsPanel");
+        var overlay = document.getElementById("notificationOverlay");
+        var btn = event.currentTarget;
+        if (!panel || !overlay) return;
+
+        if (panel.classList.contains("show")) {
+          closeNotifications();
+        } else {
+          closeUserDropdown();
+          panel.classList.add("show");
+          overlay.classList.add("show");
+          btn.classList.add("active");
+          document.body.style.overflow = "hidden";
+        }
+      }
+
+      function closeNotifications() {
+        var panel = document.getElementById("notificationsPanel");
+        var overlay = document.getElementById("notificationOverlay");
+        var btn = document.querySelector(".notification-btn");
+        if (panel) panel.classList.remove("show");
+        if (overlay) overlay.classList.remove("show");
+        if (btn) btn.classList.remove("active");
+        document.body.style.overflow = "";
+      }
+
+      function switchTab(event, tabName) {
+        document.querySelectorAll(".tab-btn").forEach(function (t) {
+          t.classList.remove("active");
+        });
+        event.currentTarget.classList.add("active");
+
+        document
+          .querySelectorAll(".notification-item")
+          .forEach(function (item) {
+            item.style.display =
+              tabName === "unread" && !item.classList.contains("unread")
+                ? "none"
+                : "flex";
+          });
+      }
+
+      function toggleUserDropdown(event) {
+        event.stopPropagation();
+        var dropdown = document.getElementById("userDropdown");
+        var userProfile = event.currentTarget;
+        if (!dropdown) return;
+
+        if (dropdown.classList.contains("show")) {
+          closeUserDropdown();
+        } else {
+          closeNotifications();
+          dropdown.classList.add("show");
+          userProfile.classList.add("active");
+        }
+      }
+
+      function closeUserDropdown() {
+        var dropdown = document.getElementById("userDropdown");
+        var userProfile = document.querySelector(".user-profile");
+        if (dropdown) dropdown.classList.remove("show");
+        if (userProfile) userProfile.classList.remove("active");
+      }
+
+      function logout(event) {
+        event.preventDefault();
+
+        fetch("/api/auth/logout", {
+          method: "POST",
+          credentials: "include",
+        }).finally(() => {
+          localStorage.removeItem("isLoggedIn");
+          localStorage.removeItem("userEmail");
+          localStorage.removeItem("userData");
+          window.location.href = "index.html";
+        });
+      }
+
+      // Close dropdowns when clicking outside
+      document.addEventListener("click", function (event) {
+        if (!event.target.closest(".user-profile")) {
+          closeUserDropdown();
+        }
+        if (
+          !event.target.closest(".notification-btn") &&
+          !event.target.closest(".notifications-panel")
+        ) {
+          closeNotifications();
+        }
+      });
+
+      /* ==================== ASSIGN POLICY FUNCTIONS ==================== */
+
+      let selectedAgents = new Set();
+      let agentsBasicData = {};
+      let agentsCapabilities = {};
+      let currentStep = 1;
+      let selectedPolicyType = "";
+      let selectedPolicy = "";
+      let blockedDomains = [];
+      let isEditingExistingPolicy = false;
+      let statusRefreshInterval;
+
+      function startStatusRefresh() {
+        if (statusRefreshInterval) {
+          clearInterval(statusRefreshInterval);
+        }
+
+        // Refresh agent status every 30 seconds
+        statusRefreshInterval = setInterval(async () => {
+          console.log("Refreshing agent status...");
+          await refreshAllAgents();
+        }, 10000);
+      }
+
+      async function refreshAllAgents() {
+        try {
+          // Fetch fresh agent data
+          const response = await fetch("/api/admin/agents", {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch agents");
+          }
+
+          const result = await response.json();
+
+          if (result.success && result.data) {
+            const agents = result.data;
+
+            // Update agentsBasicData with fresh data
+            agents.forEach((agent) => {
+              agentsBasicData[agent.id] = agent;
+            });
+
+            // Refresh the agent cards UI
+            await initializeAgentCards();
+          }
+        } catch (error) {
+          console.error("Error refreshing agents:", error);
+        }
+      }
+
+      async function initializeAgentCards() {
+        const agentsGrid = document.getElementById("agentsGrid");
+        if (!agentsGrid) return;
+
+        agentsGrid.innerHTML = '<div class="loading">Loading agents...</div>';
+
+        try {
+          // Fetch agents from API
+          const response = await fetch("/api/admin/agents", {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch agents");
+          }
+
+          const result = await response.json();
+
+          if (!result.success || !result.data) {
+            throw new Error(result.message || "No agents found");
+          }
+
+          const agents = result.data;
+          agentsGrid.innerHTML = "";
+
+          agents.forEach((agent) => {
+            const agentCard = document.createElement("div");
+            agentCard.className = "agent-card";
+            agentCard.dataset.id = agent.id;
+            agentCard.onclick = () => toggleAgent(agent.id);
+
+            agentCard.innerHTML = `
+                <div class="agent-card-header">
+                    <input type="checkbox" class="agent-checkbox" ${
+                      selectedAgents.has(agent.id) ? "checked" : ""
+                    }>
+                    <div class="agent-name"> ${agent.username}</div>
+                     <span class="agent-status ${
+                       isAgentOnline(agent) ? "status-online" : "status-offline"
+                     }">
+                        ${isAgentOnline(agent) ? "ONLINE" : "OFFLINE"}
+                    </span>
+                </div>
+                <div class="agent-info">
+                    <span><i class="fas fa-user"></i> ${
+                      agent.hostname || agent.username
+                    }</span>
+                    <span><i class="fas fa-id-badge"></i> ${agent.id}</span>
+                </div>
+                <div class="agent-info">
+                    <span><i class="fab fa-${getOSIcon(
+                      agent.osType
+                    )}"></i> ${agent.osType || "Unknown OS"}</span>
+                    <span><i class="fas fa-network-wired"></i> ${
+                      agent.ipAddress || "N/A"
+                    }</span>
+                </div>
+            `;
+
+            function isAgentOnline(agent) {
+              if (
+                agent.agentRuntimeState &&
+                agent.agentRuntimeState.toUpperCase() === "ONLINE"
+              ) {
+                return true;
+              }
+
+              if (agent.lastHeartbeat) {
+                const lastHeartbeat = new Date(agent.lastHeartbeat).getTime();
+                const now = new Date();
+                const diffMinutes = Math.floor((now - lastHeartbeat) / 1000);
+                return diffMinutes <= 10;
+              }
+
+              return false;
+            }
+
+            agentsGrid.appendChild(agentCard);
+
+            if (selectedAgents.has(agent.id)) {
+              agentCard.classList.add("selected");
+              agentCard.querySelector(".agent-checkbox").checked = true;
+            }
+          });
+        } catch (error) {
+          console.error("Error loading agents:", error);
+          agentsGrid.innerHTML = `<div class="error">Error loading agents: ${error.message}</div>`;
+        }
+
+        updateSelectedCount();
+      }
+
+      function getOSIcon(os) {
+        if (!os) return "desktop";
+
+        const osLower = os.toLowerCase();
+        if (osLower.includes("windows")) return "windows";
+        if (osLower.includes("macos") || osLower.includes("mac")) return "apple";
+        if (osLower.includes("ubuntu") || osLower.includes("linux"))
+          return "linux";
+        return "desktop";
+      }
+
+      async function toggleAgent(agentId) {
+        if (selectedAgents.has(agentId)) {
+          selectedAgents.delete(agentId);
+          delete agentsCapabilities[agentId];
+        } else {
+          selectedAgents.add(agentId);
+          // Fetch agent capabilities if not already fetched
+          if (!agentsCapabilities[agentId]) {
+            try {
+              await fetchAgentDetails(agentId);
+              if (selectedPolicy === "NETWORK_DNS_BLOCK") {
+                const capabilities = agentsCapabilities[agentId];
+                if (capabilities && capabilities.NETWORK) {
+                  const policy = capabilities.NETWORK.find(
+                    (p) => p.code === selectedPolicy
+                  );
+                  if (policy && policy.isActive) {
+                    isEditingExistingPolicy = true;
+                  }
+                }
+              }
+            } catch (error) {
+              console.error(
+                `Failed to fetch capabilities for agent ${agentId}:`,
+                error
+              );
+              agentsCapabilities[agentId] = {};
+            }
+          }
+        }
+
+        const agentCard = document.querySelector(
+          `.agent-card[data-id="${agentId}"]`
+        );
+        if (agentCard) {
+          agentCard.classList.toggle("selected");
+          const checkbox = agentCard.querySelector(".agent-checkbox");
+          if (checkbox) {
+            checkbox.checked = selectedAgents.has(agentId);
+          }
+        }
+
+        updateSelectedCount();
+
+        // Update policy types based on selected agents
+        if (selectedAgents.size > 0) {
+          updatePolicyTypes();
+        }
+      }
+
+      async function fetchAgentDetails(agentId) {
+        try {
+          const response = await fetch(
+            `/api/admin/agents/${agentId}/capabilities`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(
+              `HTTP ${response.status}: Failed to fetch capabilities`
+            );
+          }
+
+          const result = await response.json();
+
+          if (result.success && result.data) {
+            agentsCapabilities[agentId] = result.data;
+          } else {
+            throw new Error(result.message || "Failed to load capabilities");
+          }
+        } catch (error) {
+          console.error(
+            `Error fetching capabilities for agent ${agentId}:`,
+            error
+          );
+          agentsCapabilities[agentId] = {};
+          throw error;
+        }
+      }
+
+      async function fetchAgentSimpleDetails() {
+        try {
+          const response = await fetch("/api/admin/agents", {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          });
+
+          if (!response.ok) throw new Error("Failed to fetch agents");
+
+          const result = await response.json();
+          if (result.success && result.data) {
+            result.data.forEach((agent) => {
+              agentsBasicData[agent.id] = agent;
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching agents:", error);
+        }
+      }
+
+      async function updatePolicyTypes() {
+        if (selectedAgents.size === 0) {
+          const policyTypeSelect = document.getElementById("policyType");
+          policyTypeSelect.innerHTML =
+            '<option value="">-- Select Policy Type --</option>';
+          selectedPolicyType = "";
+          updatePolicySelect();
+          return;
+        }
+
+        let commonCategories = null;
+
+        for (const agentId of selectedAgents) {
+          const capabilities = agentsCapabilities[agentId];
+
+          if (capabilities && Object.keys(capabilities).length > 0) {
+            const agentCategories = Object.keys(capabilities);
+
+            if (commonCategories === null) {
+              commonCategories = new Set(agentCategories);
+            } else {
+              commonCategories = new Set(
+                [...commonCategories].filter((cat) =>
+                  agentCategories.includes(cat)
+                )
+              );
+            }
+          } else {
+            commonCategories = new Set();
+            break;
+          }
+        }
+
+        const policyTypeSelect = document.getElementById("policyType");
+        const currentValue = policyTypeSelect.value;
+
+        policyTypeSelect.innerHTML =
+          '<option value="">-- Select Policy Type --</option>';
+
+        if (commonCategories && commonCategories.size > 0) {
+          const sortedCategories = Array.from(commonCategories).sort();
+
+          sortedCategories.forEach((category) => {
+            const option = document.createElement("option");
+            option.value = category;
+            option.textContent = category;
+            policyTypeSelect.appendChild(option);
+          });
+
+          if (currentValue && commonCategories.has(currentValue)) {
+            policyTypeSelect.value = currentValue;
+            selectedPolicyType = currentValue;
+          } else {
+            selectedPolicyType = "";
+          }
+        } else {
+          selectedPolicyType = "";
+        }
+
+        updatePolicySelect();
+      }
+
+      function updateSelectedCount() {
+        const count = selectedAgents.size;
+        const selectedCountElement = document.getElementById("selectedCount");
+        if (selectedCountElement) {
+          selectedCountElement.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    <span>${count} agent${count !== 1 ? "s" : ""} selected</span>
+                `;
+        }
+      }
+
+      document.addEventListener("change", function (e) {
+        if (e.target && e.target.id === "policyType") {
+          selectedPolicyType = e.target.value;
+          updatePolicySelect();
+        }
+
+        if (e.target && e.target.id === "policySelect") {
+          selectedPolicy = e.target.value;
+          updatePolicyOptions();
+        }
+      });
+
+      function updatePolicySelect() {
+        const policySelect = document.getElementById("policySelect");
+        if (!policySelect) return;
+
+        policySelect.innerHTML = '<option value="">-- Select Policy --</option>';
+
+        if (selectedPolicyType && selectedAgents.size > 0) {
+          let commonPolicies = null;
+          let policyStatusMap = new Map();
+
+          for (const agentId of selectedAgents) {
+            const capabilities = agentsCapabilities[agentId];
+
+            if (capabilities && capabilities[selectedPolicyType]) {
+              const agentPolicies = capabilities[selectedPolicyType];
+
+              if (!Array.isArray(agentPolicies)) {
+                console.error(
+                  `Agent ${agentId}: Expected array for ${selectedPolicyType}, got:`,
+                  agentPolicies
+                );
+                commonPolicies = new Map();
+                break;
+              }
+
+              if (commonPolicies === null) {
+                commonPolicies = new Map();
+                agentPolicies.forEach((policy) => {
+                  if (policy && policy.code) {
+                    commonPolicies.set(policy.code, policy);
+                    policyStatusMap.set(policy.code, {
+                      [agentId]: policy.isActive || false,
+                    });
+                  }
+                });
+              } else {
+                const agentPolicyCodes = new Set(
+                  agentPolicies.map((p) => p?.code).filter((code) => code)
+                );
+
+                agentPolicies.forEach((policy) => {
+                  if (
+                    policy &&
+                    policy.code &&
+                    policyStatusMap.has(policy.code)
+                  ) {
+                    policyStatusMap.get(policy.code)[agentId] =
+                      policy.isActive || false;
+                  }
+                });
+
+                commonPolicies = new Map(
+                  [...commonPolicies].filter(([code, policy]) =>
+                    agentPolicyCodes.has(code)
+                  )
+                );
+              }
+            } else {
+              commonPolicies = new Map();
+              break;
+            }
+          }
+
+          if (commonPolicies && commonPolicies.size > 0) {
+            policySelect.disabled = false;
+
+            const sortedPolicies = Array.from(commonPolicies.values())
+              .filter((policy) => policy && policy.name)
+              .sort((a, b) => a.name.localeCompare(b.name));
+
+            sortedPolicies.forEach((policy) => {
+              const option = document.createElement("option");
+              option.value = policy.code;
+
+              const statusInfo = policyStatusMap.get(policy.code);
+              let appliedCount = 0;
+              if (statusInfo) {
+                appliedCount = Object.values(statusInfo).filter(
+                  (isActive) => isActive
+                ).length;
+              }
+
+              let statusText = "";
+              if (appliedCount === selectedAgents.size) {
+                statusText = " (Applied to all)";
+              } else if (appliedCount > 0) {
+                statusText = ` (Applied to ${appliedCount}/${selectedAgents.size})`;
+              }
+
+              option.textContent = policy.name + statusText;
+              option.title = policy.description || "";
+              option.dataset.isApplied = appliedCount === selectedAgents.size;
+
+              policySelect.appendChild(option);
+            });
+
+            if (sortedPolicies.length > 0) {
+              policySelect.value = sortedPolicies[0].code;
+              selectedPolicy = sortedPolicies[0].code;
+              updatePolicyAppliedStatus();
+            }
+          } else {
+            policySelect.disabled = true;
+            policySelect.innerHTML =
+              '<option value="">No common policies available</option>';
+            selectedPolicy = "";
+          }
+        } else {
+          policySelect.disabled = true;
+          policySelect.innerHTML =
+            '<option value="">-- Select a policy type first --</option>';
+          selectedPolicy = "";
+        }
+
+        updatePolicyOptions();
+      }
+
+      function updatePolicyAppliedStatus() {
+        const policySelect = document.getElementById("policySelect");
+        const selectedOption = policySelect.options[policySelect.selectedIndex];
+        const isApplied = selectedOption
+          ? selectedOption.dataset.isApplied === "true"
+          : false;
+
+        const nextBtn = document.getElementById("nextBtn");
+        const applyBtn = document.getElementById("applyBtn");
+
+        if (currentStep === 3 && isApplied) {
+          nextBtn.innerHTML =
+            '<span>Next</span><i class="fas fa-arrow-right"></i>';
+        }
+      }
+
+      function updatePolicyOptions() {
+        const dnsContainer = document.getElementById("dnsInputContainer");
+        const fileInfo = document.getElementById("fileProtectionInfo");
+        const ocrInfo = document.getElementById("ocrInfo");
+
+        if (dnsContainer) dnsContainer.style.display = "none";
+        if (fileInfo) fileInfo.style.display = "none";
+        if (ocrInfo) ocrInfo.style.display = "none";
+
+        if (!selectedPolicy || !selectedPolicyType) return;
+
+        if (selectedPolicy === "NETWORK_DNS_BLOCK") {
+          if (dnsContainer) dnsContainer.style.display = "block";
+
+          if (selectedAgents.size === 1) {
+            const agentId = Array.from(selectedAgents)[0];
+            const capabilities = agentsCapabilities[agentId];
+            if (capabilities && capabilities.NETWORK) {
+              const policy = capabilities.NETWORK.find(
+                (p) => p.code === selectedPolicy
+              );
+              if (policy && policy.policyData && policy.policyData !== "null") {
+                try {
+                  const data = JSON.parse(policy.policyData);
+                  if (data.domains && Array.isArray(data.domains)) {
+                    blockedDomains = data.domains;
+                    isEditingExistingPolicy = true;
+                    console.log("Loaded domains:", blockedDomains);
+                  } else {
+                    blockedDomains = [];
+                    isEditingExistingPolicy = false;
+                  }
+                } catch (e) {
+                  console.error("Error parsing policy data:", e);
+                  blockedDomains = [];
+                  isEditingExistingPolicy = false;
+                }
+              }
+            }
+          } else {
+            blockedDomains = [];
+            isEditingExistingPolicy = false;
+          }
+          renderDomainTags();
+        } else if (selectedPolicyType === "FILE") {
+          fileInfo.style.display = "block";
+        } else if (selectedPolicyType === "SECURITY_MONITOR") {
+          ocrInfo.style.display = "block";
+        }
+      }
+
+      function addDomain() {
+        const domainInput = document.getElementById("domainInput");
+        let domain = domainInput.value.trim();
+
+        if (!domain) {
+          alert("Please enter a domain name");
+          return;
+        }
+
+        domain = domain.replace(/^https?:\/\//, "");
+        domain = domain.replace(/\/$/, "");
+
+        const domainLower = domain.toLowerCase();
+        const exists = blockedDomains.some(
+          (d) => d.toLowerCase() === domainLower
+        );
+
+        if (exists) {
+          alert("Domain already added");
+          return;
+        }
+        blockedDomains.push(domain);
+        domainInput.value = "";
+
+        renderDomainTags();
+
+        if (currentStep === 4) {
+          renderSummaryDomainTags();
+          const summaryDomainsCount =
+            document.getElementById("summaryDomainsCount");
+          if (summaryDomainsCount) {
+            summaryDomainsCount.textContent = blockedDomains.length;
+          }
+        }
+      }
+
+      function renderDomainTags() {
+        const domainTags = document.getElementById("domainTags");
+        if (!domainTags) return;
+
+        domainTags.innerHTML = "";
+
+        blockedDomains.forEach((domain, index) => {
+          const tag = document.createElement("div");
+          tag.className = "domain-tag";
+          tag.innerHTML = `
+                    <span>${domain}</span>
+                    <i class="fas fa-times" onclick="removeDomain(${index})"></i>
+                `;
+          domainTags.appendChild(tag);
+        });
+      }
+
+      function removeDomain(index) {
+        blockedDomains.splice(index, 1);
+        renderDomainTags();
+      }
+
+      function nextStep() {
+        if (currentStep === 1 && selectedAgents.size === 0) {
+          alert("Please select at least one agent");
+          return;
+        }
+
+        if (currentStep === 2 && !selectedPolicyType) {
+          alert("Please select a policy type");
+          return;
+        }
+
+        if (currentStep === 3) {
+          if (!selectedPolicy) {
+            alert("Please select a policy");
+            return;
+          }
+
+          if (
+            selectedPolicyType === "NETWORK" &&
+            selectedPolicy === "NETWORK_DNS_BLOCK" &&
+            blockedDomains.length === 0
+          ) {
+            alert("Please add at least one domain to block");
+            return;
+          }
+        }
+
+        currentStep++;
+        updateStepDisplay();
+      }
+
+      function previousStep() {
+        currentStep--;
+        updateStepDisplay();
+      }
+
+      function updateStepDisplay() {
+        document.getElementById("step1").style.display = "none";
+        document.getElementById("step2").style.display = "none";
+        document.getElementById("step3").style.display = "none";
+        document.getElementById("step4").style.display = "none";
+
+        document.getElementById(`step${currentStep}`).style.display = "block";
+
+        document.querySelectorAll(".step").forEach((step, index) => {
+          step.classList.remove("active", "completed");
+          if (index + 1 < currentStep) {
+            step.classList.add("completed");
+            step.querySelector(".step-circle").innerHTML =
+              '<i class="fas fa-check"></i>';
+          } else if (index + 1 === currentStep) {
+            step.classList.add("active");
+            step.querySelector(".step-circle").textContent = index + 1;
+          } else {
+            step.querySelector(".step-circle").textContent = index + 1;
+          }
+        });
+
+        document.getElementById("prevBtn").style.display =
+          currentStep > 1 ? "flex" : "none";
+        document.getElementById("nextBtn").style.display =
+          currentStep < 4 ? "flex" : "none";
+        document.getElementById("applyBtn").style.display =
+          currentStep === 4 ? "flex" : "none";
+
+        if (currentStep === 4) {
+          updateSummary();
+        }
+      }
+
+      function updateSummary() {
+        document.getElementById("summaryAgentCount").textContent =
+          selectedAgents.size;
+
+        document.getElementById("summaryPolicyType").textContent =
+          selectedPolicyType || "-";
+
+        let policyName = "-";
+        let appliedCount = 0;
+
+        if (selectedPolicy && selectedPolicyType && selectedAgents.size > 0) {
+          const firstAgentId = Array.from(selectedAgents)[0];
+          const capabilities = agentsCapabilities[firstAgentId];
+          if (capabilities && capabilities[selectedPolicyType]) {
+            const policy = capabilities[selectedPolicyType].find(
+              (p) => p.code === selectedPolicy
+            );
+            if (policy) {
+              policyName = policy.name;
+
+              appliedCount = 0;
+
+              for (const agentId of selectedAgents) {
+                const agentCapabilities = agentsCapabilities[agentId];
+                const agentPolicy =
+                  agentCapabilities &&
+                  agentCapabilities[selectedPolicyType]?.find(
+                    (p) => p.code === selectedPolicy
+                  );
+                if (agentPolicy && agentPolicy.isActive) {
+                  appliedCount++;
+                }
+              }
+            }
+          }
+        }
+
+        document.getElementById("summaryPolicyName").textContent = policyName;
+
+        const applyBtn = document.getElementById("applyBtn");
+        if (appliedCount === selectedAgents.size && selectedAgents.size > 0) {
+          applyBtn.innerHTML =
+            '<i class="fas fa-times"></i><span>Remove Policy</span>';
+          applyBtn.classList.remove("btn-primary", "btn-warning");
+          applyBtn.classList.add("btn-danger");
+        } else if (appliedCount > 0 && appliedCount < selectedAgents.size) {
+          applyBtn.innerHTML =
+            '<i class="fas fa-sync"></i><span>Update Policy</span>';
+          applyBtn.classList.remove("btn-primary", "btn-danger");
+          applyBtn.classList.add("btn-warning");
+        } else {
+          applyBtn.innerHTML =
+            '<i class="fas fa-check"></i><span>Apply Policy</span>';
+          applyBtn.classList.remove("btn-danger", "btn-warning");
+          applyBtn.classList.add("btn-primary");
+        }
+
+        const alertBox = document.querySelector(".alert.alert-success");
+        if (alertBox) {
+          if (appliedCount === selectedAgents.size && selectedAgents.size > 0) {
+            alertBox.innerHTML =
+              '<i class="fas fa-info-circle"></i><span>This policy is already applied to all selected agents. Click "Remove Policy" to deactivate it.</span>';
+            alertBox.className = "alert alert-info";
+          } else if (appliedCount > 0) {
+            alertBox.innerHTML = `<i class="fas fa-info-circle"></i><span>This policy is applied to ${appliedCount}/${selectedAgents.size} selected agents. Click "Update Policy" to apply to all.</span>`;
+            alertBox.className = "alert alert-warning";
+          } else {
+            alertBox.innerHTML =
+              '<i class="fas fa-check-circle"></i><span>The policy will be applied to all selected agents within 5 minutes.</span>';
+            alertBox.className = "alert alert-success";
+          }
+        }
+
+        const domainsContainer = document.getElementById(
+          "summaryDomainsContainer"
+        );
+
+        if (selectedPolicy === "NETWORK_DNS_BLOCK") {
+          if (blockedDomains.length > 0) {
+            domainsContainer.style.display = "block";
+            document.getElementById("summaryDomainsCount").textContent =
+              blockedDomains.length;
+            renderSummaryDomainTags();
+          } else {
+            domainsContainer.style.display = "none";
+          }
+        } else {
+          if (domainsContainer) domainsContainer.style.display = "none";
+        }
+      }
+
+      function renderSummaryDomainTags() {
+        const domainTags = document.getElementById("summaryDomainTags");
+        if (!domainTags) return;
+
+        domainTags.innerHTML = "";
+        if (blockedDomains.length === 0) {
+          const emptyMsg = document.createElement("div");
+          emptyMsg.style.color = "#6b7280";
+          emptyMsg.style.fontStyle = "italic";
+          emptyMsg.style.padding = "8px";
+          emptyMsg.textContent = "No domains added";
+          domainTags.appendChild(emptyMsg);
+          return;
+        }
+        blockedDomains.forEach((domain, index) => {
+          const tag = document.createElement("span");
+          tag.className = "summary-domain-tag";
+          tag.innerHTML = `
+            <span>${domain}</span>
+            <i class="fas fa-times" onclick="removeDomainFromSummary(${index})"></i>
+        `;
+          domainTags.appendChild(tag);
+        });
+      }
+
+      function removeDomainFromSummary(index) {
+        blockedDomains.splice(index, 1);
+
+        renderDomainTags();
+        renderSummaryDomainTags();
+
+        const summaryDomainsCount =
+          document.getElementById("summaryDomainsCount");
+        if (summaryDomainsCount) {
+          summaryDomainsCount.textContent = blockedDomains.length;
+        }
+
+        if (blockedDomains.length === 0) {
+          const domainsContainer =
+            document.getElementById("summaryDomainsContainer");
+          if (domainsContainer) {
+            domainsContainer.style.display = "none";
+          }
+
+          if (currentStep === 4) {
+            const alertBox = document.querySelector(
+              ".alert.alert-info, .alert.alert-success"
+            );
+            if (alertBox) {
+              alertBox.innerHTML =
+                '<i class="fas fa-exclamation-triangle"></i><span>No domains to block. Please add domains in Step 3.</span>';
+              alertBox.className = "alert alert-warning";
+            }
+          }
+        }
+      }
+
+      async function applyPolicy() {
+        if (
+          selectedAgents.size === 0 ||
+          !selectedPolicyType ||
+          !selectedPolicy
+        ) {
+          alert("Please complete all steps");
+          return;
+        }
+
+        try {
+          const agentIds = Array.from(selectedAgents);
+
+          let appliedCount = 0;
+          for (const agentId of selectedAgents) {
+            const capabilities = agentsCapabilities[agentId];
+            const policy =
+              capabilities &&
+              capabilities[selectedPolicyType]?.find(
+                (p) => p.code === selectedPolicy
+              );
+            if (policy && policy.isActive) {
+              appliedCount++;
+            }
+          }
+
+          const isRemoving = appliedCount === selectedAgents.size;
+          const isUpdating =
+            appliedCount > 0 && appliedCount < selectedAgents.size;
+
+          const firstAgentId = agentIds[0];
+          const capabilities = agentsCapabilities[firstAgentId];
+          const policyDetails =
+            capabilities &&
+            capabilities[selectedPolicyType]?.find(
+              (p) => p.code === selectedPolicy
+            );
+
+          if (!policyDetails) {
+            throw new Error("Could not find policy details");
+          }
+
+          const requestBody = {
+            agentIds: agentIds,
+            policyCode: selectedPolicy,
+          };
+
+          if (selectedPolicy === "NETWORK_DNS_BLOCK" && !isRemoving) {
+            if (blockedDomains.length === 0) {
+              alert("Please add at least one domain to block");
+              return;
+            }
+            requestBody.policyData = JSON.stringify({
+              domains: blockedDomains,
+              ips: [],
+            });
+          }
+
+          const endpoint = isRemoving
+            ? "/api/admin/deactivate-protection"
+            : "/api/admin/assign-protection";
+
+          console.log("Applying policy:", requestBody);
+
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify(requestBody),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            const agentNames = agentIds
+              .map((id) => {
+                const agent = agentsBasicData[id];
+                return agent ? agent.hostname || agent.username : `Agent ${id}`;
+              })
+              .filter((name) => name);
+
+            let message = `✅ ${result.message}\n\n`;
+            message += `Agents: ${agentNames.join(", ")}\n`;
+            message += `Policy: ${policyDetails.name}\n`;
+
+            if (isRemoving) {
+              message += `Action: Policy removed\n`;
+            } else if (isUpdating) {
+              message += `Action: Policy updated and applied to remaining agents\n`;
+            } else {
+              message += `Action: Policy applied\n`;
+              if (
+                selectedPolicy === "NETWORK_DNS_BLOCK" &&
+                blockedDomains.length > 0
+              ) {
+                message += `Blocked Domains: ${blockedDomains.join(", ")}\n`;
+              }
+            }
+
+            alert(message);
+
+            for (const agentId of selectedAgents) {
+              try {
+                await fetchAgentDetails(agentId);
+              } catch (error) {
+                console.error(`Failed to refresh agent ${agentId}:`, error);
+              }
+            }
+
+            if (isRemoving) {
+              selectedAgents.clear();
+              selectedPolicyType = "";
+              selectedPolicy = "";
+              blockedDomains = [];
+              isEditingExistingPolicy = false;
+
+              currentStep = 1;
+              updateStepDisplay();
+              await initializeAgentCards();
+              updateSelectedCount();
+
+              const alertBox = document.querySelector(".alert.alert-success");
+              if (alertBox) {
+                alertBox.innerHTML =
+                  '<i class="fas fa-check-circle"></i><span>Policy removed successfully. Select new agents to continue.</span>';
+                alertBox.className = "alert alert-success";
+              }
+            } else {
+              setTimeout(() => {
+                window.location.href = "file-policies.html";
+              }, 2000);
+            }
+          } else {
+            alert(
+              `❌ Failed to ${isRemoving ? "remove" : "apply"} policy: ${
+                result.message
+              }`
+            );
+          }
+        } catch (error) {
+          console.error("Error applying policy:", error);
+          alert(
+            `❌ Error ${isRemoving ? "removing" : "applying"} policy: ${
+              error.message
+            }`
+          );
+        }
+      }
+
+      document.addEventListener("input", function (e) {
+        if (e.target && e.target.id === "agentSearch") {
+          const searchTerm = e.target.value.toLowerCase();
+          const agentCards = document.querySelectorAll(".agent-card");
+
+          agentCards.forEach((card) => {
+            const text = card.textContent.toLowerCase();
+            card.style.display = text.includes(searchTerm) ? "block" : "none";
+          });
+        }
+      });
+
+      /* ==================== EVENT LISTENERS ==================== */
+
+      window.addEventListener("resize", function () {
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("mainContent");
+        const header = document.getElementById("topHeader");
+        const windowWidth = window.innerWidth;
+
+        if (windowWidth <= 968) {
+          if (sidebar) sidebar.classList.remove("collapsed");
+          if (mainContent) mainContent.classList.remove("expanded");
+          if (header) {
+            header.style.left = "0";
+          }
+        } else {
+          if (sidebar && mainContent && header) {
+            if (sidebar.classList.contains("collapsed")) {
+              mainContent.classList.add("expanded");
+              header.style.left = "70px";
+            } else {
+              mainContent.classList.remove("expanded");
+              header.style.left = "240px";
+            }
+          }
+        }
+      });
+
+      window.addEventListener("sidebarToggle", function (event) {
+        const header = document.getElementById("topHeader");
+        const mainContent = document.getElementById("mainContent");
+
+        if (header && mainContent) {
+          if (event.detail.collapsed) {
+            header.style.left = "70px";
+            mainContent.classList.add("expanded");
+          } else {
+            header.style.left = "240px";
+            mainContent.classList.remove("expanded");
+          }
+        }
+      });
+
+      document.addEventListener("click", function (e) {
+        const sidebar = document.getElementById("sidebar");
+        const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
+
+        if (sidebar && window.innerWidth <= 968) {
+          if (
+            !sidebar.contains(e.target) &&
+            (!mobileMenuToggle || !mobileMenuToggle.contains(e.target))
+          ) {
+            sidebar.classList.remove("mobile-open");
+            const overlay = document.getElementById("sidebarOverlay");
+            if (overlay) {
+              overlay.classList.remove("active");
+            }
+          }
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", async function () {
+        try {
+          const userData = await checkAuth();
+          if (userData) {
+            loadAdminInfo();
+          }
+
+          setActiveMenuItem();
+
+          await Promise.all([
+            initializeAgentCards(),
+            fetchAgentSimpleDetails(),
+          ]);
+
+          startStatusRefresh();
+
+          const sidebar = document.getElementById("sidebar");
+          const mainContent = document.getElementById("mainContent");
+          const header = document.getElementById("topHeader");
+          const windowWidth = window.innerWidth;
+
+          if (sidebar && mainContent && header) {
+            if (windowWidth <= 968) {
+              mainContent.classList.remove("expanded");
+              header.style.left = "0";
+            } else {
+              if (sidebar.classList.contains("collapsed")) {
+                mainContent.classList.add("expanded");
+                header.style.left = "70px";
+              } else {
+                mainContent.classList.remove("expanded");
+                header.style.left = "240px";
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error initializing page:", error);
+        }
+      });
+    </script>
+  </body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DLP Shield - Assign Policy</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* All your existing styles remain exactly the same */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: #f3f4f6;
+        overflow-x: hidden;
+      }
+
+      .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+        max-width: 100vw;
+        overflow-x: hidden;
+      }
+
+      .main-content {
+        flex: 1;
+        margin-left: 240px;
+        transition: margin-left 0.3s ease;
+        min-height: 100vh;
+        max-width: calc(100vw - 240px);
+        overflow-x: hidden;
+      }
+
+      .main-content.expanded {
+        margin-left: 70px;
+        max-width: calc(100vw - 70px);
+      }
+
+      .content-area {
+        padding: 24px;
+        padding-top: 100px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      /* ================ SIDEBAR STYLES ================ */
+      .sidebar {
+        width: 240px;
+        background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+        color: white;
+        position: fixed;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        transition: width 0.3s ease;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        overflow: hidden;
+      }
+
+      .sidebar::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+      }
+
+      .sidebar-header {
+        padding: 18px 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+      }
+
+      .sidebar-logo {
+        width: 38px;
+        height: 38px;
+        background: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .sidebar-logo i {
+        font-size: 20px;
+        color: #2563eb;
+      }
+
+      .sidebar-title {
+        font-size: 1.2em;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: opacity 0.2s, width 0.3s;
+        overflow: hidden;
+      }
+
+      .nav-menu {
+        padding: 12px 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        flex: 1;
+      }
+
+      .nav-item {
+        margin: 2px 8px;
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.2s;
+        font-size: 0.9em;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .nav-link.active,
+      .sub-menu-item.active {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        font-weight: 600;
+      }
+
+      .nav-link i:first-child {
+        width: 20px;
+        font-size: 0.95em;
+        margin-right: 10px;
+        flex-shrink: 0;
+      }
+
+      .chevron-icon {
+        margin-left: auto !important;
+        font-size: 0.7em !important;
+        transition: transform 0.3s;
+        width: auto !important;
+        flex-shrink: 0;
+      }
+
+      .nav-link.expanded .chevron-icon {
+        transform: rotate(180deg);
+      }
+
+      .sub-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+
+      .sub-menu.open {
+        max-height: 500px;
+      }
+
+      .sub-menu-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px 8px 42px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-size: 0.85em;
+        transition: all 0.2s;
+        border-radius: 8px;
+        margin: 2px 0;
+        white-space: nowrap;
+      }
+
+      .sub-menu-item:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .sub-menu-item::before {
+        content: "•";
+        margin-right: 10px;
+        font-size: 1.2em;
+      }
+
+      .sidebar-footer {
+        padding: 12px 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+      }
+
+      .collapse-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 0.85em;
+        transition: all 0.2s;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      .collapse-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .collapse-btn i {
+        transition: transform 0.3s;
+        flex-shrink: 0;
+      }
+
+      /* Sidebar collapsed state */
+      .sidebar.collapsed {
+        width: 70px;
+      }
+
+      .sidebar.collapsed .sidebar-title {
+        opacity: 0;
+        width: 0;
+      }
+
+      .sidebar.collapsed .nav-link span,
+      .sidebar.collapsed .collapse-btn span {
+        display: none;
+      }
+
+      .sidebar.collapsed .sub-menu {
+        display: none !important;
+      }
+
+      .sidebar.collapsed .nav-link {
+        justify-content: center;
+        padding: 10px;
+      }
+
+      .sidebar.collapsed .nav-link i:first-child {
+        margin-right: 0;
+      }
+
+      .sidebar.collapsed .chevron-icon {
+        display: none;
+      }
+
+      .sidebar.collapsed .collapse-btn {
+        justify-content: center;
+      }
+
+      .sidebar.collapsed .collapse-btn i {
+        transform: rotate(180deg);
+      }
+
+      /* Mobile Overlay */
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+      }
+
+      /* ================ HEADER STYLES ================ */
+      .top-header {
+        background: white;
+        padding: 14px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #e5e7eb;
+        position: fixed;
+        top: 0;
+        left: 240px;
+        right: 0;
+        z-index: 500;
+        gap: 16px;
+        transition: left 0.3s ease;
+      }
+
+      .mobile-menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: #6b7280;
+        font-size: 1.3em;
+        cursor: pointer;
+        padding: 8px;
+        transition: color 0.2s;
+      }
+
+      .mobile-menu-toggle:hover {
+        color: #111827;
+      }
+
+      .search-bar {
+        flex: 1;
+        max-width: 400px;
+        position: relative;
+      }
+
+      .search-bar i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 0.9em;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 9px 14px 9px 38px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.9em;
+        background: #f9fafb;
+        transition: all 0.3s ease;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .notification-btn {
+        position: relative;
+        background: none;
+        border: none;
+        color: #6b7280;
+        font-size: 1.1em;
+        cursor: pointer;
+        padding: 8px;
+        transition: all 0.2s;
+        border-radius: 8px;
+      }
+
+      .notification-btn:hover {
+        color: #111827;
+        background: #f3f4f6;
+      }
+
+      .notification-btn.active {
+        color: #2563eb;
+        background: #eff6ff;
+      }
+
+      .notification-badge {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        background: #ef4444;
+        color: white;
+        font-size: 0.65em;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        padding: 0 4px;
+      }
+
+      .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        padding: 6px 10px;
+        border-radius: 8px;
+        transition: background 0.2s;
+        position: relative;
+      }
+
+      .user-profile:hover {
+        background: #f3f4f6;
+      }
+
+      .user-avatar {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9em;
+        flex-shrink: 0;
+      }
+
+      .user-info {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .user-name {
+        font-size: 0.9em;
+        font-weight: 600;
+        color: #111827;
+      }
+
+      .user-role {
+        font-size: 0.75em;
+        color: #6b7280;
+      }
+
+      .dropdown-icon {
+        color: #6b7280;
+        font-size: 0.75em;
+        margin-left: 4px;
+        transition: transform 0.3s;
+      }
+
+      .user-profile.active .dropdown-icon {
+        transform: rotate(180deg);
+      }
+
+      .user-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 8px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07),
+          0 10px 15px rgba(0, 0, 0, 0.1);
+        min-width: 200px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+
+      .user-dropdown.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        color: #374151;
+        text-decoration: none;
+        font-size: 0.9em;
+        transition: background 0.2s;
+      }
+
+      .dropdown-item:first-child {
+        border-radius: 8px 8px 0 0;
+      }
+
+      .dropdown-item:last-child {
+        border-radius: 0 0 8px 8px;
+      }
+
+      .dropdown-item:hover {
+        background: #f3f4f6;
+      }
+
+      .dropdown-item i {
+        width: 18px;
+        color: #6b7280;
+        font-size: 0.95em;
+      }
+
+      .dropdown-item.danger {
+        color: #dc2626;
+      }
+
+      .dropdown-item.danger i {
+        color: #dc2626;
+      }
+
+      .dropdown-divider {
+        height: 1px;
+        background: #e5e7eb;
+        margin: 4px 0;
+      }
+
+      /* ================ NOTIFICATIONS PANEL ================ */
+      .notifications-panel {
+        position: fixed;
+        top: 0;
+        right: -50%;
+        width: 50%;
+        max-width: 600px;
+        height: 100vh;
+        background: white;
+        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+        z-index: 1001;
+        display: flex;
+        flex-direction: column;
+        transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .notifications-panel.show {
+        right: 0;
+      }
+
+      .notifications-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+      }
+
+      .notifications-header h3 {
+        font-size: 1.2em;
+        font-weight: 700;
+        color: #111827;
+      }
+
+      .close-notifications {
+        background: none;
+        border: none;
+        color: #6b7280;
+        font-size: 1.2em;
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 6px;
+        transition: all 0.2s;
+      }
+
+      .close-notifications:hover {
+        background: #f3f4f6;
+        color: #111827;
+      }
+
+      .notifications-tabs {
+        display: flex;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 0 24px;
+        flex-shrink: 0;
+      }
+
+      .tab-btn {
+        flex: 1;
+        padding: 12px;
+        background: none;
+        border: none;
+        color: #6b7280;
+        font-size: 0.9em;
+        font-weight: 500;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+      }
+
+      .tab-btn:hover {
+        color: #111827;
+      }
+
+      .tab-btn.active {
+        color: #2563eb;
+        border-bottom-color: #2563eb;
+      }
+
+      .notifications-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px 0;
+      }
+
+      .notifications-content::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .notifications-content::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 3px;
+      }
+
+      .notification-item {
+        display: flex;
+        gap: 12px;
+        padding: 14px 24px;
+        cursor: pointer;
+        transition: background 0.2s;
+        border-left: 3px solid transparent;
+      }
+
+      .notification-item:hover {
+        background: #f9fafb;
+      }
+
+      .notification-item.unread {
+        background: #eff6ff;
+        border-left-color: #3b82f6;
+      }
+
+      .notification-item.unread:hover {
+        background: #dbeafe;
+      }
+
+      .notification-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1em;
+        flex-shrink: 0;
+      }
+
+      .notification-icon.critical {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      .notification-icon.warning {
+        background: #fef3c7;
+        color: #f59e0b;
+      }
+
+      .notification-icon.info {
+        background: #dbeafe;
+        color: #3b82f6;
+      }
+
+      .notification-icon.success {
+        background: #d1fae5;
+        color: #10b981;
+      }
+
+      .notification-body {
+        flex: 1;
+      }
+
+      .notification-title {
+        font-size: 0.9em;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 4px;
+      }
+
+      .notification-text {
+        font-size: 0.85em;
+        color: #6b7280;
+        margin-bottom: 6px;
+        line-height: 1.4;
+      }
+
+      .notification-time {
+        font-size: 0.75em;
+        color: #9ca3af;
+      }
+
+      .notification-dot {
+        width: 8px;
+        height: 8px;
+        background: #3b82f6;
+        border-radius: 50%;
+        flex-shrink: 0;
+        margin-top: 8px;
+      }
+
+      .notification-item:not(.unread) .notification-dot {
+        display: none;
+      }
+
+      .notifications-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #e5e7eb;
+        flex-shrink: 0;
+      }
+
+      .view-all-btn {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background: #f3f4f6;
+        color: #2563eb;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.9em;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+
+      .view-all-btn:hover {
+        background: #e5e7eb;
+      }
+
+      .notification-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .notification-overlay.show {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* Assign Policy Page Styles */
+      .page-header {
+        background: white;
+        padding: 20px 24px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 24px;
+      }
+
+      .page-title-section {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .page-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .page-icon i {
+        font-size: 22px;
+        color: white;
+      }
+
+      .page-title-text h1 {
+        font-size: 1.5em;
+        color: #111827;
+        font-weight: 700;
+      }
+
+      .page-subtitle {
+        color: #6b7280;
+        font-size: 0.9em;
+        margin-top: 4px;
+      }
+
+      .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        font-size: 0.85em;
+      }
+
+      .breadcrumb a {
+        color: #6b7280;
+        text-decoration: none;
+      }
+
+      .breadcrumb a:hover {
+        color: #2563eb;
+      }
+
+      .breadcrumb span {
+        color: #9ca3af;
+      }
+
+      .assign-container {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        padding: 28px;
+      }
+
+      .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        position: relative;
+      }
+
+      .step-indicator::before {
+        content: "";
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e5e7eb;
+        z-index: 0;
+      }
+
+      .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        z-index: 1;
+        flex: 1;
+      }
+
+      .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: #9ca3af;
+        transition: all 0.3s;
+      }
+
+      .step.active .step-circle {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: white;
+      }
+
+      .step.completed .step-circle {
+        background: #10b981;
+        border-color: #10b981;
+        color: white;
+      }
+
+      .step-label {
+        font-size: 0.85em;
+        color: #6b7280;
+        font-weight: 500;
+      }
+
+      .step.active .step-label {
+        color: #2563eb;
+        font-weight: 600;
+      }
+
+      .section {
+        margin-bottom: 28px;
+      }
+
+      .section-title {
+        font-size: 1.1em;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 16px;
+      }
+
+      .section-desc {
+        font-size: 0.9em;
+        color: #6b7280;
+        margin-bottom: 20px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 0.9em;
+        color: #374151;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .form-select {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.9em;
+        background: white;
+        cursor: pointer;
+      }
+
+      .form-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      .form-select:disabled {
+        background: #f9fafb;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      .search-box {
+        position: relative;
+        margin-bottom: 16px;
+      }
+
+      .search-box i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 11px 14px 11px 42px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.9em;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      .agents-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 12px;
+        background: #f9fafb;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .agent-card {
+        background: white;
+        padding: 14px;
+        border-radius: 8px;
+        border: 1.5px solid #e5e7eb;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .agent-card:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+      }
+
+      .agent-card.selected {
+        border-color: #2563eb;
+        background: #eff6ff;
+      }
+
+      .agent-card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .agent-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+
+      .agent-name {
+        font-weight: 600;
+        font-size: 0.9em;
+        color: #111827;
+        flex: 1;
+      }
+
+      .agent-status {
+        font-size: 0.75em;
+        padding: 3px 8px;
+        border-radius: 4px;
+      }
+
+      .status-online {
+        background: #d1fae5;
+        color: #059669;
+      }
+
+      .status-offline {
+        background: #f3f4f6;
+        color: #6b7280;
+      }
+
+      .agent-info {
+        font-size: 0.8em;
+        color: #6b7280;
+        display: flex;
+        gap: 12px;
+        margin-top: 6px;
+      }
+
+      .selected-count {
+        background: #eff6ff;
+        padding: 12px 16px;
+        border-radius: 8px;
+        border: 1px solid #bfdbfe;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .selected-count i {
+        color: #2563eb;
+      }
+
+      .selected-count span {
+        font-size: 0.9em;
+        color: #1e40af;
+        font-weight: 500;
+      }
+
+      .summary-box {
+        background: #f9fafb;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .summary-row:last-child {
+        border-bottom: none;
+      }
+
+      .summary-label {
+        font-size: 0.9em;
+        color: #6b7280;
+      }
+
+      .summary-value {
+        font-size: 0.9em;
+        color: #111827;
+        font-weight: 600;
+      }
+
+      .policy-preview {
+        background: white;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1.5px solid #3b82f6;
+        margin-bottom: 16px;
+      }
+
+      .policy-preview-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .policy-preview-icon {
+        width: 36px;
+        height: 36px;
+        background: #eff6ff;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #2563eb;
+      }
+
+      .policy-preview-title {
+        font-weight: 600;
+        color: #111827;
+      }
+
+      .policy-preview-desc {
+        font-size: 0.85em;
+        color: #6b7280;
+      }
+
+      .domain-input-container {
+        margin-top: 16px;
+      }
+
+      .domain-input-group {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .domain-input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.9em;
+      }
+
+      .domain-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      .btn-add-domain {
+        padding: 10px 20px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9em;
+        font-weight: 600;
+      }
+
+      .btn-add-domain:hover {
+        background: #1d4ed8;
+      }
+
+      .domain-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .domain-tag {
+        background: #eff6ff;
+        color: #1e40af;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #bfdbfe;
+      }
+
+      .domain-tag i {
+        cursor: pointer;
+        color: #ef4444;
+      }
+
+      .domain-tag i:hover {
+        color: #dc2626;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        padding-top: 24px;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .btn {
+        padding: 11px 24px;
+        border-radius: 8px;
+        font-size: 0.9em;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background: #2563eb;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #1d4ed8;
+      }
+
+      .btn-primary:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+
+      .btn-secondary {
+        background: white;
+        color: #374151;
+        border: 1.5px solid #e5e7eb;
+      }
+
+      .btn-secondary:hover {
+        background: #f9fafb;
+      }
+
+      .btn-danger {
+        background: #ef4444;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #dc2626;
+      }
+
+      .btn-warning {
+        background: #f59e0b;
+        color: white;
+      }
+
+      .btn-warning:hover {
+        background: #d97706;
+      }
+
+      .alert {
+        padding: 14px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .alert-info {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1e40af;
+      }
+
+      .alert-success {
+        background: #d1fae5;
+        border: 1px solid #a7f3d0;
+        color: #065f46;
+      }
+
+      .alert-warning {
+        background: #fff3cd;
+        border: 1px solid #ffeeba;
+        color: #856404;
+      }
+
+      .alert i {
+        font-size: 1.1em;
+      }
+
+      .loading {
+        padding: 40px;
+        text-align: center;
+        color: #6b7280;
+        font-style: italic;
+      }
+
+      .error {
+        padding: 40px;
+        text-align: center;
+        color: #ef4444;
+        background: #fee2e2;
+        border-radius: 8px;
+        border: 1px solid #fca5a5;
+      }
+
+      .summary-domain-tag {
+        background: #eff6ff;
+        color: #1e40af;
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 0.8em;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #bfdbfe;
+      }
+
+      .summary-domain-tag i {
+        cursor: pointer;
+        color: #ef4444;
+        font-size: 0.8em;
+        transition: all 0.2s;
+      }
+
+      .summary-domain-tag i:hover {
+        color: #dc2626;
+        transform: scale(1.1);
+      }
+
+      #summaryDomainTags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 8px 0;
+      }
+
+      /* Mobile responsive */
+      @media (max-width: 1200px) {
+        .main-content {
+          margin-left: 70px;
+          max-width: calc(100vw - 70px);
+        }
+
+        .main-content.expanded {
+          margin-left: 70px;
+          max-width: calc(100vw - 70px);
+        }
+
+        .top-header {
+          left: 70px;
+        }
+      }
+
+      @media (max-width: 968px) {
+        .main-content {
+          margin-left: 0;
+          max-width: 100vw;
+        }
+
+        .top-header {
+          left: 0;
+        }
+
+        .mobile-menu-toggle {
+          display: block;
+        }
+
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
+        }
+
+        .sidebar.mobile-open {
+          transform: translateX(0);
+        }
+
+        .agents-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .content-area {
+          padding: 16px;
+          padding-top: 80px;
+        }
+
+        .notifications-panel {
+          width: 90%;
+          right: -90%;
+        }
+
+        .step-indicator {
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .step-indicator::before {
+          display: none;
+        }
+
+        .btn-group {
+          flex-direction: column;
+        }
+
+        .btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .user-info {
+          display: none;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .content-area {
+          padding: 12px;
+          padding-top: 70px;
+        }
+
+        .page-title-section {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .page-icon {
+          width: 40px;
+          height: 40px;
+        }
+
+        .page-icon i {
+          font-size: 18px;
+        }
+
+        .page-title-text h1 {
+          font-size: 1.3em;
+        }
+
+        .assign-container {
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <!-- ==================== SIDEBAR ==================== -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-logo">
+            <i class="fas fa-shield-halved"></i>
+          </div>
+          <div class="sidebar-title">DLP Shield</div>
+        </div>
+
+        <nav class="nav-menu">
+          <div class="nav-item">
+            <a href="dashboard.html" class="nav-link" data-page="dashboard">
+              <i class="fas fa-th-large"></i>
+              <span>Dashboard</span>
+            </a>
+          </div>
+
+          <div class="nav-item">
+            <a href="alerts.html" class="nav-link" data-page="alerts">
+              <i class="fas fa-triangle-exclamation"></i>
+              <span>Alerts &amp; Incidents</span>
+            </a>
+          </div>
+
+          <div class="nav-item">
+            <div class="nav-link nav-dropdown expanded" onclick="toggleSubMenu(this)">
+              <i class="fas fa-shield-alt"></i>
+              <span>Policies</span>
+              <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu open">
+              <a
+                href="manage-agents.html"
+                class="sub-menu-item"
+                data-page="manage-agents"
+                >Manage Agents</a
+              >
+              <a
+                href="file-policies.html"
+                class="sub-menu-item"
+                data-page="file-policies"
+                >File Policies</a
+              >
+              <a
+                href="assign-policy.html"
+                class="sub-menu-item active"
+                data-page="assign-policy"
+                >Assign Policy</a
+              >
+            </div>
+          </div>
+
+          <div class="nav-item">
+            <a href="agents.html" class="nav-link" data-page="agents">
+              <i class="fas fa-desktop"></i>
+              <span>Agents / Endpoints</span>
+            </a>
+          </div>
+
+          <div class="nav-item">
+            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+              <i class="fas fa-eye"></i>
+              <span>OCR &amp; Image Analysis</span>
+              <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu">
+              <a
+                href="ocr-dashboard.html"
+                class="sub-menu-item"
+                data-page="ocr-dashboard"
+                >OCR Dashboard</a
+              >
+              <a
+                href="ocr-policies.html"
+                class="sub-menu-item"
+                data-page="ocr-policies"
+                >OCR Policies</a
+              >
+            </div>
+          </div>
+
+          <div class="nav-item">
+            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+              <i class="fas fa-file-lines"></i>
+              <span>Reports &amp; Logs</span>
+              <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu">
+              <a href="reports.html" class="sub-menu-item" data-page="reports"
+                >Reports</a
+              >
+              <a
+                href="generate-report.html"
+                class="sub-menu-item"
+                data-page="generate-report"
+                >Generate Report</a
+              >
+              <a
+                href="audit-logs.html"
+                class="sub-menu-item"
+                data-page="audit-logs"
+                >Audit Logs</a
+              >
+              <a
+                href="device-logs.html"
+                class="sub-menu-item"
+                data-page="device-logs"
+                >Device Logs</a
+              >
+            </div>
+          </div>
+
+          <div class="nav-item">
+            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+              <i class="fas fa-users"></i>
+              <span>Users &amp; Roles</span>
+              <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu">
+              <a href="users.html" class="sub-menu-item" data-page="users"
+                >Users</a
+              >
+              <a href="roles.html" class="sub-menu-item" data-page="roles"
+                >Roles &amp; Permissions</a
+              >
+              <a
+                href="permissions.html"
+                class="sub-menu-item"
+                data-page="permissions"
+                >Permissions</a
+              >
+            </div>
+          </div>
+
+          <div class="nav-item">
+            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+              <i class="fas fa-gear"></i>
+              <span>Settings</span>
+              <i class="fas fa-chevron-down chevron-icon"></i>
+            </div>
+            <div class="sub-menu">
+              <a href="general.html" class="sub-menu-item" data-page="general"
+                >General</a
+              >
+              <a href="security.html" class="sub-menu-item" data-page="security"
+                >Security</a
+              >
+              <a
+                href="integrations.html"
+                class="sub-menu-item"
+                data-page="integrations"
+                >Integrations</a
+              >
+              <a
+                href="data-retention.html"
+                class="sub-menu-item"
+                data-page="data-retention"
+                >Data Retention</a
+              >
+            </div>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="collapse-btn" onclick="toggleSidebar()">
+            <i class="fas fa-chevron-left"></i>
+            <span>Collapse</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Mobile Overlay (for sidebar) -->
+      <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="closeMobileSidebar()"
+      ></div>
+
+      <!-- ==================== HEADER ==================== -->
+      <header class="top-header" id="topHeader">
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search alerts, agents, policies..."
+          />
+        </div>
+
+        <div class="header-actions">
+          <button class="notification-btn" onclick="toggleNotifications(event)">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="alertBadge">5</span>
+          </button>
+
+          <div class="user-profile" onclick="toggleUserDropdown(event)">
+            <div class="user-avatar">A</div>
+            <div class="user-info">
+              <div class="user-name">Admin</div>
+              <div class="user-role">Security Admin</div>
+            </div>
+            <i class="fas fa-chevron-down dropdown-icon"></i>
+
+            <div class="user-dropdown" id="userDropdown">
+              <a href="general.html" class="dropdown-item">
+                <i class="fas fa-gear"></i>
+                <span>Settings</span>
+              </a>
+              <a href="#" class="dropdown-item">
+                <i class="fas fa-circle-question"></i>
+                <span>Help &amp; Support</span>
+              </a>
+              <div class="dropdown-divider"></div>
+              <a
+                href="index.html"
+                class="dropdown-item danger"
+                onclick="logout(event)"
+              >
+                <i class="fas fa-right-from-bracket"></i>
+                <span>Sign out</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ==================== NOTIFICATIONS PANEL ==================== -->
+      <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+          <h3>Notifications</h3>
+          <button class="close-notifications" onclick="closeNotifications()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="notifications-tabs">
+          <button class="tab-btn active" onclick="switchTab(event, 'all')">
+            All (5)
+          </button>
+          <button class="tab-btn" onclick="switchTab(event, 'unread')">
+            Unread (3)
+          </button>
+        </div>
+
+        <div class="notifications-content" id="notificationsContent">
+          <div class="notification-item unread">
+            <div class="notification-icon critical">
+              <i class="fas fa-shield-exclamation"></i>
+            </div>
+            <div class="notification-body">
+              <div class="notification-title">Critical Policy Violation</div>
+              <div class="notification-text">
+                User attempted to copy sensitive files to USB drive
+              </div>
+              <div class="notification-time">2 minutes ago</div>
+            </div>
+            <div class="notification-dot"></div>
+          </div>
+
+          <div class="notification-item unread">
+            <div class="notification-icon warning">
+              <i class="fas fa-triangle-exclamation"></i>
+            </div>
+            <div class="notification-body">
+              <div class="notification-title">Agent Offline</div>
+              <div class="notification-text">
+                DESKTOP-DEF456 has been offline for 2 hours
+              </div>
+              <div class="notification-time">15 minutes ago</div>
+            </div>
+            <div class="notification-dot"></div>
+          </div>
+
+          <div class="notification-item unread">
+            <div class="notification-icon info">
+              <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="notification-body">
+              <div class="notification-title">Policy Updated</div>
+              <div class="notification-text">
+                File Protection Policy has been modified by Admin
+              </div>
+              <div class="notification-time">1 hour ago</div>
+            </div>
+            <div class="notification-dot"></div>
+          </div>
+
+          <div class="notification-item">
+            <div class="notification-icon success">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="notification-body">
+              <div class="notification-title">Agent Connected</div>
+              <div class="notification-text">
+                New agent LAPTOP-XYZ789 successfully registered
+              </div>
+              <div class="notification-time">3 hours ago</div>
+            </div>
+          </div>
+
+          <div class="notification-item">
+            <div class="notification-icon info">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="notification-body">
+              <div class="notification-title">Report Generated</div>
+              <div class="notification-text">
+                Weekly security report is ready for review
+              </div>
+              <div class="notification-time">5 hours ago</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notifications-footer">
+          <a href="alerts.html" class="view-all-btn">View All Notifications</a>
+        </div>
+      </div>
+
+      <!-- Notification Overlay -->
+      <div
+        class="notification-overlay"
+        id="notificationOverlay"
+        onclick="closeNotifications()"
+      ></div>
+
+      <main class="main-content" id="mainContent">
+        <div class="content-area">
+          <div class="breadcrumb">
+            <a href="dashboard.html"><i class="fas fa-home"></i></a>
             <span>/</span>
             <a href="file-policies.html">Policies</a>
             <span>/</span>
@@ -734,17 +5312,6 @@
                   </div>
                 </div>
 
-                <!-- // USB Type Selection -->
-                <!-- <div id="usbTypeContainer" style="display: none">
-                  <div class="form-group">
-                    <label class="form-label">USB Policy Mode</label>
-                    <select class="form-select" id="usbType">
-                      <option value="block">Block</option>
-                      <option value="monitor">Monitor</option>
-                    </select>
-                  </div>
-                </div> -->
-
                 <!-- File Protection Info -->
                 <div id="fileProtectionInfo" style="display: none">
                   <div class="alert alert-info">
@@ -819,15 +5386,6 @@
                       <!-- Domain tags with remove buttons will appear here -->
                     </div>
                   </div>
-
-                  <div
-                    class="summary-row"
-                    id="summaryUsbRow"
-                    style="display: none"
-                  >
-                    <span class="summary-label">USB Mode</span>
-                    <span class="summary-value" id="summaryUsbMode">-</span>
-                  </div>
                 </div>
 
                 <div class="alert alert-success" style="margin-top: 20px">
@@ -873,7 +5431,8 @@
     </div>
 
     <script>
-      // Check login status
+      /* ==================== AUTHENTICATION & USER DATA ==================== */
+
       async function checkAuth() {
         try {
           const response = await fetch("/api/auth/check", {
@@ -888,110 +5447,281 @@
 
           if (!result.success) {
             window.location.href = "index.html";
+            return null;
           }
+
+          // Store user data in localStorage
+          if (result.data) {
+            localStorage.setItem("userData", JSON.stringify(result.data));
+            return result.data;
+          }
+
+          return null;
         } catch (err) {
           window.location.href = "index.html";
+          return null;
         }
       }
 
-      async function callApi(path, options = {}) {
-        const defaultOptions = {
-          method: "GET",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-        };
-        const opts = { ...defaultOptions, ...options };
+      // Load admin info into header
+      function loadAdminInfo() {
+        const userDataStr = localStorage.getItem("userData");
 
-        try {
-          const response = await fetch(path, opts);
-          const text = await response.text();
-
-          let json;
+        if (userDataStr) {
           try {
-            json = text ? JSON.parse(text) : null;
+            const userData = JSON.parse(userDataStr);
+
+            const userName = document.querySelector(".user-name");
+            const userAvatar = document.querySelector(".user-avatar");
+            const userRole = document.querySelector(".user-role");
+
+            if (userName) {
+              const namePart = userData.username || "Admin";
+              const formattedName = namePart
+                .split(".")
+                .map((n) => n.charAt(0).toUpperCase() + n.slice(1))
+                .join(" ");
+              userName.textContent = formattedName;
+            }
+
+            if (userAvatar) {
+              const namePart = userData.username || "Admin";
+              const initials = namePart
+                .split(".")
+                .map((n) => (n[0] ? n[0].toUpperCase() : ""))
+                .join("");
+              userAvatar.textContent = initials || "A";
+            }
+
+            if (userRole) {
+              userRole.textContent = userData.role || "Security Admin";
+            }
           } catch (e) {
-            throw new Error("Invalid JSON response from server.");
+            console.error("Error parsing user data:", e);
           }
-
-          if (!response.ok) {
-            const message =
-              json && json.message
-                ? json.message
-                : `HTTP ${response.status}: ${response.statusText}`;
-            throw new Error(message);
-          }
-          return json;
-        } catch (error) {
-          console.error(`API call to ${path} failed:`, error);
-          throw error;
         }
       }
 
-      // Load components function
-      async function loadComponent(url, containerId) {
-        try {
-          const response = await fetch(url);
-          const html = await response.text();
-          const container = document.getElementById(containerId);
-          if (container) {
-            container.innerHTML = html;
-            const scripts = container.querySelectorAll("script");
-            scripts.forEach((script) => {
-              const newScript = document.createElement("script");
-              if (script.src) {
-                newScript.src = script.src;
-              } else {
-                newScript.textContent = script.textContent;
-              }
-              document.body
-                .appendChild(newScript)
-                .parentNode.removeChild(newScript);
-            });
-          }
-        } catch (error) {
-          console.error("Error loading component:", error);
+      async function refreshUserData() {
+        const userData = await checkAuth();
+        if (userData) {
+          localStorage.setItem("userData", JSON.stringify(userData));
+          loadAdminInfo();
         }
       }
 
-      // Load sidebar and header
-      document.addEventListener("DOMContentLoaded", function () {
-        loadComponent("sidebar.html", "sidebarContainer");
-        loadComponent("page-header.html", "headerContainer");
-        checkAuth();
-        // Initial load of all data
-        Promise.all([initializeAgentCards(), fetchAgentSimpleDetails()])
-          .then(() => {
-            console.log("All agents loaded successfully");
-            startStatusRefresh();
-          })
-          .catch((error) => {
-            console.error("Error loading initial data:", error);
+      // Refresh every 5 minutes
+      setInterval(refreshUserData, 5 * 60 * 1000);
+
+      /* ==================== SIDEBAR FUNCTIONS ==================== */
+
+      function toggleSubMenu(element) {
+        var sidebar = document.getElementById("sidebar");
+        if (sidebar.classList.contains("collapsed")) return;
+
+        var subMenu = element.nextElementSibling;
+        var allSubMenus = document.querySelectorAll(".sub-menu");
+        var allDropdowns = document.querySelectorAll(".nav-dropdown");
+
+        // Close other open submenus
+        allSubMenus.forEach(function (menu) {
+          if (menu !== subMenu) menu.classList.remove("open");
+        });
+        allDropdowns.forEach(function (link) {
+          if (link !== element) link.classList.remove("expanded");
+        });
+
+        // Toggle current
+        element.classList.toggle("expanded");
+        subMenu.classList.toggle("open");
+      }
+
+      function toggleSidebar() {
+        var sidebar = document.getElementById("sidebar");
+        var mainContent = document.getElementById("mainContent");
+        var header = document.getElementById("topHeader");
+
+        sidebar.classList.toggle("collapsed");
+        var isCollapsed = sidebar.classList.contains("collapsed");
+
+        if (mainContent) mainContent.classList.toggle("expanded");
+
+        // Update header left position
+        if (header) {
+          header.style.left = isCollapsed ? "70px" : "240px";
+        }
+
+        // Close all submenus when collapsing
+        if (isCollapsed) {
+          document.querySelectorAll(".sub-menu").forEach(function (m) {
+            m.classList.remove("open");
           });
+          document.querySelectorAll(".nav-dropdown").forEach(function (l) {
+            l.classList.remove("expanded");
+          });
+        }
 
-        setTimeout(adjustHeaderPosition, 100);
+        // Dispatch event for other components
+        window.dispatchEvent(
+          new CustomEvent("sidebarToggle", {
+            detail: { collapsed: isCollapsed },
+          })
+        );
+      }
+
+      function openMobileSidebar() {
+        var sidebar = document.getElementById("sidebar");
+        var overlay = document.getElementById("sidebarOverlay");
+        if (sidebar) sidebar.classList.add("mobile-open");
+        if (overlay) overlay.classList.add("active");
+      }
+
+      function closeMobileSidebar() {
+        var sidebar = document.getElementById("sidebar");
+        var overlay = document.getElementById("sidebarOverlay");
+        if (sidebar) sidebar.classList.remove("mobile-open");
+        if (overlay) overlay.classList.remove("active");
+      }
+
+      function toggleMobileMenu() {
+        var sidebar = document.getElementById("sidebar");
+        var overlay = document.getElementById("sidebarOverlay");
+        if (!sidebar) return;
+
+        if (sidebar.classList.contains("mobile-open")) {
+          closeMobileSidebar();
+        } else {
+          openMobileSidebar();
+        }
+      }
+
+      function setActiveMenuItem() {
+        var currentPage = window.location.pathname.split('/').pop() || 'assign-policy.html';
+        
+        // First remove all active classes
+        document.querySelectorAll('.nav-link, .sub-menu-item').forEach(function(el) {
+          el.classList.remove('active');
+        });
+
+        // Handle sub-menu items
+        document.querySelectorAll('.sub-menu-item[data-page]').forEach(function (item) {
+          var href = item.getAttribute('href');
+          if (href === currentPage) {
+            item.classList.add('active');
+            var parentSubMenu = item.closest('.sub-menu');
+            if (parentSubMenu) {
+              parentSubMenu.classList.add('open');
+              var parentNav = parentSubMenu.previousElementSibling;
+              if (parentNav) parentNav.classList.add('expanded');
+            }
+          }
+        });
+
+        // Handle main nav links
+        document.querySelectorAll('.nav-link[data-page]').forEach(function (link) {
+          var href = link.getAttribute('href');
+          if (href === currentPage) {
+            link.classList.add('active');
+          }
+        });
+      }
+
+      /* ==================== HEADER FUNCTIONS ==================== */
+
+      function toggleNotifications(event) {
+        event.stopPropagation();
+        var panel = document.getElementById("notificationsPanel");
+        var overlay = document.getElementById("notificationOverlay");
+        var btn = event.currentTarget;
+        if (!panel || !overlay) return;
+
+        if (panel.classList.contains("show")) {
+          closeNotifications();
+        } else {
+          closeUserDropdown();
+          panel.classList.add("show");
+          overlay.classList.add("show");
+          btn.classList.add("active");
+          document.body.style.overflow = "hidden";
+        }
+      }
+
+      function closeNotifications() {
+        var panel = document.getElementById("notificationsPanel");
+        var overlay = document.getElementById("notificationOverlay");
+        var btn = document.querySelector(".notification-btn");
+        if (panel) panel.classList.remove("show");
+        if (overlay) overlay.classList.remove("show");
+        if (btn) btn.classList.remove("active");
+        document.body.style.overflow = "";
+      }
+
+      function switchTab(event, tabName) {
+        document.querySelectorAll(".tab-btn").forEach(function (t) {
+          t.classList.remove("active");
+        });
+        event.currentTarget.classList.add("active");
+
+        document
+          .querySelectorAll(".notification-item")
+          .forEach(function (item) {
+            item.style.display =
+              tabName === "unread" && !item.classList.contains("unread")
+                ? "none"
+                : "flex";
+          });
+      }
+
+      function toggleUserDropdown(event) {
+        event.stopPropagation();
+        var dropdown = document.getElementById("userDropdown");
+        var userProfile = event.currentTarget;
+        if (!dropdown) return;
+
+        if (dropdown.classList.contains("show")) {
+          closeUserDropdown();
+        } else {
+          closeNotifications();
+          dropdown.classList.add("show");
+          userProfile.classList.add("active");
+        }
+      }
+
+      function closeUserDropdown() {
+        var dropdown = document.getElementById("userDropdown");
+        var userProfile = document.querySelector(".user-profile");
+        if (dropdown) dropdown.classList.remove("show");
+        if (userProfile) userProfile.classList.remove("active");
+      }
+
+      function logout(event) {
+        event.preventDefault();
+          window.location.href = "/logout";
+       
+      }
+
+      // Close dropdowns when clicking outside
+      document.addEventListener("click", function (event) {
+        if (!event.target.closest(".user-profile")) {
+          closeUserDropdown();
+        }
+        if (
+          !event.target.closest(".notification-btn") &&
+          !event.target.closest(".notifications-panel")
+        ) {
+          closeNotifications();
+        }
       });
 
-      function adjustHeaderPosition() {
-        const sidebar = document.getElementById("sidebar");
-        const header = document.querySelector(".top-header");
-
-        if (sidebar && header) {
-          if (sidebar.classList.contains("collapsed")) {
-            header.style.left = "70px";
-          } else {
-            header.style.left = "240px";
-          }
-        }
-      }
+      /* ==================== ASSIGN POLICY FUNCTIONS ==================== */
 
       let selectedAgents = new Set();
-      let agentsBasicData = {}; // Store agent basic info (from /api/admin/agents)
-      let agentsCapabilities = {}; // Store agent capabilities (from /api/admin/agents/{id}/capabilities)
+      let agentsBasicData = {};
+      let agentsCapabilities = {};
       let currentStep = 1;
       let selectedPolicyType = "";
       let selectedPolicy = "";
       let blockedDomains = [];
-      //   let usbMode = "block";
       let isEditingExistingPolicy = false;
       let statusRefreshInterval;
 
@@ -1051,6 +5781,7 @@
             headers: {
               "Content-Type": "application/json",
             },
+            credentials: "include",
           });
 
           if (!response.ok) {
@@ -1074,24 +5805,33 @@
 
             agentCard.innerHTML = `
                 <div class="agent-card-header">
-                    <input type="checkbox" class="agent-checkbox" ${selectedAgents.has(agent.id) ? "checked" : ""}>
+                    <input type="checkbox" class="agent-checkbox" ${
+                      selectedAgents.has(agent.id) ? "checked" : ""
+                    }>
                     <div class="agent-name"> ${agent.username}</div>
-                     <span class="agent-status ${isAgentOnline(agent) ? "status-online" : "status-offline"}">
+                     <span class="agent-status ${
+                       isAgentOnline(agent) ? "status-online" : "status-offline"
+                     }">
                         ${isAgentOnline(agent) ? "ONLINE" : "OFFLINE"}
                     </span>
                 </div>
                 <div class="agent-info">
-                    <span><i class="fas fa-user"></i> ${agent.hostname || agent.username}</span>\
+                    <span><i class="fas fa-user"></i> ${
+                      agent.hostname || agent.username
+                    }</span>
                     <span><i class="fas fa-id-badge"></i> ${agent.id}</span>
                 </div>
                 <div class="agent-info">
-                    <span><i class="fab fa-${getOSIcon(agent.osType)}"></i> ${agent.osType || "Unknown OS"}</span>
-                    <span><i class="fas fa-network-wired"></i> ${agent.ipAddress || "N/A"}</span>
+                    <span><i class="fab fa-${getOSIcon(
+                      agent.osType
+                    )}"></i> ${agent.osType || "Unknown OS"}</span>
+                    <span><i class="fas fa-network-wired"></i> ${
+                      agent.ipAddress || "N/A"
+                    }</span>
                 </div>
             `;
 
             function isAgentOnline(agent) {
-              // Check agentRuntimeState from the API response
               if (
                 agent.agentRuntimeState &&
                 agent.agentRuntimeState.toUpperCase() === "ONLINE"
@@ -1099,14 +5839,11 @@
                 return true;
               }
 
-              // Fallback: Check last heartbeat if agentRuntimeState is not available
               if (agent.lastHeartbeat) {
                 const lastHeartbeat = new Date(agent.lastHeartbeat).getTime();
                 const now = new Date();
-                const diffMinutes = Math.floor(
-                  (now - lastHeartbeat) / (1000),
-                );
-                return diffMinutes <= 10; // Consider online if heartbeat within 5 minutes
+                const diffMinutes = Math.floor((now - lastHeartbeat) / 1000);
+                return diffMinutes <= 10;
               }
 
               return false;
@@ -1128,12 +5865,11 @@
       }
 
       function getOSIcon(os) {
-        if (!os) return "desktop"; // Handle undefined/null
+        if (!os) return "desktop";
 
         const osLower = os.toLowerCase();
         if (osLower.includes("windows")) return "windows";
-        if (osLower.includes("macos") || osLower.includes("mac"))
-          return "apple";
+        if (osLower.includes("macos") || osLower.includes("mac")) return "apple";
         if (osLower.includes("ubuntu") || osLower.includes("linux"))
           return "linux";
         return "desktop";
@@ -1153,7 +5889,7 @@
                 const capabilities = agentsCapabilities[agentId];
                 if (capabilities && capabilities.NETWORK) {
                   const policy = capabilities.NETWORK.find(
-                    (p) => p.code === selectedPolicy,
+                    (p) => p.code === selectedPolicy
                   );
                   if (policy && policy.isActive) {
                     isEditingExistingPolicy = true;
@@ -1163,16 +5899,15 @@
             } catch (error) {
               console.error(
                 `Failed to fetch capabilities for agent ${agentId}:`,
-                error,
+                error
               );
-              // Still allow selection even if capabilities fail
               agentsCapabilities[agentId] = {};
             }
           }
         }
 
         const agentCard = document.querySelector(
-          `.agent-card[data-id="${agentId}"]`,
+          `.agent-card[data-id="${agentId}"]`
         );
         if (agentCard) {
           agentCard.classList.toggle("selected");
@@ -1199,20 +5934,18 @@
                 "Content-Type": "application/json",
               },
               credentials: "include",
-            },
+            }
           );
 
           if (!response.ok) {
             throw new Error(
-              `HTTP ${response.status}: Failed to fetch capabilities`,
+              `HTTP ${response.status}: Failed to fetch capabilities`
             );
           }
 
           const result = await response.json();
-          console.log(`Agent ${agentId} capabilities:`, result); // Debug log
 
           if (result.success && result.data) {
-            // Store capabilities - result.data should be an object with category keys
             agentsCapabilities[agentId] = result.data;
           } else {
             throw new Error(result.message || "Failed to load capabilities");
@@ -1220,9 +5953,9 @@
         } catch (error) {
           console.error(
             `Error fetching capabilities for agent ${agentId}:`,
-            error,
+            error
           );
-          agentsCapabilities[agentId] = {}; // Store empty object if error
+          agentsCapabilities[agentId] = {};
           throw error;
         }
       }
@@ -1240,7 +5973,6 @@
 
           const result = await response.json();
           if (result.success && result.data) {
-            // Store agent basic info
             result.data.forEach((agent) => {
               agentsBasicData[agent.id] = agent;
             });
@@ -1249,6 +5981,7 @@
           console.error("Error fetching agents:", error);
         }
       }
+
       async function updatePolicyTypes() {
         if (selectedAgents.size === 0) {
           const policyTypeSelect = document.getElementById("policyType");
@@ -1259,7 +5992,6 @@
           return;
         }
 
-        // Get common categories across all selected agents
         let commonCategories = null;
 
         for (const agentId of selectedAgents) {
@@ -1271,40 +6003,34 @@
             if (commonCategories === null) {
               commonCategories = new Set(agentCategories);
             } else {
-              // Keep only categories that exist in both sets
               commonCategories = new Set(
                 [...commonCategories].filter((cat) =>
-                  agentCategories.includes(cat),
-                ),
+                  agentCategories.includes(cat)
+                )
               );
             }
           } else {
-            // If agent has no capabilities data, clear everything
             commonCategories = new Set();
             break;
           }
         }
 
-        // Update policy type dropdown
         const policyTypeSelect = document.getElementById("policyType");
         const currentValue = policyTypeSelect.value;
 
-        // Clear existing options
         policyTypeSelect.innerHTML =
           '<option value="">-- Select Policy Type --</option>';
 
         if (commonCategories && commonCategories.size > 0) {
-          // Simply use the category keys from API response
           const sortedCategories = Array.from(commonCategories).sort();
 
           sortedCategories.forEach((category) => {
             const option = document.createElement("option");
             option.value = category;
-            option.textContent = category; // Use the exact key from API
+            option.textContent = category;
             policyTypeSelect.appendChild(option);
           });
 
-          // Restore previous selection if still valid
           if (currentValue && commonCategories.has(currentValue)) {
             policyTypeSelect.value = currentValue;
             selectedPolicyType = currentValue;
@@ -1329,7 +6055,6 @@
         }
       }
 
-      // Policy Type change handler
       document.addEventListener("change", function (e) {
         if (e.target && e.target.id === "policyType") {
           selectedPolicyType = e.target.value;
@@ -1346,24 +6071,22 @@
         const policySelect = document.getElementById("policySelect");
         if (!policySelect) return;
 
-        policySelect.innerHTML =
-          '<option value="">-- Select Policy --</option>';
+        policySelect.innerHTML = '<option value="">-- Select Policy --</option>';
 
         if (selectedPolicyType && selectedAgents.size > 0) {
-          // Get policies common to all selected agents for this category
           let commonPolicies = null;
-          let policyStatusMap = new Map(); // Track if policy is already applied
+          let policyStatusMap = new Map();
+
           for (const agentId of selectedAgents) {
             const capabilities = agentsCapabilities[agentId];
 
             if (capabilities && capabilities[selectedPolicyType]) {
               const agentPolicies = capabilities[selectedPolicyType];
 
-              // agentPolicies should be an array
               if (!Array.isArray(agentPolicies)) {
                 console.error(
                   `Agent ${agentId}: Expected array for ${selectedPolicyType}, got:`,
-                  agentPolicies,
+                  agentPolicies
                 );
                 commonPolicies = new Map();
                 break;
@@ -1374,19 +6097,16 @@
                 agentPolicies.forEach((policy) => {
                   if (policy && policy.code) {
                     commonPolicies.set(policy.code, policy);
-                    // Initialize status map
                     policyStatusMap.set(policy.code, {
                       [agentId]: policy.isActive || false,
                     });
                   }
                 });
               } else {
-                // Keep only policies that exist in this agent
                 const agentPolicyCodes = new Set(
-                  agentPolicies.map((p) => p?.code).filter((code) => code),
+                  agentPolicies.map((p) => p?.code).filter((code) => code)
                 );
 
-                // Update policy status for this agent
                 agentPolicies.forEach((policy) => {
                   if (
                     policy &&
@@ -1400,12 +6120,11 @@
 
                 commonPolicies = new Map(
                   [...commonPolicies].filter(([code, policy]) =>
-                    agentPolicyCodes.has(code),
-                  ),
+                    agentPolicyCodes.has(code)
+                  )
                 );
               }
             } else {
-              // If agent doesn't have this category, clear everything
               commonPolicies = new Map();
               break;
             }
@@ -1414,7 +6133,6 @@
           if (commonPolicies && commonPolicies.size > 0) {
             policySelect.disabled = false;
 
-            // Sort policies by name for better UX
             const sortedPolicies = Array.from(commonPolicies.values())
               .filter((policy) => policy && policy.name)
               .sort((a, b) => a.name.localeCompare(b.name));
@@ -1423,12 +6141,11 @@
               const option = document.createElement("option");
               option.value = policy.code;
 
-              // Check if policy is already applied to all selected agents
               const statusInfo = policyStatusMap.get(policy.code);
               let appliedCount = 0;
               if (statusInfo) {
                 appliedCount = Object.values(statusInfo).filter(
-                  (isActive) => isActive,
+                  (isActive) => isActive
                 ).length;
               }
 
@@ -1466,6 +6183,7 @@
 
         updatePolicyOptions();
       }
+
       function updatePolicyAppliedStatus() {
         const policySelect = document.getElementById("policySelect");
         const selectedOption = policySelect.options[policySelect.selectedIndex];
@@ -1473,7 +6191,6 @@
           ? selectedOption.dataset.isApplied === "true"
           : false;
 
-        // Update next button text based on status
         const nextBtn = document.getElementById("nextBtn");
         const applyBtn = document.getElementById("applyBtn");
 
@@ -1482,6 +6199,7 @@
             '<span>Next</span><i class="fas fa-arrow-right"></i>';
         }
       }
+
       function updatePolicyOptions() {
         const dnsContainer = document.getElementById("dnsInputContainer");
         const fileInfo = document.getElementById("fileProtectionInfo");
@@ -1493,17 +6211,15 @@
 
         if (!selectedPolicy || !selectedPolicyType) return;
 
-        // Show relevant options based on actual policy code
         if (selectedPolicy === "NETWORK_DNS_BLOCK") {
           if (dnsContainer) dnsContainer.style.display = "block";
 
-          // Try to load existing domains if any
           if (selectedAgents.size === 1) {
             const agentId = Array.from(selectedAgents)[0];
             const capabilities = agentsCapabilities[agentId];
             if (capabilities && capabilities.NETWORK) {
               const policy = capabilities.NETWORK.find(
-                (p) => p.code === selectedPolicy,
+                (p) => p.code === selectedPolicy
               );
               if (policy && policy.policyData && policy.policyData !== "null") {
                 try {
@@ -1515,7 +6231,6 @@
                   } else {
                     blockedDomains = [];
                     isEditingExistingPolicy = false;
-                    console.log("Loaded domains:", blockedDomains); // Debug
                   }
                 } catch (e) {
                   console.error("Error parsing policy data:", e);
@@ -1523,52 +6238,16 @@
                   isEditingExistingPolicy = false;
                 }
               }
-            } else {
-              // For new assignment, start with empty domains
-              blockedDomains = [];
-              //   renderDomainTags();
-              isEditingExistingPolicy = false;
             }
           } else {
             blockedDomains = [];
             isEditingExistingPolicy = false;
           }
-          // ALWAYS render domain tags
           renderDomainTags();
-        }
-        // Don't hardcode USB mode - let it come from the policy itself
-        // else if (selectedPolicyType === "USB") {
-        // //   document.getElementById("usbTypeContainer").style.display = "block";
-
-        //   // Try to get USB mode from the actual policy
-        //   if (selectedAgents.size > 0) {
-        //     const firstAgentId = Array.from(selectedAgents)[0];
-        //     const capabilities = agentsCapabilities[firstAgentId];
-        //     if (capabilities && capabilities.USB) {
-        //       const policy = capabilities.USB.find(
-        //         (p) => p.code === selectedPolicy,
-        //       );
-        //       if (policy) {
-        //         // Extract USB mode from policy name or description
-        //         if (policy.name.includes("Block")) {
-        //           usbMode = "block";
-        //         } else if (policy.name.includes("Monitor")) {
-        //           usbMode = "monitor";
-        //         }
-        //       }
-        //     }
-        //   }
-
-        //   const usbTypeSelect = document.getElementById("usbType");
-        //   if (usbTypeSelect) {
-        //     usbTypeSelect.value = usbMode;
-        //   }
-        // }
-        // Show info based on policy type
-        else if (selectedPolicyType === "FILE") {
-          document.getElementById("fileProtectionInfo").style.display = "block";
+        } else if (selectedPolicyType === "FILE") {
+          fileInfo.style.display = "block";
         } else if (selectedPolicyType === "SECURITY_MONITOR") {
-          document.getElementById("ocrInfo").style.display = "block";
+          ocrInfo.style.display = "block";
         }
       }
 
@@ -1581,31 +6260,27 @@
           return;
         }
 
-        // Clean the domain - remove http://, https://, trailing slashes
         domain = domain.replace(/^https?:\/\//, "");
         domain = domain.replace(/\/$/, "");
 
-        // Convert to lowercase for comparison
         const domainLower = domain.toLowerCase();
         const exists = blockedDomains.some(
-          (d) => d.toLowerCase() === domainLower,
+          (d) => d.toLowerCase() === domainLower
         );
 
         if (exists) {
           alert("Domain already added");
           return;
         }
-        blockedDomains.push(domain); // Keep original case for display
+        blockedDomains.push(domain);
         domainInput.value = "";
 
         renderDomainTags();
 
-        // Also update summary if we're in step 4
         if (currentStep === 4) {
           renderSummaryDomainTags();
-          const summaryDomainsCount = document.getElementById(
-            "summaryDomainsCount",
-          );
+          const summaryDomainsCount =
+            document.getElementById("summaryDomainsCount");
           if (summaryDomainsCount) {
             summaryDomainsCount.textContent = blockedDomains.length;
           }
@@ -1635,7 +6310,6 @@
       }
 
       function nextStep() {
-        // Validation for each step
         if (currentStep === 1 && selectedAgents.size === 0) {
           alert("Please select at least one agent");
           return;
@@ -1652,7 +6326,6 @@
             return;
           }
 
-          // Fix: Use uppercase 'NETWORK' to match API response
           if (
             selectedPolicyType === "NETWORK" &&
             selectedPolicy === "NETWORK_DNS_BLOCK" &&
@@ -1673,16 +6346,13 @@
       }
 
       function updateStepDisplay() {
-        // Hide all steps
         document.getElementById("step1").style.display = "none";
         document.getElementById("step2").style.display = "none";
         document.getElementById("step3").style.display = "none";
         document.getElementById("step4").style.display = "none";
 
-        // Show current step
         document.getElementById(`step${currentStep}`).style.display = "block";
 
-        // Update step indicators
         document.querySelectorAll(".step").forEach((step, index) => {
           step.classList.remove("active", "completed");
           if (index + 1 < currentStep) {
@@ -1697,7 +6367,6 @@
           }
         });
 
-        // Update button visibility
         document.getElementById("prevBtn").style.display =
           currentStep > 1 ? "flex" : "none";
         document.getElementById("nextBtn").style.display =
@@ -1705,7 +6374,6 @@
         document.getElementById("applyBtn").style.display =
           currentStep === 4 ? "flex" : "none";
 
-        // Update summary on step 4
         if (currentStep === 4) {
           updateSummary();
         }
@@ -1715,14 +6383,10 @@
         document.getElementById("summaryAgentCount").textContent =
           selectedAgents.size;
 
-        // Use the actual selectedPolicyType
         document.getElementById("summaryPolicyType").textContent =
           selectedPolicyType || "-";
 
-        // Find the policy object from agentsCapabilities
         let policyName = "-";
-        let policyCode = "-";
-        let isAlreadyApplied = false;
         let appliedCount = 0;
 
         if (selectedPolicy && selectedPolicyType && selectedAgents.size > 0) {
@@ -1730,87 +6394,67 @@
           const capabilities = agentsCapabilities[firstAgentId];
           if (capabilities && capabilities[selectedPolicyType]) {
             const policy = capabilities[selectedPolicyType].find(
-              (p) => p.code === selectedPolicy,
+              (p) => p.code === selectedPolicy
             );
             if (policy) {
               policyName = policy.name;
-              policyCode = policy.code;
 
               appliedCount = 0;
 
-              // Check if policy is already applied to all agents
-              let allApplied = true;
               for (const agentId of selectedAgents) {
                 const agentCapabilities = agentsCapabilities[agentId];
                 const agentPolicy =
                   agentCapabilities &&
                   agentCapabilities[selectedPolicyType]?.find(
-                    (p) => p.code === selectedPolicy,
+                    (p) => p.code === selectedPolicy
                   );
                 if (agentPolicy && agentPolicy.isActive) {
                   appliedCount++;
                 }
               }
-              isAlreadyApplied = appliedCount === selectedAgents.size;
             }
           }
         }
 
         document.getElementById("summaryPolicyName").textContent = policyName;
 
-        // Update apply button based on status
         const applyBtn = document.getElementById("applyBtn");
-        if (isAlreadyApplied) {
+        if (appliedCount === selectedAgents.size && selectedAgents.size > 0) {
           applyBtn.innerHTML =
             '<i class="fas fa-times"></i><span>Remove Policy</span>';
-          applyBtn.classList.remove("btn-primary");
+          applyBtn.classList.remove("btn-primary", "btn-warning");
           applyBtn.classList.add("btn-danger");
-          applyBtn.style.background = "#ef4444";
-        } else if (appliedCount < selectedAgents.size) {
-          // Some agents have this policy, some don't
+        } else if (appliedCount > 0 && appliedCount < selectedAgents.size) {
           applyBtn.innerHTML =
             '<i class="fas fa-sync"></i><span>Update Policy</span>';
-          applyBtn.classList.remove("btn-danger");
+          applyBtn.classList.remove("btn-primary", "btn-danger");
           applyBtn.classList.add("btn-warning");
-          applyBtn.style.background = "#f59e0b";
         } else {
-          // All agents have this policy
           applyBtn.innerHTML =
-            '<i class="fas fa-times"></i><span>Remove Policy</span>';
-          applyBtn.classList.remove("btn-primary");
-          applyBtn.classList.add("btn-danger");
-          applyBtn.style.background = "#ef4444";
+            '<i class="fas fa-check"></i><span>Apply Policy</span>';
+          applyBtn.classList.remove("btn-danger", "btn-warning");
+          applyBtn.classList.add("btn-primary");
         }
 
-        // Update alert message
         const alertBox = document.querySelector(".alert.alert-success");
         if (alertBox) {
-          if (isAlreadyApplied) {
+          if (appliedCount === selectedAgents.size && selectedAgents.size > 0) {
             alertBox.innerHTML =
               '<i class="fas fa-info-circle"></i><span>This policy is already applied to all selected agents. Click "Remove Policy" to deactivate it.</span>';
             alertBox.className = "alert alert-info";
           } else if (appliedCount > 0) {
             alertBox.innerHTML = `<i class="fas fa-info-circle"></i><span>This policy is applied to ${appliedCount}/${selectedAgents.size} selected agents. Click "Update Policy" to apply to all.</span>`;
             alertBox.className = "alert alert-warning";
-            alertBox.style.background = "#fff3cd";
-            alertBox.style.borderColor = "#ffeeba";
-            alertBox.style.color = "#856404";
           } else {
             alertBox.innerHTML =
               '<i class="fas fa-check-circle"></i><span>The policy will be applied to all selected agents within 5 minutes.</span>';
             alertBox.className = "alert alert-success";
-            alertBox.style.background = "#d1fae5";
-            alertBox.style.borderColor = "#a7f3d0";
-            alertBox.style.color = "#065f46";
           }
         }
 
-        // Show/hide conditional summary rows
-        // Show/hide conditional summary rows - FIXED: Using summaryDomainsContainer instead of summaryDomainsRow
         const domainsContainer = document.getElementById(
-          "summaryDomainsContainer",
+          "summaryDomainsContainer"
         );
-        const usbRow = document.getElementById("summaryUsbRow");
 
         if (selectedPolicy === "NETWORK_DNS_BLOCK") {
           if (blockedDomains.length > 0) {
@@ -1824,18 +6468,8 @@
         } else {
           if (domainsContainer) domainsContainer.style.display = "none";
         }
-
-        if (selectedPolicyType === "USB") {
-          usbRow.style.display = "flex";
-          document.getElementById("summaryUsbMode").textContent = policyName
-            .replace("USB", "")
-            .trim();
-        } else {
-          if (usbRow) usbRow.style.display = "none";
-        }
       }
 
-      // New function to render domains in summary with remove buttons
       function renderSummaryDomainTags() {
         const domainTags = document.getElementById("summaryDomainTags");
         if (!domainTags) return;
@@ -1860,43 +6494,34 @@
           domainTags.appendChild(tag);
         });
       }
-      // Function to remove domain from summary and update both views
+
       function removeDomainFromSummary(index) {
         blockedDomains.splice(index, 1);
 
-        // Update both domain tag displays
-        renderDomainTags(); // Update step 3 tags
-        renderSummaryDomainTags(); // Update step 4 tags
+        renderDomainTags();
+        renderSummaryDomainTags();
 
-        // Update the domains count in summary
-        const summaryDomainsCount = document.getElementById(
-          "summaryDomainsCount",
-        );
+        const summaryDomainsCount =
+          document.getElementById("summaryDomainsCount");
         if (summaryDomainsCount) {
           summaryDomainsCount.textContent = blockedDomains.length;
         }
 
-        // If no domains left, maybe show a warning
         if (blockedDomains.length === 0) {
-          const domainsContainer = document.getElementById(
-            "summaryDomainsContainer",
-          );
+          const domainsContainer =
+            document.getElementById("summaryDomainsContainer");
           if (domainsContainer) {
             domainsContainer.style.display = "none";
           }
 
-          // If we're in step 4 and no domains, show warning
           if (currentStep === 4) {
             const alertBox = document.querySelector(
-              ".alert.alert-info, .alert.alert-success",
+              ".alert.alert-info, .alert.alert-success"
             );
             if (alertBox) {
               alertBox.innerHTML =
                 '<i class="fas fa-exclamation-triangle"></i><span>No domains to block. Please add domains in Step 3.</span>';
               alertBox.className = "alert alert-warning";
-              alertBox.style.background = "#fff3cd";
-              alertBox.style.borderColor = "#ffeeba";
-              alertBox.style.color = "#856404";
             }
           }
         }
@@ -1915,14 +6540,13 @@
         try {
           const agentIds = Array.from(selectedAgents);
 
-          // Count how many agents have this policy active
           let appliedCount = 0;
           for (const agentId of selectedAgents) {
             const capabilities = agentsCapabilities[agentId];
             const policy =
               capabilities &&
               capabilities[selectedPolicyType]?.find(
-                (p) => p.code === selectedPolicy,
+                (p) => p.code === selectedPolicy
               );
             if (policy && policy.isActive) {
               appliedCount++;
@@ -1933,13 +6557,12 @@
           const isUpdating =
             appliedCount > 0 && appliedCount < selectedAgents.size;
 
-          // Get policy details
           const firstAgentId = agentIds[0];
           const capabilities = agentsCapabilities[firstAgentId];
           const policyDetails =
             capabilities &&
             capabilities[selectedPolicyType]?.find(
-              (p) => p.code === selectedPolicy,
+              (p) => p.code === selectedPolicy
             );
 
           if (!policyDetails) {
@@ -1951,7 +6574,6 @@
             policyCode: selectedPolicy,
           };
 
-          // For DNS policy, always include domains when applying or updating
           if (selectedPolicy === "NETWORK_DNS_BLOCK" && !isRemoving) {
             if (blockedDomains.length === 0) {
               alert("Please add at least one domain to block");
@@ -2008,7 +6630,6 @@
 
             alert(message);
 
-            // Refresh agent capabilities data
             for (const agentId of selectedAgents) {
               try {
                 await fetchAgentDetails(agentId);
@@ -2017,22 +6638,18 @@
               }
             }
 
-            // If removing policy, reset everything and go back to step 1
             if (isRemoving) {
-              // Reset all selections
               selectedAgents.clear();
               selectedPolicyType = "";
               selectedPolicy = "";
               blockedDomains = [];
               isEditingExistingPolicy = false;
 
-              // Reset UI
               currentStep = 1;
               updateStepDisplay();
               await initializeAgentCards();
               updateSelectedCount();
 
-              // Show success message in UI
               const alertBox = document.querySelector(".alert.alert-success");
               if (alertBox) {
                 alertBox.innerHTML =
@@ -2040,25 +6657,27 @@
                 alertBox.className = "alert alert-success";
               }
             } else {
-              // Redirect after successful application/update
               setTimeout(() => {
                 window.location.href = "file-policies.html";
               }, 2000);
             }
           } else {
             alert(
-              `❌ Failed to ${isRemoving ? "remove" : "apply"} policy: ${result.message}`,
+              `❌ Failed to ${isRemoving ? "remove" : "apply"} policy: ${
+                result.message
+              }`
             );
           }
         } catch (error) {
           console.error("Error applying policy:", error);
           alert(
-            `❌ Error ${isRemoving ? "removing" : "applying"} policy: ${error.message}`,
+            `❌ Error ${isRemoving ? "removing" : "applying"} policy: ${
+              error.message
+            }`
           );
         }
       }
 
-      // Search functionality - modify to work with dynamic data
       document.addEventListener("input", function (e) {
         if (e.target && e.target.id === "agentSearch") {
           const searchTerm = e.target.value.toLowerCase();
@@ -2071,21 +6690,80 @@
         }
       });
 
-      // Listen for sidebar toggle events
-      window.addEventListener("sidebarToggle", function (event) {
+      /* ==================== EVENT LISTENERS ==================== */
+
+      window.addEventListener("resize", function () {
+        const sidebar = document.getElementById("sidebar");
         const mainContent = document.getElementById("mainContent");
-        if (mainContent) {
-          if (event.detail.collapsed) {
-            mainContent.classList.add("expanded");
-            mainContent.style.marginLeft = "70px";
-          } else {
-            mainContent.classList.remove("expanded");
-            mainContent.style.marginLeft = "240px";
+        const header = document.getElementById("topHeader");
+        const windowWidth = window.innerWidth;
+
+        if (windowWidth <= 968) {
+          if (sidebar) sidebar.classList.remove("collapsed");
+          if (mainContent) mainContent.classList.remove("expanded");
+          if (header) {
+            header.style.left = "0";
+          }
+        } else {
+          if (sidebar && mainContent && header) {
+            if (sidebar.classList.contains("collapsed")) {
+              mainContent.classList.add("expanded");
+              header.style.left = "70px";
+            } else {
+              mainContent.classList.remove("expanded");
+              header.style.left = "240px";
+            }
           }
         }
-
-        adjustHeaderPosition();
       });
+
+      window.addEventListener("sidebarToggle", function (event) {
+        const header = document.getElementById("topHeader");
+        const mainContent = document.getElementById("mainContent");
+
+        if (header && mainContent) {
+          if (event.detail.collapsed) {
+            header.style.left = "70px";
+            mainContent.classList.add("expanded");
+          } else {
+            header.style.left = "240px";
+            mainContent.classList.remove("expanded");
+          }
+        }
+      });
+
+      document.addEventListener("click", function (e) {
+        const sidebar = document.getElementById("sidebar");
+        const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
+
+        if (sidebar && window.innerWidth <= 968) {
+          if (
+            !sidebar.contains(e.target) &&
+            (!mobileMenuToggle || !mobileMenuToggle.contains(e.target))
+          ) {
+            sidebar.classList.remove("mobile-open");
+            const overlay = document.getElementById("sidebarOverlay");
+            if (overlay) {
+              overlay.classList.remove("active");
+            }
+          }
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", async function () {
+       
+            loadAdminInfo();
+        
+          setActiveMenuItem();
+
+          await Promise.all([
+            initializeAgentCards(),
+            fetchAgentSimpleDetails(),
+          ]);
+
+          startStatusRefresh();
+      });
+    
     </script>
   </body>
 </html>
