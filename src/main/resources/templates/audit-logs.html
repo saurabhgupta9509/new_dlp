@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"></html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -240,29 +240,10 @@
         </main>
     </div>
 
-    <script>
+    <script th:inline="javascript">
         // Check if user is logged in
         // Check login status
-        async function checkAuth() {
-                try {
-                    const response = await fetch("/api/auth/check", {
-                        credentials: "include"
-                    });
-
-                    if (!response.ok) {
-                        throw new Error("Not authenticated");
-                    }
-
-                    const result = await response.json();
-
-                    if (!result.success) {
-                        window.location.href = "index.html";
-                    }
-
-                } catch (err) {
-                    window.location.href = "index.html";
-                }
-            }
+        
 
         // Function to load components with script execution
         async function loadComponent(url, containerId) {

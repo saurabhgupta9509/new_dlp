@@ -2377,7 +2377,7 @@
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -4050,89 +4050,34 @@
       </main>
     </div>
 
-    <script>
+    <script th:inline="javascript">
       /* ==================== AUTHENTICATION & USER DATA ==================== */
-
-      async function checkAuth() {
-        try {
-          const response = await fetch("/api/auth/check", {
-            credentials: "include",
-          });
-
-          if (!response.ok) {
-            throw new Error("Not authenticated");
-          }
-
-          const result = await response.json();
-
-          if (!result.success) {
-            window.location.href = "index.html";
-            return null;
-          }
-
-          // Store user data in localStorage
-          if (result.data) {
-            localStorage.setItem("userData", JSON.stringify(result.data));
-            return result.data;
-          }
-
-          return null;
-        } catch (err) {
-          window.location.href = "index.html";
-          return null;
+    const userData = {
+        username: [[${username}]],
+        userName: [[${userName}]],
+        userInitials: [[${userInitials}]],
+        userRole: [[${userRole}]],
+        userEmail: [[${userEmail}]],
+        userId: [[${userId}]]
+    };
+    function loadAdminInfo() {
+        const userName = document.querySelector(".user-name");
+        const userAvatar = document.querySelector(".user-avatar");
+        const userRole = document.querySelector(".user-role");
+ 
+        if (userName && userData.userName) {
+            userName.textContent = userData.userName;
         }
-      }
-
-      // Load admin info into header
-      function loadAdminInfo() {
-        const userDataStr = localStorage.getItem("userData");
-
-        if (userDataStr) {
-          try {
-            const userData = JSON.parse(userDataStr);
-
-            const userName = document.querySelector(".user-name");
-            const userAvatar = document.querySelector(".user-avatar");
-            const userRole = document.querySelector(".user-role");
-
-            if (userName) {
-              const namePart = userData.username || "Admin";
-              const formattedName = namePart
-                .split(".")
-                .map((n) => n.charAt(0).toUpperCase() + n.slice(1))
-                .join(" ");
-              userName.textContent = formattedName;
-            }
-
-            if (userAvatar) {
-              const namePart = userData.username || "Admin";
-              const initials = namePart
-                .split(".")
-                .map((n) => (n[0] ? n[0].toUpperCase() : ""))
-                .join("");
-              userAvatar.textContent = initials || "A";
-            }
-
-            if (userRole) {
-              userRole.textContent = userData.role || "Security Admin";
-            }
-          } catch (e) {
-            console.error("Error parsing user data:", e);
-          }
+ 
+        if (userAvatar && userData.userInitials) {
+            userAvatar.textContent = userData.userInitials;
         }
-      }
-
-      async function refreshUserData() {
-        const userData = await checkAuth();
-        if (userData) {
-          localStorage.setItem("userData", JSON.stringify(userData));
-          loadAdminInfo();
+ 
+        if (userRole && userData.userRole) {
+            userRole.textContent = userData.userRole;
         }
-      }
-
-      // Refresh every 5 minutes
-      setInterval(refreshUserData, 5 * 60 * 1000);
-
+    }
+      
       /* ==================== SIDEBAR FUNCTIONS ==================== */
 
       // Toggle submenu in sidebar
@@ -4326,19 +4271,10 @@
       }
 
       // Logout function
-      function logout(event) {
+         function logout(event) {
         event.preventDefault();
-
-        fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "include",
-        }).finally(() => {
-          localStorage.removeItem("isLoggedIn");
-          localStorage.removeItem("userEmail");
-          localStorage.removeItem("userData");
-          window.location.href = "index.html";
-        });
-      }
+        window.location.href = "/logout";
+    }
 
       // Close dropdowns when clicking outside
       document.addEventListener("click", function (event) {
@@ -4703,50 +4639,14 @@
 
       // Initialize on DOM ready
       document.addEventListener("DOMContentLoaded", async function () {
-        try {
-          // Check authentication and get user data
-          const userData = await checkAuth();
-
-          // Load admin info into header
-          if (userData) {
-            loadAdminInfo();
-          }
-
+        
+          loadAdminInfo();
           // Set active menu item
           setActiveMenuItem();
-
           // Load alert details
-          const alertId = getAlertIdFromUrl();
-          if (alertId) {
-            await loadAlertDetails();
-          }
-
+          await loadAlertDetails();
           // Check for sidebar state on load - DO THIS ONCE
-          const sidebar = document.getElementById("sidebar");
-          const mainContent = document.getElementById("mainContent");
-          const header = document.getElementById("topHeader");
-          const windowWidth = window.innerWidth;
-
-          if (sidebar && mainContent && header) {
-            if (windowWidth <= 968) {
-              // Mobile view - reset to default
-              mainContent.style.marginLeft = "0";
-              mainContent.classList.remove("expanded");
-              header.style.left = "0";
-            } else {
-              // Desktop view - apply collapsed state if needed
-              if (sidebar.classList.contains("collapsed")) {
-                mainContent.classList.add("expanded");
-                header.style.left = "70px";
-              } else {
-                mainContent.classList.remove("expanded");
-                header.style.left = "240px";
-              }
-            }
-          }
-        } catch (error) {
-          console.error("Error initializing page:", error);
-        }
+         
       });
     </script>
   </body>
