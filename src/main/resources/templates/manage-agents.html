@@ -3649,7 +3649,7 @@
 
 
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -5472,7 +5472,7 @@
       </main>
     </div>
 
-    <script>
+    <script th:inline="javascript">
       // ============ GLOBAL VARIABLES ============
       let agentsData = [];
       let currentFilteredData = [];
@@ -5480,83 +5480,32 @@
 
       // ============ AUTHENTICATION & USER DATA ============
 
-      async function checkAuth() {
-        try {
-          const response = await fetch("/api/auth/check", {
-            credentials: "include"
-          });
-
-          if (!response.ok) {
-            throw new Error("Not authenticated");
-          }
-
-          const result = await response.json();
-
-          if (!result.success) {
-            window.location.href = "index.html";
-            return null;
-          }
-          
-          if (result.data) {
-            localStorage.setItem('userData', JSON.stringify(result.data));
-            return result.data;
-          }
-
-          return null;
-        } catch (err) {
-          window.location.href = "index.html";
-          return null;
+     // User data from server
+    const userData = {
+        username: [[${username}]],
+        userName: [[${userName}]],
+        userInitials: [[${userInitials}]],
+        userRole: [[${userRole}]],
+        userEmail: [[${userEmail}]],
+        userId: [[${userId}]]
+    };
+    function loadAdminInfo() {
+        const userName = document.querySelector(".user-name");
+        const userAvatar = document.querySelector(".user-avatar");
+        const userRole = document.querySelector(".user-role");
+ 
+        if (userName && userData.userName) {
+            userName.textContent = userData.userName;
         }
-      }
-
-      function loadAdminInfo() {
-        const userDataStr = localStorage.getItem('userData');
-
-        if (userDataStr) {
-          try {
-            const userData = JSON.parse(userDataStr);
-
-            const userName = document.querySelector('.user-name');
-            const userAvatar = document.querySelector('.user-avatar');
-            const userRole = document.querySelector('.user-role');
-
-            if (userName) {
-              const namePart = userData.username || 'Admin';
-              const formattedName = namePart.split('.').map(n =>
-                n.charAt(0).toUpperCase() + n.slice(1)
-              ).join(' ');
-              userName.textContent = formattedName;
-            }
-
-            if (userAvatar) {
-              const namePart = userData.username || 'Admin';
-              const initials = namePart.split('.')
-                .map(n => n[0] ? n[0].toUpperCase() : '')
-                .join('');
-              userAvatar.textContent = initials || 'A';
-            }
-
-            if (userRole) {
-              userRole.textContent = userData.role || 'Security Admin';
-            }
-
-          } catch (e) {
-            console.error('Error parsing user data:', e);
-          }
+ 
+        if (userAvatar && userData.userInitials) {
+            userAvatar.textContent = userData.userInitials;
         }
-      }
-
-      async function refreshUserData() {
-        const userData = await checkAuth();
-        if (userData) {
-          localStorage.setItem('userData', JSON.stringify(userData));
-          loadAdminInfo();
+ 
+        if (userRole && userData.userRole) {
+            userRole.textContent = userData.userRole;
         }
-      }
-
-      // Refresh every 5 minutes
-      setInterval(refreshUserData, 5 * 60 * 1000);
-
+    }
       // ============ SIDEBAR FUNCTIONS ============
 
       function toggleSubMenu(element) {
@@ -5724,19 +5673,10 @@
         if (userProfile) userProfile.classList.remove('active');
       }
 
-      function logout(event) {
+        function logout(event) {
         event.preventDefault();
-
-        fetch('/api/auth/logout', {
-          method: 'POST',
-          credentials: 'include'
-        }).finally(() => {
-          localStorage.removeItem('isLoggedIn');
-          localStorage.removeItem('userEmail');
-          localStorage.removeItem('userData');
-          window.location.href = 'index.html';
-        });
-      }
+        window.location.href = "/logout";
+    }
 
       // ============ API FUNCTIONS ============
 
