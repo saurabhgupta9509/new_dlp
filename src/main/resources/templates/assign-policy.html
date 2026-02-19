@@ -3400,6 +3400,7 @@
 </html> -->
 
 
+<<<<<<< HEAD
 
 
 
@@ -3407,6 +3408,25 @@
 <!-- usb,ocr and the network-->
 <!-- <!DOCTYPE html>
 <html lang="en">
+=======
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"></html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DLP Shield - Assign Policy</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* All your existing styles remain exactly the same */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
 
 <head>
   <meta charset="UTF-8" />
@@ -5525,6 +5545,7 @@
           </div>
         </div>
 
+<<<<<<< HEAD
         <div class="assign-container">
           <div class="step-indicator">
             <div class="step active" data-step="1">
@@ -6458,6 +6479,140 @@
               .map((n) => (n[0] ? n[0].toUpperCase() : ""))
               .join("");
             userAvatar.textContent = initials || "A";
+=======
+    <script th:inline="javascript">
+      /* ==================== AUTHENTICATION & USER DATA ==================== */
+
+      // User data from server
+    const userData = {
+        username: [[${username}]],
+        userName: [[${userName}]],
+        userInitials: [[${userInitials}]],
+        userRole: [[${userRole}]],
+        userEmail: [[${userEmail}]],
+        userId: [[${userId}]]
+    };
+    function loadAdminInfo() {
+        const userName = document.querySelector(".user-name");
+        const userAvatar = document.querySelector(".user-avatar");
+        const userRole = document.querySelector(".user-role");
+ 
+        if (userName && userData.userName) {
+            userName.textContent = userData.userName;
+        }
+ 
+        if (userAvatar && userData.userInitials) {
+            userAvatar.textContent = userData.userInitials;
+        }
+ 
+        if (userRole && userData.userRole) {
+            userRole.textContent = userData.userRole;
+        }
+    }
+
+
+      /* ==================== SIDEBAR FUNCTIONS ==================== */
+
+      function toggleSubMenu(element) {
+        var sidebar = document.getElementById("sidebar");
+        if (sidebar.classList.contains("collapsed")) return;
+
+        var subMenu = element.nextElementSibling;
+        var allSubMenus = document.querySelectorAll(".sub-menu");
+        var allDropdowns = document.querySelectorAll(".nav-dropdown");
+
+        // Close other open submenus
+        allSubMenus.forEach(function (menu) {
+          if (menu !== subMenu) menu.classList.remove("open");
+        });
+        allDropdowns.forEach(function (link) {
+          if (link !== element) link.classList.remove("expanded");
+        });
+
+        // Toggle current
+        element.classList.toggle("expanded");
+        subMenu.classList.toggle("open");
+      }
+
+      function toggleSidebar() {
+        var sidebar = document.getElementById("sidebar");
+        var mainContent = document.getElementById("mainContent");
+        var header = document.getElementById("topHeader");
+
+        sidebar.classList.toggle("collapsed");
+        var isCollapsed = sidebar.classList.contains("collapsed");
+
+        if (mainContent) mainContent.classList.toggle("expanded");
+
+        // Update header left position
+        if (header) {
+          header.style.left = isCollapsed ? "70px" : "240px";
+        }
+
+        // Close all submenus when collapsing
+        if (isCollapsed) {
+          document.querySelectorAll(".sub-menu").forEach(function (m) {
+            m.classList.remove("open");
+          });
+          document.querySelectorAll(".nav-dropdown").forEach(function (l) {
+            l.classList.remove("expanded");
+          });
+        }
+
+        // Dispatch event for other components
+        window.dispatchEvent(
+          new CustomEvent("sidebarToggle", {
+            detail: { collapsed: isCollapsed },
+          })
+        );
+      }
+
+      function openMobileSidebar() {
+        var sidebar = document.getElementById("sidebar");
+        var overlay = document.getElementById("sidebarOverlay");
+        if (sidebar) sidebar.classList.add("mobile-open");
+        if (overlay) overlay.classList.add("active");
+      }
+
+      function closeMobileSidebar() {
+        var sidebar = document.getElementById("sidebar");
+        var overlay = document.getElementById("sidebarOverlay");
+        if (sidebar) sidebar.classList.remove("mobile-open");
+        if (overlay) overlay.classList.remove("active");
+      }
+
+      function toggleMobileMenu() {
+        var sidebar = document.getElementById("sidebar");
+        var overlay = document.getElementById("sidebarOverlay");
+        if (!sidebar) return;
+
+        if (sidebar.classList.contains("mobile-open")) {
+          closeMobileSidebar();
+        } else {
+          openMobileSidebar();
+        }
+      }
+
+      function setActiveMenuItem() {
+        var currentPage = window.location.pathname.split('/').pop() || 'assign-policy.html';
+        
+        // First remove all active classes
+        document.querySelectorAll('.nav-link, .sub-menu-item').forEach(function(el) {
+          el.classList.remove('active');
+        });
+
+        // Handle sub-menu items
+        document.querySelectorAll('.sub-menu-item[data-page]').forEach(function (item) {
+          var href = item.getAttribute('href');
+          if (href === currentPage) {
+            item.classList.add('active');
+            var parentSubMenu = item.closest('.sub-menu');
+            if (parentSubMenu) {
+              parentSubMenu.classList.add('open');
+              var parentNav = parentSubMenu.previousElementSibling;
+              if (parentNav) parentNav.classList.add('expanded');
+            }
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
           }
 
           if (userRole) {

@@ -2377,7 +2377,11 @@
 
 
 <!DOCTYPE html>
+<<<<<<< HEAD
 <html lang="en"  xmlns:th="http://www.thymeleaf.org">
+=======
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -4052,8 +4056,12 @@
 
     <script th:inline="javascript">
       /* ==================== AUTHENTICATION & USER DATA ==================== */
+<<<<<<< HEAD
 
       const userData = {
+=======
+    const userData = {
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
         username: [[${username}]],
         userName: [[${userName}]],
         userInitials: [[${userInitials}]],
@@ -4068,6 +4076,7 @@
  
         if (userName && userData.userName) {
             userName.textContent = userData.userName;
+<<<<<<< HEAD
         }
  
         if (userAvatar && userData.userInitials) {
@@ -4079,6 +4088,19 @@
         }
       }
         
+=======
+        }
+ 
+        if (userAvatar && userData.userInitials) {
+            userAvatar.textContent = userData.userInitials;
+        }
+ 
+        if (userRole && userData.userRole) {
+            userRole.textContent = userData.userRole;
+        }
+    }
+      
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
       /* ==================== SIDEBAR FUNCTIONS ==================== */
 
       // Toggle submenu in sidebar
@@ -4272,11 +4294,16 @@
       }
 
       // Logout function
-      function logout(event) {
+         function logout(event) {
         event.preventDefault();
+<<<<<<< HEAD
           window.location.href = "/logout";
       
       }
+=======
+        window.location.href = "/logout";
+    }
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
 
       // Close dropdowns when clicking outside
       document.addEventListener("click", function (event) {
@@ -4641,6 +4668,7 @@
 
       // Initialize on DOM ready
       document.addEventListener("DOMContentLoaded", async function () {
+<<<<<<< HEAD
           // Load admin info into header
             loadAdminInfo();
 
@@ -4651,6 +4679,16 @@
           if (alertId) {
             await loadAlertDetails();
           }
+=======
+        
+          loadAdminInfo();
+          // Set active menu item
+          setActiveMenuItem();
+          // Load alert details
+          await loadAlertDetails();
+          // Check for sidebar state on load - DO THIS ONCE
+         
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
       });
 
     </script>

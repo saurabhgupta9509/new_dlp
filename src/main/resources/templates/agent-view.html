@@ -1006,7 +1006,11 @@
 
 
 <!DOCTYPE html>
+<<<<<<< HEAD
 <html lang="en"  xmlns:th="http://www.thymeleaf.org">
+=======
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2789,7 +2793,12 @@
     <script th:inline="javascript">
         // ============ AUTHENTICATION & USER DATA ============
 
+<<<<<<< HEAD
       const userData = {
+=======
+       // User data from server
+    const userData = {
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
         username: [[${username}]],
         userName: [[${userName}]],
         userInitials: [[${userInitials}]],
@@ -2797,7 +2806,10 @@
         userEmail: [[${userEmail}]],
         userId: [[${userId}]]
     };
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
     function loadAdminInfo() {
         const userName = document.querySelector(".user-name");
         const userAvatar = document.querySelector(".user-avatar");
@@ -2985,8 +2997,13 @@
 
         function logout(event) {
             event.preventDefault();
+<<<<<<< HEAD
                 window.location.href = '/logout';
             
+=======
+           window.location.href = "/logout";
+        
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
         }
 
         // ============ PAGE FUNCTIONS ============
@@ -3205,9 +3222,15 @@
         });
 
         document.addEventListener('DOMContentLoaded', async function() {
+<<<<<<< HEAD
             
                 loadAdminInfo();
         
+=======
+     
+                loadAdminInfo();
+       
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
             setActiveMenuItem();
         });
 

@@ -3650,6 +3650,23 @@
 
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+<<<<<<< HEAD
+=======
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DLP Shield - Manage Agents</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
 
 <head>
   <meta charset="UTF-8" />
@@ -5362,6 +5379,7 @@
           </div>
         </div>
 
+<<<<<<< HEAD
         <div class="filters-section">
           <div class="search-box">
             <i class="fas fa-search"></i>
@@ -5379,6 +5397,13 @@
             <option value="linux">Linux</option>
           </select>
         </div>
+=======
+    <script th:inline="javascript">
+      // ============ GLOBAL VARIABLES ============
+      let agentsData = [];
+      let currentFilteredData = [];
+      let isDataLoaded = false;
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
 
         <div class="agents-table-container">
           <div class="table-wrapper">
@@ -5408,6 +5433,7 @@
     </main>
   </div>
 
+<<<<<<< HEAD
   <script th:inline="javascript">
     // ============ GLOBAL VARIABLES ============
     let agentsData = [];
@@ -5477,6 +5503,46 @@
       if (isCollapsed) {
         document.querySelectorAll('.sub-menu').forEach(function (m) {
           m.classList.remove('open');
+=======
+     // User data from server
+    const userData = {
+        username: [[${username}]],
+        userName: [[${userName}]],
+        userInitials: [[${userInitials}]],
+        userRole: [[${userRole}]],
+        userEmail: [[${userEmail}]],
+        userId: [[${userId}]]
+    };
+    function loadAdminInfo() {
+        const userName = document.querySelector(".user-name");
+        const userAvatar = document.querySelector(".user-avatar");
+        const userRole = document.querySelector(".user-role");
+ 
+        if (userName && userData.userName) {
+            userName.textContent = userData.userName;
+        }
+ 
+        if (userAvatar && userData.userInitials) {
+            userAvatar.textContent = userData.userInitials;
+        }
+ 
+        if (userRole && userData.userRole) {
+            userRole.textContent = userData.userRole;
+        }
+    }
+      // ============ SIDEBAR FUNCTIONS ============
+
+      function toggleSubMenu(element) {
+        var sidebar = document.getElementById('sidebar');
+        if (sidebar.classList.contains('collapsed')) return;
+
+        var subMenu = element.nextElementSibling;
+        var allSubMenus = document.querySelectorAll('.sub-menu');
+        var allDropdowns = document.querySelectorAll('.nav-dropdown');
+
+        allSubMenus.forEach(function (menu) {
+          if (menu !== subMenu) menu.classList.remove('open');
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
         });
         document.querySelectorAll('.nav-dropdown').forEach(function (l) {
           l.classList.remove('expanded');
@@ -5524,6 +5590,7 @@
         }
       });
 
+<<<<<<< HEAD
       document.querySelectorAll('.sub-menu-item[data-page]').forEach(function (item) {
         var href = item.getAttribute('href');
         if (href === currentPage) {
@@ -5533,6 +5600,87 @@
             parentSubMenu.classList.add('open');
             var parentNav = parentSubMenu.previousElementSibling;
             if (parentNav) parentNav.classList.add('expanded');
+=======
+      function closeNotifications() {
+        var panel = document.getElementById('notificationsPanel');
+        var overlay = document.getElementById('notificationOverlay');
+        var btn = document.querySelector('.notification-btn');
+        if (panel) panel.classList.remove('show');
+        if (overlay) overlay.classList.remove('show');
+        if (btn) btn.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+
+      function switchTab(event, tabName) {
+        document.querySelectorAll('.tab-btn').forEach(function (t) { 
+          t.classList.remove('active'); 
+        });
+        event.currentTarget.classList.add('active');
+        
+        document.querySelectorAll('.notification-item').forEach(function (item) {
+          item.style.display = (tabName === 'unread' && !item.classList.contains('unread')) ? 
+            'none' : 'flex';
+        });
+      }
+
+      function toggleUserDropdown(event) {
+        event.stopPropagation();
+        var dropdown = document.getElementById('userDropdown');
+        var userProfile = event.currentTarget;
+        if (!dropdown) return;
+
+        if (dropdown.classList.contains('show')) {
+          closeUserDropdown();
+        } else {
+          closeNotifications();
+          dropdown.classList.add('show');
+          userProfile.classList.add('active');
+        }
+      }
+
+      function closeUserDropdown() {
+        var dropdown = document.getElementById('userDropdown');
+        var userProfile = document.querySelector('.user-profile');
+        if (dropdown) dropdown.classList.remove('show');
+        if (userProfile) userProfile.classList.remove('active');
+      }
+
+        function logout(event) {
+        event.preventDefault();
+        window.location.href = "/logout";
+    }
+
+      // ============ API FUNCTIONS ============
+
+      async function fetchAgents(silent = false) {
+        try {
+          const response = await fetch("/api/admin/agents", {
+            credentials: "include",
+          });
+
+          if (!response.ok) throw new Error("Failed to fetch agents");
+
+          const result = await response.json();
+
+          if (result.success) {
+            agentsData = result.data || [];
+            currentFilteredData = [...agentsData];
+            
+            renderAgentsTable();
+            updateStatistics();
+            
+            isDataLoaded = true;
+            return true;
+          }
+        } catch (error) {
+          console.error("Error fetching agents:", error);
+          
+          if (!isDataLoaded) {
+            document.getElementById("agentsTableBody").innerHTML =
+              '<tr><td colspan="9" class="empty-state">Failed to load agents. <a href="#" onclick="location.reload()">Retry</a></td></tr>';
+          } else if (!silent) {
+            showToast(`Error: ${error.message}`, "error");
+>>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
           }
         }
       });
