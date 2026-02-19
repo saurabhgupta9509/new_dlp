@@ -3649,2150 +3649,2020 @@
 
 
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DLP Shield - Manage Agents</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-      body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background: #f3f4f6;
-        overflow-x: hidden;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DLP Shield - Manage Agents</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-      .dashboard-container {
-        display: flex;
-        min-height: 100vh;
-        overflow-x: hidden;
-      }
+    body {
+      font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f3f4f6;
+      overflow-x: hidden;
+    }
 
-      /* ================ SIDEBAR STYLES ================ */
+    .dashboard-container {
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ================ SIDEBAR STYLES ================ */
+    .sidebar {
+      width: 240px;
+      background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+      color: white;
+      position: fixed;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: width 0.3s ease;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      overflow: hidden;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+
+    .sidebar-header {
+      padding: 18px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      width: 38px;
+      height: 38px;
+      background: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo i {
+      font-size: 20px;
+      color: #2563eb;
+    }
+
+    .sidebar-title {
+      font-size: 1.2em;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: opacity 0.2s, width 0.3s;
+      overflow: hidden;
+    }
+
+    .nav-menu {
+      padding: 12px 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      flex: 1;
+    }
+
+    .nav-item {
+      margin: 2px 8px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.2s;
+      font-size: 0.9em;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .nav-link.active,
+    .sub-menu-item.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      font-weight: 600;
+    }
+
+    .nav-link i:first-child {
+      width: 20px;
+      font-size: 0.95em;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .chevron-icon {
+      margin-left: auto !important;
+      font-size: 0.7em !important;
+      transition: transform 0.3s;
+      width: auto !important;
+      flex-shrink: 0;
+    }
+
+    .nav-link.expanded .chevron-icon {
+      transform: rotate(180deg);
+    }
+
+    .sub-menu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .sub-menu.open {
+      max-height: 500px;
+    }
+
+    .sub-menu-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px 8px 42px;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 0.85em;
+      transition: all 0.2s;
+      border-radius: 8px;
+      margin: 2px 0;
+      white-space: nowrap;
+    }
+
+    .sub-menu-item:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .sub-menu-item::before {
+      content: "•";
+      margin-right: 10px;
+      font-size: 1.2em;
+    }
+
+    .sidebar-footer {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
+    }
+
+    .collapse-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 0.85em;
+      transition: all 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .collapse-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .collapse-btn i {
+      transition: transform 0.3s;
+      flex-shrink: 0;
+    }
+
+    /* Sidebar collapsed state */
+    .sidebar.collapsed {
+      width: 70px;
+    }
+
+    .sidebar.collapsed .sidebar-title {
+      opacity: 0;
+      width: 0;
+    }
+
+    .sidebar.collapsed .nav-link span,
+    .sidebar.collapsed .collapse-btn span {
+      display: none;
+    }
+
+    .sidebar.collapsed .sub-menu {
+      display: none !important;
+    }
+
+    .sidebar.collapsed .nav-link {
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .sidebar.collapsed .nav-link i:first-child {
+      margin-right: 0;
+    }
+
+    .sidebar.collapsed .chevron-icon {
+      display: none;
+    }
+
+    .sidebar.collapsed .collapse-btn {
+      justify-content: center;
+    }
+
+    .sidebar.collapsed .collapse-btn i {
+      transform: rotate(180deg);
+    }
+
+    /* Mobile Overlay */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .sidebar-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    /* ================ HEADER STYLES ================ */
+    .top-header {
+      background: white;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e5e7eb;
+      position: fixed;
+      top: 0;
+      left: 240px;
+      right: 0;
+      z-index: 500;
+      gap: 16px;
+      transition: left 0.3s ease;
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: #6b7280;
+      font-size: 1.3em;
+      cursor: pointer;
+      padding: 8px;
+      transition: color 0.2s;
+    }
+
+    .mobile-menu-toggle:hover {
+      color: #111827;
+    }
+
+    .search-bar {
+      flex: 1;
+      max-width: 400px;
+      position: relative;
+    }
+
+    .search-bar i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 0.9em;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 9px 14px 9px 38px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.9em;
+      background: #f9fafb;
+      transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .notification-btn {
+      position: relative;
+      background: none;
+      border: none;
+      color: #6b7280;
+      font-size: 1.1em;
+      cursor: pointer;
+      padding: 8px;
+      transition: all 0.2s;
+      border-radius: 8px;
+    }
+
+    .notification-btn:hover {
+      color: #111827;
+      background: #f3f4f6;
+    }
+
+    .notification-btn.active {
+      color: #2563eb;
+      background: #eff6ff;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: #ef4444;
+      color: white;
+      font-size: 0.65em;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      padding: 0 4px;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: background 0.2s;
+      position: relative;
+    }
+
+    .user-profile:hover {
+      background: #f3f4f6;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9em;
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-size: 0.9em;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .user-role {
+      font-size: 0.75em;
+      color: #6b7280;
+    }
+
+    .dropdown-icon {
+      color: #6b7280;
+      font-size: 0.75em;
+      margin-left: 4px;
+      transition: transform 0.3s;
+    }
+
+    .user-profile.active .dropdown-icon {
+      transform: rotate(180deg);
+    }
+
+    .user-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 8px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 10px 15px rgba(0, 0, 0, 0.1);
+      min-width: 200px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .user-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      color: #374151;
+      text-decoration: none;
+      font-size: 0.9em;
+      transition: background 0.2s;
+    }
+
+    .dropdown-item:first-child {
+      border-radius: 8px 8px 0 0;
+    }
+
+    .dropdown-item:last-child {
+      border-radius: 0 0 8px 8px;
+    }
+
+    .dropdown-item:hover {
+      background: #f3f4f6;
+    }
+
+    .dropdown-item i {
+      width: 18px;
+      color: #6b7280;
+      font-size: 0.95em;
+    }
+
+    .dropdown-item.danger {
+      color: #dc2626;
+    }
+
+    .dropdown-item.danger i {
+      color: #dc2626;
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: #e5e7eb;
+      margin: 4px 0;
+    }
+
+    /* ================ NOTIFICATIONS PANEL ================ */
+    .notifications-panel {
+      position: fixed;
+      top: 0;
+      right: -50%;
+      width: 50%;
+      max-width: 600px;
+      height: 100vh;
+      background: white;
+      box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .notifications-panel.show {
+      right: 0;
+    }
+
+    .notifications-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .notifications-header h3 {
+      font-size: 1.2em;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .close-notifications {
+      background: none;
+      border: none;
+      color: #6b7280;
+      font-size: 1.2em;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .close-notifications:hover {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .notifications-tabs {
+      display: flex;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 24px;
+      flex-shrink: 0;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      background: none;
+      border: none;
+      color: #6b7280;
+      font-size: 0.9em;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: #111827;
+    }
+
+    .tab-btn.active {
+      color: #2563eb;
+      border-bottom-color: #2563eb;
+    }
+
+    .notifications-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 0;
+    }
+
+    .notifications-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .notifications-content::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 3px;
+    }
+
+    .notification-item {
+      display: flex;
+      gap: 12px;
+      padding: 14px 24px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-left: 3px solid transparent;
+    }
+
+    .notification-item:hover {
+      background: #f9fafb;
+    }
+
+    .notification-item.unread {
+      background: #eff6ff;
+      border-left-color: #3b82f6;
+    }
+
+    .notification-item.unread:hover {
+      background: #dbeafe;
+    }
+
+    .notification-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1em;
+      flex-shrink: 0;
+    }
+
+    .notification-icon.critical {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .notification-icon.warning {
+      background: #fef3c7;
+      color: #f59e0b;
+    }
+
+    .notification-icon.info {
+      background: #dbeafe;
+      color: #3b82f6;
+    }
+
+    .notification-icon.success {
+      background: #d1fae5;
+      color: #10b981;
+    }
+
+    .notification-body {
+      flex: 1;
+    }
+
+    .notification-title {
+      font-size: 0.9em;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+
+    .notification-text {
+      font-size: 0.85em;
+      color: #6b7280;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .notification-time {
+      font-size: 0.75em;
+      color: #9ca3af;
+    }
+
+    .notification-dot {
+      width: 8px;
+      height: 8px;
+      background: #3b82f6;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 8px;
+    }
+
+    .notification-item:not(.unread) .notification-dot {
+      display: none;
+    }
+
+    .notifications-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #e5e7eb;
+      flex-shrink: 0;
+    }
+
+    .view-all-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background: #f3f4f6;
+      color: #2563eb;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .view-all-btn:hover {
+      background: #e5e7eb;
+    }
+
+    .notification-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .notification-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 240px;
+      transition: margin-left 0.3s ease;
+      padding-top: 70px;
+      width: calc(100vw - 240px);
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    .main-content.expanded {
+      margin-left: 70px;
+      width: calc(100vw - 70px);
+    }
+
+    .content-area {
+      padding: 24px;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    /* Page Header */
+    .page-header {
+      background: white;
+      padding: 20px 24px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .page-title-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .page-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .page-icon i {
+      font-size: 22px;
+      color: white;
+    }
+
+    .page-title-text h1 {
+      font-size: 1.5em;
+      color: #111827;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .page-subtitle {
+      color: #6b7280;
+      font-size: 0.9em;
+      margin-top: 4px;
+    }
+
+    .add-btn {
+      padding: 10px 20px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9em;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .add-btn:hover {
+      background: #1d4ed8;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+      width: 100%;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      width: 100%;
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1em;
+      flex-shrink: 0;
+    }
+
+    .stat-icon.blue {
+      background: #dbeafe;
+      color: #3b82f6;
+    }
+
+    .stat-icon.green {
+      background: #d1fae5;
+      color: #10b981;
+    }
+
+    .stat-icon.red {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .stat-icon.yellow {
+      background: #fef3c7;
+      color: #f59e0b;
+    }
+
+    .stat-label {
+      font-size: 0.75em;
+      color: #6b7280;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 1.6em;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    /* Filters Section */
+    .filters-section {
+      background: white;
+      padding: 16px 20px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      width: 100%;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      position: relative;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 0.9em;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 9px 12px 9px 36px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.9em;
+      background: #f9fafb;
+      transition: all 0.3s ease;
+      max-width: 100%;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .filter-select {
+      padding: 9px 32px 9px 12px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.9em;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 120px;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    /* Agents Table */
+    .agents-table-container {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      width: 100%;
+      max-width: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .agents-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1200px;
+    }
+
+    .agents-table thead {
+      background: #f9fafb;
+    }
+
+    .agents-table th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 0.8em;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #e5e7eb;
+      white-space: nowrap;
+    }
+
+    .agents-table td {
+      padding: 14px 16px;
+      font-size: 0.9em;
+      color: #374151;
+      border-bottom: 1px solid #f3f4f6;
+      white-space: nowrap;
+    }
+
+    .agents-table tbody tr {
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .agents-table tbody tr:hover {
+      background: #f9fafb;
+    }
+
+    .os-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9em;
+    }
+
+    .os-icon {
+      font-size: 1.1em;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+
+    .status-badge.online {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-badge.online::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+
+    .status-badge.offline {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    .status-badge.offline::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #9ca3af;
+    }
+
+    .policies-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .policies-link:hover {
+      text-decoration: underline;
+    }
+
+    .actions-btn {
+      background: none;
+      border: none;
+      color: #6b7280;
+      cursor: pointer;
+      font-size: 1.2em;
+      padding: 4px 8px;
+      transition: color 0.2s;
+    }
+
+    .actions-btn:hover {
+      color: #111827;
+    }
+
+    .action-menu {
+      position: relative;
+      display: inline-block;
+    }
+
+    .action-dropdown {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 4px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      min-width: 160px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.2s;
+      z-index: 10;
+    }
+
+    .action-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .action-dropdown a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      color: #374151;
+      text-decoration: none;
+      font-size: 0.9em;
+      transition: background 0.2s;
+    }
+
+    .action-dropdown a:hover {
+      background: #f9fafb;
+    }
+
+    .action-dropdown a i {
+      width: 16px;
+      color: #6b7280;
+    }
+
+    .action-dropdown a.delete-action {
+      color: #dc2626;
+    }
+
+    .action-dropdown a.delete-action i {
+      color: #dc2626;
+    }
+
+    .agents-table td:nth-child(1),
+    .agents-table td:nth-child(2),
+    .agents-table td:nth-child(3) {
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .loading,
+    .empty-state {
+      text-align: center;
+      padding: 40px !important;
+      color: #6b7280;
+      font-style: italic;
+    }
+
+    .empty-state {
+      color: #9ca3af;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 1024px) and (min-width: 769px) {
       .sidebar {
-        width: 240px;
-        background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
-        color: white;
-        position: fixed;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        transition: width 0.3s ease;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        overflow: hidden;
+        width: 220px;
       }
 
-      .sidebar::-webkit-scrollbar {
-        width: 4px;
-      }
-
-      .sidebar::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 4px;
-      }
-
-      .sidebar-header {
-        padding: 18px 16px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        flex-shrink: 0;
-      }
-
-      .sidebar-logo {
-        width: 38px;
-        height: 38px;
-        background: white;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-
-      .sidebar-logo i {
-        font-size: 20px;
-        color: #2563eb;
-      }
-
-      .sidebar-title {
-        font-size: 1.2em;
-        font-weight: 700;
-        white-space: nowrap;
-        transition: opacity 0.2s, width 0.3s;
-        overflow: hidden;
-      }
-
-      .nav-menu {
-        padding: 12px 0;
-        overflow-y: auto;
-        overflow-x: hidden;
-        flex: 1;
-      }
-
-      .nav-item {
-        margin: 2px 8px;
-      }
-
-      .nav-link {
-        display: flex;
-        align-items: center;
-        padding: 10px 12px;
-        color: rgba(255, 255, 255, 0.8);
-        text-decoration: none;
-        border-radius: 8px;
-        transition: all 0.2s;
-        font-size: 0.9em;
-        cursor: pointer;
-        white-space: nowrap;
-      }
-
-      .nav-link:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-      }
-
-      .nav-link.active,
-      .sub-menu-item.active {
-        background: rgba(255, 255, 255, 0.15);
-        color: white;
-        font-weight: 600;
-      }
-
-      .nav-link i:first-child {
-        width: 20px;
-        font-size: 0.95em;
-        margin-right: 10px;
-        flex-shrink: 0;
-      }
-
-      .chevron-icon {
-        margin-left: auto !important;
-        font-size: 0.7em !important;
-        transition: transform 0.3s;
-        width: auto !important;
-        flex-shrink: 0;
-      }
-
-      .nav-link.expanded .chevron-icon {
-        transform: rotate(180deg);
-      }
-
-      .sub-menu {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
-      }
-
-      .sub-menu.open {
-        max-height: 500px;
-      }
-
-      .sub-menu-item {
-        display: flex;
-        align-items: center;
-        padding: 8px 12px 8px 42px;
-        color: rgba(255, 255, 255, 0.7);
-        text-decoration: none;
-        font-size: 0.85em;
-        transition: all 0.2s;
-        border-radius: 8px;
-        margin: 2px 0;
-        white-space: nowrap;
-      }
-
-      .sub-menu-item:hover {
-        color: white;
-        background: rgba(255, 255, 255, 0.08);
-      }
-
-      .sub-menu-item::before {
-        content: "•";
-        margin-right: 10px;
-        font-size: 1.2em;
-      }
-
-      .sidebar-footer {
-        padding: 12px 16px;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        flex-shrink: 0;
-      }
-
-      .collapse-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 10px;
-        background: rgba(255, 255, 255, 0.1);
-        border: none;
-        color: white;
-        border-radius: 8px;
-        cursor: pointer;
-        width: 100%;
-        font-size: 0.85em;
-        transition: all 0.2s;
-        white-space: nowrap;
-        overflow: hidden;
-      }
-
-      .collapse-btn:hover {
-        background: rgba(255, 255, 255, 0.15);
-      }
-
-      .collapse-btn i {
-        transition: transform 0.3s;
-        flex-shrink: 0;
-      }
-
-      /* Sidebar collapsed state */
       .sidebar.collapsed {
-        width: 70px;
+        width: 65px;
       }
 
-      .sidebar.collapsed .sidebar-title {
-        opacity: 0;
-        width: 0;
-      }
-
-      .sidebar.collapsed .nav-link span,
-      .sidebar.collapsed .collapse-btn span {
-        display: none;
-      }
-
-      .sidebar.collapsed .sub-menu {
-        display: none !important;
-      }
-
-      .sidebar.collapsed .nav-link {
-        justify-content: center;
-        padding: 10px;
-      }
-
-      .sidebar.collapsed .nav-link i:first-child {
-        margin-right: 0;
-      }
-
-      .sidebar.collapsed .chevron-icon {
-        display: none;
-      }
-
-      .sidebar.collapsed .collapse-btn {
-        justify-content: center;
-      }
-
-      .sidebar.collapsed .collapse-btn i {
-        transform: rotate(180deg);
-      }
-
-      /* Mobile Overlay */
-      .sidebar-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-        opacity: 0;
-        transition: opacity 0.3s;
-      }
-
-      .sidebar-overlay.active {
-        display: block;
-        opacity: 1;
-      }
-
-      /* ================ HEADER STYLES ================ */
       .top-header {
-        background: white;
-        padding: 14px 24px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 1px solid #e5e7eb;
-        position: fixed;
-        top: 0;
-        left: 240px;
-        right: 0;
-        z-index: 500;
-        gap: 16px;
-        transition: left 0.3s ease;
+        left: 220px;
+      }
+    }
+
+    @media (max-width: 968px) {
+      .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding-top: 70px;
+      }
+
+      .main-content.expanded {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .top-header {
+        left: 0 !important;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        width: 260px;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
+
+      .sidebar.collapsed {
+        transform: translateX(-100%);
+        width: 260px;
       }
 
       .mobile-menu-toggle {
-        display: none;
-        background: none;
-        border: none;
-        color: #6b7280;
-        font-size: 1.3em;
-        cursor: pointer;
-        padding: 8px;
-        transition: color 0.2s;
-      }
-
-      .mobile-menu-toggle:hover {
-        color: #111827;
-      }
-
-      .search-bar {
-        flex: 1;
-        max-width: 400px;
-        position: relative;
-      }
-
-      .search-bar i {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9ca3af;
-        font-size: 0.9em;
-      }
-
-      .search-input {
-        width: 100%;
-        padding: 9px 14px 9px 38px;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 8px;
-        font-size: 0.9em;
-        background: #f9fafb;
-        transition: all 0.3s ease;
-      }
-
-      .search-input:focus {
-        outline: none;
-        border-color: #3b82f6;
-        background: white;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-      }
-
-      .header-actions {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-      }
-
-      .notification-btn {
-        position: relative;
-        background: none;
-        border: none;
-        color: #6b7280;
-        font-size: 1.1em;
-        cursor: pointer;
-        padding: 8px;
-        transition: all 0.2s;
-        border-radius: 8px;
-      }
-
-      .notification-btn:hover {
-        color: #111827;
-        background: #f3f4f6;
-      }
-
-      .notification-btn.active {
-        color: #2563eb;
-        background: #eff6ff;
-      }
-
-      .notification-badge {
-        position: absolute;
-        top: 4px;
-        right: 4px;
-        background: #ef4444;
-        color: white;
-        font-size: 0.65em;
-        min-width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        padding: 0 4px;
-      }
-
-      .user-profile {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        cursor: pointer;
-        padding: 6px 10px;
-        border-radius: 8px;
-        transition: background 0.2s;
-        position: relative;
-      }
-
-      .user-profile:hover {
-        background: #f3f4f6;
-      }
-
-      .user-avatar {
-        width: 36px;
-        height: 36px;
-        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-        font-size: 0.9em;
-        flex-shrink: 0;
+        display: block;
       }
 
       .user-info {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .user-name {
-        font-size: 0.9em;
-        font-weight: 600;
-        color: #111827;
-      }
-
-      .user-role {
-        font-size: 0.75em;
-        color: #6b7280;
+        display: none;
       }
 
       .dropdown-icon {
-        color: #6b7280;
-        font-size: 0.75em;
-        margin-left: 4px;
-        transition: transform 0.3s;
+        display: none;
       }
 
-      .user-profile.active .dropdown-icon {
-        transform: rotate(180deg);
-      }
-
-      .user-dropdown {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        margin-top: 8px;
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 10px 15px rgba(0, 0, 0, 0.1);
-        min-width: 200px;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-10px);
-        transition: all 0.3s ease;
-        z-index: 1000;
-      }
-
-      .user-dropdown.show {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-      }
-
-      .dropdown-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 14px;
-        color: #374151;
-        text-decoration: none;
-        font-size: 0.9em;
-        transition: background 0.2s;
-      }
-
-      .dropdown-item:first-child {
-        border-radius: 8px 8px 0 0;
-      }
-
-      .dropdown-item:last-child {
-        border-radius: 0 0 8px 8px;
-      }
-
-      .dropdown-item:hover {
-        background: #f3f4f6;
-      }
-
-      .dropdown-item i {
-        width: 18px;
-        color: #6b7280;
-        font-size: 0.95em;
-      }
-
-      .dropdown-item.danger {
-        color: #dc2626;
-      }
-
-      .dropdown-item.danger i {
-        color: #dc2626;
-      }
-
-      .dropdown-divider {
-        height: 1px;
-        background: #e5e7eb;
-        margin: 4px 0;
-      }
-
-      /* ================ NOTIFICATIONS PANEL ================ */
       .notifications-panel {
-        position: fixed;
-        top: 0;
-        right: -50%;
-        width: 50%;
-        max-width: 600px;
-        height: 100vh;
-        background: white;
-        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
-        z-index: 1001;
-        display: flex;
-        flex-direction: column;
-        transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 80%;
+        right: -80%;
+        max-width: none;
       }
 
       .notifications-panel.show {
         right: 0;
       }
 
-      .notifications-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid #e5e7eb;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-shrink: 0;
-      }
-
-      .notifications-header h3 {
-        font-size: 1.2em;
-        font-weight: 700;
-        color: #111827;
-      }
-
-      .close-notifications {
-        background: none;
-        border: none;
-        color: #6b7280;
-        font-size: 1.2em;
-        cursor: pointer;
-        padding: 6px;
-        border-radius: 6px;
-        transition: all 0.2s;
-      }
-
-      .close-notifications:hover {
-        background: #f3f4f6;
-        color: #111827;
-      }
-
-      .notifications-tabs {
-        display: flex;
-        border-bottom: 1px solid #e5e7eb;
-        padding: 0 24px;
-        flex-shrink: 0;
-      }
-
-      .tab-btn {
-        flex: 1;
-        padding: 12px;
-        background: none;
-        border: none;
-        color: #6b7280;
-        font-size: 0.9em;
-        font-weight: 500;
-        cursor: pointer;
-        border-bottom: 2px solid transparent;
-        transition: all 0.2s;
-      }
-
-      .tab-btn:hover {
-        color: #111827;
-      }
-
-      .tab-btn.active {
-        color: #2563eb;
-        border-bottom-color: #2563eb;
-      }
-
-      .notifications-content {
-        flex: 1;
-        overflow-y: auto;
-        padding: 12px 0;
-      }
-
-      .notifications-content::-webkit-scrollbar {
-        width: 6px;
-      }
-
-      .notifications-content::-webkit-scrollbar-thumb {
-        background: #d1d5db;
-        border-radius: 3px;
-      }
-
-      .notification-item {
-        display: flex;
-        gap: 12px;
-        padding: 14px 24px;
-        cursor: pointer;
-        transition: background 0.2s;
-        border-left: 3px solid transparent;
-      }
-
-      .notification-item:hover {
-        background: #f9fafb;
-      }
-
-      .notification-item.unread {
-        background: #eff6ff;
-        border-left-color: #3b82f6;
-      }
-
-      .notification-item.unread:hover {
-        background: #dbeafe;
-      }
-
-      .notification-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1em;
-        flex-shrink: 0;
-      }
-
-      .notification-icon.critical {
-        background: #fee2e2;
-        color: #dc2626;
-      }
-
-      .notification-icon.warning {
-        background: #fef3c7;
-        color: #f59e0b;
-      }
-
-      .notification-icon.info {
-        background: #dbeafe;
-        color: #3b82f6;
-      }
-
-      .notification-icon.success {
-        background: #d1fae5;
-        color: #10b981;
-      }
-
-      .notification-body {
-        flex: 1;
-      }
-
-      .notification-title {
-        font-size: 0.9em;
-        font-weight: 600;
-        color: #111827;
-        margin-bottom: 4px;
-      }
-
-      .notification-text {
-        font-size: 0.85em;
-        color: #6b7280;
-        margin-bottom: 6px;
-        line-height: 1.4;
-      }
-
-      .notification-time {
-        font-size: 0.75em;
-        color: #9ca3af;
-      }
-
-      .notification-dot {
-        width: 8px;
-        height: 8px;
-        background: #3b82f6;
-        border-radius: 50%;
-        flex-shrink: 0;
-        margin-top: 8px;
-      }
-
-      .notification-item:not(.unread) .notification-dot {
-        display: none;
-      }
-
-      .notifications-footer {
-        padding: 16px 24px;
-        border-top: 1px solid #e5e7eb;
-        flex-shrink: 0;
-      }
-
-      .view-all-btn {
-        display: block;
-        width: 100%;
-        padding: 10px;
-        background: #f3f4f6;
-        color: #2563eb;
-        text-align: center;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 0.9em;
-        font-weight: 600;
-        transition: all 0.2s;
-      }
-
-      .view-all-btn:hover {
-        background: #e5e7eb;
-      }
-
-      .notification-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.4);
-        z-index: 1000;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-      }
-
-      .notification-overlay.show {
-        opacity: 1;
-        visibility: visible;
-      }
-
-      /* Main Content */
-      .main-content {
-        flex: 1;
-        margin-left: 240px;
-        transition: margin-left 0.3s ease;
-        padding-top: 70px;
-        width: calc(100vw - 240px);
-        max-width: 100%;
-        overflow-x: hidden;
-      }
-
-      .main-content.expanded {
-        margin-left: 70px;
-        width: calc(100vw - 70px);
-      }
-
       .content-area {
-        padding: 24px;
-        width: 100%;
-        max-width: 100%;
-        overflow-x: hidden;
+        padding: 16px;
       }
 
-      /* Page Header */
       .page-header {
-        background: white;
-        padding: 20px 24px;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
-        margin-bottom: 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        flex-wrap: wrap;
-      }
-
-      .page-title-section {
-        display: flex;
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-start;
         gap: 16px;
-        flex-wrap: wrap;
-      }
-
-      .page-icon {
-        width: 48px;
-        height: 48px;
-        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-
-      .page-icon i {
-        font-size: 22px;
-        color: white;
-      }
-
-      .page-title-text h1 {
-        font-size: 1.5em;
-        color: #111827;
-        font-weight: 700;
-        line-height: 1.2;
-      }
-
-      .page-subtitle {
-        color: #6b7280;
-        font-size: 0.9em;
-        margin-top: 4px;
       }
 
       .add-btn {
-        padding: 10px 20px;
-        background: #2563eb;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 0.9em;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: background 0.2s;
-        flex-shrink: 0;
-      }
-
-      .add-btn:hover {
-        background: #1d4ed8;
-      }
-
-      /* Stats Grid */
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
-        margin-bottom: 24px;
         width: 100%;
-      }
-
-      .stat-card {
-        background: white;
-        padding: 16px;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
-        width: 100%;
-      }
-
-      .stat-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 6px;
-      }
-
-      .stat-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
         justify-content: center;
-        font-size: 1em;
-        flex-shrink: 0;
       }
 
-      .stat-icon.blue {
-        background: #dbeafe;
-        color: #3b82f6;
+      .stats-grid {
+        grid-template-columns: 1fr;
       }
 
-      .stat-icon.green {
-        background: #d1fae5;
-        color: #10b981;
-      }
-
-      .stat-icon.red {
-        background: #fee2e2;
-        color: #dc2626;
-      }
-
-      .stat-icon.yellow {
-        background: #fef3c7;
-        color: #f59e0b;
-      }
-
-      .stat-label {
-        font-size: 0.75em;
-        color: #6b7280;
-        margin-bottom: 6px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .stat-value {
-        font-size: 1.6em;
-        font-weight: 700;
-        color: #111827;
-      }
-
-      /* Filters Section */
       .filters-section {
-        background: white;
-        padding: 16px 20px;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
-        margin-bottom: 20px;
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        align-items: center;
-        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
       }
 
       .search-box {
-        flex: 1;
-        min-width: 250px;
-        position: relative;
-      }
-
-      .search-box i {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9ca3af;
-        font-size: 0.9em;
-      }
-
-      .search-input {
-        width: 100%;
-        padding: 9px 12px 9px 36px;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 8px;
-        font-size: 0.9em;
-        background: #f9fafb;
-        transition: all 0.3s ease;
-        max-width: 100%;
-      }
-
-      .search-input:focus {
-        outline: none;
-        border-color: #3b82f6;
-        background: white;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        min-width: 100%;
       }
 
       .filter-select {
-        padding: 9px 32px 9px 12px;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 8px;
-        font-size: 0.9em;
-        background: white;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        min-width: 120px;
-      }
-
-      .filter-select:focus {
-        outline: none;
-        border-color: #3b82f6;
-      }
-
-      /* Agents Table */
-      .agents-table-container {
-        background: white;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
-        overflow: hidden;
         width: 100%;
-        max-width: 100%;
-      }
-
-      .table-wrapper {
-        overflow-x: auto;
-        width: 100%;
-        max-width: 100%;
-        -webkit-overflow-scrolling: touch;
-      }
-
-      .agents-table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 1200px;
-      }
-
-      .agents-table thead {
-        background: #f9fafb;
-      }
-
-      .agents-table th {
-        padding: 12px 16px;
-        text-align: left;
-        font-size: 0.8em;
-        font-weight: 600;
-        color: #6b7280;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 1px solid #e5e7eb;
-        white-space: nowrap;
-      }
-
-      .agents-table td {
-        padding: 14px 16px;
-        font-size: 0.9em;
-        color: #374151;
-        border-bottom: 1px solid #f3f4f6;
-        white-space: nowrap;
-      }
-
-      .agents-table tbody tr {
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-
-      .agents-table tbody tr:hover {
-        background: #f9fafb;
-      }
-
-      .os-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.9em;
-      }
-
-      .os-icon {
-        font-size: 1.1em;
-      }
-
-      .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.85em;
-        font-weight: 500;
-      }
-
-      .status-badge.online {
-        background: #d1fae5;
-        color: #065f46;
-      }
-
-      .status-badge.online::before {
-        content: "";
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #10b981;
-      }
-
-      .status-badge.offline {
-        background: #f3f4f6;
-        color: #6b7280;
-      }
-
-      .status-badge.offline::before {
-        content: "";
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #9ca3af;
-      }
-
-      .policies-link {
-        color: #2563eb;
-        text-decoration: none;
-        font-weight: 500;
-      }
-
-      .policies-link:hover {
-        text-decoration: underline;
-      }
-
-      .actions-btn {
-        background: none;
-        border: none;
-        color: #6b7280;
-        cursor: pointer;
-        font-size: 1.2em;
-        padding: 4px 8px;
-        transition: color 0.2s;
-      }
-
-      .actions-btn:hover {
-        color: #111827;
-      }
-
-      .action-menu {
-        position: relative;
-        display: inline-block;
-      }
-
-      .action-dropdown {
-        position: absolute;
-        right: 0;
-        top: 100%;
-        margin-top: 4px;
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        min-width: 160px;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-10px);
-        transition: all 0.2s;
-        z-index: 10;
-      }
-
-      .action-dropdown.show {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-      }
-
-      .action-dropdown a {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 14px;
-        color: #374151;
-        text-decoration: none;
-        font-size: 0.9em;
-        transition: background 0.2s;
-      }
-
-      .action-dropdown a:hover {
-        background: #f9fafb;
-      }
-
-      .action-dropdown a i {
-        width: 16px;
-        color: #6b7280;
-      }
-
-      .action-dropdown a.delete-action {
-        color: #dc2626;
-      }
-
-      .action-dropdown a.delete-action i {
-        color: #dc2626;
       }
 
       .agents-table td:nth-child(1),
       .agents-table td:nth-child(2),
       .agents-table td:nth-child(3) {
-        max-width: 180px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        white-space: normal;
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        padding: 16px;
       }
 
-      .loading,
-      .empty-state {
-        text-align: center;
-        padding: 40px !important;
-        color: #6b7280;
-        font-style: italic;
+      .page-title-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
       }
 
-      .empty-state {
-        color: #9ca3af;
+      .page-icon {
+        width: 40px;
+        height: 40px;
       }
 
-      /* Responsive */
-      @media (max-width: 1200px) {
-        .charts-grid {
-          grid-template-columns: 1fr;
-        }
+      .page-icon i {
+        font-size: 18px;
       }
 
-      @media (max-width: 1024px) and (min-width: 769px) {
-        .sidebar { width: 220px; }
-        .sidebar.collapsed { width: 65px; }
-        .top-header { left: 220px; }
+      .page-title-text h1 {
+        font-size: 1.4em;
       }
 
-      @media (max-width: 968px) {
-        .main-content {
-          margin-left: 0;
-          width: 100%;
-          padding-top: 70px;
-        }
-
-        .main-content.expanded {
-          margin-left: 0;
-          width: 100%;
-        }
-
-        .top-header {
-          left: 0 !important;
-        }
-
-        .sidebar { 
-          transform: translateX(-100%); 
-          width: 260px; 
-          transition: transform 0.3s ease; 
-        }
-        
-        .sidebar.mobile-open { 
-          transform: translateX(0); 
-        }
-        
-        .sidebar.collapsed { 
-          transform: translateX(-100%); 
-          width: 260px; 
-        }
-        
-        .mobile-menu-toggle { 
-          display: block; 
-        }
-        
-        .user-info { 
-          display: none; 
-        }
-        
-        .dropdown-icon { 
-          display: none; 
-        }
-        
-        .notifications-panel { 
-          width: 80%; 
-          right: -80%; 
-          max-width: none; 
-        }
-        
-        .notifications-panel.show { 
-          right: 0; 
-        }
-
-        .content-area {
-          padding: 16px;
-        }
-
-        .page-header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 16px;
-        }
-
-        .add-btn {
-          width: 100%;
-          justify-content: center;
-        }
-
-        .stats-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .filters-section {
-          flex-direction: column;
-          align-items: stretch;
-        }
-
-        .search-box {
-          min-width: 100%;
-        }
-
-        .filter-select {
-          width: 100%;
-        }
-
-        .agents-table td:nth-child(1),
-        .agents-table td:nth-child(2),
-        .agents-table td:nth-child(3) {
-          white-space: normal;
-          max-width: none;
-        }
+      .top-header {
+        padding: 12px 16px;
       }
 
-      @media (max-width: 768px) {
-        .page-header {
-          padding: 16px;
-        }
-
-        .page-title-section {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 12px;
-        }
-
-        .page-icon {
-          width: 40px;
-          height: 40px;
-        }
-
-        .page-icon i {
-          font-size: 18px;
-        }
-
-        .page-title-text h1 {
-          font-size: 1.4em;
-        }
-
-        .top-header { 
-          padding: 12px 16px; 
-        }
-        
-        .search-bar { 
-          display: none; 
-        }
-        
-        .notification-btn { 
-          font-size: 1em; 
-        }
-        
-        .user-avatar { 
-          width: 32px; 
-          height: 32px; 
-          font-size: 0.85em; 
-        }
-        
-        .notifications-panel { 
-          width: 100%; 
-          right: -100%; 
-        }
+      .search-bar {
+        display: none;
       }
 
-      @media (max-width: 640px) {
-        .stats-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .add-btn span {
-          display: none;
-        }
-
-        .add-btn i {
-          margin-right: 0;
-        }
-
-        .page-title-text h1 {
-          font-size: 1.2em;
-        }
-
-        .page-subtitle {
-          font-size: 0.8em;
-        }
+      .notification-btn {
+        font-size: 1em;
       }
 
-      @media (max-width: 480px) {
-        .sidebar { width: 280px; }
-        
-        .stat-card {
-          padding: 12px;
-        }
-
-        .stat-value {
-          font-size: 1.4em;
-        }
-
-        .page-icon {
-          width: 40px;
-          height: 40px;
-        }
-
-        .page-icon i {
-          font-size: 18px;
-        }
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85em;
       }
 
-      /* Toast Notifications */
-      .toast {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 12px 24px;
-        border-radius: 8px;
-        color: white;
-        font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 9999;
-        animation: slideIn 0.2s ease;
+      .notifications-panel {
+        width: 100%;
+        right: -100%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
       }
 
-      @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+      .add-btn span {
+        display: none;
       }
 
-      @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
+      .add-btn i {
+        margin-right: 0;
       }
-    </style>
-  </head>
-  <body>
-    <div class="dashboard-container">
-      <!-- ==================== SIDEBAR ==================== -->
-      <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-          <div class="sidebar-logo">
-            <i class="fas fa-shield-halved"></i>
-          </div>
-          <div class="sidebar-title">DLP Shield</div>
+
+      .page-title-text h1 {
+        font-size: 1.2em;
+      }
+
+      .page-subtitle {
+        font-size: 0.8em;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 280px;
+      }
+
+      .stat-card {
+        padding: 12px;
+      }
+
+      .stat-value {
+        font-size: 1.4em;
+      }
+
+      .page-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      .page-icon i {
+        font-size: 18px;
+      }
+    }
+
+    /* Toast Notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 9999;
+      animation: slideIn 0.2s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="dashboard-container">
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fas fa-shield-halved"></i>
+        </div>
+        <div class="sidebar-title">DLP Shield</div>
+      </div>
+
+      <nav class="nav-menu">
+        <div class="nav-item">
+          <a href="dashboard.html" class="nav-link" data-page="dashboard">
+            <i class="fas fa-th-large"></i>
+            <span>Dashboard</span>
+          </a>
         </div>
 
-        <nav class="nav-menu">
-          <div class="nav-item">
-            <a href="dashboard.html" class="nav-link" data-page="dashboard">
-              <i class="fas fa-th-large"></i>
-              <span>Dashboard</span>
-            </a>
-          </div>
-
-          <div class="nav-item">
-            <a href="alerts.html" class="nav-link" data-page="alerts">
-              <i class="fas fa-triangle-exclamation"></i>
-              <span>Alerts &amp; Incidents</span>
-            </a>
-          </div>
-
-          <div class="nav-item">
-            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
-              <i class="fas fa-shield-alt"></i>
-              <span>Policies</span>
-              <i class="fas fa-chevron-down chevron-icon"></i>
-            </div>
-            <div class="sub-menu">
-              <a
-                href="manage-agents.html"
-                class="sub-menu-item"
-                data-page="manage-agents"
-                >Manage Agents</a
-              >
-              <a
-                href="file-policies.html"
-                class="sub-menu-item"
-                data-page="file-policies"
-                >File Policies</a
-              >
-              <a
-                href="assign-policy.html"
-                class="sub-menu-item"
-                data-page="assign-policy"
-                >Assign Policy</a
-              >
-            </div>
-          </div>
-
-          <div class="nav-item">
-            <a href="agents.html" class="nav-link" data-page="agents">
-              <i class="fas fa-desktop"></i>
-              <span>Agents / Endpoints</span>
-            </a>
-          </div>
-
-          <div class="nav-item">
-            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
-              <i class="fas fa-eye"></i>
-              <span>OCR &amp; Image Analysis</span>
-              <i class="fas fa-chevron-down chevron-icon"></i>
-            </div>
-            <div class="sub-menu">
-              <a
-                href="ocr-dashboard.html"
-                class="sub-menu-item"
-                data-page="ocr-dashboard"
-                >OCR Dashboard</a
-              >
-              <a
-                href="ocr-policies.html"
-                class="sub-menu-item"
-                data-page="ocr-policies"
-                >OCR Policies</a
-              >
-            </div>
-          </div>
-
-          <div class="nav-item">
-            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
-              <i class="fas fa-file-lines"></i>
-              <span>Reports &amp; Logs</span>
-              <i class="fas fa-chevron-down chevron-icon"></i>
-            </div>
-            <div class="sub-menu">
-              <a href="reports.html" class="sub-menu-item" data-page="reports"
-                >Reports</a
-              >
-              <a
-                href="generate-report.html"
-                class="sub-menu-item"
-                data-page="generate-report"
-                >Generate Report</a
-              >
-              <a
-                href="audit-logs.html"
-                class="sub-menu-item"
-                data-page="audit-logs"
-                >Audit Logs</a
-              >
-              <a
-                href="device-logs.html"
-                class="sub-menu-item"
-                data-page="device-logs"
-                >Device Logs</a
-              >
-            </div>
-          </div>
-
-          <div class="nav-item">
-            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
-              <i class="fas fa-users"></i>
-              <span>Users &amp; Roles</span>
-              <i class="fas fa-chevron-down chevron-icon"></i>
-            </div>
-            <div class="sub-menu">
-              <a href="users.html" class="sub-menu-item" data-page="users"
-                >Users</a
-              >
-              <a href="roles.html" class="sub-menu-item" data-page="roles"
-                >Roles &amp; Permissions</a
-              >
-              <a
-                href="permissions.html"
-                class="sub-menu-item"
-                data-page="permissions"
-                >Permissions</a
-              >
-            </div>
-          </div>
-
-          <div class="nav-item">
-            <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
-              <i class="fas fa-gear"></i>
-              <span>Settings</span>
-              <i class="fas fa-chevron-down chevron-icon"></i>
-            </div>
-            <div class="sub-menu">
-              <a href="general.html" class="sub-menu-item" data-page="general"
-                >General</a
-              >
-              <a href="security.html" class="sub-menu-item" data-page="security"
-                >Security</a
-              >
-              <a
-                href="integrations.html"
-                class="sub-menu-item"
-                data-page="integrations"
-                >Integrations</a
-              >
-              <a
-                href="data-retention.html"
-                class="sub-menu-item"
-                data-page="data-retention"
-                >Data Retention</a
-              >
-            </div>
-          </div>
-        </nav>
-
-        <div class="sidebar-footer">
-          <button class="collapse-btn" onclick="toggleSidebar()">
-            <i class="fas fa-chevron-left"></i>
-            <span>Collapse</span>
-          </button>
+        <div class="nav-item">
+          <a href="alerts.html" class="nav-link" data-page="alerts">
+            <i class="fas fa-triangle-exclamation"></i>
+            <span>Alerts &amp; Incidents</span>
+          </a>
         </div>
-      </aside>
 
-      <!-- Mobile Overlay (for sidebar) -->
-      <div
-        class="sidebar-overlay"
-        id="sidebarOverlay"
-        onclick="closeMobileSidebar()"
-      ></div>
+        <div class="nav-item">
+          <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+            <i class="fas fa-shield-alt"></i>
+            <span>Policies</span>
+            <i class="fas fa-chevron-down chevron-icon"></i>
+          </div>
+          <div class="sub-menu">
+            <a href="manage-agents.html" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
+            <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a>
+            <a href="assign-policy.html" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
+          </div>
+        </div>
 
-      <!-- ==================== HEADER ==================== -->
-      <header class="top-header" id="topHeader">
-        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-          <i class="fas fa-bars"></i>
+        <div class="nav-item">
+          <a href="agents.html" class="nav-link" data-page="agents">
+            <i class="fas fa-desktop"></i>
+            <span>Agents / Endpoints</span>
+          </a>
+        </div>
+
+        <div class="nav-item">
+          <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+            <i class="fas fa-eye"></i>
+            <span>OCR &amp; Image Analysis</span>
+            <i class="fas fa-chevron-down chevron-icon"></i>
+          </div>
+          <div class="sub-menu">
+            <a href="ocr-dashboard.html" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
+            <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>
+          </div>
+        </div>
+
+        <div class="nav-item">
+          <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+            <i class="fas fa-file-lines"></i>
+            <span>Reports &amp; Logs</span>
+            <i class="fas fa-chevron-down chevron-icon"></i>
+          </div>
+          <div class="sub-menu">
+            <a href="reports.html" class="sub-menu-item" data-page="reports">Reports</a>
+            <a href="generate-report.html" class="sub-menu-item" data-page="generate-report">Generate Report</a>
+            <a href="audit-logs.html" class="sub-menu-item" data-page="audit-logs">Audit Logs</a>
+            <a href="device-logs.html" class="sub-menu-item" data-page="device-logs">Device Logs</a>
+          </div>
+        </div>
+
+        <div class="nav-item">
+          <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+            <i class="fas fa-users"></i>
+            <span>Users &amp; Roles</span>
+            <i class="fas fa-chevron-down chevron-icon"></i>
+          </div>
+          <div class="sub-menu">
+            <a href="users.html" class="sub-menu-item" data-page="users">Users</a>
+            <a href="roles.html" class="sub-menu-item" data-page="roles">Roles &amp; Permissions</a>
+            <a href="permissions.html" class="sub-menu-item" data-page="permissions">Permissions</a>
+          </div>
+        </div>
+
+        <div class="nav-item">
+          <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+            <i class="fas fa-gear"></i>
+            <span>Settings</span>
+            <i class="fas fa-chevron-down chevron-icon"></i>
+          </div>
+          <div class="sub-menu">
+            <a href="general.html" class="sub-menu-item" data-page="general">General</a>
+            <a href="security.html" class="sub-menu-item" data-page="security">Security</a>
+            <a href="integrations.html" class="sub-menu-item" data-page="integrations">Integrations</a>
+            <a href="data-retention.html" class="sub-menu-item" data-page="data-retention">Data Retention</a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="collapse-btn" onclick="toggleSidebar()">
+          <i class="fas fa-chevron-left"></i>
+          <span>Collapse</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Mobile Overlay (for sidebar) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- ==================== HEADER ==================== -->
+    <header class="top-header" id="topHeader">
+      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="Search alerts, agents, policies..." />
+      </div>
+
+      <div class="header-actions">
+        <button class="notification-btn" onclick="toggleNotifications(event)">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge">5</span>
         </button>
 
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input
-            type="text"
-            class="search-input"
-            placeholder="Search alerts, agents, policies..."
-          />
-        </div>
+        <div class="user-profile" onclick="toggleUserDropdown(event)">
+          <div class="user-avatar"></div>
+          <div class="user-info">
+            <div class="user-name"></div>
+            <div class="user-role"></div>
+          </div>
+          <i class="fas fa-chevron-down dropdown-icon"></i>
 
-        <div class="header-actions">
-          <button class="notification-btn" onclick="toggleNotifications(event)">
-            <i class="fas fa-bell"></i>
-            <span class="notification-badge">5</span>
-          </button>
-
-          <div class="user-profile" onclick="toggleUserDropdown(event)">
-            <div class="user-avatar"></div>
-            <div class="user-info">
-              <div class="user-name"></div>
-              <div class="user-role"></div>
-            </div>
-            <i class="fas fa-chevron-down dropdown-icon"></i>
-
-            <div class="user-dropdown" id="userDropdown">
-              <a href="general.html" class="dropdown-item">
-                <i class="fas fa-gear"></i>
-                <span>Settings</span>
-              </a>
-              <a href="#" class="dropdown-item">
-                <i class="fas fa-circle-question"></i>
-                <span>Help &amp; Support</span>
-              </a>
-              <div class="dropdown-divider"></div>
-              <a
-                href="index.html"
-                class="dropdown-item danger"
-                onclick="logout(event)"
-              >
-                <i class="fas fa-right-from-bracket"></i>
-                <span>Sign out</span>
-              </a>
-            </div>
+          <div class="user-dropdown" id="userDropdown">
+            <a href="general.html" class="dropdown-item">
+              <i class="fas fa-gear"></i>
+              <span>Settings</span>
+            </a>
+            <a href="#" class="dropdown-item">
+              <i class="fas fa-circle-question"></i>
+              <span>Help &amp; Support</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="index.html" class="dropdown-item danger" onclick="logout(event)">
+              <i class="fas fa-right-from-bracket"></i>
+              <span>Sign out</span>
+            </a>
           </div>
         </div>
-      </header>
+      </div>
+    </header>
 
-      <!-- ==================== NOTIFICATIONS PANEL ==================== -->
-      <div class="notifications-panel" id="notificationsPanel">
-        <div class="notifications-header">
-          <h3>Notifications</h3>
-          <button class="close-notifications" onclick="closeNotifications()">
-            <i class="fas fa-times"></i>
-          </button>
+    <!-- ==================== NOTIFICATIONS PANEL ==================== -->
+    <div class="notifications-panel" id="notificationsPanel">
+      <div class="notifications-header">
+        <h3>Notifications</h3>
+        <button class="close-notifications" onclick="closeNotifications()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="notifications-tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'all')">
+          All (5)
+        </button>
+        <button class="tab-btn" onclick="switchTab(event, 'unread')">
+          Unread (3)
+        </button>
+      </div>
+
+      <div class="notifications-content" id="notificationsContent">
+        <div class="notification-item unread">
+          <div class="notification-icon critical">
+            <i class="fas fa-shield-exclamation"></i>
+          </div>
+          <div class="notification-body">
+            <div class="notification-title">Critical Policy Violation</div>
+            <div class="notification-text">
+              User attempted to copy sensitive files to USB drive
+            </div>
+            <div class="notification-time">2 minutes ago</div>
+          </div>
+          <div class="notification-dot"></div>
         </div>
 
-        <div class="notifications-tabs">
-          <button class="tab-btn active" onclick="switchTab(event, 'all')">
-            All (5)
-          </button>
-          <button class="tab-btn" onclick="switchTab(event, 'unread')">
-            Unread (3)
-          </button>
+        <div class="notification-item unread">
+          <div class="notification-icon warning">
+            <i class="fas fa-triangle-exclamation"></i>
+          </div>
+          <div class="notification-body">
+            <div class="notification-title">Agent Offline</div>
+            <div class="notification-text">
+              DESKTOP-DEF456 has been offline for 2 hours
+            </div>
+            <div class="notification-time">15 minutes ago</div>
+          </div>
+          <div class="notification-dot"></div>
         </div>
 
-        <div class="notifications-content" id="notificationsContent">
-          <div class="notification-item unread">
-            <div class="notification-icon critical">
-              <i class="fas fa-shield-exclamation"></i>
-            </div>
-            <div class="notification-body">
-              <div class="notification-title">Critical Policy Violation</div>
-              <div class="notification-text">
-                User attempted to copy sensitive files to USB drive
-              </div>
-              <div class="notification-time">2 minutes ago</div>
-            </div>
-            <div class="notification-dot"></div>
+        <div class="notification-item unread">
+          <div class="notification-icon info">
+            <i class="fas fa-info-circle"></i>
           </div>
-
-          <div class="notification-item unread">
-            <div class="notification-icon warning">
-              <i class="fas fa-triangle-exclamation"></i>
+          <div class="notification-body">
+            <div class="notification-title">Policy Updated</div>
+            <div class="notification-text">
+              File Protection Policy has been modified by Admin
             </div>
-            <div class="notification-body">
-              <div class="notification-title">Agent Offline</div>
-              <div class="notification-text">
-                DESKTOP-DEF456 has been offline for 2 hours
-              </div>
-              <div class="notification-time">15 minutes ago</div>
-            </div>
-            <div class="notification-dot"></div>
+            <div class="notification-time">1 hour ago</div>
           </div>
+          <div class="notification-dot"></div>
+        </div>
 
-          <div class="notification-item unread">
-            <div class="notification-icon info">
-              <i class="fas fa-info-circle"></i>
-            </div>
-            <div class="notification-body">
-              <div class="notification-title">Policy Updated</div>
-              <div class="notification-text">
-                File Protection Policy has been modified by Admin
-              </div>
-              <div class="notification-time">1 hour ago</div>
-            </div>
-            <div class="notification-dot"></div>
+        <div class="notification-item">
+          <div class="notification-icon success">
+            <i class="fas fa-check-circle"></i>
           </div>
-
-          <div class="notification-item">
-            <div class="notification-icon success">
-              <i class="fas fa-check-circle"></i>
+          <div class="notification-body">
+            <div class="notification-title">Agent Connected</div>
+            <div class="notification-text">
+              New agent LAPTOP-XYZ789 successfully registered
             </div>
-            <div class="notification-body">
-              <div class="notification-title">Agent Connected</div>
-              <div class="notification-text">
-                New agent LAPTOP-XYZ789 successfully registered
-              </div>
-              <div class="notification-time">3 hours ago</div>
-            </div>
-          </div>
-
-          <div class="notification-item">
-            <div class="notification-icon info">
-              <i class="fas fa-file-alt"></i>
-            </div>
-            <div class="notification-body">
-              <div class="notification-title">Report Generated</div>
-              <div class="notification-text">
-                Weekly security report is ready for review
-              </div>
-              <div class="notification-time">5 hours ago</div>
-            </div>
+            <div class="notification-time">3 hours ago</div>
           </div>
         </div>
 
-        <div class="notifications-footer">
-          <a href="alerts.html" class="view-all-btn">View All Notifications</a>
+        <div class="notification-item">
+          <div class="notification-icon info">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="notification-body">
+            <div class="notification-title">Report Generated</div>
+            <div class="notification-text">
+              Weekly security report is ready for review
+            </div>
+            <div class="notification-time">5 hours ago</div>
+          </div>
         </div>
       </div>
 
-      <!-- Notification Overlay -->
-      <div
-        class="notification-overlay"
-        id="notificationOverlay"
-        onclick="closeNotifications()"
-      ></div>
+      <div class="notifications-footer">
+        <a href="alerts.html" class="view-all-btn">View All Notifications</a>
+      </div>
+    </div>
 
-      <!-- Main Content -->
-      <main class="main-content" id="mainContent">
-        <div class="content-area">
-          <div class="page-header">
-            <div class="page-title-section">
-              <div class="page-icon"><i class="fas fa-desktop"></i></div>
-              <div class="page-title-text">
-                <h1>Manage Agents</h1>
-                <p class="page-subtitle">
-                  Monitor and configure endpoint agents
-                </p>
-              </div>
+    <!-- Notification Overlay -->
+    <div class="notification-overlay" id="notificationOverlay" onclick="closeNotifications()"></div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <div class="content-area">
+        <div class="page-header">
+          <div class="page-title-section">
+            <div class="page-icon"><i class="fas fa-desktop"></i></div>
+            <div class="page-title-text">
+              <h1>Manage Agents</h1>
+              <p class="page-subtitle">
+                Monitor and configure endpoint agents
+              </p>
             </div>
-            <button
-              class="add-btn"
-              onclick="window.location.href = 'agent-add.html'"
-            >
-              <i class="fas fa-plus"></i> <span>Add Agent</span>
-            </button>
           </div>
+          <button class="add-btn" onclick="window.location.href = 'agent-add.html'">
+            <i class="fas fa-plus"></i> <span>Add Agent</span>
+          </button>
+        </div>
 
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-header">
-                <div>
-                  <div class="stat-label">Total Agents</div>
-                  <div class="stat-value" id="totalAgents">0</div>
-                </div>
-                <div class="stat-icon blue"><i class="fas fa-desktop"></i></div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Total Agents</div>
+                <div class="stat-value" id="totalAgents">0</div>
               </div>
+              <div class="stat-icon blue"><i class="fas fa-desktop"></i></div>
             </div>
-            <div class="stat-card">
-              <div class="stat-header">
-                <div>
-                  <div class="stat-label">Online</div>
-                  <div class="stat-value" id="onlineAgents">0</div>
-                </div>
-                <div class="stat-icon green">
-                  <i class="fas fa-check-circle"></i>
-                </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Online</div>
+                <div class="stat-value" id="onlineAgents">0</div>
               </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-header">
-                <div>
-                  <div class="stat-label">Offline</div>
-                  <div class="stat-value" id="offlineAgents">0</div>
-                </div>
-                <div class="stat-icon red">
-                  <i class="fas fa-circle-xmark"></i>
-                </div>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-header">
-                <div>
-                  <div class="stat-label">Needs Update</div>
-                  <div class="stat-value" id="needsUpdate">0</div>
-                </div>
-                <div class="stat-icon yellow">
-                  <i class="fas fa-triangle-exclamation"></i>
-                </div>
+              <div class="stat-icon green">
+                <i class="fas fa-check-circle"></i>
               </div>
             </div>
           </div>
-
-          <div class="filters-section">
-            <div class="search-box">
-              <i class="fas fa-search"></i>
-              <input
-                type="text"
-                class="search-input"
-                placeholder="Search agents..."
-                id="agentSearch"
-              />
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Offline</div>
+                <div class="stat-value" id="offlineAgents">0</div>
+              </div>
+              <div class="stat-icon red">
+                <i class="fas fa-circle-xmark"></i>
+              </div>
             </div>
-            <select class="filter-select" id="statusFilter">
-              <option value="">All Status</option>
-              <option value="online">Online</option>
-              <option value="offline">Offline</option>
-            </select>
-            <select class="filter-select" id="osFilter">
-              <option value="">All OS</option>
-              <option value="windows">Windows</option>
-              <option value="macos">macOS</option>
-              <option value="linux">Linux</option>
-            </select>
           </div>
-
-          <div class="agents-table-container">
-            <div class="table-wrapper">
-              <table class="agents-table">
-                <thead>
-                  <tr>
-                    <th>AGENT NAME</th>
-                    <th>USER</th>
-                    <th>OS</th>
-                    <th>IP ADDRESS</th>
-                    <th>STATUS</th>
-                    <th>ACTIVE POLICIES</th>
-                    <th>LAST HEARTBEAT</th>
-                    <th>VERSION</th>
-                    <th>ACTIONS</th>
-                  </tr>
-                </thead>
-                <tbody id="agentsTableBody">
-                  <tr><td colspan="9" class="loading">Loading agents...</td></tr>
-                </tbody>
-              </table>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Needs Update</div>
+                <div class="stat-value" id="needsUpdate">0</div>
+              </div>
+              <div class="stat-icon yellow">
+                <i class="fas fa-triangle-exclamation"></i>
+              </div>
             </div>
           </div>
         </div>
-      </main>
-    </div>
 
-    <script>
-      // ============ GLOBAL VARIABLES ============
-      let agentsData = [];
-      let currentFilteredData = [];
-      let isDataLoaded = false;
+        <div class="filters-section">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" class="search-input" placeholder="Search agents..." id="agentSearch" />
+          </div>
+          <select class="filter-select" id="statusFilter">
+            <option value="">All Status</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+          </select>
+          <select class="filter-select" id="osFilter">
+            <option value="">All OS</option>
+            <option value="windows">Windows</option>
+            <option value="macos">macOS</option>
+            <option value="linux">Linux</option>
+          </select>
+        </div>
 
-      // ============ AUTHENTICATION & USER DATA ============
+        <div class="agents-table-container">
+          <div class="table-wrapper">
+            <table class="agents-table">
+              <thead>
+                <tr>
+                  <th>AGENT NAME</th>
+                  <th>USER</th>
+                  <th>OS</th>
+                  <th>IP ADDRESS</th>
+                  <th>STATUS</th>
+                  <th>ACTIVE POLICIES</th>
+                  <th>LAST HEARTBEAT</th>
+                  <th>VERSION</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="agentsTableBody">
+                <tr>
+                  <td colspan="9" class="loading">Loading agents...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 
-      async function checkAuth() {
-        try {
-          const response = await fetch("/api/auth/check", {
-            credentials: "include"
-          });
+  <script th:inline="javascript">
+    // ============ GLOBAL VARIABLES ============
+    let agentsData = [];
+    let currentFilteredData = [];
+    let isDataLoaded = false;
 
-          if (!response.ok) {
-            throw new Error("Not authenticated");
-          }
+    // ============ AUTHENTICATION & USER DATA ============
+    // User data from server
+    const userData = {
+      username: [[${ username }]],
+      userName: [[${ userName }]],
+      userInitials: [[${ userInitials }]],
+      userRole: [[${ userRole }]],
+      userEmail: [[${ userEmail }]],
+      userId: [[${ userId }]]
+    };
+    function loadAdminInfo() {
+      const userName = document.querySelector(".user-name");
+      const userAvatar = document.querySelector(".user-avatar");
+      const userRole = document.querySelector(".user-role");
 
-          const result = await response.json();
+      if (userName && userData.userName) {
+        userName.textContent = userData.userName;
+      }
+    }
 
-          if (!result.success) {
-            window.location.href = "index.html";
-            return null;
-          }
-          
-          if (result.data) {
-            localStorage.setItem('userData', JSON.stringify(result.data));
-            return result.data;
-          }
 
-          return null;
-        } catch (err) {
-          window.location.href = "index.html";
-          return null;
-        }
+    // ============ SIDEBAR FUNCTIONS ============
+
+    function toggleSubMenu(element) {
+      var sidebar = document.getElementById('sidebar');
+      if (sidebar.classList.contains('collapsed')) return;
+
+      var subMenu = element.nextElementSibling;
+      var allSubMenus = document.querySelectorAll('.sub-menu');
+      var allDropdowns = document.querySelectorAll('.nav-dropdown');
+
+      allSubMenus.forEach(function (menu) {
+        if (menu !== subMenu) menu.classList.remove('open');
+      });
+      allDropdowns.forEach(function (link) {
+        if (link !== element) link.classList.remove('expanded');
+      });
+
+      element.classList.toggle('expanded');
+      subMenu.classList.toggle('open');
+    }
+
+    function toggleSidebar() {
+      var sidebar = document.getElementById('sidebar');
+      var mainContent = document.getElementById('mainContent');
+      var header = document.getElementById('topHeader');
+
+      sidebar.classList.toggle('collapsed');
+      var isCollapsed = sidebar.classList.contains('collapsed');
+
+      if (mainContent) {
+        mainContent.classList.toggle('expanded');
+        mainContent.style.marginLeft = isCollapsed ? '70px' : '240px';
+        mainContent.style.width = isCollapsed ? 'calc(100vw - 70px)' : 'calc(100vw - 240px)';
       }
 
-      function loadAdminInfo() {
-        const userDataStr = localStorage.getItem('userData');
-
-        if (userDataStr) {
-          try {
-            const userData = JSON.parse(userDataStr);
-
-            const userName = document.querySelector('.user-name');
-            const userAvatar = document.querySelector('.user-avatar');
-            const userRole = document.querySelector('.user-role');
-
-            if (userName) {
-              const namePart = userData.username || 'Admin';
-              const formattedName = namePart.split('.').map(n =>
-                n.charAt(0).toUpperCase() + n.slice(1)
-              ).join(' ');
-              userName.textContent = formattedName;
-            }
-
-            if (userAvatar) {
-              const namePart = userData.username || 'Admin';
-              const initials = namePart.split('.')
-                .map(n => n[0] ? n[0].toUpperCase() : '')
-                .join('');
-              userAvatar.textContent = initials || 'A';
-            }
-
-            if (userRole) {
-              userRole.textContent = userData.role || 'Security Admin';
-            }
-
-          } catch (e) {
-            console.error('Error parsing user data:', e);
-          }
-        }
+      if (header) {
+        header.style.left = isCollapsed ? '70px' : '240px';
       }
 
-      async function refreshUserData() {
-        const userData = await checkAuth();
-        if (userData) {
-          localStorage.setItem('userData', JSON.stringify(userData));
-          loadAdminInfo();
-        }
-      }
-
-      // Refresh every 5 minutes
-      setInterval(refreshUserData, 5 * 60 * 1000);
-
-      // ============ SIDEBAR FUNCTIONS ============
-
-      function toggleSubMenu(element) {
-        var sidebar = document.getElementById('sidebar');
-        if (sidebar.classList.contains('collapsed')) return;
-
-        var subMenu = element.nextElementSibling;
-        var allSubMenus = document.querySelectorAll('.sub-menu');
-        var allDropdowns = document.querySelectorAll('.nav-dropdown');
-
-        allSubMenus.forEach(function (menu) {
-          if (menu !== subMenu) menu.classList.remove('open');
+      if (isCollapsed) {
+        document.querySelectorAll('.sub-menu').forEach(function (m) {
+          m.classList.remove('open');
         });
-        allDropdowns.forEach(function (link) {
-          if (link !== element) link.classList.remove('expanded');
-        });
-
-        element.classList.toggle('expanded');
-        subMenu.classList.toggle('open');
-      }
-
-      function toggleSidebar() {
-        var sidebar = document.getElementById('sidebar');
-        var mainContent = document.getElementById('mainContent');
-        var header = document.getElementById('topHeader');
-
-        sidebar.classList.toggle('collapsed');
-        var isCollapsed = sidebar.classList.contains('collapsed');
-
-        if (mainContent) {
-          mainContent.classList.toggle('expanded');
-          mainContent.style.marginLeft = isCollapsed ? '70px' : '240px';
-          mainContent.style.width = isCollapsed ? 'calc(100vw - 70px)' : 'calc(100vw - 240px)';
-        }
-
-        if (header) {
-          header.style.left = isCollapsed ? '70px' : '240px';
-        }
-
-        if (isCollapsed) {
-          document.querySelectorAll('.sub-menu').forEach(function (m) { 
-            m.classList.remove('open'); 
-          });
-          document.querySelectorAll('.nav-dropdown').forEach(function (l) { 
-            l.classList.remove('expanded'); 
-          });
-        }
-
-        window.dispatchEvent(new CustomEvent('sidebarToggle', { 
-          detail: { collapsed: isCollapsed } 
-        }));
-      }
-
-      function openMobileSidebar() {
-        var sidebar = document.getElementById('sidebar');
-        var overlay = document.getElementById('sidebarOverlay');
-        if (sidebar) sidebar.classList.add('mobile-open');
-        if (overlay) overlay.classList.add('active');
-      }
-
-      function closeMobileSidebar() {
-        var sidebar = document.getElementById('sidebar');
-        var overlay = document.getElementById('sidebarOverlay');
-        if (sidebar) sidebar.classList.remove('mobile-open');
-        if (overlay) overlay.classList.remove('active');
-      }
-
-      function toggleMobileMenu() {
-        var sidebar = document.getElementById('sidebar');
-        var overlay = document.getElementById('sidebarOverlay');
-        if (!sidebar) return;
-
-        if (sidebar.classList.contains('mobile-open')) {
-          closeMobileSidebar();
-        } else {
-          openMobileSidebar();
-        }
-      }
-
-      function setActiveMenuItem() {
-        var currentPage = window.location.pathname.split('/').pop() || 'manage-agents.html';
-
-        document.querySelectorAll('.nav-link[data-page]').forEach(function (link) {
-          var href = link.getAttribute('href');
-          if (href === currentPage) {
-            link.classList.add('active');
-          }
-        });
-
-        document.querySelectorAll('.sub-menu-item[data-page]').forEach(function (item) {
-          var href = item.getAttribute('href');
-          if (href === currentPage) {
-            item.classList.add('active');
-            var parentSubMenu = item.closest('.sub-menu');
-            if (parentSubMenu) {
-              parentSubMenu.classList.add('open');
-              var parentNav = parentSubMenu.previousElementSibling;
-              if (parentNav) parentNav.classList.add('expanded');
-            }
-          }
+        document.querySelectorAll('.nav-dropdown').forEach(function (l) {
+          l.classList.remove('expanded');
         });
       }
 
-      // ============ HEADER FUNCTIONS ============
+      window.dispatchEvent(new CustomEvent('sidebarToggle', {
+        detail: { collapsed: isCollapsed }
+      }));
+    }
 
-      function toggleNotifications(event) {
-        event.stopPropagation();
-        var panel = document.getElementById('notificationsPanel');
-        var overlay = document.getElementById('notificationOverlay');
-        var btn = event.currentTarget;
-        if (!panel || !overlay) return;
+    function openMobileSidebar() {
+      var sidebar = document.getElementById('sidebar');
+      var overlay = document.getElementById('sidebarOverlay');
+      if (sidebar) sidebar.classList.add('mobile-open');
+      if (overlay) overlay.classList.add('active');
+    }
 
-        if (panel.classList.contains('show')) {
-          closeNotifications();
-        } else {
-          closeUserDropdown();
-          panel.classList.add('show');
-          overlay.classList.add('show');
-          btn.classList.add('active');
-          document.body.style.overflow = 'hidden';
+    function closeMobileSidebar() {
+      var sidebar = document.getElementById('sidebar');
+      var overlay = document.getElementById('sidebarOverlay');
+      if (sidebar) sidebar.classList.remove('mobile-open');
+      if (overlay) overlay.classList.remove('active');
+    }
+
+    function toggleMobileMenu() {
+      var sidebar = document.getElementById('sidebar');
+      var overlay = document.getElementById('sidebarOverlay');
+      if (!sidebar) return;
+
+      if (sidebar.classList.contains('mobile-open')) {
+        closeMobileSidebar();
+      } else {
+        openMobileSidebar();
+      }
+    }
+
+    function setActiveMenuItem() {
+      var currentPage = window.location.pathname.split('/').pop() || 'manage-agents.html';
+
+      document.querySelectorAll('.nav-link[data-page]').forEach(function (link) {
+        var href = link.getAttribute('href');
+        if (href === currentPage) {
+          link.classList.add('active');
         }
-      }
+      });
 
-      function closeNotifications() {
-        var panel = document.getElementById('notificationsPanel');
-        var overlay = document.getElementById('notificationOverlay');
-        var btn = document.querySelector('.notification-btn');
-        if (panel) panel.classList.remove('show');
-        if (overlay) overlay.classList.remove('show');
-        if (btn) btn.classList.remove('active');
-        document.body.style.overflow = '';
-      }
-
-      function switchTab(event, tabName) {
-        document.querySelectorAll('.tab-btn').forEach(function (t) { 
-          t.classList.remove('active'); 
-        });
-        event.currentTarget.classList.add('active');
-        
-        document.querySelectorAll('.notification-item').forEach(function (item) {
-          item.style.display = (tabName === 'unread' && !item.classList.contains('unread')) ? 
-            'none' : 'flex';
-        });
-      }
-
-      function toggleUserDropdown(event) {
-        event.stopPropagation();
-        var dropdown = document.getElementById('userDropdown');
-        var userProfile = event.currentTarget;
-        if (!dropdown) return;
-
-        if (dropdown.classList.contains('show')) {
-          closeUserDropdown();
-        } else {
-          closeNotifications();
-          dropdown.classList.add('show');
-          userProfile.classList.add('active');
-        }
-      }
-
-      function closeUserDropdown() {
-        var dropdown = document.getElementById('userDropdown');
-        var userProfile = document.querySelector('.user-profile');
-        if (dropdown) dropdown.classList.remove('show');
-        if (userProfile) userProfile.classList.remove('active');
-      }
-
-      function logout(event) {
-        event.preventDefault();
-
-        fetch('/api/auth/logout', {
-          method: 'POST',
-          credentials: 'include'
-        }).finally(() => {
-          localStorage.removeItem('isLoggedIn');
-          localStorage.removeItem('userEmail');
-          localStorage.removeItem('userData');
-          window.location.href = 'index.html';
-        });
-      }
-
-      // ============ API FUNCTIONS ============
-
-      async function fetchAgents(silent = false) {
-        try {
-          const response = await fetch("/api/admin/agents", {
-            credentials: "include",
-          });
-
-          if (!response.ok) throw new Error("Failed to fetch agents");
-
-          const result = await response.json();
-
-          if (result.success) {
-            agentsData = result.data || [];
-            currentFilteredData = [...agentsData];
-            
-            renderAgentsTable();
-            updateStatistics();
-            
-            isDataLoaded = true;
-            return true;
-          }
-        } catch (error) {
-          console.error("Error fetching agents:", error);
-          
-          if (!isDataLoaded) {
-            document.getElementById("agentsTableBody").innerHTML =
-              '<tr><td colspan="9" class="empty-state">Failed to load agents. <a href="#" onclick="location.reload()">Retry</a></td></tr>';
-          } else if (!silent) {
-            showToast(`Error: ${error.message}`, "error");
+      document.querySelectorAll('.sub-menu-item[data-page]').forEach(function (item) {
+        var href = item.getAttribute('href');
+        if (href === currentPage) {
+          item.classList.add('active');
+          var parentSubMenu = item.closest('.sub-menu');
+          if (parentSubMenu) {
+            parentSubMenu.classList.add('open');
+            var parentNav = parentSubMenu.previousElementSibling;
+            if (parentNav) parentNav.classList.add('expanded');
           }
         }
+      });
+    }
+
+    // ============ HEADER FUNCTIONS ============
+
+    function toggleNotifications(event) {
+      event.stopPropagation();
+      var panel = document.getElementById('notificationsPanel');
+      var overlay = document.getElementById('notificationOverlay');
+      var btn = event.currentTarget;
+      if (!panel || !overlay) return;
+
+      if (panel.classList.contains('show')) {
+        closeNotifications();
+      } else {
+        closeUserDropdown();
+        panel.classList.add('show');
+        overlay.classList.add('show');
+        btn.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeNotifications() {
+      var panel = document.getElementById('notificationsPanel');
+      var overlay = document.getElementById('notificationOverlay');
+      var btn = document.querySelector('.notification-btn');
+      if (panel) panel.classList.remove('show');
+      if (overlay) overlay.classList.remove('show');
+      if (btn) btn.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function switchTab(event, tabName) {
+      document.querySelectorAll('.tab-btn').forEach(function (t) {
+        t.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+
+      document.querySelectorAll('.notification-item').forEach(function (item) {
+        item.style.display = (tabName === 'unread' && !item.classList.contains('unread')) ?
+          'none' : 'flex';
+      });
+    }
+
+    function toggleUserDropdown(event) {
+      event.stopPropagation();
+      var dropdown = document.getElementById('userDropdown');
+      var userProfile = event.currentTarget;
+      if (!dropdown) return;
+
+      if (dropdown.classList.contains('show')) {
+        closeUserDropdown();
+      } else {
+        closeNotifications();
+        dropdown.classList.add('show');
+        userProfile.classList.add('active');
+      }
+    }
+
+    function closeUserDropdown() {
+      var dropdown = document.getElementById('userDropdown');
+      var userProfile = document.querySelector('.user-profile');
+      if (dropdown) dropdown.classList.remove('show');
+      if (userProfile) userProfile.classList.remove('active');
+    }
+
+    function logout(event) {
+      event.preventDefault();
+      window.location.href = '/logout';
+
+    }
+
+    // ============ API FUNCTIONS ============
+
+    async function fetchAgents(silent = false) {
+      try {
+        const response = await fetch("/api/admin/agents", {
+          credentials: "include",
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch agents");
+
+        const result = await response.json();
+
+        if (result.success) {
+          agentsData = result.data || [];
+          currentFilteredData = [...agentsData];
+
+          renderAgentsTable();
+          updateStatistics();
+
+          isDataLoaded = true;
+          return true;
+        }
+      } catch (error) {
+        console.error("Error fetching agents:", error);
+
+        if (!isDataLoaded) {
+          document.getElementById("agentsTableBody").innerHTML =
+            '<tr><td colspan="9" class="empty-state">Failed to load agents. <a href="#" onclick="location.reload()">Retry</a></td></tr>';
+        } else if (!silent) {
+          showToast(`Error: ${error.message}`, "error");
+        }
+      }
+    }
+
+    // ============ RENDER FUNCTIONS ============
+
+    function renderAgentsTable() {
+      const tableBody = document.getElementById("agentsTableBody");
+      if (!tableBody) return;
+
+      if (currentFilteredData.length === 0) {
+        tableBody.innerHTML =
+          '<tr><td colspan="9" class="empty-state">No agents found</td></tr>';
+        return;
       }
 
-      // ============ RENDER FUNCTIONS ============
+      let html = "";
+      currentFilteredData.forEach((agent, index) => {
+        const status = getAgentStatus(agent);
+        const osInfo = getOSInfo(agent);
+        const lastHeartbeat = formatTimeAgo(agent.lastHeartbeat);
+        const policiesCount = agent.activePolicyCount || 0;
+        const menuId = `menu${index}`;
 
-      function renderAgentsTable() {
-        const tableBody = document.getElementById("agentsTableBody");
-        if (!tableBody) return;
-
-        if (currentFilteredData.length === 0) {
-          tableBody.innerHTML =
-            '<tr><td colspan="9" class="empty-state">No agents found</td></tr>';
-          return;
-        }
-
-        let html = "";
-        currentFilteredData.forEach((agent, index) => {
-          const status = getAgentStatus(agent);
-          const osInfo = getOSInfo(agent);
-          const lastHeartbeat = formatTimeAgo(agent.lastHeartbeat);
-          const policiesCount = agent.activePolicyCount || 0;
-          const menuId = `menu${index}`;
-
-          html += `
+        html += `
             <tr onclick="viewAgent('${agent.id}')" data-agent-id="${agent.id}">
               <td><strong>${escapeHtml(agent.hostname) || `Agent ${agent.id}`}</strong></td>
               <td>${escapeHtml(truncateText(agent.username || "N/A", 20))}</td>
@@ -5825,346 +5695,342 @@
               </td>
             </tr>
           `;
+      });
+
+      tableBody.innerHTML = html;
+    }
+
+    function updateStatistics() {
+      if (!agentsData.length) return;
+
+      const totalAgents = agentsData.length;
+      const onlineAgents = agentsData.filter(
+        (agent) => getAgentStatus(agent) === "online"
+      ).length;
+      const offlineAgents = totalAgents - onlineAgents;
+      const needsUpdate = agentsData.filter((agent) => {
+        return agent.version && agent.version !== "v2.4.1";
+      }).length;
+
+      document.getElementById("totalAgents").textContent = totalAgents;
+      document.getElementById("onlineAgents").textContent = onlineAgents;
+      document.getElementById("offlineAgents").textContent = offlineAgents;
+      document.getElementById("needsUpdate").textContent = needsUpdate;
+    }
+
+    // ============ HELPER FUNCTIONS ============
+
+    function getAgentStatus(agent) {
+      if (!agent.lastHeartbeat) return "offline";
+      const lastHeartbeatTime = new Date(agent.lastHeartbeat).getTime();
+      const currentTime = Date.now();
+      const secondsSince = Math.floor((currentTime - lastHeartbeatTime) / 1000);
+      return secondsSince <= 10 ? "online" : "offline";
+    }
+
+    function getOSInfo(agent) {
+      const hostname = (agent.hostname || "").toLowerCase();
+      if (hostname.includes("win") || hostname.includes("windows")) {
+        return { name: "Windows", icon: "fab fa-windows" };
+      } else if (hostname.includes("mac") || hostname.includes("osx")) {
+        return { name: "macOS", icon: "fab fa-apple" };
+      } else if (hostname.includes("linux") || hostname.includes("ubuntu") || hostname.includes("centos")) {
+        return { name: "Linux", icon: "fab fa-linux" };
+      }
+      return { name: "Unknown", icon: "fas fa-desktop" };
+    }
+
+    function formatTimeAgo(timestamp) {
+      if (!timestamp) return "Never";
+      const now = new Date();
+      const then = new Date(timestamp);
+      const diffSecs = Math.floor((now - then) / 1000);
+
+      if (diffSecs < 60) return `${diffSecs}s ago`;
+      if (diffSecs < 3600) return `${Math.floor(diffSecs / 60)}m ago`;
+      if (diffSecs < 86400) return `${Math.floor(diffSecs / 3600)}h ago`;
+      return `${Math.floor(diffSecs / 86400)}d ago`;
+    }
+
+    function truncateText(text, maxLength) {
+      if (!text) return text;
+      if (text.length <= maxLength) return text;
+      return text.substring(0, maxLength) + "...";
+    }
+
+    function escapeHtml(text) {
+      if (!text) return text;
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, function (m) { return map[m]; });
+    }
+
+    // ============ FILTER FUNCTIONS ============
+
+    function initTableFilters() {
+      const searchInput = document.getElementById("agentSearch");
+      const statusFilter = document.getElementById("statusFilter");
+      const osFilter = document.getElementById("osFilter");
+
+      if (searchInput) {
+        searchInput.removeEventListener("input", filterTable);
+        searchInput.addEventListener("input", filterTable);
+      }
+      if (statusFilter) {
+        statusFilter.removeEventListener("change", filterTable);
+        statusFilter.addEventListener("change", filterTable);
+      }
+      if (osFilter) {
+        osFilter.removeEventListener("change", filterTable);
+        osFilter.addEventListener("change", filterTable);
+      }
+    }
+
+    function filterTable() {
+      if (!agentsData.length) return;
+
+      const searchInput = document.getElementById("agentSearch");
+      const statusFilterEl = document.getElementById("statusFilter");
+      const osFilterEl = document.getElementById("osFilter");
+
+      const searchTerm = searchInput?.value.toLowerCase() || "";
+      const statusFilter = statusFilterEl?.value || "";
+      const osFilter = osFilterEl?.value || "";
+
+      currentFilteredData = agentsData.filter((agent) => {
+        const searchMatch = !searchTerm ||
+          (agent.hostname?.toLowerCase().includes(searchTerm)) ||
+          (agent.username?.toLowerCase().includes(searchTerm)) ||
+          (agent.ipAddress?.toLowerCase().includes(searchTerm));
+
+        const status = getAgentStatus(agent);
+        const statusMatch = !statusFilter || status === statusFilter;
+
+        const osInfo = getOSInfo(agent);
+        const osMatch = !osFilter ||
+          osInfo.name.toLowerCase().includes(osFilter.toLowerCase());
+
+        return searchMatch && statusMatch && osMatch;
+      });
+
+      renderAgentsTable();
+    }
+
+    // ============ ACTION FUNCTIONS ============
+
+    function toggleActionMenu(event, menuId) {
+      event.stopPropagation();
+      const menu = document.getElementById(menuId);
+      const allMenus = document.querySelectorAll(".action-dropdown");
+      allMenus.forEach((m) => {
+        if (m.id !== menuId) m.classList.remove("show");
+      });
+      if (menu) menu.classList.toggle("show");
+    }
+
+    function viewAgent(agentId) {
+      if (!event.target.closest(".action-menu")) {
+        window.location.href = `agent-view.html?id=${agentId}`;
+      }
+    }
+
+    function viewPolicies(agentId) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.location.href = `policies.html?agent=${agentId}`;
+    }
+
+    async function restartAgent(agentId) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!confirm(`Restart agent ${agentId}?`)) return;
+
+      try {
+        showToast("Sending restart command...", "info");
+        const response = await fetch(`/api/admin/agents/${agentId}/restart`, {
+          method: "POST",
+          credentials: "include",
         });
-
-        tableBody.innerHTML = html;
-      }
-
-      function updateStatistics() {
-        if (!agentsData.length) return;
-        
-        const totalAgents = agentsData.length;
-        const onlineAgents = agentsData.filter(
-          (agent) => getAgentStatus(agent) === "online"
-        ).length;
-        const offlineAgents = totalAgents - onlineAgents;
-        const needsUpdate = agentsData.filter((agent) => {
-          return agent.version && agent.version !== "v2.4.1";
-        }).length;
-
-        document.getElementById("totalAgents").textContent = totalAgents;
-        document.getElementById("onlineAgents").textContent = onlineAgents;
-        document.getElementById("offlineAgents").textContent = offlineAgents;
-        document.getElementById("needsUpdate").textContent = needsUpdate;
-      }
-
-      // ============ HELPER FUNCTIONS ============
-
-      function getAgentStatus(agent) {
-        if (!agent.lastHeartbeat) return "offline";
-        const lastHeartbeatTime = new Date(agent.lastHeartbeat).getTime();
-        const currentTime = Date.now();
-        const secondsSince = Math.floor((currentTime - lastHeartbeatTime) / 1000);
-        return secondsSince <= 10 ? "online" : "offline";
-      }
-
-      function getOSInfo(agent) {
-        const hostname = (agent.hostname || "").toLowerCase();
-        if (hostname.includes("win") || hostname.includes("windows")) {
-          return { name: "Windows", icon: "fab fa-windows" };
-        } else if (hostname.includes("mac") || hostname.includes("osx")) {
-          return { name: "macOS", icon: "fab fa-apple" };
-        } else if (hostname.includes("linux") || hostname.includes("ubuntu") || hostname.includes("centos")) {
-          return { name: "Linux", icon: "fab fa-linux" };
+        const result = await response.json();
+        if (result.success) {
+          showToast("Restart command sent successfully!", "success");
+          setTimeout(() => fetchAgents(true), 2000);
+        } else {
+          showToast(result.message || "Failed to restart agent", "error");
         }
-        return { name: "Unknown", icon: "fas fa-desktop" };
+      } catch (error) {
+        showToast("Error sending restart command", "error");
       }
+    }
 
-      function formatTimeAgo(timestamp) {
-        if (!timestamp) return "Never";
-        const now = new Date();
-        const then = new Date(timestamp);
-        const diffSecs = Math.floor((now - then) / 1000);
-        
-        if (diffSecs < 60) return `${diffSecs}s ago`;
-        if (diffSecs < 3600) return `${Math.floor(diffSecs / 60)}m ago`;
-        if (diffSecs < 86400) return `${Math.floor(diffSecs / 3600)}h ago`;
-        return `${Math.floor(diffSecs / 86400)}d ago`;
-      }
+    async function deleteAgent(agentId) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!confirm(`Delete agent ${agentId}? This action cannot be undone.`)) return;
 
-      function truncateText(text, maxLength) {
-        if (!text) return text;
-        if (text.length <= maxLength) return text;
-        return text.substring(0, maxLength) + "...";
-      }
-
-      function escapeHtml(text) {
-        if (!text) return text;
-        const map = {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#039;'
-        };
-        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-      }
-
-      // ============ FILTER FUNCTIONS ============
-
-      function initTableFilters() {
-        const searchInput = document.getElementById("agentSearch");
-        const statusFilter = document.getElementById("statusFilter");
-        const osFilter = document.getElementById("osFilter");
-
-        if (searchInput) {
-          searchInput.removeEventListener("input", filterTable);
-          searchInput.addEventListener("input", filterTable);
-        }
-        if (statusFilter) {
-          statusFilter.removeEventListener("change", filterTable);
-          statusFilter.addEventListener("change", filterTable);
-        }
-        if (osFilter) {
-          osFilter.removeEventListener("change", filterTable);
-          osFilter.addEventListener("change", filterTable);
-        }
-      }
-
-      function filterTable() {
-        if (!agentsData.length) return;
-        
-        const searchInput = document.getElementById("agentSearch");
-        const statusFilterEl = document.getElementById("statusFilter");
-        const osFilterEl = document.getElementById("osFilter");
-        
-        const searchTerm = searchInput?.value.toLowerCase() || "";
-        const statusFilter = statusFilterEl?.value || "";
-        const osFilter = osFilterEl?.value || "";
-
-        currentFilteredData = agentsData.filter((agent) => {
-          const searchMatch = !searchTerm ||
-            (agent.hostname?.toLowerCase().includes(searchTerm)) ||
-            (agent.username?.toLowerCase().includes(searchTerm)) ||
-            (agent.ipAddress?.toLowerCase().includes(searchTerm));
-
-          const status = getAgentStatus(agent);
-          const statusMatch = !statusFilter || status === statusFilter;
-
-          const osInfo = getOSInfo(agent);
-          const osMatch = !osFilter ||
-            osInfo.name.toLowerCase().includes(osFilter.toLowerCase());
-
-          return searchMatch && statusMatch && osMatch;
+      try {
+        showToast("Deleting agent...", "info");
+        const response = await fetch(`/api/admin/agents/${agentId}`, {
+          method: "DELETE",
+          credentials: "include",
         });
-
-        renderAgentsTable();
+        const result = await response.json();
+        if (result.success) {
+          showToast("Agent deleted successfully!", "success");
+          fetchAgents(true);
+        } else {
+          showToast(result.message || "Failed to delete agent", "error");
+        }
+      } catch (error) {
+        showToast("Error deleting agent", "error");
       }
+    }
 
-      // ============ ACTION FUNCTIONS ============
+    // ============ UI UTILITIES ============
 
-      function toggleActionMenu(event, menuId) {
-        event.stopPropagation();
-        const menu = document.getElementById(menuId);
-        const allMenus = document.querySelectorAll(".action-dropdown");
-        allMenus.forEach((m) => {
-          if (m.id !== menuId) m.classList.remove("show");
-        });
-        if (menu) menu.classList.toggle("show");
-      }
+    function showToast(message, type = "info") {
+      const existingToasts = document.querySelectorAll(".toast");
+      existingToasts.forEach((toast) => toast.remove());
 
-      function viewAgent(agentId) {
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.style.background = type === "error" ? "#dc2626" : type === "success" ? "#10b981" : "#3b82f6";
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.animation = "slideOut 0.2s ease";
+        setTimeout(() => toast.remove(), 200);
+      }, 3000);
+    }
+
+    // ============ EVENT LISTENERS ============
+
+    function setupEventListeners() {
+      document.addEventListener("click", function (event) {
         if (!event.target.closest(".action-menu")) {
-          window.location.href = `agent-view.html?id=${agentId}`;
-        }
-      }
-
-      function viewPolicies(agentId) {
-        event.preventDefault();
-        event.stopPropagation();
-        window.location.href = `policies.html?agent=${agentId}`;
-      }
-
-      async function restartAgent(agentId) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (!confirm(`Restart agent ${agentId}?`)) return;
-        
-        try {
-          showToast("Sending restart command...", "info");
-          const response = await fetch(`/api/admin/agents/${agentId}/restart`, {
-            method: "POST",
-            credentials: "include",
+          document.querySelectorAll(".action-dropdown").forEach((menu) => {
+            menu.classList.remove("show");
           });
-          const result = await response.json();
-          if (result.success) {
-            showToast("Restart command sent successfully!", "success");
-            setTimeout(() => fetchAgents(true), 2000);
-          } else {
-            showToast(result.message || "Failed to restart agent", "error");
-          }
-        } catch (error) {
-          showToast("Error sending restart command", "error");
         }
-      }
 
-      async function deleteAgent(agentId) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (!confirm(`Delete agent ${agentId}? This action cannot be undone.`)) return;
-        
-        try {
-          showToast("Deleting agent...", "info");
-          const response = await fetch(`/api/admin/agents/${agentId}`, {
-            method: "DELETE",
-            credentials: "include",
-          });
-          const result = await response.json();
-          if (result.success) {
-            showToast("Agent deleted successfully!", "success");
-            fetchAgents(true);
-          } else {
-            showToast(result.message || "Failed to delete agent", "error");
-          }
-        } catch (error) {
-          showToast("Error deleting agent", "error");
+        if (!event.target.closest(".user-profile")) {
+          closeUserDropdown();
         }
-      }
+        if (!event.target.closest(".notification-btn") && !event.target.closest(".notifications-panel")) {
+          closeNotifications();
+        }
+      });
 
-      // ============ UI UTILITIES ============
+      window.addEventListener("resize", function () {
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("mainContent");
+        const header = document.getElementById("topHeader");
 
-      function showToast(message, type = "info") {
-        const existingToasts = document.querySelectorAll(".toast");
-        existingToasts.forEach((toast) => toast.remove());
-
-        const toast = document.createElement("div");
-        toast.className = "toast";
-        toast.style.background = type === "error" ? "#dc2626" : type === "success" ? "#10b981" : "#3b82f6";
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-          toast.style.animation = "slideOut 0.2s ease";
-          setTimeout(() => toast.remove(), 200);
-        }, 3000);
-      }
-
-      // ============ EVENT LISTENERS ============
-
-      function setupEventListeners() {
-        document.addEventListener("click", function (event) {
-          if (!event.target.closest(".action-menu")) {
-            document.querySelectorAll(".action-dropdown").forEach((menu) => {
-              menu.classList.remove("show");
-            });
+        if (window.innerWidth <= 968) {
+          if (sidebar) sidebar.classList.remove("collapsed");
+          if (mainContent) {
+            mainContent.classList.remove("expanded");
+            mainContent.style.marginLeft = "0";
+            mainContent.style.width = "100vw";
           }
-          
-          if (!event.target.closest(".user-profile")) {
-            closeUserDropdown();
+          if (header) {
+            header.style.left = "0";
           }
-          if (!event.target.closest(".notification-btn") && !event.target.closest(".notifications-panel")) {
-            closeNotifications();
-          }
-        });
+        }
+      });
+    }
 
-        window.addEventListener("resize", function() {
-          const sidebar = document.getElementById("sidebar");
-          const mainContent = document.getElementById("mainContent");
-          const header = document.getElementById("topHeader");
+    function setupAutoRefresh() {
+      setInterval(() => {
+        if (isDataLoaded) {
+          fetchAgents(true);
+        }
+      }, 5000);
 
-          if (window.innerWidth <= 968) {
-            if (sidebar) sidebar.classList.remove("collapsed");
-            if (mainContent) {
-              mainContent.classList.remove("expanded");
-              mainContent.style.marginLeft = "0";
-              mainContent.style.width = "100vw";
-            }
-            if (header) {
-              header.style.left = "0";
-            }
-          }
-        });
-      }
+      setInterval(updateHeartbeatDisplay, 1000);
+    }
 
-      function setupAutoRefresh() {
-        setInterval(() => {
-          if (isDataLoaded) {
-            fetchAgents(true);
-          }
-        }, 5000);
+    function updateHeartbeatDisplay() {
+      if (!isDataLoaded) return;
 
-        setInterval(updateHeartbeatDisplay, 1000);
-      }
+      const rows = document.querySelectorAll("#agentsTableBody tr");
+      const now = Date.now();
 
-      function updateHeartbeatDisplay() {
-        if (!isDataLoaded) return;
-        
-        const rows = document.querySelectorAll("#agentsTableBody tr");
-        const now = Date.now();
+      rows.forEach((row) => {
+        const timeCell = row.cells[6];
+        const statusCell = row.cells[4];
+        const agentId = row.getAttribute("data-agent-id");
 
-        rows.forEach((row) => {
-          const timeCell = row.cells[6];
-          const statusCell = row.cells[4];
-          const agentId = row.getAttribute("data-agent-id");
-          
-          if (!agentId || !timeCell) return;
-          
-          const agent = agentsData.find((a) => a.id.toString() === agentId);
-          if (!agent || !agent.lastHeartbeat) return;
-          
-          timeCell.textContent = formatTimeAgo(agent.lastHeartbeat);
-          
-          const lastHeartbeatTime = new Date(agent.lastHeartbeat).getTime();
-          const secondsSince = Math.floor((now - lastHeartbeatTime) / 1000);
-          const status = secondsSince <= 45 ? "online" : "offline";
-          
-          const badge = statusCell?.querySelector(".status-badge");
-          if (badge) {
-            badge.className = `status-badge ${status}`;
-            badge.textContent = status === "online" ? "Online" : "Offline";
-          }
-        });
-      }
+        if (!agentId || !timeCell) return;
 
-      // ============ INITIALIZATION ============
+        const agent = agentsData.find((a) => a.id.toString() === agentId);
+        if (!agent || !agent.lastHeartbeat) return;
 
-      function initApp() {
-        // Check auth and load user data
-        checkAuth().then(userData => {
-          if (userData) {
-            localStorage.setItem('userData', JSON.stringify(userData));
-            loadAdminInfo();
-          }
-        }).catch(() => window.location.href = "index.html");
-        
-        // Set active menu item
-        setActiveMenuItem();
-        
-        // Fetch agents data
-        fetchAgents(false);
-        
-        // Initialize filters
-        initTableFilters();
-        
-        // Setup event listeners
-        setupEventListeners();
-        
-        // Setup auto refresh
-        setupAutoRefresh();
-      }
+        timeCell.textContent = formatTimeAgo(agent.lastHeartbeat);
 
-      // Start the app
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initApp);
-      } else {
-        initApp();
-      }
+        const lastHeartbeatTime = new Date(agent.lastHeartbeat).getTime();
+        const secondsSince = Math.floor((now - lastHeartbeatTime) / 1000);
+        const status = secondsSince <= 45 ? "online" : "offline";
 
-      // ============ EXPORT GLOBALS ============
-      window.toggleActionMenu = toggleActionMenu;
-      window.viewAgent = viewAgent;
-      window.viewPolicies = viewPolicies;
-      window.restartAgent = restartAgent;
-      window.deleteAgent = deleteAgent;
-      window.toggleSubMenu = toggleSubMenu;
-      window.toggleSidebar = toggleSidebar;
-      window.toggleMobileMenu = toggleMobileMenu;
-      window.closeMobileSidebar = closeMobileSidebar;
-      window.toggleNotifications = toggleNotifications;
-      window.closeNotifications = closeNotifications;
-      window.switchTab = switchTab;
-      window.toggleUserDropdown = toggleUserDropdown;
-      window.logout = logout;
-    </script>
-  </body>
+        const badge = statusCell?.querySelector(".status-badge");
+        if (badge) {
+          badge.className = `status-badge ${status}`;
+          badge.textContent = status === "online" ? "Online" : "Offline";
+        }
+      });
+    }
+
+    // ============ INITIALIZATION ============
+
+    function initApp() {
+      // Check auth and load user data 
+      loadAdminInfo();
+
+      // Set active menu item
+      setActiveMenuItem();
+
+      // Fetch agents data
+      fetchAgents(false);
+
+      // Initialize filters
+      initTableFilters();
+
+      // Setup event listeners
+      setupEventListeners();
+
+      // Setup auto refresh
+      setupAutoRefresh();
+    }
+
+    // Start the app
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+
+    // ============ EXPORT GLOBALS ============
+    window.toggleActionMenu = toggleActionMenu;
+    window.viewAgent = viewAgent;
+    window.viewPolicies = viewPolicies;
+    window.restartAgent = restartAgent;
+    window.deleteAgent = deleteAgent;
+    window.toggleSubMenu = toggleSubMenu;
+    window.toggleSidebar = toggleSidebar;
+    window.toggleMobileMenu = toggleMobileMenu;
+    window.closeMobileSidebar = closeMobileSidebar;
+    window.toggleNotifications = toggleNotifications;
+    window.closeNotifications = closeNotifications;
+    window.switchTab = switchTab;
+    window.toggleUserDropdown = toggleUserDropdown;
+    window.logout = logout;
+  </script>
+</body>
+
 </html>

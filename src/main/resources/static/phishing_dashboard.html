@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Phishing Alerts Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-danger {
+            background: #f44336;
+        }
+        
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+        
+        /* Receiver List */
+        .receiver-list-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .receiver-list-header {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .receiver-list-header h2 {
+            color: #444;
+            font-size: 1.3rem;
+        }
+        
+        .search-box {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            width: 250px;
+            font-size: 0.9rem;
+        }
+        
+        .receiver-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .receiver-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 15px;
+            padding: 18px 20px;
+            border-bottom: 1px solid #f8f8f8;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            align-items: center;
+        }
+        
+        .receiver-row:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .receiver-row:last-child {
+            border-bottom: none;
+        }
+        
+        .receiver-email {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .receiver-stats {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .receiver-stat {
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .receiver-stat-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .receiver-stat-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 3px;
+        }
+        
+        .receiver-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .view-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .view-btn:hover {
+            background: #0b7dda;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 1200px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+        }
+        
+        .modal-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+        
+        .modal-subtitle {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Email Table */
+        .email-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .email-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #444;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .email-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: top;
+        }
+        
+        .email-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .email-subject {
+            font-weight: 500;
+            color: #333;
+            max-width: 300px;
+        }
+        
+        .email-sender {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .email-time {
+            color: #888;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
+        .email-reasons {
+            max-width: 200px;
+        }
+        
+        .reason-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .reason-tag {
+            background: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        .email-preview {
+            max-width: 400px;
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        /* Charts Section */
+        .charts-section {
+            margin-bottom: 30px;
+        }
+        
+        .charts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .charts-header h2 {
+            color: #444;
+            font-size: 1.3rem;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: 280px;
+        }
+        
+        .chart-container h3 {
+            margin-bottom: 15px;
+            color: #444;
+            font-size: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        
+        .last-updated {
+            text-align: center;
+            color: #888;
+            font-size: 0.85rem;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        /* Loading and Error States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.1rem;
+            color: #666;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+        
+        .empty-state svg {
+            opacity: 0.5;
+            margin-bottom: 15px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .receiver-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .receiver-stats {
+                justify-content: space-between;
+            }
+            
+            .receiver-actions {
+                justify-content: center;
+            }
+            
+            .search-box {
+                width: 100%;
+                margin-top: 10px;
+            }
+            
+            .receiver-list-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                max-height: 95vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="white" style="margin-right: 8px;">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                Phishing Alerts Dashboard
+            </h1>
+            <p>Real-time monitoring of phishing attempts grouped by target users</p>
+        </header>
+        
+        <div class="controls">
+            <button class="btn" onclick="loadDashboard()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                    <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                </svg>
+                Refresh Dashboard
+            </button>
+            <button class="btn btn-danger" onclick="cleanupOldAlerts()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                </svg>
+                Cleanup Old Alerts
+            </button>
+        </div>
+        
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="charts-header">
+                <h2>Overview Charts</h2>
+            </div>
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>Alerts by Receiver (Top 5)</h3>
+                    <canvas id="receiverChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Alerts Timeline (7 Days)</h3>
+                    <canvas id="timeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Receiver List -->
+        <div class="receiver-list-container">
+            <div class="receiver-list-header">
+                <h2>Targeted Users</h2>
+                <input type="text" id="receiverSearch" class="search-box" placeholder="Search users..." oninput="filterReceivers()">
+            </div>
+            <div id="receiverList" class="receiver-list">
+                <!-- Receiver rows will be populated here -->
+            </div>
+        </div>
+        
+        <div class="last-updated" id="lastUpdated"></div>
+    </div>
+    
+    <!-- Modal for Email Details -->
+    <div id="emailModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-close" onclick="closeModal()">X</button>
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/>
+                    </svg>
+                    <span id="modalReceiverEmail"></span>
+                </h2>
+                <div class="modal-subtitle" id="modalSubtitle"></div>
+            </div>
+            <div class="modal-body">
+                <table class="email-table" id="emailTable">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Sender</th>
+                            <th>Time</th>
+                            <th>Body Preview</th>
+                            <th>Detection Reasons</th>
+                        </tr>
+                    </thead>
+                    <tbody id="emailTableBody">
+                        <!-- Email rows will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let receiverChart, timeChart;
+        let currentReceivers = [];
+        let currentAlerts = [];
+        
+        async function loadDashboard() {
+            showLoading();
+            
+            try {
+                const alertsResponse = await fetch('/api/phishing/alerts');
+                
+                if (!alertsResponse.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                
+                const alerts = await alertsResponse.json();
+                
+                currentAlerts = alerts;
+                updateReceiverList(alerts);
+                createCharts(alerts);
+                updateLastUpdated();
+                
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+        
+        function updateReceiverList(alerts) {
+            // Group alerts by receiver
+            const groups = {};
+            
+            alerts.forEach(alert => {
+                const receiver = alert.receiver || 'Unknown';
+                
+                if (!groups[receiver]) {
+                    groups[receiver] = {
+                        email: receiver,
+                        alerts: [],
+                        totalAlerts: 0,
+                        uniqueSenders: new Set(),
+                        latestAlert: null
+                    };
+                }
+                
+                groups[receiver].alerts.push(alert);
+                groups[receiver].totalAlerts++;
+                groups[receiver].uniqueSenders.add(alert.sender);
+                
+                // Update latest alert
+                const alertTime = alert.timestamp || alert.created_at;
+                if (!groups[receiver].latestAlert || 
+                    new Date(alertTime) > new Date(groups[receiver].latestAlert.timestamp)) {
+                    groups[receiver].latestAlert = alert;
+                }
+            });
+            
+            // Calculate unique senders count
+            Object.values(groups).forEach(group => {
+                group.uniqueSendersCount = group.uniqueSenders.size;
+            });
+            
+            // Sort by total alerts (most targeted first)
+            currentReceivers = Object.values(groups).sort((a, b) => b.totalAlerts - a.totalAlerts);
+            
+            renderReceiverList(currentReceivers);
+        }
+        
+        function renderReceiverList(receivers) {
+            const container = document.getElementById('receiverList');
+            
+            if (receivers.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="#ccc">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/>
+                        </svg>
+                        <p>No phishing alerts found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            receivers.forEach((receiver, index) => {
+                html += `
+                    <div class="receiver-row" onclick="viewReceiverDetails('${receiver.email}')">
+                        <div class="receiver-email">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="#667eea">
+                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/>
+                            </svg>
+                            ${receiver.email}
+                        </div>
+                        
+                        <div class="receiver-stats">
+                            <div class="receiver-stat">
+                                <div class="receiver-stat-value">${receiver.totalAlerts}</div>
+                                <div class="receiver-stat-label">Total Alerts</div>
+                            </div>
+                            <div class="receiver-stat">
+                                <div class="receiver-stat-value">${receiver.uniqueSendersCount}</div>
+                                <div class="receiver-stat-label">Unique Senders</div>
+                            </div>
+                        </div>
+                        
+                        <div class="receiver-actions">
+                            <button class="view-btn" onclick="event.stopPropagation(); viewReceiverDetails('${receiver.email}')">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function filterReceivers() {
+            const searchTerm = document.getElementById('receiverSearch').value.toLowerCase();
+            if (!searchTerm) {
+                renderReceiverList(currentReceivers);
+                return;
+            }
+            
+            const filtered = currentReceivers.filter(receiver => 
+                receiver.email.toLowerCase().includes(searchTerm)
+            );
+            renderReceiverList(filtered);
+        }
+        
+        function viewReceiverDetails(email) {
+            const receiver = currentReceivers.find(r => r.email === email);
+            if (!receiver) return;
+            
+            // Update modal header
+            document.getElementById('modalReceiverEmail').textContent = email;
+            document.getElementById('modalSubtitle').textContent = 
+                `${receiver.totalAlerts} alerts from ${receiver.uniqueSendersCount} senders`;
+            
+            // Populate email table
+            const tableBody = document.getElementById('emailTableBody');
+            tableBody.innerHTML = '';
+            
+            // Sort alerts by timestamp (newest first)
+            const sortedAlerts = [...receiver.alerts].sort((a, b) => 
+                new Date(b.timestamp || b.created_at) - new Date(a.timestamp || a.created_at)
+            );
+            
+            sortedAlerts.forEach(alert => {
+                const timeStr = formatDateTime(alert.timestamp || alert.created_at);
+                const reasons = Array.isArray(alert.reasons) ? alert.reasons : 
+                               (alert.reasons ? JSON.parse(alert.reasons) : []);
+                const bodyPreview = alert.body_preview || '';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="email-subject">${truncateText(alert.subject || 'No Subject', 40)}</td>
+                    <td class="email-sender">${truncateText(alert.sender || 'Unknown', 25)}</td>
+                    <td class="email-time">${timeStr}</td>
+                    <td class="email-preview">${truncateText(bodyPreview, 80)}</td>
+                    <td class="email-reasons">
+                        <div class="reason-tags">
+                            ${reasons.slice(0, 3).map(reason => 
+                                `<span class="reason-tag">${reason}</span>`
+                            ).join('')}
+                            ${reasons.length > 3 ? 
+                                `<span class="reason-tag">+${reasons.length - 3} more</span>` : ''}
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Show modal
+            document.getElementById('emailModal').style.display = 'flex';
+        }
+        
+        function closeModal() {
+            document.getElementById('emailModal').style.display = 'none';
+        }
+        
+        async function cleanupOldAlerts() {
+            if (!confirm('Clean up alerts older than 30 days?')) return;
+            
+            try {
+                const response = await fetch('/api/phishing/cleanup', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Cleanup completed successfully!');
+                    loadDashboard();
+                } else {
+                    alert('Cleanup failed: ' + result.message);
+                }
+            } catch (error) {
+                alert('Error during cleanup: ' + error.message);
+            }
+        }
+        
+        function createCharts(alerts) {
+            createReceiverChart(alerts);
+            createTimeChart(alerts);
+        }
+        
+        function createReceiverChart(alerts) {
+            const ctx = document.getElementById('receiverChart').getContext('2d');
+            
+            // Group by receiver (top 5)
+            const receiverCounts = {};
+            alerts.forEach(alert => {
+                const receiver = alert.receiver || 'Unknown';
+                receiverCounts[receiver] = (receiverCounts[receiver] || 0) + 1;
+            });
+            
+            // Get top 5 receivers
+            const topReceivers = Object.entries(receiverCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            const labels = topReceivers.map(([receiver]) => 
+                receiver.split('@')[0].length > 10 ? 
+                receiver.split('@')[0].substring(0, 10) + '...' : 
+                receiver.split('@')[0]
+            );
+            const data = topReceivers.map(([, count]) => count);
+            
+            if (receiverChart) receiverChart.destroy();
+            
+            receiverChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Alerts',
+                        data: data,
+                        backgroundColor: '#667eea',
+                        borderColor: '#764ba2',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { font: { size: 11 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createTimeChart(alerts) {
+            const ctx = document.getElementById('timeChart').getContext('2d');
+            
+            // Group by date (last 7 days)
+            const dateCounts = {};
+            const now = new Date();
+            
+            alerts.forEach(alert => {
+                const date = new Date(alert.timestamp || alert.created_at).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                dateCounts[date] = (dateCounts[date] || 0) + 1;
+            });
+            
+            // Get last 7 days
+            const last7Days = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(now.getDate() - i);
+                const formatted = date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                last7Days.push(formatted);
+            }
+            
+            const data = last7Days.map(date => dateCounts[date] || 0);
+            
+            if (timeChart) timeChart.destroy();
+            
+            timeChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last7Days,
+                    datasets: [{
+                        label: 'Alerts',
+                        data: data,
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#667eea',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { font: { size: 11 } }
+                        },
+                        x: {
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function formatDateTime(dateString) {
+            if (!dateString) return 'Unknown';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + 
+                   ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+        
+        function truncateText(text, maxLength) {
+            if (!text) return 'N/A';
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+        
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = 
+                `Last updated: ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}`;
+        }
+        
+        function showLoading() {
+            document.getElementById('receiverList').innerHTML = 
+                '<div class="loading">Loading dashboard data...</div>';
+        }
+        
+        function showError(message) {
+            document.getElementById('receiverList').innerHTML = 
+                `<div class="error">Error: ${message}</div>`;
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('emailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadDashboard, 30000);
+        
+        // Initial load
+        loadDashboard();
+    </script>
+</body>
+</html>

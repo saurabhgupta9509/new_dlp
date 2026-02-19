@@ -3005,7 +3005,7 @@ function retryLoadViolations() {
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -4726,35 +4726,6 @@ function retryLoadViolations() {
     <script th:inline="javascript">
       /* ==================== AUTHENTICATION & USER DATA ==================== */
 
-      // async function checkAuth() {
-      //   try {
-      //     const response = await fetch("/api/auth/check", {
-      //       credentials: "include",
-      //     });
-
-      //     if (!response.ok) {
-      //       throw new Error("Not authenticated");
-      //     }
-
-      //     const result = await response.json();
-
-      //     if (!result.success) {
-      //       window.location.href = "index.html";
-      //       return null;
-      //     }
-
-      //     if (result.data) {
-      //       localStorage.setItem("userData", JSON.stringify(result.data));
-      //       return result.data;
-      //     }
-
-      //     return null;
-      //   } catch (err) {
-      //     window.location.href = "index.html";
-      //     return null;
-      //   }
-      // }
-
         // User data is passed directly from the controller
       const userData = {
         username: [[${username}]],
@@ -4784,17 +4755,6 @@ function retryLoadViolations() {
           userRole.textContent = userData.userRole;
         }
       }
-
-      // async function refreshUserData() {
-      //   // const userData = await checkAuth();
-      //   if (userData) {
-      //     localStorage.setItem("userData", JSON.stringify(userData));
-      //     loadAdminInfo();
-      //   }
-      // }
-
-      // Refresh every 5 minutes
-      // setInterval(refreshUserData, 5 * 60 * 1000);
 
       /* ==================== SIDEBAR FUNCTIONS ==================== */
 

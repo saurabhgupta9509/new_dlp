@@ -360,6 +360,7 @@ public class SecurityConfig {
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
         handler.setDefaultTargetUrl("/dashboard.html");
+        // handler.setDefaultTargetUrl("/admin-dashboard.html");
         handler.setAlwaysUseDefaultTargetUrl(true);
         return handler;
     }
@@ -380,6 +381,7 @@ public class SecurityConfig {
 
                         // ============= PUBLIC STATIC PAGES =============
                         .requestMatchers("/index.html", "/", "/favicon.ico").permitAll()
+                        .requestMatchers("/*.html").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
 
@@ -389,7 +391,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/agent/**").permitAll()
                         .requestMatchers("/api/python-client/**").permitAll()
                         .requestMatchers("/api/python/**").permitAll()
-
+//                                .requestMatchers(HttpMethod.GET, "/api/python/devices").permitAll()
+//                                .requestMatchers(HttpMethod.GET, "/api/python/device/**").permitAll()
+//                                .requestMatchers(HttpMethod.GET, "/api/python/stats").permitAll()
                         // ============= ADMIN PAGES - REQUIRES AUTHENTICATION =============
                         .requestMatchers(
                                 "/dashboard.html",
@@ -473,9 +477,11 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:8080",
                 "http://localhost:9090",
+                "http://localhost:9090/python_client.html",
                 "https://elisha-nongeological-anaya.ngrok-free.dev",
                 "chrome-extension://*",
-                "chrome-extension://eiefebcijckhphnonpbdbahjcmdkjfja"
+                "chrome-extension://eiefebcijckhphnonpbdbahjcmdkjfja",
+                "https://isbn-darwin-observations-button.trycloudflare.com/"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
