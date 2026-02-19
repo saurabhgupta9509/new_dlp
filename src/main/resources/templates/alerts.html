@@ -4943,18 +4943,6 @@
         userId: [[${userId}]]
     };
 
-<<<<<<< HEAD
-=======
-        // User data from server
-        const userData = {
-        username: [[${username}]],
-        userName: [[${userName}]],
-        userInitials: [[${userInitials}]],
-        userRole: [[${userRole}]],
-        userEmail: [[${userEmail}]],
-        userId: [[${userId}]]
-    };
->>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
     function loadAdminInfo() {
         const userName = document.querySelector(".user-name");
         const userAvatar = document.querySelector(".user-avatar");
@@ -5156,17 +5144,10 @@
         }
 
         // Logout function
-<<<<<<< HEAD
         function logout(event) {
             event.preventDefault();
                 window.location.href = '/logout'; 
         }
-=======
-       function logout(event) {
-        event.preventDefault();
-        window.location.href = "/logout";
-    }
->>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
 
         // Close dropdowns when clicking outside
         document.addEventListener('click', function(event) {
@@ -5767,19 +5748,9 @@
 
         // Initialize on DOM ready
         document.addEventListener("DOMContentLoaded", async () => {
-<<<<<<< HEAD
             // Check authentication and get user data 
                 loadAdminInfo();
   
-=======
-            // Check authentication and get user data
-          
-            // Load admin info into header
-           
-                loadAdminInfo();
-       
-            
->>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
             // Set active menu item
             setActiveMenuItem();
             
