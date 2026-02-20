@@ -32,36 +32,32 @@ public interface AgentCapabilityRepository extends JpaRepository<AgentCapability
     @Query("SELECT DISTINCT ac.category FROM AgentCapability ac WHERE ac.agent.id = :agentId")
     List<String> findDistinctCategoriesByAgentId(@Param("agentId") Long agentId);
 
-
     List<AgentCapability> findByCapabilityCode(String capabilityCode);
 
-     @Query("""
-    SELECT COUNT(DISTINCT ac.agent.id)
-    FROM AgentCapability ac
-    WHERE ac.capabilityCode = :capabilityCode
-""")
-long countAgentsWithCapability(@Param("capabilityCode") String capabilityCode);
-;
+    @Query("""
+                SELECT COUNT(DISTINCT ac.agent.id)
+                FROM AgentCapability ac
+                WHERE ac.capabilityCode = :capabilityCode
+            """)
+    long countAgentsWithCapability(@Param("capabilityCode") String capabilityCode);;
 
     @Query("""
-    SELECT DISTINCT ac.agent.id
-    FROM AgentCapability ac
-    WHERE ac.capabilityCode = :capabilityCode
-""")
+                SELECT DISTINCT ac.agent.id
+                FROM AgentCapability ac
+                WHERE ac.capabilityCode = :capabilityCode
+            """)
     List<Long> findAllAgentIdsWithCapability(@Param("capabilityCode") String capabilityCode);
 
     @Query("""
-    SELECT DISTINCT ac.agent.id
-    FROM AgentCapability ac
-    WHERE ac.capabilityCode = :capabilityCode
-""")
+                SELECT DISTINCT ac.agent.id
+                FROM AgentCapability ac
+                WHERE ac.capabilityCode = :capabilityCode
+            """)
     List<Long> findAgentIdsWithCapability(@Param("capabilityCode") String capabilityCode);
-
 
     boolean existsByAgentIdAndCapabilityCodeAndIsActiveTrue(
             Long agentId,
-            String capabilityCode
-    );
+            String capabilityCode);
 
     // ADD THIS METHOD:
     Long countByIsActiveTrue();

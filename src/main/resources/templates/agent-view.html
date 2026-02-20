@@ -1200,7 +1200,8 @@
                     </a>
                 </div>
 
-                <div class="agent-profile-card">
+                <!-- <div class="agent-profile-card" data-agent-id="[[${agentId}]]"> -->
+                <div class="agent-profile-card" th:data-agent-id="${agentId}">
                     <div class="profile-header">
                         <div class="profile-info">
                             <div class="profile-avatar">JD</div>
@@ -2035,6 +2036,171 @@
       }
         
 
+
+      function loadAgentPolicies(agentId) {
+    fetch(`/api/admin/agents/${agentId}/policies`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayAgentPolicies(data.data);
+            } else {
+                console.error('Failed to load policies:', data.message);
+                showPoliciesError();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading policies:', error);
+            showPoliciesError();
+        });
+}
+
+// Function to display policies in the Policies tab
+function displayAgentPolicies(policies) {
+    const policyContainer = document.querySelector('#policies .policy-list');
+    if (!policyContainer) return;
+    
+    if (!policies || policies.length === 0) {
+        policyContainer.innerHTML = `
+            <div style="text-align: center; padding: 40px; background: #f9fafb; border-radius: 8px;">
+                <i class="fas fa-shield-alt" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
+                <h4 style="color: #374151; margin-bottom: 8px;">No Active Policies</h4>
+                <p style="color: #6b7280;">This agent doesn't have any active policies yet.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    policies.forEach(policy => {
+        // Parse policy data if it's JSON
+        let rules = [];
+        try {
+            if (policy.policyData) {
+                const data = JSON.parse(policy.policyData);
+                if (Array.isArray(data)) {
+                    rules = data;
+                } else if (typeof data === 'object') {
+                    rules = Object.values(data);
+                }
+            }
+        } catch (e) {
+            // If not JSON, use as string
+            if (policy.policyData) {
+                rules = [policy.policyData];
+            }
+        }
+        
+        // Generate rule tags
+        const ruleTags = rules.length > 0 
+            ? rules.map(rule => `<span class="rule-tag">${rule}</span>`).join('')
+            : '<span class="rule-tag">No specific rules</span>';
+        
+        html += `
+            <div class="policy-card">
+                <div class="policy-header">
+                    <h4 class="policy-title">${policy.name || policy.policyCode}</h4>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span class="policy-status active">Active</span>
+                        <button class="policy-delete-btn" onclick="removePolicyFromAgent(${policy.id}, this)" title="Remove">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <p class="policy-desc">${policy.description || 'No description available'}</p>
+                <div class="policy-rules">
+                    ${ruleTags}
+                </div>
+            </div>
+        `;
+    });
+    
+    policyContainer.innerHTML = html;
+}
+
+// Function to show error state
+function showPoliciesError() {
+    const policyContainer = document.querySelector('#policies .policy-list');
+    if (policyContainer) {
+        policyContainer.innerHTML = `
+            <div style="text-align: center; padding: 40px; background: #f9fafb; border-radius: 8px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ef4444; margin-bottom: 16px;"></i>
+                <h4 style="color: #374151; margin-bottom: 8px;">Error Loading Policies</h4>
+                <p style="color: #6b7280;">Failed to load policies. Please try again.</p>
+                <button onclick="loadAgentPolicies(getAgentIdFromUrl())" class="btn btn-primary" style="margin-top: 16px;">
+                    <i class="fas fa-sync-alt"></i> Retry
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Helper function to get agent ID from URL
+function getAgentIdFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+    if (id) return id;
+    
+    // Try to extract from the current page context
+    // You might need to adjust this based on how you're passing the agent ID
+    const agentName = document.querySelector('.profile-details h1')?.textContent;
+    if (agentName) {
+        // If you have a mapping or can extract from somewhere else
+        // For now, you might want to store the agent ID in a data attribute
+        return document.querySelector('.profile-card')?.dataset.agentId;
+    }
+    return null;
+}
+
+// Function to remove policy from agent
+function removePolicyFromAgent(policyId, buttonElement) {
+    if (!confirm('Are you sure you want to remove this policy from the agent?')) {
+        return;
+    }
+    
+    const policyCard = buttonElement.closest('.policy-card');
+    const policyCode = policyCard.querySelector('.policy-title').textContent;
+    const agentId = getAgentIdFromUrl();
+    
+    if (!agentId) {
+        alert('Could not determine agent ID');
+        return;
+    }
+    
+    fetch('/api/admin/deactivate-protection', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            agentIds: [parseInt(agentId)],
+            policyCode: policyCode
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove the policy card from UI
+            policyCard.remove();
+            
+            // Check if there are no more policies
+            const policyContainer = document.querySelector('#policies .policy-list');
+            if (policyContainer.children.length === 0) {
+                displayAgentPolicies([]);
+            }
+            
+            // Show success message
+            alert('Policy removed successfully');
+        } else {
+            alert('Failed to remove policy: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error removing policy:', error);
+        alert('Error removing policy: ' + error.message);
+    });
+}
+
+
         /* ==================== SIDEBAR & HEADER FUNCTIONS ==================== */
         
         function toggleSubMenu(element) {
@@ -2198,7 +2364,19 @@
                 }
             });
         }
-
+        
+        // Also load policies when the Policies tab is clicked
+        document.addEventListener('click', function(e) {
+            const tabBtn = e.target.closest('.tab-btn[onclick*="policies"]');
+            if (tabBtn) {
+                setTimeout(() => {
+                    const agentId = getAgentIdFromUrl();
+                    if (agentId) {
+                        loadAgentPolicies(agentId);
+                    }
+                }, 100);
+            }
+        });
 
         // Close dropdowns on outside click
         document.addEventListener('click', function (e) {
@@ -2616,6 +2794,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             setActiveMenuItem();
             loadAdminInfo();
+
+            setTimeout(() => {
+                const agentId = getAgentIdFromUrl();
+                if (agentId) {
+                    loadAgentPolicies(agentId);
+                } else {
+                    console.warn('Could not determine agent ID for loading policies');
+                }
+            }, 500); // Small delay to ensure DOM is ready
+
         });
     </script>
 </body>

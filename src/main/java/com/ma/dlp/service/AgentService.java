@@ -287,9 +287,20 @@ public class AgentService {
     /**
      * Get active capabilities for an agent
      */
-    public List<AgentCapability> getActiveCapabilities(Long agentId) {
-        return agentCapabilityRepository.findActiveCapabilitiesByAgentId(agentId);
-    }
+    // public List<AgentCapability> getActiveCapabilities(Long agentId) {
+    //     return agentCapabilityRepository.findActiveCapabilitiesByAgentId(agentId);
+    // }
+            // In AgentService.java
+        public List<AgentCapability> getActiveCapabilities(Long agentId) {
+            // Try different queries to see which one works
+            List<AgentCapability> caps1 = agentCapabilityRepository.findByAgentId(agentId);
+            System.out.println("All capabilities for agent " + agentId + ": " + caps1.size());
+            
+            List<AgentCapability> caps2 = agentCapabilityRepository.findByAgentIdAndIsActiveTrue(agentId);
+            System.out.println("Active capabilities for agent " + agentId + ": " + caps2.size());
+            
+            return caps2; // Return the active ones
+        }
 
     /**
      * Get all capabilities for an agent

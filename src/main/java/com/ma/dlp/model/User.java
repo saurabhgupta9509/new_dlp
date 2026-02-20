@@ -40,8 +40,9 @@ public class User implements UserDetails {
     @Column(name = "token", length = 500)
     private String token;
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<PolicyAssignment> policyAssignments = new ArrayList<>();
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch =
+    // FetchType.LAZY)
+    // private List<PolicyAssignment> policyAssignments = new ArrayList<>();
 
     // Agent-specific fields
     @Column(nullable = true)
@@ -55,7 +56,7 @@ public class User implements UserDetails {
     private Date lastHeartbeat;
 
     // In User.java - Add transient field for plain password (not stored in DB)
-    @Transient  // This field won't be persisted to database
+    @Transient // This field won't be persisted to database
     private String plainPassword;
 
     @Transient
@@ -159,6 +160,7 @@ public class User implements UserDetails {
     public void setEmail(String email) {
         this.email = email;
     }
+
     public Boolean getOcrActive() {
         return ocrActive;
     }
@@ -219,7 +221,6 @@ public class User implements UserDetails {
         return this.status == UserStatus.ACTIVE;
     }
 
-
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -276,7 +277,6 @@ public class User implements UserDetails {
         this.macAddress = macAddress;
     }
 
-
     public String getPassword() {
         return password;
     }
@@ -285,14 +285,15 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    public List<PolicyAssignment> getPolicyAssignments() {
-//        return policyAssignments;
-//    }
-//
-//    public void setPolicyAssignments(List<PolicyAssignment> policyAssignments) {
-//        this.policyAssignments = policyAssignments;
-//    }
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch =
+    // FetchType.LAZY)
+    // public List<PolicyAssignment> getPolicyAssignments() {
+    // return policyAssignments;
+    // }
+    //
+    // public void setPolicyAssignments(List<PolicyAssignment> policyAssignments) {
+    // this.policyAssignments = policyAssignments;
+    // }
 
     public UserRole getRole() {
         return role;
