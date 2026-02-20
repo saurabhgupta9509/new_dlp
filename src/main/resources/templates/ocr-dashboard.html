@@ -3005,11 +3005,7 @@ function retryLoadViolations() {
 
 
 <!DOCTYPE html>
-<<<<<<< HEAD
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-=======
-<html lang="en"xmlns:th="http://www.thymeleaf.org">
->>>>>>> 8d476d2a36a10307e0748cbf1f5ce139560af312
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -4329,12 +4325,12 @@ function retryLoadViolations() {
                 data-page="manage-agents"
                 >Manage Agents</a
               >
-              <a
+              <!-- <a
                 href="file-policies.html"
                 class="sub-menu-item"
                 data-page="file-policies"
                 >File Policies</a
-              >
+              > -->
               <a
                 href="assign-policy.html"
                 class="sub-menu-item"
@@ -4344,12 +4340,12 @@ function retryLoadViolations() {
             </div>
           </div>
 
-          <div class="nav-item">
+          <!-- <div class="nav-item">
             <a href="agents.html" class="nav-link" data-page="agents">
               <i class="fas fa-desktop"></i>
               <span>Agents / Endpoints</span>
             </a>
-          </div>
+          </div> -->
 
           <div class="nav-item">
             <div class="nav-link nav-dropdown expanded" onclick="toggleSubMenu(this)">
@@ -4364,12 +4360,12 @@ function retryLoadViolations() {
                 data-page="ocr-dashboard"
                 >OCR Dashboard</a
               >
-              <a
+              <!-- <a
                 href="ocr-policies.html"
                 class="sub-menu-item"
                 data-page="ocr-policies"
                 >OCR Policies</a
-              >
+              > -->
             </div>
           </div>
 
@@ -4492,10 +4488,11 @@ function retryLoadViolations() {
           </button>
 
           <div class="user-profile" onclick="toggleUserDropdown(event)">
-            <div class="user-avatar">A</div>
+            <div class="user-avatar">[[${userInitials}]]</div>
             <div class="user-info">
-              <div class="user-name">Admin</div>
-              <div class="user-role">Security Admin</div>
+              <div class="user-name">[[${userName}]]</div>
+              <!-- <div class="user-role">[[${userRole}]]</div> -->
+              <div id="userEmail">[[${userEmail}]]</div>
             </div>
             <i class="fas fa-chevron-down dropdown-icon"></i>
 
@@ -5472,28 +5469,84 @@ function retryLoadViolations() {
         return div.innerHTML;
       }
 
+      // // Helper function to format time ago
+      // function formatTimeAgo(timestamp) {
+      //   if (!timestamp) return "N/A";
+
+      //   try {
+      //     const date = new Date(timestamp);
+      //     const now = new Date();
+
+      //     const diffMs = now.getTime() - date.getTime();
+      //     const diffMins = Math.floor(diffMs / 60000);
+      //     const diffHours = Math.floor(diffMs / 3600000);
+      //     const diffDays = Math.floor(diffMs / 86400000);
+
+      //     if (diffMins < 1) return "Just now";
+      //     if (diffMins < 60) return `${diffMins}m ago`;
+      //     if (diffHours < 24) return `${diffHours}h ago`;
+      //     return `${diffDays}d ago`;
+      //   } catch (e) {
+      //     console.error('Error parsing date:', e);
+      //     return "Invalid date";
+      //   }
+      // }
+
       // Helper function to format time ago
-      function formatTimeAgo(timestamp) {
-        if (!timestamp) return "N/A";
-
-        try {
-          const date = new Date(timestamp);
-          const now = new Date();
-
-          const diffMs = now.getTime() - date.getTime();
-          const diffMins = Math.floor(diffMs / 60000);
-          const diffHours = Math.floor(diffMs / 3600000);
-          const diffDays = Math.floor(diffMs / 86400000);
-
-          if (diffMins < 1) return "Just now";
-          if (diffMins < 60) return `${diffMins}m ago`;
-          if (diffHours < 24) return `${diffHours}h ago`;
-          return `${diffDays}d ago`;
-        } catch (e) {
-          console.error('Error parsing date:', e);
-          return "Invalid date";
+function formatTimeAgo(timestamp) {
+    if (!timestamp) return "N/A";
+    
+    try {
+        let date;
+        
+        // Handle array format: [year, month, day, hour, minute, second, nanosecond]
+        if (Array.isArray(timestamp) && timestamp.length >= 6) {
+            // Note: JavaScript months are 0-indexed, but your array month is likely 1-indexed (2 = February)
+            // Adjust if needed: if month is 2, it should be 1 in JavaScript (Jan=0, Feb=1)
+            const [year, month, day, hour, minute, second, nano] = timestamp;
+            
+            // Create date - subtract 1 from month if your array months are 1-indexed
+            // Your array shows month = 2 (February), so we need month-1 = 1 for JavaScript
+            date = new Date(year, month - 1, day, hour, minute, second);
+            
+            // Optional: Add nanoseconds if needed (usually not necessary for display)
+            // date.setMilliseconds(Math.floor(nano / 1000000));
+            
+        } else if (typeof timestamp === 'number') {
+            // Handle Unix timestamp (seconds or milliseconds)
+            if (timestamp < 10000000000) {
+                date = new Date(timestamp * 1000); // seconds to milliseconds
+            } else {
+                date = new Date(timestamp); // already milliseconds
+            }
+        } else {
+            // Try to parse as string
+            date = new Date(timestamp);
         }
-      }
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            console.error('Invalid date:', timestamp);
+            return "Invalid date";
+        }
+        
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) return "Just now";
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays < 30) return `${diffDays}d ago`;
+        return `${Math.floor(diffDays / 30)}mo ago`;
+        
+    } catch (e) {
+        console.error('Error formatting date:', e, timestamp);
+        return "Invalid date";
+    }
+}
 
       // Dashboard functions
       function refreshData() {

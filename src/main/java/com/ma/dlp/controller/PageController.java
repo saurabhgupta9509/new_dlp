@@ -154,7 +154,7 @@ public class PageController {
 
     @GetMapping("/file-policies.html")
     public String filePoliciesPage(HttpSession session, Model model) {
-         return checkAuthAndReturn(session, model, "manage-agents");
+         return checkAuthAndReturn(session, model, "file-policies");
     }
 
     @GetMapping("/general.html")

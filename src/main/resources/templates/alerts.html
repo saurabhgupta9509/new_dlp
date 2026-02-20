@@ -4637,17 +4637,17 @@
                     </div>
                     <div class="sub-menu">
                         <a href="manage-agents.html" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
-                        <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a>
+                        <!-- <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a> -->
                         <a href="assign-policy.html" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
                     </div>
                 </div>
 
-                <div class="nav-item">
+                <!-- <div class="nav-item">
                     <a href="agents.html" class="nav-link" data-page="agents">
                         <i class="fas fa-desktop"></i>
                         <span>Agents / Endpoints</span>
                     </a>
-                </div>
+                </div> -->
 
                 <div class="nav-item">
                     <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
@@ -4733,10 +4733,11 @@
                     </button>
 
                     <div class="user-profile" onclick="toggleUserDropdown(event)">
-                        <div class="user-avatar">A</div>
+                        <div class="user-avatar">[[${userInitials}]]</div>
                         <div class="user-info">
-                            <div class="user-name">Admin</div>
-                            <div class="user-role">Security Admin</div>
+                            <div class="user-name">[[${userName}]]</div>
+                            <!-- <div class="user-role">[[${userRole}]]</div> -->
+                            <div id="userEmail">[[${userEmail}]]</div>
                         </div>
                         <i class="fas fa-chevron-down dropdown-icon"></i>
 
@@ -5431,28 +5432,63 @@
             return '<span class="status-badge status-open">Open</span>';
         }
 
+        // function formatTimestamp(timestamp) {
+        //     if (!timestamp) return "N/A";
+
+        //     try {
+        //         const date = new Date(timestamp);
+        //         if (isNaN(date.getTime())) {
+        //             return safeString(timestamp);
+        //         }
+
+        //         return date.toLocaleString('en-US', {
+        //             year: 'numeric',
+        //             month: '2-digit',
+        //             day: '2-digit',
+        //             hour: '2-digit',
+        //             minute: '2-digit',
+        //             second: '2-digit',
+        //             hour12: false
+        //         });
+        //     } catch (e) {
+        //         return safeString(timestamp);
+        //     }
+        // }
         function formatTimestamp(timestamp) {
-            if (!timestamp) return "N/A";
+    if (!timestamp) return "N/A";
 
-            try {
-                const date = new Date(timestamp);
-                if (isNaN(date.getTime())) {
-                    return safeString(timestamp);
-                }
-
-                return date.toLocaleString('en-US', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                });
-            } catch (e) {
-                return safeString(timestamp);
-            }
+    try {
+        let date;
+        
+        // Handle array format: [year, month, day, hour, minute, second]
+        if (Array.isArray(timestamp) && timestamp.length >= 6) {
+            const [year, month, day, hour, minute, second] = timestamp;
+            // JavaScript months are 0-indexed, but array month is 1-indexed (2 = February)
+            date = new Date(year, month - 1, day, hour, minute, second);
         }
+        // Handle timestamp string/number
+        else {
+            date = new Date(timestamp);
+        }
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            return safeString(timestamp);
+        }
+
+        return date.toLocaleString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+    } catch (e) {
+        return safeString(timestamp);
+    }
+}
 
         function viewAlertDetails(alertId) {
             window.location.href = `alert-details.html?id=${alertId}`;

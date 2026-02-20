@@ -5082,17 +5082,17 @@
           </div>
           <div class="sub-menu">
             <a href="manage-agents.html" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
-            <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a>
+            <!-- <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a> -->
             <a href="assign-policy.html" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
           </div>
         </div>
-
-        <div class="nav-item">
+ 
+        <!-- <div class="nav-item">
           <a href="agents.html" class="nav-link" data-page="agents">
             <i class="fas fa-desktop"></i>
             <span>Agents / Endpoints</span>
           </a>
-        </div>
+        </div> -->
 
         <div class="nav-item">
           <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
@@ -5102,7 +5102,7 @@
           </div>
           <div class="sub-menu">
             <a href="ocr-dashboard.html" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
-            <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>
+            <!-- <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a> -->
           </div>
         </div>
 
@@ -5177,10 +5177,11 @@
         </button>
 
         <div class="user-profile" onclick="toggleUserDropdown(event)">
-          <div class="user-avatar"></div>
+          <div class="user-avatar">[[${userInitials}]]</div>
           <div class="user-info">
-            <div class="user-name"></div>
-            <div class="user-role"></div>
+            <div class="user-name">[[${userName}]]</div>
+            <!-- <div class="user-role">[[${userRole}]]</div> -->
+            <div id="userEmail">[[${userEmail}]]</div>
           </div>
           <i class="fas fa-chevron-down dropdown-icon"></i>
 
@@ -5299,68 +5300,120 @@
     <!-- Notification Overlay -->
     <div class="notification-overlay" id="notificationOverlay" onclick="closeNotifications()"></div>
 
-    <!-- Main Content -->
-    <main class="main-content" id="mainContent">
-      <div class="content-area">
-        <div class="page-header">
-          <div class="page-title-section">
-            <div class="page-icon"><i class="fas fa-desktop"></i></div>
-            <div class="page-title-text">
-              <h1>Manage Agents</h1>
-              <p class="page-subtitle">
-                Monitor and configure endpoint agents
-              </p>
+     <!-- Main Content -->
+      <main class="main-content" id="mainContent">
+        <div class="content-area">
+          <div class="page-header">
+            <div class="page-title-section">
+              <div class="page-icon"><i class="fas fa-desktop"></i></div>
+              <div class="page-title-text">
+                <h1>Manage Agents</h1>
+                <p class="page-subtitle">
+                  Monitor and configure endpoint agents
+                </p>
+              </div>
             </div>
+            <button
+              class="add-btn"
+              onclick="window.location.href = 'agent-add.html'"
+            >
+              <i class="fas fa-plus"></i> <span>Add Agent</span>
+            </button>
           </div>
-          <button class="add-btn" onclick="window.location.href = 'agent-add.html'">
-            <i class="fas fa-plus"></i> <span>Add Agent</span>
-          </button>
-        </div>
 
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-header">
-              <div>
-                <div class="stat-label">Total Agents</div>
-                <div class="stat-value" id="totalAgents">0</div>
-              </div>
-              <div class="stat-icon blue"><i class="fas fa-desktop"></i></div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-header">
-              <div>
-                <div class="stat-label">Online</div>
-                <div class="stat-value" id="onlineAgents">0</div>
-              </div>
-              <div class="stat-icon green">
-                <i class="fas fa-check-circle"></i>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div>
+                  <div class="stat-label">Total Agents</div>
+                  <div class="stat-value" id="totalAgents">0</div>
+                </div>
+                <div class="stat-icon blue"><i class="fas fa-desktop"></i></div>
               </div>
             </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-header">
-              <div>
-                <div class="stat-label">Offline</div>
-                <div class="stat-value" id="offlineAgents">0</div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div>
+                  <div class="stat-label">Online</div>
+                  <div class="stat-value" id="onlineAgents">0</div>
+                </div>
+                <div class="stat-icon green">
+                  <i class="fas fa-check-circle"></i>
+                </div>
               </div>
-              <div class="stat-icon red">
-                <i class="fas fa-circle-xmark"></i>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div>
+                  <div class="stat-label">Offline</div>
+                  <div class="stat-value" id="offlineAgents">0</div>
+                </div>
+                <div class="stat-icon red">
+                  <i class="fas fa-circle-xmark"></i>
+                </div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div>
+                  <div class="stat-label">Needs Update</div>
+                  <div class="stat-value" id="needsUpdate">0</div>
+                </div>
+                <div class="stat-icon yellow">
+                  <i class="fas fa-triangle-exclamation"></i>
+                </div>
               </div>
             </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-header">
-              <div>
-                <div class="stat-label">Needs Update</div>
-                <div class="stat-value" id="needsUpdate">0</div>
-              </div>
-              <div class="stat-icon yellow">
-                <i class="fas fa-triangle-exclamation"></i>
-              </div>
+
+          <div class="filters-section">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Search agents..."
+                id="agentSearch"
+              />
+            </div>
+            <select class="filter-select" id="statusFilter">
+              <option value="">All Status</option>
+              <option value="online">Online</option>
+              <option value="offline">Offline</option>
+            </select>
+            <select class="filter-select" id="osFilter">
+              <option value="">All OS</option>
+              <option value="windows">Windows</option>
+              <option value="macos">macOS</option>
+              <option value="linux">Linux</option>
+            </select>
+          </div>
+
+          <div class="agents-table-container">
+            <div class="table-wrapper">
+              <table class="agents-table">
+                <thead>
+                  <tr>
+                    <th>AGENT NAME</th>
+                    <th>USER</th>
+                    <th>OS</th>
+                    <th>IP ADDRESS</th>
+                    <th>STATUS</th>
+                    <th>ACTIVE POLICIES</th>
+                    <th>LAST HEARTBEAT</th>
+                    <th>VERSION</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="agentsTableBody">
+                  <tr><td colspan="9" class="loading">Loading agents...</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
+      </main>
+    </div>
 
     <script th:inline="javascript">
       // ============ GLOBAL VARIABLES ============
@@ -5624,7 +5677,13 @@
               <td><span class="os-badge"><i class="${osInfo.icon} os-icon"></i> ${osInfo.name}</span></td>
               <td>${agent.ipAddress || "N/A"}</td>
               <td><span class="status-badge ${status}">${status === "online" ? "Online" : "Offline"}</span></td>
-              <td><a href="#" class="policies-link" onclick="event.stopPropagation(); viewPolicies('${agent.id}')">${policiesCount} policies</a></td>
+              <td>
+                <a href="agent-view.html?id=${agent.id}&tab=policies"
+                  class="policies-link"
+                  onclick="event.stopPropagation()">
+                  ${policiesCount} policies
+                </a>
+              </td>
               <td>${lastHeartbeat}</td>
               <td>${agent.version || "N/A"}</td>
               <td>
@@ -5794,11 +5853,11 @@
       }
     }
 
-    function viewPolicies(agentId) {
-      event.preventDefault();
-      event.stopPropagation();
-      window.location.href = `policies.html?agent=${agentId}`;
-    }
+   function viewPolicies(event, agentId) {
+    event.preventDefault();
+    event.stopPropagation();
+    window.location.href = `policy-view.html?agent=${agentId}&tab=policies`;
+  }
 
     async function restartAgent(agentId) {
       event.preventDefault();

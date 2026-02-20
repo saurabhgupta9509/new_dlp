@@ -1,18 +1,23 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DLP Shield - Security Settings</title>
+    <title>DLP Shield - Manage Agents</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            background: #f3f4f6; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f3f4f6;
             overflow-x: hidden;
         }
-        
+
         .dashboard-container {
             display: flex;
             min-height: 100vh;
@@ -482,276 +487,589 @@
 
         .notification-overlay.show { opacity: 1; visibility: visible; }
 
-        /* Main Content */
+        /* ================ MANAGE AGENTS CONTENT STYLES ================ */
         .main-content {
             flex: 1;
             margin-left: 240px;
             transition: margin-left 0.3s ease;
             min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
         }
 
         .main-content.expanded {
             margin-left: 70px;
         }
 
-        /* Content Area */
-
-      /*  .content-area {
+        .content-area {
             padding: 24px;
             padding-top: 100px;
-            max-width: 900px;
-            margin: 0 auto;
-        } */
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
 
+        .page-header {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
 
-            .content-area {
-            padding: 24px;
-          padding-top: 87px;
+        .page-title-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            min-width: 0;
+            flex: 1;
         }
-        
-        .page-header { 
-            background: white; 
-            padding: 20px 24px; 
-            border-radius: 12px; 
-            border: 1px solid #e5e7eb; 
-            margin-bottom: 24px; 
+
+        .page-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
-        .page-title-section { 
-            display: flex; 
-            align-items: center; 
-            gap: 16px; 
+
+        .page-icon i {
+            font-size: 22px;
+            color: white;
         }
-        .page-icon { 
-            width: 48px; 
-            height: 48px; 
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); 
-            border-radius: 12px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
+
+        .page-title-text {
+            min-width: 0;
+            flex: 1;
         }
-        .page-icon i { 
-            font-size: 22px; 
-            color: white; 
+
+        .page-title-text h1 {
+            font-size: 1.5em;
+            color: #111827;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .page-title-text h1 { 
-            font-size: 1.5em; 
-            color: #111827; 
-            font-weight: 700; 
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 0.9em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .page-subtitle { 
-            color: #6b7280; 
-            font-size: 0.9em; 
+
+        .add-btn {
+            padding: 10px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
-        
-        .settings-form { 
-            background: white; 
-            padding: 28px; 
-            border-radius: 12px; 
-            border: 1px solid #e5e7eb; 
+
+        .add-btn:hover {
+            background: #1d4ed8;
         }
-        .form-section { 
-            margin-bottom: 28px; 
-            padding-bottom: 28px; 
-            border-bottom: 1px solid #e5e7eb; 
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+            width: 100%;
         }
-        .form-section:last-child { 
-            border-bottom: none; 
-            margin-bottom: 0; 
-            padding-bottom: 0; 
+
+        .stat-card {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            width: 100%;
         }
-        .section-title { 
-            font-size: 1.05em; 
-            font-weight: 600; 
-            color: #111827; 
-            margin-bottom: 16px; 
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
         }
-        
-        .form-group { 
-            margin-bottom: 18px; 
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1em;
+            flex-shrink: 0;
         }
-        .form-label { 
-            display: block; 
-            font-size: 0.85em; 
-            color: #374151; 
-            font-weight: 500; 
-            margin-bottom: 6px; 
+
+        .stat-icon.blue { background: #dbeafe; color: #3b82f6; }
+        .stat-icon.green { background: #d1fae5; color: #10b981; }
+        .stat-icon.red { background: #fee2e2; color: #dc2626; }
+        .stat-icon.yellow { background: #fef3c7; color: #f59e0b; }
+
+        .stat-label {
+            font-size: 0.75em;
+            color: #6b7280;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .form-input, .form-select { 
-            width: 100%; 
-            padding: 10px 12px; 
-            border: 1.5px solid #e5e7eb; 
-            border-radius: 8px; 
-            font-size: 0.9em; 
+
+        .stat-value {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: #111827;
         }
-        .form-input:focus, .form-select:focus { 
-            outline: none; 
-            border-color: #3b82f6; 
+
+        .filters-section {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            width: 100%;
         }
-        .form-select { 
-            background: white; 
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
         }
-        .form-hint { 
-            font-size: 0.8em; 
-            color: #9ca3af; 
-            margin-top: 4px; 
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 0.9em;
         }
-        
-        .toggle-group { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 12px 0; 
+
+        .search-input {
+            width: 100%;
+            padding: 9px 12px 9px 36px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9em;
+            background: #f9fafb;
+            transition: all 0.3s ease;
         }
-        .toggle-label { 
-            flex: 1; 
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
         }
-        .toggle-title { 
-            font-size: 0.9em; 
-            font-weight: 600; 
-            color: #111827; 
+
+        .filter-select {
+            padding: 9px 32px 9px 12px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9em;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
         }
-        .toggle-desc { 
-            font-size: 0.8em; 
-            color: #6b7280; 
-            margin-top: 2px; 
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #3b82f6;
         }
-        .toggle-switch { 
-            position: relative; 
-            width: 50px; 
-            height: 26px; 
+
+        .agents-table-container {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            width: 100%;
         }
-        .toggle-switch input { 
-            opacity: 0; 
-            width: 0; 
-            height: 0; 
+
+        .table-wrapper {
+            overflow-x: auto;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
         }
-        .toggle-slider { 
-            position: absolute; 
-            cursor: pointer; 
-            top: 0; 
-            left: 0; 
-            right: 0; 
-            bottom: 0; 
-            background-color: #cbd5e1; 
-            border-radius: 26px; 
-            transition: .3s; 
+
+        .agents-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px; /* Reduced from 1200px to 1000px for better fit */
         }
-        .toggle-slider:before { 
-            position: absolute; 
-            content: ""; 
-            height: 20px; 
-            width: 20px; 
-            left: 3px; 
-            bottom: 3px; 
-            background-color: white; 
-            border-radius: 50%; 
-            transition: .3s; 
+
+        .agents-table thead {
+            background: #f9fafb;
         }
-        input:checked + .toggle-slider { 
-            background-color: #10b981; 
+
+        .agents-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
         }
-        input:checked + .toggle-slider:before { 
-            transform: translateX(24px); 
+
+        .agents-table td {
+            padding: 14px 16px;
+            font-size: 0.9em;
+            color: #374151;
+            border-bottom: 1px solid #f3f4f6;
+            white-space: nowrap;
         }
-        
-        .api-key-row { 
-            display: flex; 
-            gap: 10px; 
-            align-items: flex-end; 
+
+        .agents-table tbody tr {
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        .api-key-row .form-input { 
-            flex: 1; 
-            font-family: monospace; 
-            background: #f9fafb; 
+
+        .agents-table tbody tr:hover {
+            background: #f9fafb;
         }
-        .btn-generate { 
-            padding: 10px 16px; 
-            background: #2563eb; 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            font-size: 0.85em; 
-            cursor: pointer; 
-            white-space: nowrap; 
+
+        .os-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9em;
         }
-        .btn-generate:hover { 
-            background: #1d4ed8; 
+
+        .os-icon {
+            font-size: 1.1em;
         }
-        
-        .btn-group { 
-            display: flex; 
-            gap: 12px; 
-            margin-top: 28px; 
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 500;
         }
-        .btn { 
-            flex: 1; 
-            padding: 12px 24px; 
-            border-radius: 8px; 
-            font-size: 0.95em; 
-            font-weight: 600; 
-            cursor: pointer; 
-            border: none; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px; 
+
+        .status-badge.online {
+            background: #d1fae5;
+            color: #065f46;
         }
-        .btn-primary { 
-            background: #2563eb; 
-            color: white; 
+
+        .status-badge.online::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #10b981;
         }
-        .btn-primary:hover { 
-            background: #1d4ed8; 
+
+        .status-badge.offline {
+            background: #f3f4f6;
+            color: #6b7280;
         }
-        .btn-secondary { 
-            background: white; 
-            color: #374151; 
-            border: 1.5px solid #e5e7eb; 
+
+        .status-badge.offline::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #9ca3af;
         }
-        .btn-secondary:hover { 
-            background: #f9fafb; 
+
+        .policies-link {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
         }
-        
-        /* Mobile Responsive */
-        @media (max-width: 968px) { 
-            .main-content { 
-                margin-left: 0 !important; 
+
+        .policies-link:hover {
+            text-decoration: underline;
+        }
+
+        .actions-btn {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 4px 8px;
+            transition: color 0.2s;
+        }
+
+        .actions-btn:hover {
+            color: #111827;
+        }
+
+        .action-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .action-dropdown {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 4px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            min-width: 160px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .action-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .action-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            color: #374151;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+
+        .action-dropdown a:hover {
+            background: #f9fafb;
+        }
+
+        .action-dropdown a i {
+            width: 16px;
+            color: #6b7280;
+        }
+
+        .action-dropdown a.delete-action {
+            color: #dc2626;
+        }
+
+        .action-dropdown a.delete-action i {
+            color: #dc2626;
+        }
+
+        /* Responsive Styles - Fixed */
+        @media (max-width: 1200px) {
+            .agents-table {
+                min-width: 950px;
+            }
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                margin-left: 0;
             }
             
-            .top-header {
-                left: 0 !important;
+            .main-content.expanded {
+                margin-left: 0;
             }
 
-            .mobile-menu-toggle { display: block; }
-            .user-info { display: none; }
-            .dropdown-icon { display: none; }
-            
             .content-area {
                 padding: 16px;
                 padding-top: 80px;
             }
 
-            .sidebar { transform: translateX(-100%); width: 260px; transition: transform 0.3s ease; }
-            .sidebar.mobile-open { transform: translateX(0); }
-            .sidebar.collapsed { transform: translateX(-100%); width: 260px; }
-        }
-        
-        @media (max-width: 640px) { 
-            .btn-group, .api-key-row { 
-                flex-direction: column; 
-            } 
-            .api-key-row .btn-generate { 
-                width: 100%; 
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
             }
 
-            .search-bar { display: none; }
-            .user-avatar { width: 32px; height: 32px; }
-            .notifications-panel { width: 100%; right: -100%; }
+            .add-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filters-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .filter-select {
+                width: 100%;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .top-header {
+                left: 0 !important;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+
+            .user-info {
+                display: none;
+            }
+
+            .dropdown-icon {
+                display: none;
+            }
+
+            .notifications-panel {
+                width: 80%;
+                right: -80%;
+                max-width: none;
+            }
+
+            .notifications-panel.show {
+                right: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .agents-table {
+                min-width: 900px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .content-area {
+                padding: 16px;
+                padding-top: 80px;
+            }
+
+            .page-title-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .page-icon {
+                width: 40px;
+                height: 40px;
+            }
+
+            .page-icon i {
+                font-size: 18px;
+            }
+
+            .page-title-text h1 {
+                font-size: 1.4em;
+            }
+
+            .top-header {
+                padding: 12px 16px;
+            }
+
+            .search-bar {
+                display: none;
+            }
+
+            .notification-btn {
+                font-size: 1em;
+            }
+
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 0.85em;
+            }
+
+            .notifications-panel {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .agents-table {
+                min-width: 850px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 280px;
+            }
+            
+            .agents-table {
+                min-width: 800px;
+            }
+            
+            .agents-table th,
+            .agents-table td {
+                padding: 10px 12px;
+                font-size: 0.85em;
+            }
+        }
+        
+        /* Hide some columns on very small screens for better readability */
+        @media (max-width: 480px) {
+            .agents-table th:nth-child(4),
+            .agents-table td:nth-child(4),
+            .agents-table th:nth-child(7),
+            .agents-table td:nth-child(7),
+            .agents-table th:nth-child(8),
+            .agents-table td:nth-child(8) {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Your existing HTML content remains exactly the same -->
     <div class="dashboard-container">
         <!-- ==================== SIDEBAR ==================== -->
         <aside class="sidebar" id="sidebar">
@@ -784,8 +1102,8 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="manage-agents.html" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
-                        <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a>
+                        <a href="manage-agents.html" class="sub-menu-item active" data-page="manage-agents">Manage Agents</a>
+                        <!-- <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a> -->
                         <a href="assign-policy.html" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
                     </div>
                 </div>
@@ -805,7 +1123,7 @@
                     </div>
                     <div class="sub-menu">
                         <a href="ocr-dashboard.html" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
-                        <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>
+                        <!-- <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a> -->
                     </div>
                 </div>
 
@@ -844,7 +1162,7 @@
                     </div>
                     <div class="sub-menu">
                         <a href="general.html" class="sub-menu-item" data-page="general">General</a>
-                        <a href="security.html" class="sub-menu-item active" data-page="security">Security</a>
+                        <a href="security.html" class="sub-menu-item" data-page="security">Security</a>
                         <a href="integrations.html" class="sub-menu-item" data-page="integrations">Integrations</a>
                         <a href="data-retention.html" class="sub-menu-item" data-page="data-retention">Data Retention</a>
                     </div>
@@ -880,11 +1198,10 @@
                 </button>
 
                 <div class="user-profile" onclick="toggleUserDropdown(event)">
-                    <div class="user-avatar">[[${userInitials}]]</div>
+                    <div class="user-avatar">JS</div>
                     <div class="user-info">
-                        <div class="user-name">[[${userName}]]</div>
-                        <!-- <div class="user-role">[[${userRole}]]</div> -->
-                        <div id="userEmail">[[${userEmail}]]</div>
+                        <div class="user-name">John Smith</div>
+                        <div class="user-role">Security Admin</div>
                     </div>
                     <i class="fas fa-chevron-down dropdown-icon"></i>
 
@@ -991,226 +1308,170 @@
 
         <!-- Main Content -->
         <main class="main-content" id="mainContent">
-            <!-- Content Area -->
             <div class="content-area">
                 <div class="page-header">
                     <div class="page-title-section">
-                        <div class="page-icon"><i class="fas fa-shield-alt"></i></div>
+                        <div class="page-icon"><i class="fas fa-desktop"></i></div>
                         <div class="page-title-text">
-                            <h1>Security Settings</h1>
-                            <p class="page-subtitle">Configure authentication and security policies</p>
+                            <h1>Manage Agents</h1>
+                            <p class="page-subtitle">Monitor and configure endpoint agents</p>
+                        </div>
+                    </div>
+                    <button class="add-btn" onclick="window.location.href='agent-add.html'"><i class="fas fa-plus"></i> Add Agent</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div><div class="stat-label">Total Agents</div><div class="stat-value">342</div></div>
+                            <div class="stat-icon blue"><i class="fas fa-desktop"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div><div class="stat-label">Online</div><div class="stat-value">318</div></div>
+                            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div><div class="stat-label">Offline</div><div class="stat-value">24</div></div>
+                            <div class="stat-icon red"><i class="fas fa-circle-xmark"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div><div class="stat-label">Needs Update</div><div class="stat-value">15</div></div>
+                            <div class="stat-icon yellow"><i class="fas fa-triangle-exclamation"></i></div>
                         </div>
                     </div>
                 </div>
 
-                <form class="settings-form" id="settingsForm">
-                    <div class="form-section">
-                        <div class="section-title">API Keys</div>
-                        <div class="form-group">
-                            <label class="form-label">Production API Key</label>
-                            <div class="api-key-row">
-                                <input type="text" class="form-input" value="dlp_live_k8x9p2m5n7q4w1z3a6s8d0f" readonly>
-                                <button type="button" class="btn-generate" onclick="regenerateKey('prod')"><i class="fas fa-rotate"></i> Regenerate</button>
-                            </div>
-                            <div class="form-hint">Use this key for production integrations</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Test API Key</label>
-                            <div class="api-key-row">
-                                <input type="text" class="form-input" value="dlp_test_j7y5h3g1b9n4m2k8l6x0c" readonly>
-                                <button type="button" class="btn-generate" onclick="regenerateKey('test')"><i class="fas fa-rotate"></i> Regenerate</button>
-                            </div>
-                            <div class="form-hint">Use this key for development and testing</div>
-                        </div>
+                <div class="filters-section">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="search-input" placeholder="Search agents..." id="agentSearch">
                     </div>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="online">Online</option>
+                        <option value="offline">Offline</option>
+                    </select>
+                    <select class="filter-select" id="osFilter">
+                        <option value="">All OS</option>
+                        <option value="windows">Windows</option>
+                        <option value="macos">macOS</option>
+                        <option value="linux">Linux</option>
+                    </select>
+                </div>
 
-                    <div class="form-section">
-                        <div class="section-title">Multi-Factor Authentication</div>
-                        <div class="toggle-group">
-                            <div class="toggle-label">
-                                <div class="toggle-title">Require MFA for All Users</div>
-                                <div class="toggle-desc">Users must enable 2FA to access the system</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="toggle-group">
-                            <div class="toggle-label">
-                                <div class="toggle-title">MFA for Admins Only</div>
-                                <div class="toggle-desc">Require MFA only for administrator accounts</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">MFA Methods</label>
-                            <select class="form-select">
-                                <option selected>Authenticator App</option>
-                                <option>SMS</option>
-                                <option>Email</option>
-                                <option>All Methods</option>
-                            </select>
-                        </div>
+                <div class="agents-table-container">
+                    <div class="table-wrapper">
+                        <table class="agents-table">
+                            <thead>
+                                <tr>
+                                    <th>AGENT NAME</th><th>USER</th><th>OS</th><th>IP ADDRESS</th><th>STATUS</th><th>ACTIVE POLICIES</th><th>LAST HEARTBEAT</th><th>VERSION</th><th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="agentsTableBody">
+                                <tr onclick="viewAgent('DESKTOP-ABC123')">
+                                    <td>DESKTOP-ABC123</td>
+                                    <td>john.doe@company.com</td>
+                                    <td><span class="os-badge"><i class="fab fa-windows os-icon"></i> Windows 11 Pro</span></td>
+                                    <td>192.168.1.100</td>
+                                    <td><span class="status-badge online">Online</span></td>
+                                    <td><a href="agent-view.html?id=DESKTOP-ABC123&tab=policies" class="policies-link" onclick="event.stopPropagation()">5 policies</a></td>
+                                    <td>2 min ago</td>
+                                    <td>v2.4.1</td>
+                                    <td>
+                                        <div class="action-menu">
+                                            <button class="actions-btn" onclick="toggleActionMenu(event, 'menu1')"><i class="fas fa-ellipsis-vertical"></i></button>
+                                            <div class="action-dropdown" id="menu1">
+                                                <a href="agent-view.html?id=DESKTOP-ABC123"><i class="fas fa-eye"></i> View Details</a>
+                                                <a href="agent-edit.html?id=DESKTOP-ABC123"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="#" onclick="restartAgent('DESKTOP-ABC123')"><i class="fas fa-power-off"></i> Restart</a>
+                                                <a href="#" class="delete-action" onclick="deleteAgent('DESKTOP-ABC123')"><i class="fas fa-trash"></i> Delete</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr onclick="viewAgent('LAPTOP-XYZ789')">
+                                    <td>LAPTOP-XYZ789</td>
+                                    <td>jane.smith@company.c...</td>
+                                    <td><span class="os-badge"><i class="fab fa-apple os-icon"></i> macOS Sonoma</span></td>
+                                    <td>192.168.1.101</td>
+                                    <td><span class="status-badge online">Online</span></td>
+                                    <td><a href="agent-view.html?id=LAPTOP-XYZ789&tab=policies" class="policies-link" onclick="event.stopPropagation()">4 policies</a></td>
+                                    <td>5 min ago</td>
+                                    <td>v2.4.1</td>
+                                    <td>
+                                        <div class="action-menu">
+                                            <button class="actions-btn" onclick="toggleActionMenu(event, 'menu2')"><i class="fas fa-ellipsis-vertical"></i></button>
+                                            <div class="action-dropdown" id="menu2">
+                                                <a href="agent-view.html?id=LAPTOP-XYZ789"><i class="fas fa-eye"></i> View Details</a>
+                                                <a href="agent-edit.html?id=LAPTOP-XYZ789"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="#" onclick="restartAgent('LAPTOP-XYZ789')"><i class="fas fa-power-off"></i> Restart</a>
+                                                <a href="#" class="delete-action" onclick="deleteAgent('LAPTOP-XYZ789')"><i class="fas fa-trash"></i> Delete</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr onclick="viewAgent('WORKSTATION-001')">
+                                    <td>WORKSTATION-001</td>
+                                    <td>bob.wilson@company....</td>
+                                    <td><span class="os-badge"><i class="fab fa-windows os-icon"></i> Windows 11 Pro</span></td>
+                                    <td>192.168.1.102</td>
+                                    <td><span class="status-badge online">Online</span></td>
+                                    <td><a href="agent-view.html?id=WORKSTATION-001&tab=policies" class="policies-link" onclick="event.stopPropagation()">6 policies</a></td>
+                                    <td>1 min ago</td>
+                                    <td>v2.4.1</td>
+                                    <td>
+                                        <div class="action-menu">
+                                            <button class="actions-btn" onclick="toggleActionMenu(event, 'menu3')"><i class="fas fa-ellipsis-vertical"></i></button>
+                                            <div class="action-dropdown" id="menu3">
+                                                <a href="agent-view.html?id=WORKSTATION-001"><i class="fas fa-eye"></i> View Details</a>
+                                                <a href="agent-edit.html?id=WORKSTATION-001"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="#" onclick="restartAgent('WORKSTATION-001')"><i class="fas fa-power-off"></i> Restart</a>
+                                                <a href="#" class="delete-action" onclick="deleteAgent('WORKSTATION-001')"><i class="fas fa-trash"></i> Delete</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr onclick="viewAgent('DESKTOP-DEF456')">
+                                    <td>DESKTOP-DEF456</td>
+                                    <td>alice.jones@company.c...</td>
+                                    <td><span class="os-badge"><i class="fab fa-linux os-icon"></i> Ubuntu 22.04</span></td>
+                                    <td>192.168.1.103</td>
+                                    <td><span class="status-badge offline">Offline</span></td>
+                                    <td><a href="agent-view.html?id=DESKTOP-DEF456&tab=policies" class="policies-link" onclick="event.stopPropagation()">3 policies</a></td>
+                                    <td>2 hours ago</td>
+                                    <td>v2.3.8</td>
+                                    <td>
+                                        <div class="action-menu">
+                                            <button class="actions-btn" onclick="toggleActionMenu(event, 'menu4')"><i class="fas fa-ellipsis-vertical"></i></button>
+                                            <div class="action-dropdown" id="menu4">
+                                                <a href="agent-view.html?id=DESKTOP-DEF456"><i class="fas fa-eye"></i> View Details</a>
+                                                <a href="agent-edit.html?id=DESKTOP-DEF456"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="#" onclick="restartAgent('DESKTOP-DEF456')"><i class="fas fa-power-off"></i> Restart</a>
+                                                <a href="#" class="delete-action" onclick="deleteAgent('DESKTOP-DEF456')"><i class="fas fa-trash"></i> Delete</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-
-                    <div class="form-section">
-                        <div class="section-title">Password Policy</div>
-                        <div class="form-group">
-                            <label class="form-label">Minimum Password Length</label>
-                            <select class="form-select">
-                                <option>8 characters</option>
-                                <option>10 characters</option>
-                                <option selected>12 characters</option>
-                                <option>14 characters</option>
-                                <option>16 characters</option>
-                            </select>
-                        </div>
-                        <div class="toggle-group">
-                            <div class="toggle-label">
-                                <div class="toggle-title">Require Special Characters</div>
-                                <div class="toggle-desc">Passwords must contain at least one special character</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="toggle-group">
-                            <div class="toggle-label">
-                                <div class="toggle-title">Require Uppercase & Lowercase</div>
-                                <div class="toggle-desc">Mix of upper and lower case letters required</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="toggle-group">
-                            <div class="toggle-label">
-                                <div class="toggle-title">Require Numbers</div>
-                                <div class="toggle-desc">Passwords must contain at least one number</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Password Expiration</label>
-                            <select class="form-select">
-                                <option>Never</option>
-                                <option>30 days</option>
-                                <option selected>90 days</option>
-                                <option>180 days</option>
-                                <option>365 days</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <div class="section-title">Session Management</div>
-                        <div class="form-group">
-                            <label class="form-label">Session Timeout</label>
-                            <select class="form-select">
-                                <option>15 minutes</option>
-                                <option selected>30 minutes</option>
-                                <option>1 hour</option>
-                                <option>4 hours</option>
-                                <option>8 hours</option>
-                                <option>Never</option>
-                            </select>
-                        </div>
-                        <div class="toggle-group">
-                            <div class="toggle-label">
-                                <div class="toggle-title">Single Sign-On (SSO)</div>
-                                <div class="toggle-desc">Enable SSO authentication via SAML/OAuth</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="toggle-group">
-                            <div class="toggle-label">
-                                <div class="toggle-title">Concurrent Session Limit</div>
-                                <div class="toggle-desc">Limit users to one active session at a time</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <div class="section-title">Encryption</div>
-                        <div class="toggle-group">
-                            <div class="toggle-label">
-                                <div class="toggle-title">End-to-End Encryption</div>
-                                <div class="toggle-desc">Encrypt all data in transit and at rest</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Encryption Algorithm</label>
-                            <select class="form-select">
-                                <option selected>AES-256</option>
-                                <option>AES-128</option>
-                                <option>RSA-2048</option>
-                                <option>RSA-4096</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="btn-group">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-check"></i><span>Save Changes</span>
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
-                            <i class="fas fa-rotate-left"></i><span>Reset</span>
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
         </main>
     </div>
 
-    <script th:inline="javascript">
+    <script>
         // Check authentication
-       
- const userData = {
-        username: [[${username}]],
-        userName: [[${userName}]],
-        userInitials: [[${userInitials}]],
-        userRole: [[${userRole}]],
-        userEmail: [[${userEmail}]],
-        userId: [[${userId}]]
-    };
-
-    function loadAdminInfo() {
-        const userName = document.querySelector(".user-name");
-        const userAvatar = document.querySelector(".user-avatar");
-        const userRole = document.querySelector(".user-role");
-
-        if (userName && userData.userName) {
-            userName.textContent = userData.userName;
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'index.html';
         }
 
-        if (userAvatar && userData.userInitials) {
-            userAvatar.textContent = userData.userInitials;
-        }
-
-        if (userRole && userData.userRole) {
-            userRole.textContent = userData.userRole;
-        }
-    }
         /* ==================== SIDEBAR & HEADER FUNCTIONS ==================== */
         
         function toggleSubMenu(element) {
@@ -1349,8 +1610,8 @@
         }
 
         function setActiveMenuItem() {
-            var currentPage = window.location.pathname.split('/').pop() || 'security.html';
-            if (!currentPage) currentPage = 'security.html';
+            var currentPage = window.location.pathname.split('/').pop() || 'manage-agents.html';
+            if (!currentPage) currentPage = 'manage-agents.html';
 
             // Main nav links
             document.querySelectorAll('.nav-link[data-page]').forEach(function (link) {
@@ -1375,6 +1636,52 @@
             });
         }
 
+        function loadUserInfo() {
+            var userEmail = localStorage.getItem('userEmail');
+            if (userEmail) {
+                var namePart = userEmail.split('@')[0];
+                var initials = namePart.split('.').map(function (n) { return n[0] ? n[0].toUpperCase() : ''; }).join('');
+                var fullName = namePart.split('.').map(function (n) { return n.charAt(0).toUpperCase() + n.slice(1); }).join(' ');
+                var userName = document.querySelector('.user-name');
+                var userAvatar = document.querySelector('.user-avatar');
+                if (userName) userName.textContent = fullName;
+                if (userAvatar) userAvatar.textContent = initials;
+            }
+        }
+
+        /* ==================== MANAGE AGENTS FUNCTIONS ==================== */
+
+        function toggleActionMenu(event, menuId) {
+            event.stopPropagation();
+            const menu = document.getElementById(menuId);
+            const allMenus = document.querySelectorAll('.action-dropdown');
+            allMenus.forEach(m => { if (m.id !== menuId) { m.classList.remove('show'); } });
+            if (menu) { menu.classList.toggle('show'); }
+        }
+
+        function viewAgent(agentId) {
+            if (!event.target.closest('.action-menu') && !event.target.closest('.policies-link')) {
+                window.location.href = `agent-view.html?id=${agentId}`;
+            }
+        }
+
+        function restartAgent(agentId) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (confirm(`Restart agent ${agentId}?`)) {
+                alert('Restart command sent!');
+            }
+        }
+
+        function deleteAgent(agentId) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (confirm(`Delete agent ${agentId}? This action cannot be undone.`)) {
+                alert('Agent deleted successfully!');
+                location.reload();
+            }
+        }
+
         // Close dropdowns on outside click
         document.addEventListener('click', function (e) {
             var userProfile = document.querySelector('.user-profile');
@@ -1387,6 +1694,13 @@
                 !notificationPanel.contains(e.target)) {
                 closeNotifications();
             }
+
+            // Close action menus
+            if (!e.target.closest('.action-menu')) {
+                document.querySelectorAll('.action-dropdown').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
         });
 
         // Close on escape key
@@ -1395,46 +1709,88 @@
                 closeNotifications();
                 closeUserDropdown();
                 closeMobileSidebar();
+                document.querySelectorAll('.action-dropdown').forEach(menu => {
+                    menu.classList.remove('show');
+                });
             }
         });
 
-        // Form submission
-        document.getElementById('settingsForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Security settings saved successfully!');
+        // Resize handler
+        var resizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function () {
+                if (window.innerWidth > 968) {
+                    closeMobileSidebar();
+                    // Restore header left based on sidebar state
+                    var sidebar = document.getElementById('sidebar');
+                    var header = document.getElementById('topHeader');
+                    if (sidebar && header) {
+                        header.style.left = sidebar.classList.contains('collapsed') ? '70px' : '240px';
+                    }
+                }
+            }, 150);
         });
-        
-        function resetForm() {
-            if (confirm('Reset all security settings to default?')) {
-                document.getElementById('settingsForm').reset();
-            }
-        }
-        
-        function regenerateKey(type) {
-            if (confirm(`Regenerate ${type} API key? This will invalidate the current key.`)) {
-                alert(`New ${type} API key generated successfully!`);
-            }
-        }
 
         // Handle window resize for responsive behavior
         window.addEventListener('resize', function() {
             const sidebar = document.getElementById('sidebar');
-            const headerContainer = document.getElementById('topHeader');
+            const header = document.getElementById('topHeader');
             const mainContent = document.getElementById('mainContent');
             
             if (window.innerWidth <= 968) {
                 if (sidebar) sidebar.classList.remove('collapsed');
                 if (mainContent) mainContent.classList.remove('expanded');
-                if (headerContainer) {
-                    headerContainer.style.left = '0';
+                if (header) {
+                    header.style.left = '0';
                 }
             }
+        });
+
+        // Search functionality
+        document.getElementById('agentSearch')?.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#agentsTableBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Status filter
+        document.getElementById('statusFilter')?.addEventListener('change', function(e) {
+            const status = e.target.value;
+            const rows = document.querySelectorAll('#agentsTableBody tr');
+            rows.forEach(row => {
+                if (!status) {
+                    row.style.display = '';
+                    return;
+                }
+                const statusBadge = row.querySelector('.status-badge');
+                const rowStatus = statusBadge?.classList.contains(status);
+                row.style.display = rowStatus ? '' : 'none';
+            });
+        });
+
+        // OS filter
+        document.getElementById('osFilter')?.addEventListener('change', function(e) {
+            const os = e.target.value;
+            const rows = document.querySelectorAll('#agentsTableBody tr');
+            rows.forEach(row => {
+                if (!os) {
+                    row.style.display = '';
+                    return;
+                }
+                const osElement = row.querySelector('.os-badge');
+                const osText = osElement?.textContent.toLowerCase() || '';
+                row.style.display = osText.includes(os) ? '' : 'none';
+            });
         });
 
         // Initialize on DOM ready
         document.addEventListener('DOMContentLoaded', function() {
             setActiveMenuItem();
-            loadAdminInfo();
+            loadUserInfo();
         });
     </script>
 </body>

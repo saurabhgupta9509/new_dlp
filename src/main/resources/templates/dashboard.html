@@ -3432,17 +3432,17 @@
                     </div>
                     <div class="sub-menu">
                         <a href="manage-agents.html" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
-                        <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a>
+                        <!-- <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a> -->
                         <a href="assign-policy.html" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
                     </div>
                 </div>
 
-                <div class="nav-item">
+                <!-- <div class="nav-item">
                     <a href="agents.html" class="nav-link" data-page="agents">
                         <i class="fas fa-desktop"></i>
                         <span>Agents / Endpoints</span>
                     </a>
-                </div>
+                </div> -->
 
                 <div class="nav-item">
                     <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
@@ -3452,7 +3452,7 @@
                     </div>
                     <div class="sub-menu">
                         <a href="ocr-dashboard.html" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
-                        <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>
+                        <!-- <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a> -->
                     </div>
                 </div>
 
@@ -3527,10 +3527,11 @@
                 </button>
 
                 <div class="user-profile" onclick="toggleUserDropdown(event)">
-                    <div class="user-avatar">A</div>
+                    <div class="user-avatar">[[${userInitials}]]</div>
                     <div class="user-info">
-                        <div class="user-name">Admin</div>
-                        <div class="user-role">Security Admin</div>
+                        <div class="user-name">[[${userName}]]</div>
+                        <!-- <div class="user-role">[[${userRole}]]</div> -->
+                        <div id="userEmail">[[${userEmail}]]</div>
                     </div>
                     <i class="fas fa-chevron-down dropdown-icon"></i>
 

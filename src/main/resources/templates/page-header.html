@@ -399,10 +399,11 @@ document.addEventListener('DOMContentLoaded', function() {
         </button>
 
         <div class="user-profile" onclick="toggleUserDropdown(event)">
-            <div class="user-avatar">JS</div>
-            <div class="user-info">
-                <div class="user-name">John Smith</div>
-                <div class="user-role">Security Admin</div>
+            <div class="user-avatar">[[${userInitials}]]</div> 
+            <div class="user-info"> 
+                <div class="user-name">[[${userName}]]</div>
+                <!-- <div class="user-role">[[${userRole}]]</div> -->
+                <div id="userEmail">[[${userEmail}]]</div>
             </div>
             <i class="fas fa-chevron-down dropdown-icon"></i>
 
@@ -1209,9 +1210,7 @@ document.addEventListener('keydown', function(e) {
 // Logout function
 function logout(event) {
     event.preventDefault();
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userEmail');
-    window.location.href = 'index.html';
+    window.location.href = '/logout';
 }
 
 // Set user info from localStorage
