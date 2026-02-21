@@ -300,11 +300,11 @@
                     const result = await response.json();
 
                     if (!result.success) {
-                        window.location.href = "index.html";
+                        window.location.href = "index";
                     }
 
                 } catch (err) {
-                    window.location.href = "index.html";
+                    window.location.href = "index";
                 }
             }
 
@@ -356,12 +356,12 @@
             // Try different path patterns
             const basePath = window.location.pathname.includes('/pages/') ? '../' : './';
             
-            loadComponent(basePath + 'sidebar.html', 'sidebarContainer');
-            loadComponent(basePath + 'page-header.html', 'headerContainer');
+            loadComponent(basePath + 'sidebar', 'sidebarContainer');
+            loadComponent(basePath + 'page-header', 'headerContainer');
             
             // Set active page in sidebar
             setTimeout(() => {
-                const currentPage = window.location.pathname.split('/').pop() || 'roles.html';
+                const currentPage = window.location.pathname.split('/').pop() || 'roles';
                 const sidebarLinks = document.querySelectorAll('.nav-link, .sub-menu-item');
                 
                 sidebarLinks.forEach(link => {

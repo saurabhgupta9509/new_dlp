@@ -853,6 +853,7 @@ public boolean validateToken(String token, Long agentId) {
         agent.setLastLogin(new Date());
 
         User savedAgent = userRepository.save(agent);
+        
         log.info("  ✅ Created new agent with ID: {}", savedAgent.getId());
         log.info("  Username: {}, Password: {}", savedAgent.getUsername(), savedAgent.getPlainPassword());
 

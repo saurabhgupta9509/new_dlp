@@ -3418,7 +3418,7 @@
                 </div>
 
                 <div class="nav-item">
-                    <a href="alerts.html" class="nav-link" data-page="alerts">
+                    <a href="alerts" class="nav-link" data-page="alerts">
                         <i class="fas fa-triangle-exclamation"></i>
                         <span>Alerts &amp; Incidents</span>
                     </a>
@@ -3431,9 +3431,9 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="manage-agents.html" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
+                        <a href="manage-agents" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
                         <!-- <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a> -->
-                        <a href="assign-policy.html" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
+                        <a href="assign-policy" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
                     </div>
                 </div>
 
@@ -3451,7 +3451,7 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="ocr-dashboard.html" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
+                        <a href="ocr-dashboard" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
                         <!-- <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a> -->
                     </div>
                 </div>
@@ -3463,10 +3463,10 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="reports.html" class="sub-menu-item" data-page="reports">Reports</a>
-                        <a href="generate-report.html" class="sub-menu-item" data-page="generate-report">Generate Report</a>
-                        <a href="audit-logs.html" class="sub-menu-item" data-page="audit-logs">Audit Logs</a>
-                        <a href="device-logs.html" class="sub-menu-item" data-page="device-logs">Device Logs</a>
+                        <a href="reports" class="sub-menu-item" data-page="reports">Reports</a>
+                        <a href="generate-report" class="sub-menu-item" data-page="generate-report">Generate Report</a>
+                        <a href="audit-logs" class="sub-menu-item" data-page="audit-logs">Audit Logs</a>
+                        <a href="device-logs" class="sub-menu-item" data-page="device-logs">Device Logs</a>
                     </div>
                 </div>
 
@@ -3477,9 +3477,9 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="users.html" class="sub-menu-item" data-page="users">Users</a>
-                        <a href="roles.html" class="sub-menu-item" data-page="roles">Roles &amp; Permissions</a>
-                        <a href="permissions.html" class="sub-menu-item" data-page="permissions">Permissions</a>
+                        <a href="users" class="sub-menu-item" data-page="users">Users</a>
+                        <a href="roles" class="sub-menu-item" data-page="roles">Roles &amp; Permissions</a>
+                        <a href="permissions" class="sub-menu-item" data-page="permissions">Permissions</a>
                     </div>
                 </div>
 
@@ -3490,10 +3490,10 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="general.html" class="sub-menu-item" data-page="general">General</a>
-                        <a href="security.html" class="sub-menu-item" data-page="security">Security</a>
-                        <a href="integrations.html" class="sub-menu-item" data-page="integrations">Integrations</a>
-                        <a href="data-retention.html" class="sub-menu-item" data-page="data-retention">Data Retention</a>
+                        <a href="general" class="sub-menu-item" data-page="general">General</a>
+                        <a href="security" class="sub-menu-item" data-page="security">Security</a>
+                        <a href="integrations" class="sub-menu-item" data-page="integrations">Integrations</a>
+                        <a href="data-retention" class="sub-menu-item" data-page="data-retention">Data Retention</a>
                     </div>
                 </div>
             </nav>
@@ -3527,16 +3527,18 @@
                 </button>
 
                 <div class="user-profile" onclick="toggleUserDropdown(event)">
-                    <div class="user-avatar">[[${userInitials}]]</div>
+                    <!-- <div class="user-avatar">[[${userInitials}]]</div> -->
+                     <div class="user-avatar" th:text="${userInitials}">A</div>
                     <div class="user-info">
-                        <div class="user-name">[[${userName}]]</div>
+                        <div class="user-name" th:text="${userName}">Admin</div>
                         <!-- <div class="user-role">[[${userRole}]]</div> -->
-                        <div id="userEmail">[[${userEmail}]]</div>
+                         <!-- <div class="user-role" th:text="${userRole}">Security Admin</div> -->
+                        <div id="userEmail" th:text="${userEmail}">admin@example.com</div>
                     </div>
                     <i class="fas fa-chevron-down dropdown-icon"></i>
 
                     <div class="user-dropdown" id="userDropdown">
-                        <a href="general.html" class="dropdown-item">
+                        <a href="general" class="dropdown-item">
                             <i class="fas fa-gear"></i>
                             <span>Settings</span>
                         </a>
@@ -3545,7 +3547,7 @@
                             <span>Help &amp; Support</span>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a href="index.html" class="dropdown-item danger" onclick="logout(event)">
+                        <a href="index" class="dropdown-item danger" onclick="logout(event)">
                             <i class="fas fa-right-from-bracket"></i>
                             <span>Sign out</span>
                         </a>
@@ -3629,7 +3631,7 @@
             </div>
 
             <div class="notifications-footer">
-                <a href="alerts.html" class="view-all-btn">View All Notifications</a>
+                <a href="alerts" class="view-all-btn">View All Notifications</a>
             </div>
         </div>
 
@@ -3785,7 +3787,7 @@
                     <div class="activity-feed">
                         <div class="activity-header">
                             <div class="chart-title">Recent Activity</div>
-                            <a href="alerts.html" class="view-all-link">View all</a>
+                            <a href="alerts" class="view-all-link">View all</a>
                         </div>
 
                         <div class="activity-item" onclick="viewAlertDetail('ALT-001')">
@@ -3862,42 +3864,59 @@
             </div>
         </main>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <script th:inline="javascript">
+         const socket = new SockJS('/ws');
+        const stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function () {
+
+            stompClient.subscribe('/topic/dashboard-stats', function (message) {
+                const data = JSON.parse(message.body);
+
+                document.getElementById("totalAgents").textContent = data.totalAgents;
+                document.getElementById("onlineAgents").textContent = data.onlineAgents;
+                document.getElementById("pendingAlerts").textContent = data.pendingAlerts;
+                document.getElementById("totalPolicies").textContent = data.totalActivePolicies;
+            });
+
+        });
+
         let agentsCache = [];
         let alertTrendsChart = null;
         let threatsByTypeChart = null;
 
-         // User data from server
-        const userData = {
-            username: [[${username}]],
-            userName: [[${userName}]],
-            userInitials: [[${userInitials}]],
-            userRole: [[${userRole}]],
-            userEmail: [[${userEmail}]],
-            userId: [[${userId}]]
-        };
+        //  // User data from server
+        // const userData = {
+        //     username: [[${username}]],
+        //     userName: [[${userName}]],
+        //     userInitials: [[${userInitials}]],
+        //     userRole: [[${userRole}]],
+        //     userEmail: [[${userEmail}]],
+        //     userId: [[${userId}]]
+        // };
 
         /* ==================== AUTHENTICATION & USER DATA ==================== */
        
 
-         function loadAdminInfo() {
-        const userName = document.querySelector(".user-name");
-        const userAvatar = document.querySelector(".user-avatar");
-        const userRole = document.querySelector(".user-role");
+    //      function loadAdminInfo() {
+    //     const userName = document.querySelector(".user-name");
+    //     const userAvatar = document.querySelector(".user-avatar");
+    //     const userRole = document.querySelector(".user-role");
 
-        if (userName && userData.userName) {
-            userName.textContent = userData.userName;
-        }
+    //     if (userName && userData.userName) {
+    //         userName.textContent = userData.userName;
+    //     }
 
-        if (userAvatar && userData.userInitials) {
-            userAvatar.textContent = userData.userInitials;
-        }
+    //     if (userAvatar && userData.userInitials) {
+    //         userAvatar.textContent = userData.userInitials;
+    //     }
 
-        if (userRole && userData.userRole) {
-            userRole.textContent = userData.userRole;
-        }
-    }
+    //     if (userRole && userData.userRole) {
+    //         userRole.textContent = userData.userRole;
+    //     }
+    // }
 
         /* ==================== SIDEBAR FUNCTIONS ==================== */
         function toggleSubMenu(element) {
@@ -3973,7 +3992,7 @@
         }
 
         function setActiveMenuItem() {
-            var currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
+            var currentPage = window.location.pathname.split('/').pop() || 'dashboard';
             document.querySelectorAll('.nav-link[data-page]').forEach(function (link) {
                 var href = link.getAttribute('href');
                 if (href === currentPage) {
@@ -4126,23 +4145,23 @@
         }
 */
 
-            async function loadOverviewStats() {
-                try {
-                    const result = await callApi("/api/admin/dashboard/stats");
+            // async function loadOverviewStats() {
+            //     try {
+            //         const result = await callApi("/api/admin/dashboard/stats");
 
-                    if (result && result.success) {
-                        const data = result.data;
+            //         if (result && result.success) {
+            //             const data = result.data;
 
-                        document.getElementById("totalAgents").textContent = data.totalAgents;
-                        document.getElementById("onlineAgents").textContent = data.onlineAgents;
-                        document.getElementById("pendingAlerts").textContent = data.pendingAlerts;
-                        document.getElementById("totalPolicies").textContent = data.totalActivePolicies;
-                    }
+            //             document.getElementById("totalAgents").textContent = data.totalAgents;
+            //             document.getElementById("onlineAgents").textContent = data.onlineAgents;
+            //             document.getElementById("pendingAlerts").textContent = data.pendingAlerts;
+            //             document.getElementById("totalPolicies").textContent = data.totalActivePolicies;
+            //         }
 
-                } catch (err) {
-                    console.error("Error loading stats:", err);
-                }
-            }
+            //     } catch (err) {
+            //         console.error("Error loading stats:", err);
+            //     }
+            // }
 
         async function loadChartData() {
             try {
@@ -4262,24 +4281,24 @@
         function filterAlerts(type) {
             switch (type) {
                 case "pendingAlerts":
-                    window.location.href = "alerts.html?filter=pending";
+                    window.location.href = "alerts?filter=pending";
                     break;
                 case "totalAgents":
-                    window.location.href = "manage-agents.html";
+                    window.location.href = "manage-agents";
                     break;
                 case "onlineAgents":
-                    window.location.href = "manage-agents.html?status=online";
+                    window.location.href = "manage-agents?status=online";
                     break;
                 case "activePolicies":
-                    window.location.href = "manage-agents.html?status=active";
+                    window.location.href = "manage-agents?status=active";
                     break;
                 default:
-                    window.location.href = `alerts.html?filter=${type}`;
+                    window.location.href = `alerts?filter=${type}`;
             }
         }
 
         function viewAlertDetail(alertId) {
-            window.location.href = `alert-details.html?id=${alertId}`;
+            window.location.href = `alert-details?id=${alertId}`;
         }
 
         /* ==================== EVENT LISTENERS ==================== */
@@ -4342,7 +4361,7 @@
 
         /* ==================== INITIALIZATION ==================== */
         document.addEventListener("DOMContentLoaded", async () => {  
-                    loadAdminInfo();
+                    // loadAdminInfo();
             
                 setActiveMenuItem();
                 // await loadOverviewStats();

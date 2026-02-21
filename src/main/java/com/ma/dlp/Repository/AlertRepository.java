@@ -20,7 +20,6 @@ import java.util.Map;
 public interface AlertRepository extends JpaRepository<Alert, Long> {
     List<Alert> findByStatusOrderByCreatedAtDesc(String status);
     List<Alert> findAllByOrderByCreatedAtDesc();
-        long countByStatus(String status);
     List<Alert> findByAgentIdOrderByCreatedAtDesc(Long agentId);
     List<Alert> findByCreatedAtAfter(Date date);
     List<Alert> findBySeverityAndStatus(String severity, String status);
@@ -29,8 +28,13 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
     // ADD THIS QUERY for the Pie Chart
     @Query("SELECT new com.ma.dlp.dto.AlertStatsDTO(a.severity, COUNT(a)) FROM Alert a GROUP BY a.severity")
     List<AlertStatsDTO> countBySeverity();
+    
+    long countBySeverity(String severity);
 
-    // ADD THIS QUERY for the Bar Chart (MySQL compatible)
+    long countByStatus(String status);
+
+
+        // ADD THIS QUERY for the Bar Chart (MySQL compatible)
     @Query(value = "SELECT CAST(a.created_at AS DATE) as date, COUNT(a.id) as count " +
             "FROM alerts a " +
             "WHERE a.created_at >= CURDATE() - INTERVAL 7 DAY " +

@@ -550,11 +550,11 @@
                     const result = await response.json();
 
                     if (!result.success) {
-                        window.location.href = "index.html";
+                        window.location.href = "index";
                     }
 
                 } catch (err) {
-                    window.location.href = "index.html";
+                    window.location.href = "index";
                 }
             }
 
@@ -603,19 +603,19 @@
                             </div>
                             <nav class="nav-menu">
                                 <div class="nav-item">
-                                    <a href="dashboard.html" class="nav-link">
+                                    <a href="dashboard" class="nav-link">
                                         <i class="fas fa-th-large"></i>
                                         <span>Dashboard</span>
                                     </a>
                                 </div>
                                 <div class="nav-item">
-                                    <a href="alerts.html" class="nav-link">
+                                    <a href="alerts" class="nav-link">
                                         <i class="fas fa-triangle-exclamation"></i>
                                         <span>Alerts & Incidents</span>
                                     </a>
                                 </div>
                                 <div class="nav-item">
-                                    <a href="generate-report.html" class="nav-link active">
+                                    <a href="generate-report" class="nav-link active">
                                         <i class="fas fa-file-export"></i>
                                         <span>Generate Report</span>
                                     </a>
@@ -634,7 +634,7 @@
             
             if (sidebar && mainContent) {
                 // Set active page
-                const currentPage = 'generate-report.html';
+                const currentPage = 'generate-report';
                 const navLinks = sidebar.querySelectorAll('.nav-link[data-page], .sub-menu-item[data-page]');
                 
                 navLinks.forEach(link => {
@@ -814,8 +814,8 @@
         // Load components when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             // Load sidebar and header
-            loadComponent('sidebar.html', 'sidebarContainer');
-            loadComponent('page-header.html', 'headerContainer');
+            loadComponent('sidebar', 'sidebarContainer');
+            loadComponent('page-header', 'headerContainer');
             
             // Check saved sidebar state
             const savedSidebarState = localStorage.getItem('sidebarCollapsed');

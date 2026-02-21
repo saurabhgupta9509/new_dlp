@@ -402,25 +402,25 @@ public class SecurityConfig {
                                 "/agent-edit",
                                 "/agent-view",
                                 "/alerts",
-                                "/alert-details.html",
-                                "/assign-policy.html",
-                                "/audit-logs.html",
-                                "/data-retention.html",
-                                "/device-logs.html",
-                                "/file-policies.html",
-                                "/general.html",
-                                "/generate-report.html",
-                                "/integrations.html",
-                                "/ocr-dashboard.html",
-                                "/ocr-policies.html",
-                                "/permissions.html",
-                                "/policy-create.html",
-                                "/policy-edit.html",
-                                "/policy-view.html",
-                                "/reports.html",
-                                "/roles.html",
-                                "/security.html",
-                                "/users.html"
+                                "/alert-details",
+                                "/assign-policy",
+                                "/audit-logs",
+                                "/data-retention",
+                                "/device-logs",
+                                "/file-policies",
+                                "/general",
+                                "/generate-report",
+                                "/integrations",
+                                "/ocr-dashboard",
+                                "/ocr-policies",
+                                "/permissions",
+                                "/policy-create",
+                                "/policy-edit",
+                                "/policy-view",
+                                "/reports",
+                                "/roles",
+                                "/security",
+                                "/users"
                         ).authenticated()
 
                         // ============= ADMIN API - REQUIRES ADMIN ROLE =============
@@ -436,7 +436,7 @@ public class SecurityConfig {
                         .usernameParameter("username")
                         .passwordParameter("password")
                         .successHandler(authenticationSuccessHandler())
-                        .failureUrl("/index.html?error=true")
+                        .failureUrl("/index?error=true")
                         .permitAll()
                 )
 

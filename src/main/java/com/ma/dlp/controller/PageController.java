@@ -1,5 +1,6 @@
 package com.ma.dlp.controller;
 
+import com.ma.dlp.RestService.AlertStatsService;
 import com.ma.dlp.RestService.DashBoardService;
 import com.ma.dlp.model.User;
 import jakarta.servlet.http.HttpSession;
@@ -17,7 +18,10 @@ public class PageController {
     @Autowired
     private DashBoardService dashBoardService;
 
-      // Helper method to check if user is authenticated
+    @Autowired
+    private AlertStatsService alertStatsService;
+
+    // Helper method to check if user is authenticated
     private boolean isAuthenticated(HttpSession session) {
         User currentUser = (User) session.getAttribute("currentUser");
         return currentUser != null;
@@ -37,13 +41,12 @@ public class PageController {
             model.addAttribute("userInitials", initials);
 
             // Format role: "ADMIN" -> "Admin"
-            String formattedRole = formatRole(currentUser.getRole() != null ?
-                    currentUser.getRole().toString() : "ADMIN");
+            String formattedRole = formatRole(
+                    currentUser.getRole() != null ? currentUser.getRole().toString() : "ADMIN");
             model.addAttribute("userRole", formattedRole);
 
             // Add email
-            model.addAttribute("userEmail", currentUser.getEmail() != null ?
-                    currentUser.getEmail() : "");
+            model.addAttribute("userEmail", currentUser.getEmail() != null ? currentUser.getEmail() : "");
 
             // Add user ID
             model.addAttribute("userId", currentUser.getId());
@@ -58,7 +61,8 @@ public class PageController {
     }
 
     private String formatUserName(String username) {
-        if (username == null || username.isEmpty()) return "Admin";
+        if (username == null || username.isEmpty())
+            return "Admin";
         return Arrays.stream(username.split("\\."))
                 .map(part -> {
                     if (part.length() > 0) {
@@ -72,7 +76,8 @@ public class PageController {
     }
 
     private String getInitials(String username) {
-        if (username == null || username.isEmpty()) return "A";
+        if (username == null || username.isEmpty())
+            return "A";
         return Arrays.stream(username.split("\\."))
                 .map(part -> part.length() > 0 ? part.substring(0, 1).toUpperCase() : "")
                 .filter(s -> !s.isEmpty())
@@ -80,7 +85,8 @@ public class PageController {
     }
 
     private String formatRole(String role) {
-        if (role == null) return "Security Admin";
+        if (role == null)
+            return "Security Admin";
         return Arrays.stream(role.split("_"))
                 .map(word -> {
                     if (word.length() > 0) {
@@ -92,7 +98,8 @@ public class PageController {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.joining(" "));
     }
-      // Helper method for authenticated pages
+
+    // Helper method for authenticated pages
     private String checkAuthAndReturn(HttpSession session, Model model, String viewName) {
         if (!isAuthenticated(session)) {
             return "redirect:/index";
@@ -104,131 +111,141 @@ public class PageController {
     // ============= PAGE MAPPINGS =============
 
     @GetMapping("/dashboard")
-        public String dashboardPage(HttpSession session, Model model) {
-
-            model.addAttribute("stats", dashBoardService.getStats());
-
-            return "dashboard";
+    public String dashboardPage(HttpSession session, Model model) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
         }
 
-    @GetMapping("/manage-agents.html")
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        model.addAttribute("stats", dashBoardService.getStats());
+
+        return "dashboard";
+    }
+
+    @GetMapping("/manage-agents")
     public String manageAgentsPage(HttpSession session, Model model) {
         return checkAuthAndReturn(session, model, "manage-agents");
     }
 
-    @GetMapping("/agent-add.html")
+    @GetMapping("/agent-add")
     public String agentAddPage(HttpSession session, Model model) {
         return checkAuthAndReturn(session, model, "agent-add");
     }
 
-    @GetMapping("/agent-edit.html")
+    @GetMapping("/agent-edit")
     public String agentEditPage(HttpSession session, Model model) {
-         return checkAuthAndReturn(session, model, "agent-edit");
+        return checkAuthAndReturn(session, model, "agent-edit");
     }
 
-     @GetMapping("/agent-view.html")
+    @GetMapping("/agent-view")
     public String agentViewPage(HttpSession session, Model model) {
-         return checkAuthAndReturn(session, model, "agent-view");
+        return checkAuthAndReturn(session, model, "agent-view");
     }
 
-    @GetMapping("/alerts.html")
+    @GetMapping("/alerts")
     public String alertsPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "alerts");
+       if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        model.addAttribute("alertStats", alertStatsService.getAlertStats());
+        return "alerts";
     }
 
-    @GetMapping("/alert-details.html")
+    @GetMapping("/alert-details")
     public String alertsDetailsPage(HttpSession session, Model model) {
-         return checkAuthAndReturn(session, model, "alert-details");
+        return checkAuthAndReturn(session, model, "alert-details");
     }
 
-    @GetMapping("/assign-policy.html")
+    @GetMapping("/assign-policy")
     public String assignPolicyPage(HttpSession session, Model model) {
-       return checkAuthAndReturn(session, model, "assign-policy");
+        return checkAuthAndReturn(session, model, "assign-policy");
     }
 
-    @GetMapping("/audit-logs.html")
+    @GetMapping("/audit-logs")
     public String auditLogsPage(HttpSession session, Model model) {
         return checkAuthAndReturn(session, model, "audit-logs");
     }
 
-    @GetMapping("/data-retention.html")
+    @GetMapping("/data-retention")
     public String dataRetentionPage(HttpSession session, Model model) {
         return checkAuthAndReturn(session, model, "data-retention");
     }
 
-    @GetMapping("/device-logs.html")
+    @GetMapping("/device-logs")
     public String deviceLogsPage(HttpSession session, Model model) {
-         return checkAuthAndReturn(session, model, "device-logs");
+        return checkAuthAndReturn(session, model, "device-logs");
     }
 
-    @GetMapping("/file-policies.html")
+    @GetMapping("/file-policies")
     public String filePoliciesPage(HttpSession session, Model model) {
-         return checkAuthAndReturn(session, model, "file-policies");
+        return checkAuthAndReturn(session, model, "file-policies");
     }
 
-    @GetMapping("/general.html")
+    @GetMapping("/general")
     public String generalPage(HttpSession session, Model model) {
         return checkAuthAndReturn(session, model, "general");
     }
 
-    @GetMapping("/generate-report.html")
+    @GetMapping("/generate-report")
     public String generateReportPage(HttpSession session, Model model) {
-           return checkAuthAndReturn(session, model, "generate-report");
+        return checkAuthAndReturn(session, model, "generate-report");
     }
 
-    @GetMapping("/integrations.html")
+    @GetMapping("/integrations")
     public String integrationsPage(HttpSession session, Model model) {
         return checkAuthAndReturn(session, model, "integrations");
     }
 
-    @GetMapping("/ocr-dashboard.html")
+    @GetMapping("/ocr-dashboard")
     public String ocrDashboardPage(HttpSession session, Model model) {
-          return checkAuthAndReturn(session, model, "ocr-dashboard");
+        return checkAuthAndReturn(session, model, "ocr-dashboard");
     }
 
-    @GetMapping("/ocr-policies.html")
+    @GetMapping("/ocr-policies")
     public String ocrPoliciesPage(HttpSession session, Model model) {
-       return checkAuthAndReturn(session, model, "ocr-policies");
+        return checkAuthAndReturn(session, model, "ocr-policies");
     }
 
-    @GetMapping("/permissions.html")
+    @GetMapping("/permissions")
     public String permissionsPage(HttpSession session, Model model) {
-         return checkAuthAndReturn(session, model, "permissions");
+        return checkAuthAndReturn(session, model, "permissions");
     }
 
-    @GetMapping("/policy-create.html")
+    @GetMapping("/policy-create")
     public String policyCreatePage(HttpSession session, Model model) {
-       return checkAuthAndReturn(session, model, "policy-create");
+        return checkAuthAndReturn(session, model, "policy-create");
     }
 
-    @GetMapping("/policy-edit.html")
+    @GetMapping("/policy-edit")
     public String policyEditPage(HttpSession session, Model model) {
-      return checkAuthAndReturn(session, model, "policy-edit");
+        return checkAuthAndReturn(session, model, "policy-edit");
     }
 
-    @GetMapping("/policy-view.html")
+    @GetMapping("/policy-view")
     public String policyViewPage(HttpSession session, Model model) {
         return checkAuthAndReturn(session, model, "policy-view");
     }
 
-    @GetMapping("/reports.html")
+    @GetMapping("/reports")
     public String reportsPage(HttpSession session, Model model) {
-          return checkAuthAndReturn(session, model, "reports");
+        return checkAuthAndReturn(session, model, "reports");
     }
 
-    @GetMapping("/roles.html")
+    @GetMapping("/roles")
     public String rolesPage(HttpSession session, Model model) {
-         return checkAuthAndReturn(session, model, "roles");
+        return checkAuthAndReturn(session, model, "roles");
     }
 
-    @GetMapping("/security.html")
+    @GetMapping("/security")
     public String securityPage(HttpSession session, Model model) {
-       return checkAuthAndReturn(session, model, "security");
+        return checkAuthAndReturn(session, model, "security");
     }
 
-    @GetMapping("/users.html")
+    @GetMapping("/users")
     public String usersPage(HttpSession session, Model model) {
-       return checkAuthAndReturn(session, model, "users");
+        return checkAuthAndReturn(session, model, "users");
     }
 
     @GetMapping("/index")
@@ -236,7 +253,7 @@ public class PageController {
         return "index"; // Login page doesn't need user data
     }
 
-     @GetMapping("/")
+    @GetMapping("/")
     public String rootRedirect(HttpSession session) {
         if (isAuthenticated(session)) {
             return "redirect:/dashboard";

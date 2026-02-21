@@ -609,11 +609,11 @@
                     const result = await response.json();
 
                     if (!result.success) {
-                        window.location.href = "index.html";
+                        window.location.href = "index";
                     }
 
                 } catch (err) {
-                    window.location.href = "index.html";
+                    window.location.href = "index";
                 }
             }
 
@@ -644,8 +644,8 @@
         // Load components
         document.addEventListener('DOMContentLoaded', function() {
             // Load sidebar and header from current directory (adjust path if needed)
-            loadComponent('sidebar.html', 'sidebarContainer');
-            loadComponent('page-header.html', 'headerContainer');
+            loadComponent('sidebar', 'sidebarContainer');
+            loadComponent('page-header', 'headerContainer');
             
             // Initialize search functionality
             const searchInput = document.getElementById('searchInput');
@@ -675,7 +675,7 @@
         }
         
         function manageRoles() { 
-            window.location.href = 'roles.html'; 
+            window.location.href = 'roles'; 
         }
         
         function viewUser(user) { 

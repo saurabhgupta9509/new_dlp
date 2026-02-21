@@ -3549,14 +3549,14 @@
 
         <nav class="nav-menu">
           <div class="nav-item">
-            <a href="dashboard.html" class="nav-link" data-page="dashboard">
+            <a href="dashboard" class="nav-link" data-page="dashboard">
               <i class="fas fa-th-large"></i>
               <span>Dashboard</span>
             </a>
           </div>
 
           <div class="nav-item">
-            <a href="alerts.html" class="nav-link active" data-page="alerts">
+            <a href="alerts" class="nav-link active" data-page="alerts">
               <i class="fas fa-triangle-exclamation"></i>
               <span>Alerts &amp; Incidents</span>
             </a>
@@ -3570,7 +3570,7 @@
             </div>
             <div class="sub-menu">
               <a
-                href="manage-agents.html"
+                href="manage-agents"
                 class="sub-menu-item"
                 data-page="manage-agents"
                 >Manage Agents</a
@@ -3582,7 +3582,7 @@
                 >File Policies</a
               > -->
               <a
-                href="assign-policy.html"
+                href="assign-policy"
                 class="sub-menu-item"
                 data-page="assign-policy"
                 >Assign Policy</a
@@ -3605,13 +3605,13 @@
             </div>
             <div class="sub-menu">
               <a
-                href="ocr-dashboard.html"
+                href="ocr-dashboard"
                 class="sub-menu-item"
                 data-page="ocr-dashboard"
                 >OCR Dashboard</a
               >
               <a
-                href="ocr-policies.html"
+                href="ocr-policies"
                 class="sub-menu-item"
                 data-page="ocr-policies"
                 >OCR Policies</a
@@ -3626,23 +3626,23 @@
               <i class="fas fa-chevron-down chevron-icon"></i>
             </div>
             <div class="sub-menu">
-              <a href="reports.html" class="sub-menu-item" data-page="reports"
+              <a href="reports" class="sub-menu-item" data-page="reports"
                 >Reports</a
               >
               <a
-                href="generate-report.html"
+                href="generate-report"
                 class="sub-menu-item"
                 data-page="generate-report"
                 >Generate Report</a
               >
               <a
-                href="audit-logs.html"
+                href="audit-logs"
                 class="sub-menu-item"
                 data-page="audit-logs"
                 >Audit Logs</a
               >
               <a
-                href="device-logs.html"
+                href="device-logs"
                 class="sub-menu-item"
                 data-page="device-logs"
                 >Device Logs</a
@@ -3657,14 +3657,14 @@
               <i class="fas fa-chevron-down chevron-icon"></i>
             </div>
             <div class="sub-menu">
-              <a href="users.html" class="sub-menu-item" data-page="users"
+              <a href="users" class="sub-menu-item" data-page="users"
                 >Users</a
               >
-              <a href="roles.html" class="sub-menu-item" data-page="roles"
+              <a href="roles" class="sub-menu-item" data-page="roles"
                 >Roles &amp; Permissions</a
               >
               <a
-                href="permissions.html"
+                href="permissions"
                 class="sub-menu-item"
                 data-page="permissions"
                 >Permissions</a
@@ -3679,20 +3679,20 @@
               <i class="fas fa-chevron-down chevron-icon"></i>
             </div>
             <div class="sub-menu">
-              <a href="general.html" class="sub-menu-item" data-page="general"
+              <a href="general" class="sub-menu-item" data-page="general"
                 >General</a
               >
-              <a href="security.html" class="sub-menu-item" data-page="security"
+              <a href="security" class="sub-menu-item" data-page="security"
                 >Security</a
               >
               <a
-                href="integrations.html"
+                href="integrations"
                 class="sub-menu-item"
                 data-page="integrations"
                 >Integrations</a
               >
               <a
-                href="data-retention.html"
+                href="data-retention"
                 class="sub-menu-item"
                 data-page="data-retention"
                 >Data Retention</a
@@ -3751,7 +3751,7 @@
               <i class="fas fa-chevron-down dropdown-icon"></i>
 
               <div class="user-dropdown" id="userDropdown">
-                <a href="general.html" class="dropdown-item">
+                <a href="general" class="dropdown-item">
                   <i class="fas fa-gear"></i>
                   <span>Settings</span>
                 </a>
@@ -3761,7 +3761,7 @@
                 </a>
                 <div class="dropdown-divider"></div>
                 <a
-                  href="index.html"
+                  href="index"
                   class="dropdown-item danger"
                   onclick="logout(event)"
                 >
@@ -3862,7 +3862,7 @@
           </div>
 
           <div class="notifications-footer">
-            <a href="alerts.html" class="view-all-btn"
+            <a href="alerts" class="view-all-btn"
               >View All Notifications</a
             >
           </div>
@@ -3876,7 +3876,7 @@
         ></div>
 
         <div class="content-area">
-          <a href="alerts.html" class="back-button">
+          <a href="alerts" class="back-button">
             <i class="fas fa-arrow-left"></i>
             <span>Back to Alerts</span>
           </a>
@@ -4173,7 +4173,7 @@
       // Set active menu item based on current page
       function setActiveMenuItem() {
         var currentPage =
-          window.location.pathname.split("/").pop() || "alert-details.html";
+          window.location.pathname.split("/").pop() || "alert-details";
 
         // Main nav links
         document
@@ -4496,7 +4496,7 @@
           } else {
             alert("Alert marked as resolved");
             setTimeout(() => {
-              window.location.href = "alerts.html";
+              window.location.href = "alerts";
             }, 1000);
           }
         }
@@ -4515,7 +4515,7 @@
           if (response && response.success) {
             showToast(`Alert status updated to ${status}`, "success");
             setTimeout(() => {
-              window.location.href = "alerts.html";
+              window.location.href = "alerts";
             }, 1500);
           }
         } catch (error) {

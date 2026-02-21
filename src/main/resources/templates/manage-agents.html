@@ -774,7 +774,7 @@
 <!--            // Load sidebar first-->
 <!--            loadComponent('sidebaro.html', 'sidebarContainer').then(() => {-->
 <!--                // Then load header-->
-<!--                loadComponent('page-header.html', 'headerContainer').then(() => {-->
+<!--                loadComponent('page-header ', 'headerContainer').then(() => {-->
 <!--                    // Adjust main content after header loads-->
 <!--                    adjustMainContent();-->
 <!--                });-->
@@ -1798,7 +1798,7 @@
             </div>
             <button
               class="add-btn"
-              onclick="window.location.href = 'agent-add.html'"
+              onclick="window.location.href = 'agent-add '"
             >
               <i class="fas fa-plus"></i> Add Agent
             </button>
@@ -5061,14 +5061,14 @@
 
       <nav class="nav-menu">
         <div class="nav-item">
-          <a href="dashboard.html" class="nav-link" data-page="dashboard">
+          <a href="dashboard" class="nav-link" data-page="dashboard">
             <i class="fas fa-th-large"></i>
             <span>Dashboard</span>
           </a>
         </div>
 
         <div class="nav-item">
-          <a href="alerts.html" class="nav-link" data-page="alerts">
+          <a href="alerts" class="nav-link" data-page="alerts">
             <i class="fas fa-triangle-exclamation"></i>
             <span>Alerts &amp; Incidents</span>
           </a>
@@ -5081,12 +5081,12 @@
             <i class="fas fa-chevron-down chevron-icon"></i>
           </div>
           <div class="sub-menu">
-            <a href="manage-agents.html" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
+            <a href="manage-agents" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
             <!-- <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a> -->
-            <a href="assign-policy.html" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
+            <a href="assign-policy" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
           </div>
         </div>
- 
+
         <!-- <div class="nav-item">
           <a href="agents.html" class="nav-link" data-page="agents">
             <i class="fas fa-desktop"></i>
@@ -5101,7 +5101,7 @@
             <i class="fas fa-chevron-down chevron-icon"></i>
           </div>
           <div class="sub-menu">
-            <a href="ocr-dashboard.html" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
+            <a href="ocr-dashboard" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
             <!-- <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a> -->
           </div>
         </div>
@@ -5113,10 +5113,10 @@
             <i class="fas fa-chevron-down chevron-icon"></i>
           </div>
           <div class="sub-menu">
-            <a href="reports.html" class="sub-menu-item" data-page="reports">Reports</a>
-            <a href="generate-report.html" class="sub-menu-item" data-page="generate-report">Generate Report</a>
-            <a href="audit-logs.html" class="sub-menu-item" data-page="audit-logs">Audit Logs</a>
-            <a href="device-logs.html" class="sub-menu-item" data-page="device-logs">Device Logs</a>
+            <a href="reports" class="sub-menu-item" data-page="reports">Reports</a>
+            <a href="generate-report" class="sub-menu-item" data-page="generate-report">Generate Report</a>
+            <a href="audit-logs" class="sub-menu-item" data-page="audit-logs">Audit Logs</a>
+            <a href="device-logs" class="sub-menu-item" data-page="device-logs">Device Logs</a>
           </div>
         </div>
 
@@ -5127,9 +5127,9 @@
             <i class="fas fa-chevron-down chevron-icon"></i>
           </div>
           <div class="sub-menu">
-            <a href="users.html" class="sub-menu-item" data-page="users">Users</a>
-            <a href="roles.html" class="sub-menu-item" data-page="roles">Roles &amp; Permissions</a>
-            <a href="permissions.html" class="sub-menu-item" data-page="permissions">Permissions</a>
+            <a href="users" class="sub-menu-item" data-page="users">Users</a>
+            <a href="roles" class="sub-menu-item" data-page="roles">Roles &amp; Permissions</a>
+            <a href="permissions" class="sub-menu-item" data-page="permissions">Permissions</a>
           </div>
         </div>
 
@@ -5140,10 +5140,10 @@
             <i class="fas fa-chevron-down chevron-icon"></i>
           </div>
           <div class="sub-menu">
-            <a href="general.html" class="sub-menu-item" data-page="general">General</a>
-            <a href="security.html" class="sub-menu-item" data-page="security">Security</a>
-            <a href="integrations.html" class="sub-menu-item" data-page="integrations">Integrations</a>
-            <a href="data-retention.html" class="sub-menu-item" data-page="data-retention">Data Retention</a>
+            <a href="general" class="sub-menu-item" data-page="general">General</a>
+            <a href="security" class="sub-menu-item" data-page="security">Security</a>
+            <a href="integrations" class="sub-menu-item" data-page="integrations">Integrations</a>
+            <a href="data-retention" class="sub-menu-item" data-page="data-retention">Data Retention</a>
           </div>
         </div>
       </nav>
@@ -5186,7 +5186,7 @@
           <i class="fas fa-chevron-down dropdown-icon"></i>
 
           <div class="user-dropdown" id="userDropdown">
-            <a href="general.html" class="dropdown-item">
+            <a href="general" class="dropdown-item">
               <i class="fas fa-gear"></i>
               <span>Settings</span>
             </a>
@@ -5195,7 +5195,7 @@
               <span>Help &amp; Support</span>
             </a>
             <div class="dropdown-divider"></div>
-            <a href="index.html" class="dropdown-item danger" onclick="logout(event)">
+            <a href="index" class="dropdown-item danger" onclick="logout(event)">
               <i class="fas fa-right-from-bracket"></i>
               <span>Sign out</span>
             </a>
@@ -5293,133 +5293,127 @@
       </div>
 
       <div class="notifications-footer">
-        <a href="alerts.html" class="view-all-btn">View All Notifications</a>
+        <a href="alerts" class="view-all-btn">View All Notifications</a>
       </div>
     </div>
 
     <!-- Notification Overlay -->
     <div class="notification-overlay" id="notificationOverlay" onclick="closeNotifications()"></div>
 
-     <!-- Main Content -->
-      <main class="main-content" id="mainContent">
-        <div class="content-area">
-          <div class="page-header">
-            <div class="page-title-section">
-              <div class="page-icon"><i class="fas fa-desktop"></i></div>
-              <div class="page-title-text">
-                <h1>Manage Agents</h1>
-                <p class="page-subtitle">
-                  Monitor and configure endpoint agents
-                </p>
-              </div>
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <div class="content-area">
+        <div class="page-header">
+          <div class="page-title-section">
+            <div class="page-icon"><i class="fas fa-desktop"></i></div>
+            <div class="page-title-text">
+              <h1>Manage Agents</h1>
+              <p class="page-subtitle">
+                Monitor and configure endpoint agents
+              </p>
             </div>
-            <button
-              class="add-btn"
-              onclick="window.location.href = 'agent-add.html'"
-            >
-              <i class="fas fa-plus"></i> <span>Add Agent</span>
-            </button>
           </div>
+          <button class="add-btn" onclick="window.location.href = 'agent-add'">
+            <i class="fas fa-plus"></i> <span>Add Agent</span>
+          </button>
+        </div>
 
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-header">
-                <div>
-                  <div class="stat-label">Total Agents</div>
-                  <div class="stat-value" id="totalAgents">0</div>
-                </div>
-                <div class="stat-icon blue"><i class="fas fa-desktop"></i></div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Total Agents</div>
+                <div class="stat-value" id="totalAgents">0</div>
               </div>
+              <div class="stat-icon blue"><i class="fas fa-desktop"></i></div>
             </div>
-            <div class="stat-card">
-              <div class="stat-header">
-                <div>
-                  <div class="stat-label">Online</div>
-                  <div class="stat-value" id="onlineAgents">0</div>
-                </div>
-                <div class="stat-icon green">
-                  <i class="fas fa-check-circle"></i>
-                </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Online</div>
+                <div class="stat-value" id="onlineAgents">0</div>
               </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-header">
-                <div>
-                  <div class="stat-label">Offline</div>
-                  <div class="stat-value" id="offlineAgents">0</div>
-                </div>
-                <div class="stat-icon red">
-                  <i class="fas fa-circle-xmark"></i>
-                </div>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-header">
-                <div>
-                  <div class="stat-label">Needs Update</div>
-                  <div class="stat-value" id="needsUpdate">0</div>
-                </div>
-                <div class="stat-icon yellow">
-                  <i class="fas fa-triangle-exclamation"></i>
-                </div>
+              <div class="stat-icon green">
+                <i class="fas fa-check-circle"></i>
               </div>
             </div>
           </div>
-
-          <div class="filters-section">
-            <div class="search-box">
-              <i class="fas fa-search"></i>
-              <input
-                type="text"
-                class="search-input"
-                placeholder="Search agents..."
-                id="agentSearch"
-              />
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Offline</div>
+                <div class="stat-value" id="offlineAgents">0</div>
+              </div>
+              <div class="stat-icon red">
+                <i class="fas fa-circle-xmark"></i>
+              </div>
             </div>
-            <select class="filter-select" id="statusFilter">
-              <option value="">All Status</option>
-              <option value="online">Online</option>
-              <option value="offline">Offline</option>
-            </select>
-            <select class="filter-select" id="osFilter">
-              <option value="">All OS</option>
-              <option value="windows">Windows</option>
-              <option value="macos">macOS</option>
-              <option value="linux">Linux</option>
-            </select>
           </div>
-
-          <div class="agents-table-container">
-            <div class="table-wrapper">
-              <table class="agents-table">
-                <thead>
-                  <tr>
-                    <th>AGENT NAME</th>
-                    <th>USER</th>
-                    <th>OS</th>
-                    <th>IP ADDRESS</th>
-                    <th>STATUS</th>
-                    <th>ACTIVE POLICIES</th>
-                    <th>LAST HEARTBEAT</th>
-                    <th>VERSION</th>
-                    <th>ACTIONS</th>
-                  </tr>
-                </thead>
-                <tbody id="agentsTableBody">
-                  <tr><td colspan="9" class="loading">Loading agents...</td></tr>
-                </tbody>
-              </table>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Needs Update</div>
+                <div class="stat-value" id="needsUpdate">0</div>
+              </div>
+              <div class="stat-icon yellow">
+                <i class="fas fa-triangle-exclamation"></i>
+              </div>
             </div>
           </div>
         </div>
-      </main>
-    </div>
 
-    <script th:inline="javascript">
-      // ============ GLOBAL VARIABLES ============
-      let agentsData = [];
-      let currentFilteredData = [];
-      let isDataLoaded = false;
+        <div class="filters-section">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" class="search-input" placeholder="Search agents..." id="agentSearch" />
+          </div>
+          <select class="filter-select" id="statusFilter">
+            <option value="">All Status</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+          </select>
+          <select class="filter-select" id="osFilter">
+            <option value="">All OS</option>
+            <option value="windows">Windows</option>
+            <option value="macos">macOS</option>
+            <option value="linux">Linux</option>
+          </select>
+        </div>
+
+        <div class="agents-table-container">
+          <div class="table-wrapper">
+            <table class="agents-table">
+              <thead>
+                <tr>
+                  <th>AGENT NAME</th>
+                  <th>USER</th>
+                  <th>OS</th>
+                  <th>IP ADDRESS</th>
+                  <th>STATUS</th>
+                  <th>ACTIVE POLICIES</th>
+                  <th>LAST HEARTBEAT</th>
+                  <th>VERSION</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="agentsTableBody">
+                <tr>
+                  <td colspan="9" class="loading">Loading agents...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script th:inline="javascript">
+    // ============ GLOBAL VARIABLES ============
+    let agentsData = [];
+    let currentFilteredData = [];
+    let isDataLoaded = false;
 
     // ============ AUTHENTICATION & USER DATA ============
     // User data from server
@@ -5431,7 +5425,7 @@
       userEmail: [[${ userEmail }]],
       userId: [[${ userId }]]
     };
-    
+
     function loadAdminInfo() {
       const userName = document.querySelector(".user-name");
       const userAvatar = document.querySelector(".user-avatar");
@@ -5523,7 +5517,7 @@
     }
 
     function setActiveMenuItem() {
-      var currentPage = window.location.pathname.split('/').pop() || 'manage-agents.html';
+      var currentPage = window.location.pathname.split('/').pop() || 'manage-agents';
 
       document.querySelectorAll('.nav-link[data-page]').forEach(function (link) {
         var href = link.getAttribute('href');
@@ -5678,7 +5672,7 @@
               <td>${agent.ipAddress || "N/A"}</td>
               <td><span class="status-badge ${status}">${status === "online" ? "Online" : "Offline"}</span></td>
               <td>
-                <a href="agent-view.html?id=${agent.id}&tab=policies"
+                <a href="agent-view?id=${agent.id}&tab=policies"
                   class="policies-link"
                   onclick="event.stopPropagation()">
                   ${policiesCount} policies
@@ -5692,10 +5686,10 @@
                     <i class="fas fa-ellipsis-vertical"></i>
                   </button>
                   <div class="action-dropdown" id="${menuId}">
-                    <a href="agent-view.html?id=${agent.id}" onclick="event.stopPropagation()">
+                    <a href="agent-view?id=${agent.id}" onclick="event.stopPropagation()">
                       <i class="fas fa-eye"></i> View Details
                     </a>
-                    <a href="agent-edit.html?id=${agent.id}" onclick="event.stopPropagation()">
+                    <a href="agent-edit?id=${agent.id}" onclick="event.stopPropagation()">
                       <i class="fas fa-edit"></i> Edit
                     </a>
                     <a href="#" onclick="event.stopPropagation(); restartAgent('${agent.id}')">
@@ -5849,15 +5843,15 @@
 
     function viewAgent(agentId) {
       if (!event.target.closest(".action-menu")) {
-        window.location.href = `agent-view.html?id=${agentId}`;
+        window.location.href = `agent-view?id=${agentId}`;
       }
     }
 
-   function viewPolicies(event, agentId) {
-    event.preventDefault();
-    event.stopPropagation();
-    window.location.href = `policy-view.html?agent=${agentId}&tab=policies`;
-  }
+    function viewPolicies(event, agentId) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.location.href = `policy-view?agent=${agentId}&tab=policies`;
+    }
 
     async function restartAgent(agentId) {
       event.preventDefault();

@@ -4,6 +4,7 @@ import com.ma.dlp.Repository.OcrStatusRepository;
 import com.ma.dlp.Repository.UserRepository;
 import com.ma.dlp.dto.ApiResponse;
 import com.ma.dlp.model.User;
+import com.ma.dlp.RestService.DashBoardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,8 @@ import java.util.Random;
 @Service
 public class UserService {
 
+    @Autowired
+    private DashBoardService dashBoardService;
     @Autowired
     private UserRepository userRepository;
     private OcrStatusRepository ocrStatusRepository;
@@ -152,6 +155,8 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Agent not found"));
         agent.setLastHeartbeat(new Date());
         userRepository.save(agent);
+
+        dashBoardService.pushDashboardUpdate();
     }
 
     @PostConstruct
@@ -159,7 +164,7 @@ public class UserService {
         if (userRepository.findByUsername("admin").isEmpty()) {
             User admin = new User();
             admin.setUsername("admin");
-            admin.setEmail("maximusatlasadmin@dlp");
+            admin.setEmail("globaladmin@maximusatlas.com");
             admin.setPassword(passwordEncoder.encode("admin123"));
             admin.setRole(User.UserRole.ADMIN);
             admin.setStatus(User.UserStatus.ACTIVE);

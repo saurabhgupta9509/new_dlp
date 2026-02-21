@@ -382,11 +382,11 @@
                     const result = await response.json();
 
                     if (!result.success) {
-                        window.location.href = "index.html";
+                        window.location.href = "index";
                     }
 
                 } catch (err) {
-                    window.location.href = "index.html";
+                    window.location.href = "index";
                 }
             }
         
@@ -432,12 +432,12 @@
         // Load components when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             // Use same directory paths (remove ../)
-            loadComponent('sidebar.html', 'sidebarContainer');
-            loadComponent('page-header.html', 'headerContainer');
+            loadComponent('sidebar', 'sidebarContainer');
+            loadComponent('page-header', 'headerContainer');
             
             // Set active menu for permissions page
             setTimeout(() => {
-                const currentPage = 'permissions.html';
+                const currentPage = 'permissions';
                 
                 // Check submenu items
                 const subMenuItems = document.querySelectorAll('.sub-menu-item[data-page]');

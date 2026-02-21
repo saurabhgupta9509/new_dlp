@@ -31,4 +31,9 @@ public class GlobalExceptionHandler {
                 .internalServerError()
                 .body("{\"error\":\"Internal server error: " + e.getMessage() + "\"}");
     }
+
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<?> handleResourceNotFound(Exception ex) {
+        return ResponseEntity.notFound().build();
+    }
 }
