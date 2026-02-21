@@ -1,7 +1,10 @@
 package com.ma.dlp.controller;
 
+import com.ma.dlp.RestService.DashBoardService;
 import com.ma.dlp.model.User;
 import jakarta.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +13,9 @@ import java.util.stream.Collectors;
 
 @Controller
 public class PageController {
+
+    @Autowired
+    private DashBoardService dashBoardService;
 
       // Helper method to check if user is authenticated
     private boolean isAuthenticated(HttpSession session) {
@@ -97,10 +103,13 @@ public class PageController {
 
     // ============= PAGE MAPPINGS =============
 
-    @GetMapping("/dashboard.html")
-    public String dashboardPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "dashboard");
-    }
+    @GetMapping("/dashboard")
+        public String dashboardPage(HttpSession session, Model model) {
+
+            model.addAttribute("stats", dashBoardService.getStats());
+
+            return "dashboard";
+        }
 
     @GetMapping("/manage-agents.html")
     public String manageAgentsPage(HttpSession session, Model model) {
@@ -230,7 +239,7 @@ public class PageController {
      @GetMapping("/")
     public String rootRedirect(HttpSession session) {
         if (isAuthenticated(session)) {
-            return "redirect:/dashboard.html";
+            return "redirect:/dashboard";
         }
         return "redirect:/index.html";
     }

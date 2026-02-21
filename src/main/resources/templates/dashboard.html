@@ -3411,7 +3411,7 @@
 
             <nav class="nav-menu">
                 <div class="nav-item">
-                    <a href="dashboard.html" class="nav-link active" data-page="dashboard">
+                    <a th:href="@{/dashboard}" class="nav-link active" data-page="dashboard">
                         <i class="fas fa-th-large"></i>
                         <span>Dashboard</span>
                     </a>
@@ -3658,7 +3658,7 @@
                         <div class="stat-header">
                             <div class="stat-info">
                                 <h3>Pending Alerts</h3>
-                                <div class="stat-value" id="pendingAlerts">0</div>
+                                <div class="stat-value"th:text="${stats.pendingAlerts}" id="pendingAlerts">0</div>
                             </div>
                             <div class="stat-icon danger">
                                 <i class="fas fa-triangle-exclamation"></i>
@@ -3670,7 +3670,7 @@
                         <div class="stat-header">
                             <div class="stat-info">
                                 <h3>Total Agents</h3>
-                                <div class="stat-value" id="totalAgents">0</div>
+                                <div class="stat-value" id="totalAgents" th:text="${stats.totalAgents}">0</div>
                             </div>
                             <div class="stat-icon warning">
                                 <i class="fas fa-eye"></i>
@@ -3682,7 +3682,7 @@
                         <div class="stat-header">
                             <div class="stat-info">
                                 <h3>Online Agents</h3>
-                                <div class="stat-value" id="onlineAgents">0</div>
+                                <div class="stat-value" id="onlineAgents" th:text="${stats.onlineAgents}">0</div>
                             </div>
                             <div class="stat-icon success">
                                 <i class="fas fa-desktop"></i>
@@ -3694,7 +3694,7 @@
                         <div class="stat-header">
                             <div class="stat-info">
                                 <h3>Active Policies</h3>
-                                <div class="stat-value" id="totalPolicies">0</div>
+                                <div class="stat-value" id="totalPolicies" th:text="${stats.totalActivePolicies}">0</div>
                             </div>
                             <div class="stat-icon info">
                                 <i class="fas fa-shield-alt"></i>
@@ -4091,7 +4091,7 @@
             }
         }
 
-        async function loadOverviewStats() {
+       /* async function loadOverviewStats() {
             try {
                 let agents = agentsCache;
                 if (agents.length === 0) {
@@ -4124,6 +4124,25 @@
                 console.error("Error loading stats:", err);
             }
         }
+*/
+
+            async function loadOverviewStats() {
+                try {
+                    const result = await callApi("/api/admin/dashboard/stats");
+
+                    if (result && result.success) {
+                        const data = result.data;
+
+                        document.getElementById("totalAgents").textContent = data.totalAgents;
+                        document.getElementById("onlineAgents").textContent = data.onlineAgents;
+                        document.getElementById("pendingAlerts").textContent = data.pendingAlerts;
+                        document.getElementById("totalPolicies").textContent = data.totalActivePolicies;
+                    }
+
+                } catch (err) {
+                    console.error("Error loading stats:", err);
+                }
+            }
 
         async function loadChartData() {
             try {
@@ -4326,7 +4345,7 @@
                     loadAdminInfo();
             
                 setActiveMenuItem();
-                await loadOverviewStats();
+                // await loadOverviewStats();
                 await loadChartData();
                 initThreatsByTypeChart();
         });

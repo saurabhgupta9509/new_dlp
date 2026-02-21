@@ -1,4 +1,4 @@
-package com.ma.dlp.controller;
+package com.ma.dlp.RestStatsController;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +34,7 @@ public class agentView {
 
     @GetMapping("/agents/{agentId}/policies")
     public ResponseEntity<ApiResponse<List<PolicyDTO>>> getAgentPolicies(
-            @PathVariable Long agentId,
+            @PathVariable("agentId") Long agentId,
             HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {

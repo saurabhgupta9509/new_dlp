@@ -359,7 +359,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
-        handler.setDefaultTargetUrl("/dashboard.html");
+        handler.setDefaultTargetUrl("/dashboard");
         // handler.setDefaultTargetUrl("/admin-dashboard.html");
         handler.setAlwaysUseDefaultTargetUrl(true);
         return handler;
@@ -425,7 +425,7 @@ public class SecurityConfig {
 
                         // ============= ADMIN API - REQUIRES ADMIN ROLE =============
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-
+                                .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         // ============= ANY OTHER REQUEST =============
                         .anyRequest().authenticated()
                 )

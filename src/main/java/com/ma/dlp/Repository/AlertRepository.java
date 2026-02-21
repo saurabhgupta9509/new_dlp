@@ -20,8 +20,7 @@ import java.util.Map;
 public interface AlertRepository extends JpaRepository<Alert, Long> {
     List<Alert> findByStatusOrderByCreatedAtDesc(String status);
     List<Alert> findAllByOrderByCreatedAtDesc();
-
-
+        long countByStatus(String status);
     List<Alert> findByAgentIdOrderByCreatedAtDesc(Long agentId);
     List<Alert> findByCreatedAtAfter(Date date);
     List<Alert> findBySeverityAndStatus(String severity, String status);

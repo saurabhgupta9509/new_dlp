@@ -2096,12 +2096,12 @@ function displayAgentPolicies(policies) {
             : '<span class="rule-tag">No specific rules</span>';
         
         html += `
-            <div class="policy-card">
+            <div class="policy-card" data-policy-id="${policy.id}" data-policy-code="${policy.policyCode}">
                 <div class="policy-header">
                     <h4 class="policy-title">${policy.name || policy.policyCode}</h4>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <span class="policy-status active">Active</span>
-                        <button class="policy-delete-btn" onclick="removePolicyFromAgent(${policy.id}, this)" title="Remove">
+                        <button class="policy-delete-btn" onclick="removePolicyFromAgent(this)" title="Remove">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -2152,13 +2152,18 @@ function getAgentIdFromUrl() {
 }
 
 // Function to remove policy from agent
-function removePolicyFromAgent(policyId, buttonElement) {
+function removePolicyFromAgent(buttonElement) {
     if (!confirm('Are you sure you want to remove this policy from the agent?')) {
         return;
     }
     
+    // Get the policy card
     const policyCard = buttonElement.closest('.policy-card');
-    const policyCode = policyCard.querySelector('.policy-title').textContent;
+    if (!policyCard) return;
+    
+    // Get policy details from data attributes
+    const policyCode = policyCard.dataset.policyCode;
+    const policyId = policyCard.dataset.policyId;
     const agentId = getAgentIdFromUrl();
     
     if (!agentId) {
@@ -2166,6 +2171,18 @@ function removePolicyFromAgent(policyId, buttonElement) {
         return;
     }
     
+    if (!policyCode) {
+        alert('Could not determine policy code');
+        return;
+    }
+    
+    console.log('Removing policy:', { policyId, policyCode, agentId });
+    
+    // Disable the button to prevent double submission
+    buttonElement.disabled = true;
+    buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    
+    // Call the deactivate-protection endpoint
     fetch('/api/admin/deactivate-protection', {
         method: 'POST',
         headers: {
@@ -2179,28 +2196,122 @@ function removePolicyFromAgent(policyId, buttonElement) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Remove the policy card from UI
-            policyCard.remove();
+            // Remove the policy card from UI with animation
+            policyCard.style.transition = 'all 0.3s ease';
+            policyCard.style.opacity = '0';
+            policyCard.style.transform = 'translateX(20px)';
             
-            // Check if there are no more policies
-            const policyContainer = document.querySelector('#policies .policy-list');
-            if (policyContainer.children.length === 0) {
-                displayAgentPolicies([]);
-            }
-            
-            // Show success message
-            alert('Policy removed successfully');
+            setTimeout(() => {
+                policyCard.remove();
+                
+                // Check if there are no more policies
+                const policyContainer = document.querySelector('#policies .policy-list');
+                if (policyContainer.children.length === 0) {
+                    displayAgentPolicies([]);
+                }
+                
+                // Show success message
+                showNotification('Policy removed successfully', 'success');
+            }, 300);
         } else {
-            alert('Failed to remove policy: ' + data.message);
+            // Re-enable the button
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = '<i class="fas fa-trash"></i>';
+            
+            // Show error message
+            showNotification('Failed to remove policy: ' + (data.message || 'Unknown error'), 'error');
         }
     })
     .catch(error => {
         console.error('Error removing policy:', error);
-        alert('Error removing policy: ' + error.message);
+        
+        // Re-enable the button
+        buttonElement.disabled = false;
+        buttonElement.innerHTML = '<i class="fas fa-trash"></i>';
+        
+        // Show error message
+        showNotification('Error removing policy: ' + error.message, 'error');
     });
 }
 
+       function showNotification(message, type = 'info') {
+    // Check if notification container exists, if not create it
+    let notificationContainer = document.getElementById('notification-container');
+    if (!notificationContainer) {
+        notificationContainer = document.createElement('div');
+        notificationContainer.id = 'notification-container';
+        notificationContainer.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        `;
+        document.body.appendChild(notificationContainer);
+    }
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideIn 0.3s ease;
+        font-size: 0.9em;
+    `;
+    
+    // Add icon based on type
+    const icon = type === 'success' ? 'fa-check-circle' : 
+                 type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+    
+    notification.innerHTML = `
+        <i class="fas ${icon}"></i>
+        <span>${message}</span>
+    `;
+    
+    // Add to container
+    notificationContainer.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
 
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
         /* ==================== SIDEBAR & HEADER FUNCTIONS ==================== */
         
         function toggleSubMenu(element) {
