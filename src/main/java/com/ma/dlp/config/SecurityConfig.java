@@ -380,7 +380,7 @@ public class SecurityConfig {
                         .requestMatchers("/topic/**", "/app/**").permitAll()
 
                         // ============= PUBLIC STATIC PAGES =============
-                        .requestMatchers("/index.html", "/", "/favicon.ico").permitAll()
+                        .requestMatchers("/index", "/", "/favicon.ico").permitAll()
                         .requestMatchers("/*.html").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
@@ -396,12 +396,12 @@ public class SecurityConfig {
 //                                .requestMatchers(HttpMethod.GET, "/api/python/stats").permitAll()
                         // ============= ADMIN PAGES - REQUIRES AUTHENTICATION =============
                         .requestMatchers(
-                                "/dashboard.html",
-                                "/manage-agents.html",
-                                "/agent-add.html",
-                                "/agent-edit.html",
-                                "/agent-view.html",
-                                "/alerts.html",
+                                "/dashboard",
+                                "/manage-agents",
+                                "/agent-add",
+                                "/agent-edit",
+                                "/agent-view",
+                                "/alerts",
                                 "/alert-details.html",
                                 "/assign-policy.html",
                                 "/audit-logs.html",
@@ -431,7 +431,7 @@ public class SecurityConfig {
                 )
 
                 .formLogin(form -> form
-                        .loginPage("/index.html")
+                        .loginPage("/index")
                         .loginProcessingUrl("/login")
                         .usernameParameter("username")
                         .passwordParameter("password")
@@ -442,7 +442,7 @@ public class SecurityConfig {
 
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                        .logoutSuccessUrl("/index.html?logout=true")
+                        .logoutSuccessUrl("/index?logout=true")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
@@ -452,14 +452,14 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .maximumSessions(1)
-                        .expiredUrl("/index.html?expired=true")
+                        .expiredUrl("/index?expired=true")
                 )
 
                 // THIS IS THE KEY PART - Redirect to login page instead of 403
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/index.html"))
+                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/index"))
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            response.sendRedirect("/index.html");
+                            response.sendRedirect("/index");
                         })
                 )
 

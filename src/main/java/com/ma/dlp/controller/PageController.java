@@ -95,7 +95,7 @@ public class PageController {
       // Helper method for authenticated pages
     private String checkAuthAndReturn(HttpSession session, Model model, String viewName) {
         if (!isAuthenticated(session)) {
-            return "redirect:/index.html";
+            return "redirect:/index";
         }
         addUserToModel(session, model);
         return viewName;
@@ -231,7 +231,7 @@ public class PageController {
        return checkAuthAndReturn(session, model, "users");
     }
 
-    @GetMapping("/index.html")
+    @GetMapping("/index")
     public String indexPage() {
         return "index"; // Login page doesn't need user data
     }
@@ -241,6 +241,6 @@ public class PageController {
         if (isAuthenticated(session)) {
             return "redirect:/dashboard";
         }
-        return "redirect:/index.html";
+        return "redirect:/index";
     }
 }
