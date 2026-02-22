@@ -2,6 +2,7 @@ package com.ma.dlp.controller;
 
 import com.ma.dlp.RestService.AlertStatsService;
 import com.ma.dlp.RestService.DashBoardService;
+import com.ma.dlp.RestService.ManageAgentStatsService;
 import com.ma.dlp.model.User;
 import jakarta.servlet.http.HttpSession;
 
@@ -21,6 +22,8 @@ public class PageController {
     @Autowired
     private AlertStatsService alertStatsService;
 
+    @Autowired
+    private ManageAgentStatsService manageAgentStatsService;
     // Helper method to check if user is authenticated
     private boolean isAuthenticated(HttpSession session) {
         User currentUser = (User) session.getAttribute("currentUser");
@@ -124,7 +127,14 @@ public class PageController {
 
     @GetMapping("/manage-agents")
     public String manageAgentsPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "manage-agents");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        model.addAttribute("ManageAgentStats", manageAgentStatsService.getManageAgentStats());
+
+        return "manage-agents";
     }
 
     @GetMapping("/agent-add")
