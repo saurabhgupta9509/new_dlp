@@ -434,7 +434,7 @@ public class PythonClientController {
    @PostMapping("/devices/{deviceId}/heartbeat")
    public ResponseEntity<ApiResponse<String>> pythonHeartbeat(
            @PathVariable String deviceId,
-           @RequestBody HeartbeatRequest request) {
+          @RequestBody(required = false) HeartbeatRequest request) {
 
        try {
            pythonClientService.updateHeartbeat(deviceId);
