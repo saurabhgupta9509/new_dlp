@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - Violation Detail</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container { display: flex; min-height: 100vh; }
+
+        /* ================ SIDEBAR (exact from agent-view) ================ */
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+            z-index: 1000;
+            left: 0; top: 0;
+            overflow: hidden;
+        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
+
+        .sidebar-header {
+            padding: 18px 16px;
+            display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+        }
+        .sidebar-logo {
+            width: 38px; height: 38px; background: white;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .sidebar-logo i { font-size: 20px; color: #2563eb; }
+        .sidebar-title { font-size: 1.2em; font-weight: 700; white-space: nowrap; transition: opacity 0.2s, width 0.3s; overflow: hidden; }
+
+        .nav-menu { padding: 12px 0; overflow-y: auto; overflow-x: hidden; flex: 1; }
+        .nav-item { margin: 2px 8px; }
+        .nav-link {
+            display: flex; align-items: center;
+            padding: 10px 12px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 0.9em; cursor: pointer; white-space: nowrap;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-link.active, .sub-menu-item.active { background: rgba(255,255,255,0.15); color: white; font-weight: 600; }
+        .nav-link i:first-child { width: 20px; font-size: 0.95em; margin-right: 10px; flex-shrink: 0; }
+        .chevron-icon { margin-left: auto !important; font-size: 0.7em !important; transition: transform 0.3s; width: auto !important; flex-shrink: 0; }
+        .nav-link.expanded .chevron-icon { transform: rotate(180deg); }
+
+        .sub-menu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .sub-menu.open { max-height: 500px; }
+        .sub-menu-item {
+            display: flex; align-items: center;
+            padding: 8px 12px 8px 42px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none; font-size: 0.85em;
+            transition: all 0.2s; border-radius: 8px; margin: 2px 0; white-space: nowrap;
+        }
+        .sub-menu-item:hover { color: white; background: rgba(255,255,255,0.08); }
+        .sub-menu-item::before { content: '•'; margin-right: 10px; font-size: 1.2em; }
+
+        .sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .collapse-btn {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 10px;
+            background: rgba(255,255,255,0.1); border: none; color: white;
+            border-radius: 8px; cursor: pointer; width: 100%; font-size: 0.85em;
+            transition: all 0.2s; white-space: nowrap; overflow: hidden;
+        }
+        .collapse-btn:hover { background: rgba(255,255,255,0.15); }
+        .collapse-btn i { transition: transform 0.3s; flex-shrink: 0; }
+
+        .sidebar.collapsed { width: 70px; }
+        .sidebar.collapsed .sidebar-title { opacity: 0; width: 0; }
+        .sidebar.collapsed .nav-link span, .sidebar.collapsed .collapse-btn span { display: none; }
+        .sidebar.collapsed .sub-menu { display: none !important; }
+        .sidebar.collapsed .nav-link { justify-content: center; padding: 10px; }
+        .sidebar.collapsed .nav-link i:first-child { margin-right: 0; }
+        .sidebar.collapsed .chevron-icon { display: none; }
+        .sidebar.collapsed .collapse-btn { justify-content: center; }
+        .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
+
+        .sidebar-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; transition: opacity 0.3s;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* ================ HEADER (exact from agent-view) ================ */
+        .top-header {
+            background: white; padding: 14px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid #e5e7eb;
+            position: fixed; top: 0; left: 240px; right: 0;
+            z-index: 500; gap: 16px; transition: left 0.3s ease;
+        }
+        .mobile-menu-toggle { display: none; background: none; border: none; color: #6b7280; font-size: 1.3em; cursor: pointer; padding: 8px; transition: color 0.2s; }
+        .mobile-menu-toggle:hover { color: #111827; }
+        .search-bar { flex: 1; max-width: 400px; position: relative; }
+        .search-bar i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.9em; }
+        .search-input { width: 100%; padding: 9px 14px 9px 38px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; background: #f9fafb; transition: all 0.3s ease; }
+        .search-input:focus { outline: none; border-color: #3b82f6; background: white; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+
+        .header-actions { display: flex; align-items: center; gap: 16px; }
+        .notification-btn { position: relative; background: none; border: none; color: #6b7280; font-size: 1.1em; cursor: pointer; padding: 8px; transition: all 0.2s; border-radius: 8px; }
+        .notification-btn:hover { color: #111827; background: #f3f4f6; }
+        .notification-btn.active { color: #2563eb; background: #eff6ff; }
+        .notification-badge { position: absolute; top: 4px; right: 4px; background: #ef4444; color: white; font-size: 0.65em; min-width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; padding: 0 4px; }
+
+        .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 10px; border-radius: 8px; transition: background 0.2s; position: relative; }
+        .user-profile:hover { background: #f3f4f6; }
+        .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.9em; flex-shrink: 0; }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-size: 0.9em; font-weight: 600; color: #111827; }
+        .user-role { font-size: 0.75em; color: #6b7280; }
+        .dropdown-icon { color: #6b7280; font-size: 0.75em; margin-left: 4px; transition: transform 0.3s; }
+        .user-profile.active .dropdown-icon { transform: rotate(180deg); }
+
+        .user-dropdown { position: absolute; top: 100%; right: 0; margin-top: 8px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 15px rgba(0,0,0,0.1); min-width: 200px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; z-index: 1000; }
+        .user-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: #374151; text-decoration: none; font-size: 0.9em; transition: background 0.2s; }
+        .dropdown-item:first-child { border-radius: 8px 8px 0 0; }
+        .dropdown-item:last-child { border-radius: 0 0 8px 8px; }
+        .dropdown-item:hover { background: #f3f4f6; }
+        .dropdown-item i { width: 18px; color: #6b7280; font-size: 0.95em; }
+        .dropdown-item.danger { color: #dc2626; }
+        .dropdown-item.danger i { color: #dc2626; }
+        .dropdown-divider { height: 1px; background: #e5e7eb; margin: 4px 0; }
+
+        /* ================ NOTIFICATIONS PANEL (exact from agent-view) ================ */
+        .notifications-panel { position: fixed; top: 0; right: -50%; width: 50%; max-width: 600px; height: 100vh; background: white; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1001; display: flex; flex-direction: column; transition: right 0.4s cubic-bezier(0.4,0,0.2,1); }
+        .notifications-panel.show { right: 0; }
+        .notifications-header { padding: 20px 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .notifications-header h3 { font-size: 1.2em; font-weight: 700; color: #111827; }
+        .close-notifications { background: none; border: none; color: #6b7280; font-size: 1.2em; cursor: pointer; padding: 6px; border-radius: 6px; transition: all 0.2s; }
+        .close-notifications:hover { background: #f3f4f6; color: #111827; }
+        .notifications-tabs { display: flex; border-bottom: 1px solid #e5e7eb; padding: 0 24px; flex-shrink: 0; }
+        .tab-btn { flex: 1; padding: 12px; background: none; border: none; color: #6b7280; font-size: 0.9em; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-btn:hover { color: #111827; }
+        .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+        .notifications-content { flex: 1; overflow-y: auto; padding: 12px 0; }
+        .notifications-content::-webkit-scrollbar { width: 6px; }
+        .notifications-content::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+        .notification-item { display: flex; gap: 12px; padding: 14px 24px; cursor: pointer; transition: background 0.2s; border-left: 3px solid transparent; }
+        .notification-item:hover { background: #f9fafb; }
+        .notification-item.unread { background: #eff6ff; border-left-color: #3b82f6; }
+        .notification-item.unread:hover { background: #dbeafe; }
+        .notification-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1em; flex-shrink: 0; }
+        .notification-icon.critical { background: #fee2e2; color: #dc2626; }
+        .notification-icon.warning  { background: #fef3c7; color: #f59e0b; }
+        .notification-icon.info     { background: #dbeafe; color: #3b82f6; }
+        .notification-icon.success  { background: #d1fae5; color: #10b981; }
+        .notification-body { flex: 1; }
+        .notification-title { font-size: 0.9em; font-weight: 600; color: #111827; margin-bottom: 4px; }
+        .notification-text  { font-size: 0.85em; color: #6b7280; margin-bottom: 6px; line-height: 1.4; }
+        .notification-time  { font-size: 0.75em; color: #9ca3af; }
+        .notification-dot   { width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+        .notifications-footer { padding: 16px 24px; border-top: 1px solid #e5e7eb; flex-shrink: 0; }
+        .view-all-btn { display: block; width: 100%; padding: 10px; background: #f3f4f6; color: #2563eb; text-align: center; text-decoration: none; border-radius: 8px; font-size: 0.9em; font-weight: 600; transition: all 0.2s; }
+        .view-all-btn:hover { background: #e5e7eb; }
+        .notification-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .notification-overlay.show { opacity: 1; visibility: visible; }
+
+        /* ================ MAIN CONTENT ================ */
+        .main-content { flex: 1; margin-left: 240px; transition: margin-left 0.3s ease; min-height: 100vh; }
+        .main-content.expanded { margin-left: 70px; }
+        .content-area { padding: 24px; padding-top: 90px; }
+
+        /* ================ SHARED PAGE CLASSES (exact from agent-view) ================ */
+        .page-header {
+            background: white; padding: 20px 24px; border-radius: 12px;
+            border: 1px solid #e5e7eb; margin-bottom: 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .page-title-section { display: flex; align-items: center; gap: 16px; }
+        .page-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .page-icon i { font-size: 22px; color: white; }
+        .page-icon.critical-icon { background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); }
+        .page-title-text h1 { font-size: 1.5em; color: #111827; font-weight: 700; }
+        .page-subtitle { color: #6b7280; font-size: 0.9em; }
+
+        /* Breadcrumb */
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.85em; color: #6b7280; margin-bottom: 20px; }
+        .breadcrumb a { color: #2563eb; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb i { font-size: 0.7em; color: #9ca3af; }
+
+        /* Buttons */
+        .header-btn-group { display: flex; gap: 10px; }
+        .btn { padding: 10px 18px; border-radius: 8px; font-size: 0.9em; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: white; color: #374151; border: 1.5px solid #e5e7eb; }
+        .btn-secondary:hover { background: #f9fafb; }
+        .btn-danger { background: white; color: #dc2626; border: 1.5px solid #fecaca; }
+        .btn-danger:hover { background: #fee2e2; }
+        .btn-warning { background: white; color: #b45309; border: 1.5px solid #fde68a; }
+        .btn-warning:hover { background: #fef3c7; }
+
+        /* Cards */
+        .card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; }
+        .card-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb; }
+        .card-title { font-size: 1em; font-weight: 600; color: #111827; }
+        .card-action { font-size: 0.8em; color: #2563eb; text-decoration: none; cursor: pointer; }
+
+        /* Info rows */
+        .info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+        .info-row:last-child { border-bottom: none; }
+        .info-key { font-size: 0.85em; color: #6b7280; }
+        .info-val { font-size: 0.85em; color: #111827; font-weight: 500; text-align: right; }
+
+        /* Badges — exact same classes as agent-view */
+        .score-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.75em; font-weight: 600; }
+        .score-high   { background: #fee2e2; color: #dc2626; }
+        .score-medium { background: #fef3c7; color: #f59e0b; }
+        .score-low    { background: #d1fae5; color: #059669; }
+
+        .severity-badge    { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.75em; font-weight: 600; }
+        .severity-critical { background: #fee2e2; color: #dc2626; }
+        .severity-high     { background: #fef3c7; color: #b45309; }
+        .severity-medium   { background: #e0f2fe; color: #0369a1; }
+        .severity-low      { background: #d1fae5; color: #059669; }
+
+        .status-badge       { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 0.8em; font-weight: 600; }
+        .status-badge .dot  { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+        .status-badge.active     { background: #d1fae5; color: #059669; }
+        .status-badge.inactive   { background: #f3f4f6; color: #6b7280; }
+        .status-badge.open       { background: #fee2e2; color: #dc2626; }
+        .status-badge.resolved   { background: #d1fae5; color: #059669; }
+        .status-badge.in-review  { background: #fef3c7; color: #b45309; }
+        .status-badge.dismissed  { background: #f3f4f6; color: #6b7280; }
+
+        /* Timeline */
+        .timeline { padding: 0; }
+        .timeline-item { display: flex; gap: 14px; padding-bottom: 20px; position: relative; }
+        .timeline-item:last-child { padding-bottom: 0; }
+        .timeline-item:not(:last-child)::after { content: ''; position: absolute; left: 15px; top: 32px; bottom: 0; width: 2px; background: #e5e7eb; }
+        .timeline-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; flex-shrink: 0; z-index: 1; }
+        .timeline-dot.red    { background: #fee2e2; color: #dc2626; }
+        .timeline-dot.yellow { background: #fef3c7; color: #f59e0b; }
+        .timeline-dot.blue   { background: #dbeafe; color: #2563eb; }
+        .timeline-dot.green  { background: #d1fae5; color: #059669; }
+        .timeline-dot.gray   { background: #f3f4f6; color: #6b7280; }
+        .timeline-content { flex: 1; }
+        .timeline-title { font-size: 0.88em; font-weight: 600; color: #111827; margin-bottom: 3px; }
+        .timeline-desc  { font-size: 0.8em; color: #6b7280; line-height: 1.4; }
+        .timeline-time  { font-size: 0.72em; color: #9ca3af; margin-top: 4px; }
+        .timeline-actor { font-size: 0.72em; color: #6b7280; margin-top: 3px; }
+
+        /* Mini stats */
+        .mini-stat { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+        .mini-stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9em; flex-shrink: 0; }
+        .mini-stat-icon.blue   { background: #dbeafe; color: #2563eb; }
+        .mini-stat-icon.red    { background: #fee2e2; color: #dc2626; }
+        .mini-stat-icon.green  { background: #d1fae5; color: #059669; }
+        .mini-stat-icon.yellow { background: #fef3c7; color: #f59e0b; }
+        .mini-stat-val { font-size: 1.4em; font-weight: 700; color: #111827; line-height: 1; }
+        .mini-stat-lbl { font-size: 0.75em; color: #6b7280; margin-top: 2px; }
+
+        /* View grid */
+        .view-grid   { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .view-grid-2 { display: grid; grid-template-columns: 1fr 1fr;   gap: 20px; margin-bottom: 24px; }
+        .view-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
+
+        /* ================ VIOLATION-SPECIFIC STYLES ================ */
+
+        /* Violation alert banner */
+        .violation-alert-banner {
+            background: linear-gradient(135deg, #fef2f2 0%, #fff7ed 100%);
+            border: 1.5px solid #fca5a5;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .violation-alert-icon {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .violation-alert-icon i { font-size: 24px; color: white; }
+        .violation-alert-body { flex: 1; min-width: 200px; }
+        .violation-id-label { font-size: 0.75em; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 4px; }
+        .violation-type-lg { font-size: 1.3em; font-weight: 700; color: #111827; margin-bottom: 6px; }
+        .violation-meta-inline { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .violation-meta-inline span { font-size: 0.82em; color: #6b7280; display: flex; align-items: center; gap: 5px; }
+        .violation-meta-inline i { color: #9ca3af; }
+
+        .violation-badges { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+        /* Screenshot preview card */
+        .screenshot-preview-card {
+            background: #1e1e2e;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #fca5a5;
+        }
+        .screenshot-preview-toolbar {
+            background: #2d2d3f;
+            padding: 10px 14px;
+            display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .preview-dots { display: flex; gap: 6px; }
+        .preview-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .preview-dot.r { background: #ff5f57; }
+        .preview-dot.y { background: #ffbd2e; }
+        .preview-dot.g { background: #28c840; }
+        .preview-toolbar-label { font-size: 0.75em; color: rgba(255,255,255,0.4); flex: 1; text-align: center; }
+        .screenshot-preview-body {
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 240px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Simulated screen content */
+        .simulated-screen {
+            width: 90%; padding: 20px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .sim-row { height: 10px; background: rgba(255,255,255,0.08); border-radius: 4px; margin-bottom: 10px; }
+        .sim-row.w80 { width: 80%; }
+        .sim-row.w60 { width: 60%; }
+        .sim-row.w90 { width: 90%; }
+        .sim-row.w40 { width: 40%; }
+        /* highlighted (detected) data */
+        .sim-highlight {
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.35);
+            border: 1.5px solid #ef4444;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.82em;
+            color: #fca5a5;
+            letter-spacing: 1px;
+            position: relative;
+        }
+        .sim-highlight::after {
+            content: 'DETECTED';
+            position: absolute;
+            top: -18px; left: 0;
+            font-size: 0.65em; color: #ef4444;
+            font-weight: 700; letter-spacing: 1px;
+            font-family: -apple-system, sans-serif;
+        }
+        .sim-highlight-wrap {
+            margin: 16px 0 24px;
+            display: flex; justify-content: center;
+        }
+        .screenshot-alert-overlay {
+            position: absolute;
+            top: 12px; right: 12px;
+            background: #dc2626;
+            color: white;
+            font-size: 0.7em;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .screenshot-preview-footer {
+            background: #2d2d3f;
+            padding: 10px 14px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+        .preview-footer-label { font-size: 0.75em; color: rgba(255,255,255,0.4); }
+        .preview-footer-time  { font-size: 0.72em; color: rgba(255,255,255,0.3); }
+
+        /* Redacted data block */
+        .redacted-data-block {
+            background: #f9fafb;
+            border: 1.5px dashed #e5e7eb;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+        }
+        .redacted-label { font-size: 0.75em; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .redacted-label i { color: #9ca3af; }
+        .redacted-value {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #111827;
+            font-weight: 600;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 8px;
+        }
+        .redacted-mask { color: #dc2626; letter-spacing: 2px; }
+        .copy-btn { background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 0.85em; padding: 2px 6px; border-radius: 4px; transition: all 0.2s; }
+        .copy-btn:hover { background: #f3f4f6; color: #374151; }
+
+        /* Confidence bar */
+        .confidence-bar-wrap { margin-top: 4px; }
+        .confidence-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .confidence-bar-label { font-size: 0.82em; color: #374151; min-width: 140px; }
+        .confidence-bar { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+        .confidence-fill { height: 100%; border-radius: 4px; }
+        .confidence-fill.high   { background: linear-gradient(90deg, #ef4444, #dc2626); }
+        .confidence-fill.medium { background: linear-gradient(90deg, #f59e0b, #d97706); }
+        .confidence-fill.low    { background: linear-gradient(90deg, #10b981, #059669); }
+        .confidence-pct { font-size: 0.82em; font-weight: 700; color: #111827; min-width: 36px; text-align: right; }
+
+        /* Action panel */
+        .action-panel {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .action-panel-header {
+            padding: 14px 20px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.9em;
+            font-weight: 700;
+            color: #111827;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .action-panel-body { padding: 16px 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .action-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.88em; font-weight: 600;
+            cursor: pointer; border: 1.5px solid;
+            transition: all 0.2s;
+        }
+        .action-btn.resolve  { background: #d1fae5; color: #059669; border-color: #6ee7b7; }
+        .action-btn.resolve:hover  { background: #a7f3d0; }
+        .action-btn.review   { background: #fef3c7; color: #b45309; border-color: #fde68a; }
+        .action-btn.review:hover   { background: #fde68a; }
+        .action-btn.escalate { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+        .action-btn.escalate:hover { background: #fecaca; }
+        .action-btn.dismiss  { background: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
+        .action-btn.dismiss:hover  { background: #e5e7eb; }
+        .action-btn.export   { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+        .action-btn.export:hover   { background: #dbeafe; }
+
+        /* Status change select */
+        .status-change-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .status-select { padding: 9px 14px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; background: white; cursor: pointer; }
+        .status-select:focus { outline: none; border-color: #3b82f6; }
+
+        /* Notes / comment area */
+        .notes-area { width: 100%; padding: 10px 14px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.88em; min-height: 80px; resize: vertical; font-family: inherit; color: #374151; }
+        .notes-area:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .notes-submit { margin-top: 8px; padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 0.85em; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .notes-submit:hover { background: #1d4ed8; }
+
+        /* Comment list */
+        .comment-item { display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid #f3f4f6; }
+        .comment-item:last-child { border-bottom: none; }
+        .comment-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.78em; font-weight: 700; flex-shrink: 0; }
+        .comment-avatar.system { background: #f3f4f6; color: #6b7280; }
+        .comment-body { flex: 1; }
+        .comment-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .comment-author { font-size: 0.85em; font-weight: 600; color: #111827; }
+        .comment-time { font-size: 0.75em; color: #9ca3af; }
+        .comment-text { font-size: 0.83em; color: #374151; line-height: 1.5; }
+
+        /* Related violations table */
+        .violations-table { width: 100%; border-collapse: collapse; }
+        .violations-table thead { background: #f9fafb; }
+        .violations-table th { padding: 10px 12px; text-align: left; font-size: 0.75em; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e5e7eb; }
+        .violations-table td { padding: 12px; font-size: 0.85em; color: #374151; border-bottom: 1px solid #f3f4f6; }
+        .violations-table tbody tr { cursor: pointer; transition: background 0.2s; }
+        .violations-table tbody tr:hover { background: #f9fafb; }
+        .violations-table tbody tr:last-child td { border-bottom: none; }
+
+        /* Agent mini card */
+        .agent-mini-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex; align-items: center; gap: 12px;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+        .agent-mini-card:hover { background: #eff6ff; border-color: #bfdbfe; }
+        .agent-mini-card-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .agent-mini-card-icon i { font-size: 16px; color: white; }
+        .agent-mini-card-info { flex: 1; }
+        .agent-mini-card-name { font-size: 0.9em; font-weight: 700; color: #111827; }
+        .agent-mini-card-user { font-size: 0.78em; color: #6b7280; margin-top: 2px; }
+        .agent-mini-card-arrow { color: #9ca3af; font-size: 0.8em; }
+
+        /* Meta item (same as agent-view) */
+        .meta-item  { display: flex; flex-direction: column; gap: 4px; }
+        .meta-label { font-size: 0.72em; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .meta-value { font-size: 0.95em; color: #111827; font-weight: 600; }
+
+        /* Screenshot strip */
+        .screenshot-strip { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+        .screenshot-strip::-webkit-scrollbar { height: 4px; }
+        .screenshot-strip::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+        .screenshot-thumb {
+            flex-shrink: 0; width: 130px; height: 82px;
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            border-radius: 8px; border: 2px solid #e5e7eb;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 5px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
+        }
+        .screenshot-thumb:hover { border-color: #3b82f6; transform: scale(1.03); }
+        .screenshot-thumb.violation-thumb { border-color: #fca5a5; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); }
+        .screenshot-thumb.current-thumb   { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+        .screenshot-thumb i { font-size: 1.3em; color: #6366f1; }
+        .screenshot-thumb.violation-thumb i { color: #dc2626; }
+        .screenshot-thumb.current-thumb i  { color: #2563eb; }
+        .screenshot-time { font-size: 0.68em; color: #6b7280; font-weight: 600; }
+        .screenshot-alert { position: absolute; top: 5px; right: 5px; background: #dc2626; color: white; font-size: 0.6em; padding: 2px 5px; border-radius: 3px; font-weight: 700; }
+        .screenshot-current-label { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); background: #2563eb; color: white; font-size: 0.6em; padding: 2px 6px; border-radius: 3px; font-weight: 700; white-space: nowrap; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 24px; right: 24px; background: #059669; color: white; padding: 14px 20px; border-radius: 10px; display: flex; align-items: center; gap: 10px; font-size: 0.9em; font-weight: 600; z-index: 9999; transform: translateY(100px); opacity: 0; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .view-grid   { grid-template-columns: 1fr; }
+            .view-grid-4 { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 968px) {
+            .main-content { margin-left: 0; }
+            .top-header { left: 0 !important; }
+            .sidebar { transform: translateX(-100%); width: 260px; transition: transform 0.3s ease; }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .mobile-menu-toggle { display: block; }
+            .search-bar { display: none; }
+            .view-grid-2 { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+            .content-area { padding: 16px; padding-top: 80px; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .header-btn-group { width: 100%; }
+            .view-grid-4 { grid-template-columns: 1fr 1fr; }
+            .violation-alert-banner { gap: 14px; }
+            .action-panel-body { flex-direction: column; }
+            .action-btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo"><i class="fas fa-shield-halved"></i></div>
+            <div class="sidebar-title">DLP Shield</div>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item">
+                <a href="dashboard.html" class="nav-link" data-page="dashboard">
+                    <i class="fas fa-th-large"></i><span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="alerts.html" class="nav-link" data-page="alerts">
+                    <i class="fas fa-triangle-exclamation"></i><span>Alerts &amp; Incidents</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-shield-alt"></i><span>Policies</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu">
+                    <a href="manage-agents.html" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
+                    <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a>
+                    <a href="assign-policy.html" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="agents.html" class="nav-link" data-page="agents">
+                    <i class="fas fa-desktop"></i><span>Agents / Endpoints</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown expanded" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-eye"></i><span>OCR &amp; Image Analysis</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu open">
+                    <a href="ocr-dashboard.html" class="sub-menu-item active" data-page="ocr-dashboard">OCR Dashboard</a>
+                    <a href="ocr-policies.html"  class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-file-lines"></i><span>Reports &amp; Logs</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu">
+                    <a href="reports.html"         class="sub-menu-item">Reports</a>
+                    <a href="generate-report.html" class="sub-menu-item">Generate Report</a>
+                    <a href="audit-logs.html"      class="sub-menu-item">Audit Logs</a>
+                    <a href="device-logs.html"     class="sub-menu-item">Device Logs</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-users"></i><span>Users &amp; Roles</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu">
+                    <a href="users.html"      class="sub-menu-item">Users</a>
+                    <a href="roles.html"      class="sub-menu-item">Roles &amp; Permissions</a>
+                    <a href="permissions.html" class="sub-menu-item">Permissions</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-gear"></i><span>Settings</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu">
+                    <a href="general.html"        class="sub-menu-item">General</a>
+                    <a href="security.html"       class="sub-menu-item">Security</a>
+                    <a href="integrations.html"   class="sub-menu-item">Integrations</a>
+                    <a href="data-retention.html" class="sub-menu-item">Data Retention</a>
+                </div>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="collapse-btn" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left"></i><span>Collapse</span>
+            </button>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- ==================== HEADER ==================== -->
+    <header class="top-header" id="topHeader">
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" class="search-input" placeholder="Search alerts, agents, policies...">
+        </div>
+        <div class="header-actions">
+            <button class="notification-btn" onclick="toggleNotifications(event)">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">5</span>
+            </button>
+            <div class="user-profile" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar">JS</div>
+                <div class="user-info">
+                    <div class="user-name">John Smith</div>
+                    <div class="user-role">Security Admin</div>
+                </div>
+                <i class="fas fa-chevron-down dropdown-icon"></i>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="general.html" class="dropdown-item"><i class="fas fa-gear"></i><span>Settings</span></a>
+                    <a href="#" class="dropdown-item"><i class="fas fa-circle-question"></i><span>Help &amp; Support</span></a>
+                    <div class="dropdown-divider"></div>
+                    <a href="index.html" class="dropdown-item danger" onclick="logout(event)"><i class="fas fa-right-from-bracket"></i><span>Sign out</span></a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== NOTIFICATIONS PANEL ==================== -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3>Notifications</h3>
+            <button class="close-notifications" onclick="closeNotifications()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="notifications-tabs">
+            <button class="tab-btn active" onclick="switchTab(event,'all')">All (5)</button>
+            <button class="tab-btn" onclick="switchTab(event,'unread')">Unread (3)</button>
+        </div>
+        <div class="notifications-content">
+            <div class="notification-item unread">
+                <div class="notification-icon critical"><i class="fas fa-shield-exclamation"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Critical Policy Violation</div>
+                    <div class="notification-text">User attempted to copy sensitive files to USB drive</div>
+                    <div class="notification-time">2 minutes ago</div>
+                </div>
+                <div class="notification-dot"></div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notification-icon warning"><i class="fas fa-triangle-exclamation"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Agent Offline</div>
+                    <div class="notification-text">DESKTOP-DEF456 has been offline for 2 hours</div>
+                    <div class="notification-time">15 minutes ago</div>
+                </div>
+                <div class="notification-dot"></div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notification-icon info"><i class="fas fa-info-circle"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Policy Updated</div>
+                    <div class="notification-text">File Protection Policy has been modified by Admin</div>
+                    <div class="notification-time">1 hour ago</div>
+                </div>
+                <div class="notification-dot"></div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon success"><i class="fas fa-check-circle"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Agent Connected</div>
+                    <div class="notification-text">New agent LAPTOP-XYZ789 successfully registered</div>
+                    <div class="notification-time">3 hours ago</div>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon info"><i class="fas fa-file-alt"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Report Generated</div>
+                    <div class="notification-text">Weekly security report is ready for review</div>
+                    <div class="notification-time">5 hours ago</div>
+                </div>
+            </div>
+        </div>
+        <div class="notifications-footer">
+            <a href="alerts.html" class="view-all-btn">View All Notifications</a>
+        </div>
+    </div>
+    <div class="notification-overlay" id="notificationOverlay" onclick="closeNotifications()"></div>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="main-content" id="mainContent">
+        <div class="content-area">
+
+            <!-- Breadcrumb -->
+            <div class="breadcrumb">
+                <a href="ocr-dashboard.html"><i class="fas fa-eye"></i> OCR Dashboard</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="ocr-agent-view.html" id="breadAgentLink">DESKTOP-ABC123</a>
+                <i class="fas fa-chevron-right"></i>
+                <span id="breadViolationId">Violation V-001</span>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title-section">
+                    <div class="page-icon critical-icon"><i class="fas fa-shield-exclamation"></i></div>
+                    <div class="page-title-text">
+                        <h1 id="pageViolationTitle">Violation V-001</h1>
+                        <p class="page-subtitle" id="pageViolationSubtitle">Credit Card Number — DESKTOP-ABC123</p>
+                    </div>
+                </div>
+                <div class="header-btn-group">
+                    <button class="btn btn-primary" onclick="exportViolation()">
+                        <i class="fas fa-download"></i><span>Export Report</span>
+                    </button>
+                    <a href="ocr-agent-view.html" class="btn btn-secondary" id="backToAgentBtn">
+                        <i class="fas fa-arrow-left"></i><span>Back to Agent</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Violation Alert Banner -->
+            <div class="violation-alert-banner">
+                <div class="violation-alert-icon"><i class="fas fa-credit-card" id="violationTypeIcon"></i></div>
+                <div class="violation-alert-body">
+                    <div class="violation-id-label">Violation ID</div>
+                    <div class="violation-type-lg" id="bannerViolationType">Credit Card Number Detected</div>
+                    <div class="violation-meta-inline">
+                        <span><i class="fas fa-desktop"></i> <span id="bannerAgent">DESKTOP-ABC123</span></span>
+                        <span><i class="fas fa-user"></i> <span id="bannerUser">john.doe</span></span>
+                        <span><i class="fas fa-clock"></i> <span id="bannerTime">Today, 14:32:08</span></span>
+                        <span><i class="fas fa-shield-alt"></i> Policy: <span id="bannerPolicy">PII Detection</span></span>
+                    </div>
+                </div>
+                <div class="violation-badges">
+                    <span class="severity-badge severity-critical" id="bannerSeverity">Critical</span>
+                    <span class="score-badge score-high" id="bannerConfidence">98% Confidence</span>
+                    <span class="status-badge open" id="bannerStatus"><span class="dot"></span> <span id="bannerStatusText">Open</span></span>
+                </div>
+            </div>
+
+            <!-- Mini Stats -->
+            <div class="view-grid-4" style="margin-bottom: 24px;">
+                <div class="mini-stat">
+                    <div class="mini-stat-icon red"><i class="fas fa-percent"></i></div>
+                    <div>
+                        <div class="mini-stat-val" id="statConfidence">98%</div>
+                        <div class="mini-stat-lbl">OCR Confidence</div>
+                    </div>
+                </div>
+                <div class="mini-stat">
+                    <div class="mini-stat-icon yellow"><i class="fas fa-stopwatch"></i></div>
+                    <div>
+                        <div class="mini-stat-val">1.8s</div>
+                        <div class="mini-stat-lbl">Detection Time</div>
+                    </div>
+                </div>
+                <div class="mini-stat">
+                    <div class="mini-stat-icon blue"><i class="fas fa-layer-group"></i></div>
+                    <div>
+                        <div class="mini-stat-val" id="statMatchCount">1</div>
+                        <div class="mini-stat-lbl">Data Matches Found</div>
+                    </div>
+                </div>
+                <div class="mini-stat">
+                    <div class="mini-stat-icon green"><i class="fas fa-shield-check"></i></div>
+                    <div>
+                        <div class="mini-stat-val" id="statAction">Blocked</div>
+                        <div class="mini-stat-lbl">Action Taken</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Panel -->
+            <div class="action-panel">
+                <div class="action-panel-header">
+                    <i class="fas fa-bolt" style="color:#f59e0b;"></i> Violation Actions
+                </div>
+                <div class="action-panel-body">
+                    <button class="action-btn resolve"  onclick="changeStatus('resolved')"><i class="fas fa-check-circle"></i> Mark Resolved</button>
+                    <button class="action-btn review"   onclick="changeStatus('in-review')"><i class="fas fa-magnifying-glass"></i> Mark In Review</button>
+                    <button class="action-btn escalate" onclick="escalateViolation()"><i class="fas fa-arrow-up"></i> Escalate</button>
+                    <button class="action-btn dismiss"  onclick="changeStatus('dismissed')"><i class="fas fa-ban"></i> Dismiss</button>
+                    <button class="action-btn export"   onclick="exportViolation()"><i class="fas fa-download"></i> Export PDF</button>
+                </div>
+            </div>
+
+            <!-- Main Grid: Screenshot + Info -->
+            <div class="view-grid" style="margin-bottom: 24px;">
+
+                <!-- Left: Screenshot Preview + Detected Data -->
+                <div style="display:flex;flex-direction:column;gap:20px;">
+
+                    <!-- Screenshot Preview -->
+                    <div class="card" style="padding:0;overflow:hidden;">
+                        <div class="card-header-row" style="padding:16px 20px;margin-bottom:0;border-bottom:1px solid #e5e7eb;">
+                            <div class="card-title">Screenshot at Time of Violation</div>
+                            <a class="card-action" href="#" onclick="downloadScreenshot(event)"><i class="fas fa-download"></i> Download</a>
+                        </div>
+                        <div style="padding:16px 20px;">
+                            <div class="screenshot-preview-card">
+                                <div class="screenshot-preview-toolbar">
+                                    <div class="preview-dots">
+                                        <div class="preview-dot r"></div>
+                                        <div class="preview-dot y"></div>
+                                        <div class="preview-dot g"></div>
+                                    </div>
+                                    <div class="preview-toolbar-label" id="previewToolbarLabel">DESKTOP-ABC123 — Finance Application</div>
+                                </div>
+                                <div class="screenshot-preview-body">
+                                    <div class="screenshot-alert-overlay"><i class="fas fa-exclamation-triangle"></i> VIOLATION DETECTED</div>
+                                    <div class="simulated-screen">
+                                        <div class="sim-row w80"></div>
+                                        <div class="sim-row w60"></div>
+                                        <div class="sim-highlight-wrap">
+                                            <div class="sim-highlight" id="detectedDataDisplay">4532 •••• •••• 7891</div>
+                                        </div>
+                                        <div class="sim-row w90"></div>
+                                        <div class="sim-row w40"></div>
+                                        <div class="sim-row w70"></div>
+                                    </div>
+                                </div>
+                                <div class="screenshot-preview-footer">
+                                    <div class="preview-footer-label">Captured by DLP Shield OCR Engine</div>
+                                    <div class="preview-footer-time" id="previewFooterTime">2025-06-15 14:32:08</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detected Data -->
+                    <div class="card">
+                        <div class="card-header-row">
+                            <div class="card-title">Detected Sensitive Data</div>
+                            <span class="score-badge score-high" id="detectedDataBadge">High Risk</span>
+                        </div>
+
+                        <div class="redacted-data-block">
+                            <div class="redacted-label"><i class="fas fa-eye-slash"></i> Detected Value (Redacted)</div>
+                            <div class="redacted-value">
+                                <span class="redacted-mask" id="redactedValue">4532 ████ ████ 7891</span>
+                                <button class="copy-btn" onclick="copyValue()" title="Copy masked value"><i class="fas fa-copy"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="redacted-data-block">
+                            <div class="redacted-label"><i class="fas fa-tag"></i> Data Classification</div>
+                            <div class="redacted-value">
+                                <span id="dataClassification">Credit Card Number (PAN) — Visa</span>
+                            </div>
+                        </div>
+
+                        <div class="redacted-data-block" style="margin-bottom:0;">
+                            <div class="redacted-label"><i class="fas fa-map-pin"></i> Screen Location</div>
+                            <div class="redacted-value">
+                                <span id="screenLocation">Region: Center — App: Chrome (Finance Portal)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confidence Breakdown -->
+                    <div class="card">
+                        <div class="card-header-row">
+                            <div class="card-title">Detection Confidence Breakdown</div>
+                        </div>
+                        <div class="confidence-bar-wrap">
+                            <div class="confidence-bar-row">
+                                <div class="confidence-bar-label">Pattern Match (Regex)</div>
+                                <div class="confidence-bar"><div class="confidence-fill high" style="width:100%;"></div></div>
+                                <div class="confidence-pct">100%</div>
+                            </div>
+                            <div class="confidence-bar-row">
+                                <div class="confidence-bar-label">Luhn Algorithm Check</div>
+                                <div class="confidence-bar"><div class="confidence-fill high" style="width:100%;"></div></div>
+                                <div class="confidence-pct">100%</div>
+                            </div>
+                            <div class="confidence-bar-row">
+                                <div class="confidence-bar-label">OCR Text Quality</div>
+                                <div class="confidence-bar"><div class="confidence-fill high" style="width:97%;"></div></div>
+                                <div class="confidence-pct">97%</div>
+                            </div>
+                            <div class="confidence-bar-row">
+                                <div class="confidence-bar-label">Context Relevance</div>
+                                <div class="confidence-bar"><div class="confidence-fill medium" style="width:88%;"></div></div>
+                                <div class="confidence-pct">88%</div>
+                            </div>
+                            <div class="confidence-bar-row">
+                                <div class="confidence-bar-label">False Positive Risk</div>
+                                <div class="confidence-bar"><div class="confidence-fill low" style="width:5%;"></div></div>
+                                <div class="confidence-pct">5%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /left col -->
+
+                <!-- Right: Info + Timeline + Agent Card -->
+                <div style="display:flex;flex-direction:column;gap:20px;">
+
+                    <!-- Violation Details -->
+                    <div class="card">
+                        <div class="card-header-row">
+                            <div class="card-title">Violation Details</div>
+                        </div>
+                        <div class="info-row"><span class="info-key">Violation ID</span><span class="info-val" id="detailId">V-001</span></div>
+                        <div class="info-row"><span class="info-key">Type</span><span class="info-val" id="detailType">Credit Card Number</span></div>
+                        <div class="info-row"><span class="info-key">Severity</span>
+                            <span class="info-val"><span class="severity-badge severity-critical" id="detailSeverity">Critical</span></span>
+                        </div>
+                        <div class="info-row"><span class="info-key">Status</span>
+                            <span class="info-val"><span class="status-badge open" id="detailStatus"><span class="dot"></span> <span id="detailStatusText">Open</span></span></span>
+                        </div>
+                        <div class="info-row"><span class="info-key">Confidence</span><span class="info-val" id="detailConfidence">98%</span></div>
+                        <div class="info-row"><span class="info-key">Detected At</span><span class="info-val" id="detailTime">2025-06-15 14:32:08</span></div>
+                        <div class="info-row"><span class="info-key">Policy Triggered</span><span class="info-val" id="detailPolicy">PII Detection</span></div>
+                        <div class="info-row"><span class="info-key">Action Taken</span><span class="info-val" id="detailActionTaken">Screenshot Blocked</span></div>
+                        <div class="info-row"><span class="info-key">User Notified</span><span class="info-val">Yes</span></div>
+                        <div class="info-row"><span class="info-key">Admin Alerted</span><span class="info-val">Yes</span></div>
+                    </div>
+
+                    <!-- Agent Reference -->
+                    <div class="card">
+                        <div class="card-header-row">
+                            <div class="card-title">Agent Information</div>
+                        </div>
+                        <a href="ocr-agent-view.html" class="agent-mini-card" id="agentMiniCard">
+                            <div class="agent-mini-card-icon"><i class="fas fa-desktop"></i></div>
+                            <div class="agent-mini-card-info">
+                                <div class="agent-mini-card-name" id="agentMiniName">DESKTOP-ABC123</div>
+                                <div class="agent-mini-card-user" id="agentMiniUser">john.doe — Finance Dept.</div>
+                            </div>
+                            <i class="fas fa-chevron-right agent-mini-card-arrow"></i>
+                        </a>
+                        <div class="info-row"><span class="info-key">IP Address</span><span class="info-val" id="agentIP">192.168.1.45</span></div>
+                        <div class="info-row"><span class="info-key">OS</span><span class="info-val">Windows 11 Pro</span></div>
+                        <div class="info-row"><span class="info-key">Department</span><span class="info-val" id="agentDept">Finance</span></div>
+                        <div class="info-row"><span class="info-key">Location</span><span class="info-val">HQ — Floor 3</span></div>
+                        <div class="info-row" style="border-bottom:none;"><span class="info-key">Agent Version</span><span class="info-val">v4.2.1</span></div>
+                    </div>
+
+                    <!-- Violation Timeline -->
+                    <div class="card">
+                        <div class="card-header-row">
+                            <div class="card-title">Event Timeline</div>
+                        </div>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-dot red"><i class="fas fa-eye"></i></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Sensitive Data Detected</div>
+                                    <div class="timeline-desc">OCR scan identified credit card number pattern on screen.</div>
+                                    <div class="timeline-time">14:32:08 — Today</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot red"><i class="fas fa-ban"></i></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Screenshot Blocked</div>
+                                    <div class="timeline-desc">Screenshot attempt was intercepted and blocked by policy.</div>
+                                    <div class="timeline-time">14:32:08 — Today</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot yellow"><i class="fas fa-bell"></i></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">User Notification Sent</div>
+                                    <div class="timeline-desc">End-user was shown a policy violation warning message.</div>
+                                    <div class="timeline-time">14:32:09 — Today</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot yellow"><i class="fas fa-envelope"></i></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Admin Alert Dispatched</div>
+                                    <div class="timeline-desc">Email alert sent to security@company.com.</div>
+                                    <div class="timeline-time">14:32:10 — Today</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot blue"><i class="fas fa-user-tie"></i></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Violation Logged to System</div>
+                                    <div class="timeline-desc">Record created. Awaiting admin review.</div>
+                                    <div class="timeline-actor">System — Automated</div>
+                                    <div class="timeline-time">14:32:10 — Today</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /right col -->
+            </div><!-- /view-grid -->
+
+            <!-- Status Update + Notes -->
+            <div class="view-grid-2" style="margin-bottom: 24px;">
+                <div class="card">
+                    <div class="card-header-row">
+                        <div class="card-title">Update Status</div>
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <div class="status-change-row">
+                            <select class="status-select" id="statusChangeSelect">
+                                <option value="open" selected>Open</option>
+                                <option value="in-review">In Review</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="dismissed">Dismissed</option>
+                                <option value="escalated">Escalated</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="applyStatusChange()" style="padding:9px 16px;">
+                                <i class="fas fa-check"></i> Apply
+                            </button>
+                        </div>
+                    </div>
+                    <div style="font-size:0.82em;color:#6b7280;margin-bottom:10px;">Add a note with this status change:</div>
+                    <textarea class="notes-area" id="statusNote" placeholder="e.g. Confirmed false positive — user accessed own account..."></textarea>
+                    <button class="notes-submit" onclick="submitNote()"><i class="fas fa-paper-plane"></i> Save Note</button>
+                </div>
+                <div class="card">
+                    <div class="card-header-row">
+                        <div class="card-title">Investigator Notes</div>
+                    </div>
+                    <div id="commentsList">
+                        <div class="comment-item">
+                            <div class="comment-avatar system"><i class="fas fa-robot" style="font-size:0.9em;"></i></div>
+                            <div class="comment-body">
+                                <div class="comment-header">
+                                    <span class="comment-author">System</span>
+                                    <span class="comment-time">14:32:10 — Today</span>
+                                </div>
+                                <div class="comment-text">Violation automatically logged. Credit card pattern matched with 98% confidence. Action: screenshot blocked.</div>
+                            </div>
+                        </div>
+                        <div class="comment-item">
+                            <div class="comment-avatar">JS</div>
+                            <div class="comment-body">
+                                <div class="comment-header">
+                                    <span class="comment-author">John Smith</span>
+                                    <span class="comment-time">14:38:45 — Today</span>
+                                </div>
+                                <div class="comment-text">Flagged for review. User john.doe is a Finance analyst — possible legitimate access. Checking with HR before resolving.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Screenshot Strip: Surrounding Context -->
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header-row">
+                    <div class="card-title">Surrounding Screenshots (Context)</div>
+                    <a class="card-action" href="#">View All →</a>
+                </div>
+                <div class="screenshot-strip">
+                    <div class="screenshot-thumb">
+                        <i class="fas fa-image"></i>
+                        <div class="screenshot-time">14:31:38</div>
+                    </div>
+                    <div class="screenshot-thumb">
+                        <i class="fas fa-image"></i>
+                        <div class="screenshot-time">14:31:58</div>
+                    </div>
+                    <div class="screenshot-thumb current-thumb violation-thumb">
+                        <span class="screenshot-alert">NOW</span>
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div class="screenshot-time">14:32:08</div>
+                        <span class="screenshot-current-label">THIS VIOLATION</span>
+                    </div>
+                    <div class="screenshot-thumb">
+                        <i class="fas fa-image"></i>
+                        <div class="screenshot-time">14:32:28</div>
+                    </div>
+                    <div class="screenshot-thumb">
+                        <i class="fas fa-image"></i>
+                        <div class="screenshot-time">14:32:48</div>
+                    </div>
+                    <div class="screenshot-thumb">
+                        <i class="fas fa-image"></i>
+                        <div class="screenshot-time">14:33:08</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Violations from Same Agent -->
+            <div class="card">
+                <div class="card-header-row">
+                    <div class="card-title">Other Violations from Same Agent</div>
+                    <a class="card-action" href="ocr-agent-view.html" id="viewAllViolationsLink">View All →</a>
+                </div>
+                <table class="violations-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Confidence</th>
+                            <th>Severity</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr onclick="goToViolation('V-002')">
+                            <td>V-002</td>
+                            <td>Social Security Number</td>
+                            <td><span class="score-badge score-high">95%</span></td>
+                            <td><span class="severity-badge severity-critical">Critical</span></td>
+                            <td>18 min ago</td>
+                            <td><span class="status-badge open"><span class="dot"></span> Open</span></td>
+                            <td><button class="btn btn-secondary" style="padding:4px 10px;font-size:0.78em;" onclick="event.stopPropagation();goToViolation('V-002')"><i class="fas fa-eye"></i></button></td>
+                        </tr>
+                        <tr onclick="goToViolation('V-003')">
+                            <td>V-003</td>
+                            <td>Bank Account</td>
+                            <td><span class="score-badge score-medium">82%</span></td>
+                            <td><span class="severity-badge severity-high">High</span></td>
+                            <td>45 min ago</td>
+                            <td><span class="status-badge in-review"><span class="dot"></span> In Review</span></td>
+                            <td><button class="btn btn-secondary" style="padding:4px 10px;font-size:0.78em;" onclick="event.stopPropagation();goToViolation('V-003')"><i class="fas fa-eye"></i></button></td>
+                        </tr>
+                        <tr onclick="goToViolation('V-004')">
+                            <td>V-004</td>
+                            <td>Confidential Document</td>
+                            <td><span class="score-badge score-medium">77%</span></td>
+                            <td><span class="severity-badge severity-medium">Medium</span></td>
+                            <td>1 hr ago</td>
+                            <td><span class="status-badge resolved"><span class="dot"></span> Resolved</span></td>
+                            <td><button class="btn btn-secondary" style="padding:4px 10px;font-size:0.78em;" onclick="event.stopPropagation();goToViolation('V-004')"><i class="fas fa-eye"></i></button></td>
+                        </tr>
+                        <tr onclick="goToViolation('V-005')">
+                            <td>V-005</td>
+                            <td>Credit Card Number</td>
+                            <td><span class="score-badge score-high">91%</span></td>
+                            <td><span class="severity-badge severity-critical">Critical</span></td>
+                            <td>2 hr ago</td>
+                            <td><span class="status-badge dismissed"><span class="dot"></span> Dismissed</span></td>
+                            <td><button class="btn btn-secondary" style="padding:4px 10px;font-size:0.78em;" onclick="event.stopPropagation();goToViolation('V-005')"><i class="fas fa-eye"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="actionToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMsg">Status updated successfully!</span>
+</div>
+
+<script>
+    if (!localStorage.getItem('isLoggedIn')) { window.location.href = 'index.html'; }
+
+    // ===== URL Params =====
+    const urlParams    = new URLSearchParams(window.location.search);
+    const violationId  = urlParams.get('violation') || 'V-001';
+    const agentId      = urlParams.get('agent')     || 'DESKTOP-ABC123';
+
+    // ===== Violation Data Map =====
+    const violationData = {
+        'V-001': {
+            id: 'V-001', type: 'Credit Card Number', icon: 'fa-credit-card',
+            agent: 'DESKTOP-ABC123', user: 'john.doe', dept: 'Finance',
+            ip: '192.168.1.45', time: '2025-06-15 14:32:08', timeShort: 'Today, 14:32:08',
+            policy: 'PII Detection', severity: 'critical', severityLabel: 'Critical',
+            confidence: '98%', action: 'Blocked', status: 'open', statusLabel: 'Open',
+            matches: 1, detectionTime: '1.8s',
+            redacted: '4532 ████ ████ 7891', detected: '4532 •••• •••• 7891',
+            classification: 'Credit Card Number (PAN) — Visa',
+            location: 'Region: Center — App: Chrome (Finance Portal)'
+        },
+        'V-002': {
+            id: 'V-002', type: 'Social Security Number', icon: 'fa-id-card',
+            agent: 'DESKTOP-ABC123', user: 'john.doe', dept: 'Finance',
+            ip: '192.168.1.45', time: '2025-06-15 14:14:22', timeShort: 'Today, 14:14:22',
+            policy: 'PII Detection', severity: 'critical', severityLabel: 'Critical',
+            confidence: '95%', action: 'Blocked', status: 'open', statusLabel: 'Open',
+            matches: 1, detectionTime: '2.1s',
+            redacted: '███-██-████', detected: '•••-••-7891',
+            classification: 'Social Security Number (SSN)',
+            location: 'Region: Top-Left — App: Excel (HR Report)'
+        },
+        'V-003': {
+            id: 'V-003', type: 'Bank Account', icon: 'fa-building-columns',
+            agent: 'DESKTOP-ABC123', user: 'john.doe', dept: 'Finance',
+            ip: '192.168.1.45', time: '2025-06-15 13:47:55', timeShort: 'Today, 13:47:55',
+            policy: 'PII Detection', severity: 'high', severityLabel: 'High',
+            confidence: '82%', action: 'Alert Only', status: 'in-review', statusLabel: 'In Review',
+            matches: 2, detectionTime: '1.5s',
+            redacted: '████████5523', detected: '••••••••5523',
+            classification: 'Bank Account Number — Routing + Account',
+            location: 'Region: Bottom — App: Finance Portal (Web)'
+        },
+        'V-004': {
+            id: 'V-004', type: 'Confidential Document', icon: 'fa-file-shield',
+            agent: 'DESKTOP-ABC123', user: 'john.doe', dept: 'Finance',
+            ip: '192.168.1.45', time: '2025-06-15 13:32:10', timeShort: 'Today, 13:32:10',
+            policy: 'Document Classification', severity: 'medium', severityLabel: 'Medium',
+            confidence: '77%', action: 'Logged', status: 'resolved', statusLabel: 'Resolved',
+            matches: 3, detectionTime: '3.2s',
+            redacted: '[CONFIDENTIAL] Q2-Report-2025.pdf',
+            detected: 'CONFIDENTIAL watermark detected',
+            classification: 'Classified Document Label — Internal',
+            location: 'Region: Full Screen — App: Acrobat Reader'
+        },
+        'V-005': {
+            id: 'V-005', type: 'Credit Card Number', icon: 'fa-credit-card',
+            agent: 'DESKTOP-ABC123', user: 'john.doe', dept: 'Finance',
+            ip: '192.168.1.45', time: '2025-06-15 12:32:08', timeShort: 'Today, 12:32:08',
+            policy: 'PII Detection', severity: 'critical', severityLabel: 'Critical',
+            confidence: '91%', action: 'Blocked', status: 'dismissed', statusLabel: 'Dismissed',
+            matches: 1, detectionTime: '1.6s',
+            redacted: '3782 ██████████ 🔒', detected: '3782 •••••••••• 1005',
+            classification: 'Credit Card Number (PAN) — Amex',
+            location: 'Region: Center-Right — App: Chrome (Banking)'
+        }
+    };
+
+    function populatePage() {
+        const v = violationData[violationId] || violationData['V-001'];
+
+        // Breadcrumb
+        document.getElementById('breadAgentLink').textContent   = v.agent;
+        document.getElementById('breadAgentLink').href          = 'ocr-agent-view.html?agent=' + encodeURIComponent(v.agent);
+        document.getElementById('breadViolationId').textContent = 'Violation ' + v.id;
+
+        // Page header
+        document.getElementById('pageViolationTitle').textContent   = 'Violation ' + v.id;
+        document.getElementById('pageViolationSubtitle').textContent = v.type + ' — ' + v.agent;
+        document.getElementById('backToAgentBtn').href = 'ocr-agent-view.html?agent=' + encodeURIComponent(v.agent);
+
+        // Alert Banner
+        document.getElementById('violationTypeIcon').className  = 'fas ' + v.icon;
+        document.getElementById('bannerViolationType').textContent = v.type + ' Detected';
+        document.getElementById('bannerAgent').textContent      = v.agent;
+        document.getElementById('bannerUser').textContent       = v.user;
+        document.getElementById('bannerTime').textContent       = v.timeShort;
+        document.getElementById('bannerPolicy').textContent     = v.policy;
+        document.getElementById('bannerSeverity').textContent   = v.severityLabel;
+        document.getElementById('bannerSeverity').className     = 'severity-badge severity-' + v.severity;
+        document.getElementById('bannerConfidence').textContent = v.confidence + ' Confidence';
+        document.getElementById('bannerConfidence').className   = 'score-badge ' + (parseInt(v.confidence) >= 90 ? 'score-high' : 'score-medium');
+        setStatusBadge('bannerStatus', 'bannerStatusText', v.status, v.statusLabel);
+
+        // Mini stats
+        document.getElementById('statConfidence').textContent = v.confidence;
+        document.getElementById('statMatchCount').textContent = v.matches;
+        document.getElementById('statAction').textContent     = v.action;
+
+        // Details panel
+        document.getElementById('detailId').textContent         = v.id;
+        document.getElementById('detailType').textContent       = v.type;
+        document.getElementById('detailSeverity').textContent   = v.severityLabel;
+        document.getElementById('detailSeverity').className     = 'severity-badge severity-' + v.severity;
+        document.getElementById('detailConfidence').textContent = v.confidence;
+        document.getElementById('detailTime').textContent       = v.time;
+        document.getElementById('detailPolicy').textContent     = v.policy;
+        document.getElementById('detailActionTaken').textContent = v.action === 'Blocked' ? 'Screenshot Blocked' : v.action;
+        setStatusBadge('detailStatus', 'detailStatusText', v.status, v.statusLabel);
+        document.getElementById('statusChangeSelect').value = v.status;
+
+        // Agent card
+        document.getElementById('agentMiniCard').href           = 'ocr-agent-view.html?agent=' + encodeURIComponent(v.agent);
+        document.getElementById('agentMiniName').textContent    = v.agent;
+        document.getElementById('agentMiniUser').textContent    = v.user + ' — ' + v.dept + ' Dept.';
+        document.getElementById('agentIP').textContent          = v.ip;
+        document.getElementById('agentDept').textContent        = v.dept;
+        document.getElementById('viewAllViolationsLink').href   = 'ocr-agent-view.html?agent=' + encodeURIComponent(v.agent);
+
+        // Screenshot preview
+        document.getElementById('previewToolbarLabel').textContent = v.agent + ' — ' + (v.type);
+        document.getElementById('previewFooterTime').textContent   = v.time;
+        document.getElementById('detectedDataDisplay').textContent  = v.detected;
+
+        // Detected data panel
+        document.getElementById('redactedValue').textContent   = v.redacted;
+        document.getElementById('dataClassification').textContent = v.classification;
+        document.getElementById('screenLocation').textContent  = v.location;
+        document.getElementById('detectedDataBadge').textContent = parseInt(v.confidence) >= 90 ? 'High Risk' : 'Medium Risk';
+        document.getElementById('detectedDataBadge').className  = 'score-badge ' + (parseInt(v.confidence) >= 90 ? 'score-high' : 'score-medium');
+
+        // Page title
+        document.title = 'DLP Shield - ' + v.type + ' | ' + v.id;
+    }
+
+    function setStatusBadge(wrapperId, textId, status, label) {
+        var el = document.getElementById(wrapperId);
+        var classMap = { 'open': 'open', 'in-review': 'in-review', 'resolved': 'resolved', 'dismissed': 'dismissed', 'escalated': 'open' };
+        el.className = 'status-badge ' + (classMap[status] || 'inactive');
+        document.getElementById(textId).textContent = label;
+    }
+
+    function changeStatus(newStatus) {
+        var labels = { 'open': 'Open', 'in-review': 'In Review', 'resolved': 'Resolved', 'dismissed': 'Dismissed', 'escalated': 'Escalated' };
+        var label  = labels[newStatus] || newStatus;
+        setStatusBadge('bannerStatus', 'bannerStatusText', newStatus, label);
+        setStatusBadge('detailStatus', 'detailStatusText', newStatus, label);
+        document.getElementById('statusChangeSelect').value = newStatus;
+        showToast('Status updated to ' + label);
+    }
+
+    function applyStatusChange() {
+        var sel = document.getElementById('statusChangeSelect').value;
+        var labels = { 'open': 'Open', 'in-review': 'In Review', 'resolved': 'Resolved', 'dismissed': 'Dismissed', 'escalated': 'Escalated' };
+        changeStatus(sel);
+        var note = document.getElementById('statusNote').value.trim();
+        if (note) submitNote();
+    }
+
+    function submitNote() {
+        var note = document.getElementById('statusNote').value.trim();
+        if (!note) return;
+        var list = document.getElementById('commentsList');
+        var now  = new Date();
+        var timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' — Today';
+        var html = '<div class="comment-item"><div class="comment-avatar">JS</div><div class="comment-body"><div class="comment-header"><span class="comment-author">John Smith</span><span class="comment-time">' + timeStr + '</span></div><div class="comment-text">' + escapeHtml(note) + '</div></div></div>';
+        list.insertAdjacentHTML('beforeend', html);
+        document.getElementById('statusNote').value = '';
+        showToast('Note saved successfully!');
+    }
+
+    function escapeHtml(text) {
+        var d = document.createElement('div');
+        d.appendChild(document.createTextNode(text));
+        return d.innerHTML;
+    }
+
+    function escalateViolation() { changeStatus('escalated'); showToast('Violation escalated to senior admin!'); }
+
+    function exportViolation() { showToast('Report exported as PDF!'); }
+
+    function downloadScreenshot() { showToast('Screenshot downloaded!'); }
+
+    function copyValue() {
+        var val = document.getElementById('redactedValue').textContent;
+        navigator.clipboard.writeText(val).then(function() { showToast('Copied to clipboard!'); }).catch(function() { showToast('Copy failed — please copy manually.'); });
+    }
+
+    function goToViolation(id) {
+        window.location.href = 'ocr-violation-view.html?violation=' + id + '&agent=' + encodeURIComponent(agentId);
+    }
+
+    function showToast(msg) {
+        var t = document.getElementById('actionToast');
+        document.getElementById('toastMsg').textContent = msg;
+        t.classList.add('show');
+        setTimeout(function() { t.classList.remove('show'); }, 3000);
+    }
+
+    // ===== Sidebar & Header Functions (exact same as all other pages) =====
+    function toggleSubMenu(element) {
+        var sidebar = document.getElementById('sidebar');
+        if (sidebar.classList.contains('collapsed')) return;
+        var subMenu = element.nextElementSibling;
+        document.querySelectorAll('.sub-menu').forEach(function(m) { if (m !== subMenu) m.classList.remove('open'); });
+        document.querySelectorAll('.nav-dropdown').forEach(function(l) { if (l !== element) l.classList.remove('expanded'); });
+        element.classList.toggle('expanded');
+        subMenu.classList.toggle('open');
+    }
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        var mainContent = document.getElementById('mainContent');
+        var header = document.getElementById('topHeader');
+        sidebar.classList.toggle('collapsed');
+        var isCollapsed = sidebar.classList.contains('collapsed');
+        if (mainContent) mainContent.classList.toggle('expanded');
+        if (header) header.style.left = isCollapsed ? '70px' : '240px';
+        if (isCollapsed) { document.querySelectorAll('.sub-menu').forEach(function(m) { m.classList.remove('open'); }); document.querySelectorAll('.nav-dropdown').forEach(function(l) { l.classList.remove('expanded'); }); }
+    }
+    function toggleMobileMenu() {
+        var sidebar = document.getElementById('sidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        if (sidebar.classList.contains('mobile-open')) { closeMobileSidebar(); } else { sidebar.classList.add('mobile-open'); overlay.classList.add('active'); }
+    }
+    function closeMobileSidebar() { document.getElementById('sidebar').classList.remove('mobile-open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
+    function toggleNotifications(event) {
+        event.stopPropagation();
+        var panel = document.getElementById('notificationsPanel');
+        var overlay = document.getElementById('notificationOverlay');
+        if (panel.classList.contains('show')) { closeNotifications(); } else { closeUserDropdown(); panel.classList.add('show'); overlay.classList.add('show'); event.currentTarget.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    }
+    function closeNotifications() {
+        var p = document.getElementById('notificationsPanel');
+        var o = document.getElementById('notificationOverlay');
+        var b = document.querySelector('.notification-btn');
+        if (p) p.classList.remove('show');
+        if (o) o.classList.remove('show');
+        if (b) b.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    function switchTab(event, tabName) {
+        document.querySelectorAll('.tab-btn').forEach(function(t) { t.classList.remove('active'); });
+        event.currentTarget.classList.add('active');
+        document.querySelectorAll('.notification-item').forEach(function(item) {
+            item.style.display = (tabName === 'unread' && !item.classList.contains('unread')) ? 'none' : 'flex';
+        });
+    }
+    function toggleUserDropdown(event) {
+        event.stopPropagation();
+        var dropdown = document.getElementById('userDropdown');
+        if (dropdown.classList.contains('show')) { closeUserDropdown(); } else { closeNotifications(); dropdown.classList.add('show'); event.currentTarget.classList.add('active'); }
+    }
+    function closeUserDropdown() {
+        var d = document.getElementById('userDropdown');
+        var u = document.querySelector('.user-profile');
+        if (d) d.classList.remove('show');
+        if (u) u.classList.remove('active');
+    }
+    function logout(event) { event.preventDefault(); localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userEmail'); window.location.href = 'index.html'; }
+    function loadUserInfo() {
+        var email = localStorage.getItem('userEmail');
+        if (email) {
+            var n   = email.split('@')[0];
+            var ini = n.split('.').map(function(x) { return x[0] ? x[0].toUpperCase() : ''; }).join('');
+            var fn  = n.split('.').map(function(x) { return x.charAt(0).toUpperCase() + x.slice(1); }).join(' ');
+            var un  = document.querySelector('.user-name');
+            var av  = document.querySelector('.user-avatar');
+            if (un) un.textContent = fn;
+            if (av) av.textContent = ini;
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        var u  = document.querySelector('.user-profile');
+        var nb = document.querySelector('.notification-btn');
+        var np = document.getElementById('notificationsPanel');
+        if (u && !u.contains(e.target)) closeUserDropdown();
+        if (nb && np && !nb.contains(e.target) && !np.contains(e.target)) closeNotifications();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { closeNotifications(); closeUserDropdown(); closeMobileSidebar(); }
+    });
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 968) {
+            closeMobileSidebar();
+            var s = document.getElementById('sidebar');
+            var h = document.getElementById('topHeader');
+            if (s && h) h.style.left = s.classList.contains('collapsed') ? '70px' : '240px';
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        loadUserInfo();
+        populatePage();
+        var s = document.getElementById('sidebar');
+        var h = document.getElementById('topHeader');
+        if (s && h) h.style.left = window.innerWidth <= 968 ? '0' : (s.classList.contains('collapsed') ? '70px' : '240px');
+    });
+
+    // Also update the agent-view's viewViolationDetail to navigate here
+    // From ocr-agent-view.html, the view button calls:
+    // window.location.href = 'ocr-violation-view.html?violation=' + id + '&agent=' + encodeURIComponent(agentId);
+</script>
+</body>
+</html>

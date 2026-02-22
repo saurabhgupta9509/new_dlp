@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - Edit Agent</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: #f3f4f6; overflow-x: hidden; }
+        .dashboard-container { display: flex; min-height: 100vh; }
+
+        /* ================ SIDEBAR ================ */
+        .sidebar { width: 240px; background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%); color: white; position: fixed; height: 100vh; display: flex; flex-direction: column; transition: width 0.3s ease; z-index: 1000; left: 0; top: 0; overflow: hidden; }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
+        .sidebar-header { padding: 18px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .sidebar-logo { width: 38px; height: 38px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .sidebar-logo i { font-size: 20px; color: #2563eb; }
+        .sidebar-title { font-size: 1.2em; font-weight: 700; white-space: nowrap; transition: opacity 0.2s, width 0.3s; overflow: hidden; }
+        .nav-menu { padding: 12px 0; overflow-y: auto; overflow-x: hidden; flex: 1; }
+        .nav-item { margin: 2px 8px; }
+        .nav-link { display: flex; align-items: center; padding: 10px 12px; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 8px; transition: all 0.2s; font-size: 0.9em; cursor: pointer; white-space: nowrap; }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-link.active, .sub-menu-item.active { background: rgba(255,255,255,0.15); color: white; font-weight: 600; }
+        .nav-link i:first-child { width: 20px; font-size: 0.95em; margin-right: 10px; flex-shrink: 0; }
+        .chevron-icon { margin-left: auto !important; font-size: 0.7em !important; transition: transform 0.3s; width: auto !important; flex-shrink: 0; }
+        .nav-link.expanded .chevron-icon { transform: rotate(180deg); }
+        .sub-menu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .sub-menu.open { max-height: 500px; }
+        .sub-menu-item { display: flex; align-items: center; padding: 8px 12px 8px 42px; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85em; transition: all 0.2s; border-radius: 8px; margin: 2px 0; white-space: nowrap; }
+        .sub-menu-item:hover { color: white; background: rgba(255,255,255,0.08); }
+        .sub-menu-item::before { content: '•'; margin-right: 10px; font-size: 1.2em; }
+        .sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .collapse-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 8px; cursor: pointer; width: 100%; font-size: 0.85em; transition: all 0.2s; white-space: nowrap; overflow: hidden; }
+        .collapse-btn:hover { background: rgba(255,255,255,0.15); }
+        .collapse-btn i { transition: transform 0.3s; flex-shrink: 0; }
+        .sidebar.collapsed { width: 70px; }
+        .sidebar.collapsed .sidebar-title { opacity: 0; width: 0; }
+        .sidebar.collapsed .nav-link span, .sidebar.collapsed .collapse-btn span { display: none; }
+        .sidebar.collapsed .sub-menu { display: none !important; }
+        .sidebar.collapsed .nav-link { justify-content: center; padding: 10px; }
+        .sidebar.collapsed .nav-link i:first-child { margin-right: 0; }
+        .sidebar.collapsed .chevron-icon { display: none; }
+        .sidebar.collapsed .collapse-btn { justify-content: center; }
+        .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; transition: opacity 0.3s; }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* ================ HEADER ================ */
+        .top-header { background: white; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e7eb; position: fixed; top: 0; left: 240px; right: 0; z-index: 500; gap: 16px; transition: left 0.3s ease; }
+        .mobile-menu-toggle { display: none; background: none; border: none; color: #6b7280; font-size: 1.3em; cursor: pointer; padding: 8px; }
+        .search-bar { flex: 1; max-width: 400px; position: relative; }
+        .search-bar i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.9em; }
+        .search-input { width: 100%; padding: 9px 14px 9px 38px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; background: #f9fafb; transition: all 0.3s ease; }
+        .search-input:focus { outline: none; border-color: #3b82f6; background: white; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .header-actions { display: flex; align-items: center; gap: 16px; }
+        .notification-btn { position: relative; background: none; border: none; color: #6b7280; font-size: 1.1em; cursor: pointer; padding: 8px; transition: all 0.2s; border-radius: 8px; }
+        .notification-btn:hover { color: #111827; background: #f3f4f6; }
+        .notification-btn.active { color: #2563eb; background: #eff6ff; }
+        .notification-badge { position: absolute; top: 4px; right: 4px; background: #ef4444; color: white; font-size: 0.65em; min-width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; padding: 0 4px; }
+        .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 10px; border-radius: 8px; transition: background 0.2s; position: relative; }
+        .user-profile:hover { background: #f3f4f6; }
+        .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.9em; flex-shrink: 0; }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-size: 0.9em; font-weight: 600; color: #111827; }
+        .user-role { font-size: 0.75em; color: #6b7280; }
+        .dropdown-icon { color: #6b7280; font-size: 0.75em; margin-left: 4px; transition: transform 0.3s; }
+        .user-profile.active .dropdown-icon { transform: rotate(180deg); }
+        .user-dropdown { position: absolute; top: 100%; right: 0; margin-top: 8px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 15px rgba(0,0,0,0.1); min-width: 200px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; z-index: 1000; }
+        .user-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: #374151; text-decoration: none; font-size: 0.9em; transition: background 0.2s; }
+        .dropdown-item:first-child { border-radius: 8px 8px 0 0; }
+        .dropdown-item:last-child { border-radius: 0 0 8px 8px; }
+        .dropdown-item:hover { background: #f3f4f6; }
+        .dropdown-item i { width: 18px; color: #6b7280; font-size: 0.95em; }
+        .dropdown-item.danger { color: #dc2626; }
+        .dropdown-item.danger i { color: #dc2626; }
+        .dropdown-divider { height: 1px; background: #e5e7eb; margin: 4px 0; }
+
+        /* ================ NOTIFICATIONS ================ */
+        .notifications-panel { position: fixed; top: 0; right: -50%; width: 50%; max-width: 600px; height: 100vh; background: white; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1001; display: flex; flex-direction: column; transition: right 0.4s cubic-bezier(0.4,0,0.2,1); }
+        .notifications-panel.show { right: 0; }
+        .notifications-header { padding: 20px 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .notifications-header h3 { font-size: 1.2em; font-weight: 700; color: #111827; }
+        .close-notifications { background: none; border: none; color: #6b7280; font-size: 1.2em; cursor: pointer; padding: 6px; border-radius: 6px; transition: all 0.2s; }
+        .close-notifications:hover { background: #f3f4f6; color: #111827; }
+        .notifications-tabs { display: flex; border-bottom: 1px solid #e5e7eb; padding: 0 24px; flex-shrink: 0; }
+        .tab-btn { flex: 1; padding: 12px; background: none; border: none; color: #6b7280; font-size: 0.9em; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+        .notifications-content { flex: 1; overflow-y: auto; padding: 12px 0; }
+        .notification-item { display: flex; gap: 12px; padding: 14px 24px; cursor: pointer; transition: background 0.2s; border-left: 3px solid transparent; }
+        .notification-item.unread { background: #eff6ff; border-left-color: #3b82f6; }
+        .notification-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1em; flex-shrink: 0; }
+        .notification-icon.critical { background: #fee2e2; color: #dc2626; }
+        .notification-icon.warning { background: #fef3c7; color: #f59e0b; }
+        .notification-icon.info { background: #dbeafe; color: #3b82f6; }
+        .notification-icon.success { background: #d1fae5; color: #10b981; }
+        .notification-body { flex: 1; }
+        .notification-title { font-size: 0.9em; font-weight: 600; color: #111827; margin-bottom: 4px; }
+        .notification-text { font-size: 0.85em; color: #6b7280; margin-bottom: 6px; }
+        .notification-time { font-size: 0.75em; color: #9ca3af; }
+        .notification-dot { width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+        .notifications-footer { padding: 16px 24px; border-top: 1px solid #e5e7eb; flex-shrink: 0; }
+        .view-all-btn { display: block; width: 100%; padding: 10px; background: #f3f4f6; color: #2563eb; text-align: center; text-decoration: none; border-radius: 8px; font-size: 0.9em; font-weight: 600; }
+        .notification-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .notification-overlay.show { opacity: 1; visibility: visible; }
+
+        /* ================ MAIN CONTENT ================ */
+        .main-content { flex: 1; margin-left: 240px; transition: margin-left 0.3s ease; min-height: 100vh; }
+        .main-content.expanded { margin-left: 70px; }
+        .content-area { padding: 24px; padding-top: 90px; }
+
+        /* ================ PAGE STYLES ================ */
+        .page-header { background: white; padding: 20px 24px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title-section { display: flex; align-items: center; gap: 16px; }
+        .page-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .page-icon i { font-size: 22px; color: white; }
+        .page-title-text h1 { font-size: 1.5em; color: #111827; font-weight: 700; }
+        .page-subtitle { color: #6b7280; font-size: 0.9em; }
+        .header-btn-group { display: flex; gap: 10px; }
+
+        /* Breadcrumb */
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.85em; color: #6b7280; margin-bottom: 20px; }
+        .breadcrumb a { color: #2563eb; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb i { font-size: 0.7em; color: #9ca3af; }
+
+        /* Buttons */
+        .btn { padding: 10px 18px; border-radius: 8px; font-size: 0.9em; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: white; color: #374151; border: 1.5px solid #e5e7eb; }
+        .btn-secondary:hover { background: #f9fafb; }
+        .btn-danger { background: white; color: #dc2626; border: 1.5px solid #fecaca; }
+        .btn-danger:hover { background: #fee2e2; }
+        .btn-success { background: #059669; color: white; }
+        .btn-success:hover { background: #047857; }
+
+        /* ================ EDIT FORM STYLES ================ */
+        .edit-layout { display: grid; grid-template-columns: 260px 1fr; gap: 20px; align-items: start; }
+
+        /* Sidebar Nav (section nav) */
+        .section-nav { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; position: sticky; top: 100px; }
+        .section-nav-title { font-size: 0.75em; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; padding: 0 4px; }
+        .section-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 0.88em; color: #374151; margin-bottom: 2px; }
+        .section-nav-item:hover { background: #f3f4f6; color: #111827; }
+        .section-nav-item.active { background: #eff6ff; color: #2563eb; font-weight: 600; }
+        .section-nav-item i { width: 16px; font-size: 0.9em; }
+
+        /* Form sections */
+        .form-sections { display: flex; flex-direction: column; gap: 20px; }
+
+        .form-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+        .form-card-header { padding: 18px 24px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 12px; }
+        .form-card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9em; flex-shrink: 0; }
+        .form-card-icon.blue { background: #dbeafe; color: #2563eb; }
+        .form-card-icon.green { background: #d1fae5; color: #059669; }
+        .form-card-icon.yellow { background: #fef3c7; color: #f59e0b; }
+        .form-card-icon.red { background: #fee2e2; color: #dc2626; }
+        .form-card-icon.purple { background: #ede9fe; color: #7c3aed; }
+        .form-card-title { font-size: 1em; font-weight: 600; color: #111827; }
+        .form-card-subtitle { font-size: 0.8em; color: #6b7280; margin-top: 2px; }
+        .form-card-body { padding: 24px; }
+
+        /* Form elements */
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group:last-child { margin-bottom: 0; }
+        .form-label { display: block; font-size: 0.85em; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        .form-label .required { color: #dc2626; margin-left: 3px; }
+        .form-hint { font-size: 0.78em; color: #6b7280; margin-top: 5px; }
+        .form-input, .form-select, .form-textarea {
+            width: 100%; padding: 10px 14px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #111827;
+            background: white;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .form-input:disabled, .form-select:disabled { background: #f9fafb; color: #9ca3af; cursor: not-allowed; }
+        .form-textarea { min-height: 90px; resize: vertical; }
+        .form-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+
+        /* Toggle switch */
+        .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f3f4f6; }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-row-info { flex: 1; }
+        .toggle-row-label { font-size: 0.88em; font-weight: 600; color: #111827; margin-bottom: 3px; }
+        .toggle-row-desc { font-size: 0.78em; color: #6b7280; }
+        .toggle-switch { position: relative; width: 48px; height: 26px; flex-shrink: 0; margin-left: 16px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #d1d5db; border-radius: 26px; transition: .3s; }
+        .toggle-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: .3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        input:checked + .toggle-slider { background-color: #10b981; }
+        input:checked + .toggle-slider:before { transform: translateX(22px); }
+
+        /* Range slider */
+        .range-wrap { padding: 8px 0; }
+        .form-range { width: 100%; height: 6px; cursor: pointer; -webkit-appearance: none; background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #dc2626 100%); border-radius: 3px; }
+        .form-range::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: white; border: 2px solid #3b82f6; box-shadow: 0 1px 4px rgba(0,0,0,0.2); cursor: pointer; }
+        .range-labels { display: flex; justify-content: space-between; margin-top: 8px; }
+        .range-labels span { font-size: 0.75em; color: #6b7280; }
+        .range-value-display { text-align: center; font-size: 0.88em; font-weight: 700; color: #2563eb; margin-top: 8px; }
+
+        /* Checkbox group */
+        .checkbox-group { display: flex; flex-direction: column; gap: 10px; }
+        .checkbox-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px; background: #f9fafb; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        .checkbox-item:hover { background: #f3f4f6; }
+        .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; accent-color: #2563eb; margin-top: 1px; }
+        .checkbox-item-info label { display: block; font-size: 0.88em; font-weight: 600; color: #111827; cursor: pointer; }
+        .checkbox-item-desc { font-size: 0.78em; color: #6b7280; margin-top: 2px; }
+
+        /* Keywords */
+        .keywords-container { border: 1.5px solid #e5e7eb; border-radius: 8px; padding: 10px; background: white; min-height: 80px; }
+        .keywords-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+        .keyword-tag { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: #eff6ff; color: #2563eb; border-radius: 6px; font-size: 0.82em; font-weight: 500; }
+        .keyword-tag button { background: none; border: none; color: #93c5fd; cursor: pointer; padding: 0; line-height: 1; font-size: 1em; }
+        .keyword-tag button:hover { color: #dc2626; }
+        .keyword-input-row { display: flex; gap: 8px; }
+        .keyword-input { flex: 1; padding: 8px 12px; border: 1.5px solid #e5e7eb; border-radius: 6px; font-size: 0.85em; }
+        .keyword-input:focus { outline: none; border-color: #3b82f6; }
+        .keyword-add-btn { padding: 8px 14px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 0.82em; cursor: pointer; font-weight: 600; }
+        .keyword-add-btn:hover { background: #1d4ed8; }
+
+        /* Status badge */
+        .status-select-row { display: flex; align-items: center; gap: 12px; }
+        .current-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 0.82em; font-weight: 600; }
+        .current-status.active { background: #d1fae5; color: #059669; }
+        .current-status.inactive { background: #f3f4f6; color: #6b7280; }
+        .status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+        /* Action Bar (sticky bottom) */
+        .action-bar { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; margin-top: 24px; gap: 12px; }
+        .action-bar-left { display: flex; align-items: center; gap: 8px; color: #6b7280; font-size: 0.85em; }
+        .action-bar-right { display: flex; gap: 10px; }
+
+        /* Save success toast */
+        .toast { position: fixed; bottom: 24px; right: 24px; background: #059669; color: white; padding: 14px 20px; border-radius: 10px; display: flex; align-items: center; gap: 10px; font-size: 0.9em; font-weight: 600; z-index: 9999; transform: translateY(100px); opacity: 0; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        /* Responsive */
+        @media (max-width: 1100px) { .edit-layout { grid-template-columns: 1fr; } .section-nav { position: static; display: none; } }
+        @media (max-width: 968px) { .main-content { margin-left: 0; } .top-header { left: 0 !important; } .sidebar { transform: translateX(-100%); width: 260px; transition: transform 0.3s ease; } .sidebar.mobile-open { transform: translateX(0); } .mobile-menu-toggle { display: block; } .search-bar { display: none; } .form-row { grid-template-columns: 1fr; } .form-row-3 { grid-template-columns: 1fr; } }
+        @media (max-width: 640px) { .content-area { padding: 16px; padding-top: 80px; } .page-header { flex-direction: column; align-items: flex-start; gap: 12px; } .action-bar { flex-direction: column; align-items: flex-start; } .action-bar-right { width: 100%; } .action-bar-right .btn { flex: 1; justify-content: center; } }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo"><i class="fas fa-shield-halved"></i></div>
+            <div class="sidebar-title">DLP Shield</div>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item"><a href="dashboard.html" class="nav-link" data-page="dashboard"><i class="fas fa-th-large"></i><span>Dashboard</span></a></div>
+            <div class="nav-item"><a href="alerts.html" class="nav-link" data-page="alerts"><i class="fas fa-triangle-exclamation"></i><span>Alerts &amp; Incidents</span></a></div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)"><i class="fas fa-shield-alt"></i><span>Policies</span><i class="fas fa-chevron-down chevron-icon"></i></div>
+                <div class="sub-menu">
+                    <a href="manage-agents.html" class="sub-menu-item">Manage Agents</a>
+                    <a href="file-policies.html" class="sub-menu-item">File Policies</a>
+                    <a href="assign-policy.html" class="sub-menu-item">Assign Policy</a>
+                </div>
+            </div>
+            <div class="nav-item"><a href="agents.html" class="nav-link" data-page="agents"><i class="fas fa-desktop"></i><span>Agents / Endpoints</span></a></div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown expanded" onclick="toggleSubMenu(this)"><i class="fas fa-eye"></i><span>OCR &amp; Image Analysis</span><i class="fas fa-chevron-down chevron-icon"></i></div>
+                <div class="sub-menu open">
+                    <a href="ocr-dashboard.html" class="sub-menu-item active" data-page="ocr-dashboard">OCR Dashboard</a>
+                    <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)"><i class="fas fa-file-lines"></i><span>Reports &amp; Logs</span><i class="fas fa-chevron-down chevron-icon"></i></div>
+                <div class="sub-menu">
+                    <a href="reports.html" class="sub-menu-item">Reports</a>
+                    <a href="generate-report.html" class="sub-menu-item">Generate Report</a>
+                    <a href="audit-logs.html" class="sub-menu-item">Audit Logs</a>
+                    <a href="device-logs.html" class="sub-menu-item">Device Logs</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)"><i class="fas fa-users"></i><span>Users &amp; Roles</span><i class="fas fa-chevron-down chevron-icon"></i></div>
+                <div class="sub-menu">
+                    <a href="users.html" class="sub-menu-item">Users</a>
+                    <a href="roles.html" class="sub-menu-item">Roles &amp; Permissions</a>
+                    <a href="permissions.html" class="sub-menu-item">Permissions</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)"><i class="fas fa-gear"></i><span>Settings</span><i class="fas fa-chevron-down chevron-icon"></i></div>
+                <div class="sub-menu">
+                    <a href="general.html" class="sub-menu-item">General</a>
+                    <a href="security.html" class="sub-menu-item">Security</a>
+                    <a href="integrations.html" class="sub-menu-item">Integrations</a>
+                    <a href="data-retention.html" class="sub-menu-item">Data Retention</a>
+                </div>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="collapse-btn" onclick="toggleSidebar()"><i class="fas fa-chevron-left"></i><span>Collapse</span></button>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- ==================== HEADER ==================== -->
+    <header class="top-header" id="topHeader">
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" class="search-input" placeholder="Search alerts, agents, policies...">
+        </div>
+        <div class="header-actions">
+            <button class="notification-btn" onclick="toggleNotifications(event)">
+                <i class="fas fa-bell"></i><span class="notification-badge">5</span>
+            </button>
+            <div class="user-profile" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar">JS</div>
+                <div class="user-info">
+                    <div class="user-name">John Smith</div>
+                    <div class="user-role">Security Admin</div>
+                </div>
+                <i class="fas fa-chevron-down dropdown-icon"></i>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="general.html" class="dropdown-item"><i class="fas fa-gear"></i><span>Settings</span></a>
+                    <a href="#" class="dropdown-item"><i class="fas fa-circle-question"></i><span>Help &amp; Support</span></a>
+                    <div class="dropdown-divider"></div>
+                    <a href="index.html" class="dropdown-item danger" onclick="logout(event)"><i class="fas fa-right-from-bracket"></i><span>Sign out</span></a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== NOTIFICATIONS ==================== -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3>Notifications</h3>
+            <button class="close-notifications" onclick="closeNotifications()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="notifications-tabs">
+            <button class="tab-btn active" onclick="switchTab(event,'all')">All (5)</button>
+            <button class="tab-btn" onclick="switchTab(event,'unread')">Unread (3)</button>
+        </div>
+        <div class="notifications-content">
+            <div class="notification-item unread">
+                <div class="notification-icon critical"><i class="fas fa-shield-exclamation"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Critical Policy Violation</div>
+                    <div class="notification-text">User attempted to copy sensitive files to USB drive</div>
+                    <div class="notification-time">2 minutes ago</div>
+                </div>
+                <div class="notification-dot"></div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notification-icon warning"><i class="fas fa-triangle-exclamation"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Agent Offline</div>
+                    <div class="notification-text">DESKTOP-DEF456 has been offline for 2 hours</div>
+                    <div class="notification-time">15 minutes ago</div>
+                </div>
+                <div class="notification-dot"></div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon success"><i class="fas fa-check-circle"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Agent Connected</div>
+                    <div class="notification-text">New agent LAPTOP-XYZ789 successfully registered</div>
+                    <div class="notification-time">3 hours ago</div>
+                </div>
+            </div>
+        </div>
+        <div class="notifications-footer"><a href="alerts.html" class="view-all-btn">View All Notifications</a></div>
+    </div>
+    <div class="notification-overlay" id="notificationOverlay" onclick="closeNotifications()"></div>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="main-content" id="mainContent">
+        <div class="content-area">
+
+            <!-- Breadcrumb -->
+            <div class="breadcrumb">
+                <a href="ocr-dashboard.html"><i class="fas fa-eye"></i> OCR Dashboard</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="ocr-agent-view.html" id="viewBreadcrumb">DESKTOP-ABC123</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Edit</span>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title-section">
+                    <div class="page-icon"><i class="fas fa-pen-to-square"></i></div>
+                    <div class="page-title-text">
+                        <h1 id="pageTitle">Edit Agent: DESKTOP-ABC123</h1>
+                        <p class="page-subtitle">Modify agent settings, OCR configuration, and policies</p>
+                    </div>
+                </div>
+                <div class="header-btn-group">
+                    <button class="btn btn-success" onclick="saveAgent()">
+                        <i class="fas fa-check"></i><span>Save Changes</span>
+                    </button>
+                    <a href="ocr-agent-view.html" class="btn btn-secondary" id="cancelBtn">
+                        <i class="fas fa-times"></i><span>Cancel</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Edit Layout -->
+            <div class="edit-layout">
+                <!-- Section Navigation -->
+                <div class="section-nav">
+                    <div class="section-nav-title">Sections</div>
+                    <div class="section-nav-item active" onclick="scrollToSection('sec-general', this)">
+                        <i class="fas fa-info-circle"></i> General Info
+                    </div>
+                    <div class="section-nav-item" onclick="scrollToSection('sec-status', this)">
+                        <i class="fas fa-toggle-on"></i> Status & Assignment
+                    </div>
+                    <div class="section-nav-item" onclick="scrollToSection('sec-ocr', this)">
+                        <i class="fas fa-eye"></i> OCR Settings
+                    </div>
+                    <div class="section-nav-item" onclick="scrollToSection('sec-detection', this)">
+                        <i class="fas fa-search"></i> Detection Rules
+                    </div>
+                    <div class="section-nav-item" onclick="scrollToSection('sec-actions', this)">
+                        <i class="fas fa-bolt"></i> Actions & Alerts
+                    </div>
+                    <div class="section-nav-item" onclick="scrollToSection('sec-schedule', this)">
+                        <i class="fas fa-clock"></i> Schedule
+                    </div>
+                    <div class="section-nav-item" onclick="scrollToSection('sec-danger', this)">
+                        <i class="fas fa-triangle-exclamation" style="color:#dc2626;"></i> Danger Zone
+                    </div>
+                </div>
+
+                <!-- Form Sections -->
+                <div class="form-sections">
+
+                    <!-- General Info -->
+                    <div class="form-card" id="sec-general">
+                        <div class="form-card-header">
+                            <div class="form-card-icon blue"><i class="fas fa-info-circle"></i></div>
+                            <div>
+                                <div class="form-card-title">General Information</div>
+                                <div class="form-card-subtitle">Basic agent identification details</div>
+                            </div>
+                        </div>
+                        <div class="form-card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Hostname <span class="required">*</span></label>
+                                    <input type="text" class="form-input" id="fieldHostname" value="DESKTOP-ABC123" disabled>
+                                    <div class="form-hint">Hostname is read-only. Managed by the system.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Display Name</label>
+                                    <input type="text" class="form-input" id="fieldDisplayName" value="Finance Workstation 1" placeholder="Enter a friendly name">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Assigned User <span class="required">*</span></label>
+                                    <input type="text" class="form-input" id="fieldUser" value="john.doe" placeholder="username">
+                                    <div class="form-hint">Primary user associated with this agent.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Department</label>
+                                    <select class="form-select" id="fieldDept">
+                                        <option>Finance</option>
+                                        <option>HR</option>
+                                        <option>IT</option>
+                                        <option>Legal</option>
+                                        <option>Operations</option>
+                                        <option>Sales</option>
+                                        <option>Executive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Location / Building</label>
+                                    <input type="text" class="form-input" id="fieldLocation" value="HQ - Floor 3" placeholder="e.g. HQ Building A, Floor 2">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Asset Tag</label>
+                                    <input type="text" class="form-input" id="fieldAssetTag" value="AST-20847" placeholder="e.g. AST-12345">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Notes / Description</label>
+                                <textarea class="form-textarea" id="fieldNotes" placeholder="Add any relevant notes about this agent...">High-risk financial workstation. Monitor closely for PII exposure.</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status & Assignment -->
+                    <div class="form-card" id="sec-status">
+                        <div class="form-card-header">
+                            <div class="form-card-icon green"><i class="fas fa-toggle-on"></i></div>
+                            <div>
+                                <div class="form-card-title">Status &amp; Assignment</div>
+                                <div class="form-card-subtitle">Control agent activity and policy assignment</div>
+                            </div>
+                        </div>
+                        <div class="form-card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Agent Status</label>
+                                    <select class="form-select" id="fieldStatus">
+                                        <option value="active" selected>Active</option>
+                                        <option value="inactive">Inactive</option>
+                                        <option value="suspended">Suspended</option>
+                                        <option value="maintenance">Maintenance Mode</option>
+                                    </select>
+                                    <div class="form-hint">Setting to Inactive will stop OCR scanning on this agent.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">OCR Policy</label>
+                                    <select class="form-select" id="fieldPolicy">
+                                        <option>PII Detection</option>
+                                        <option>Screen Capture Block</option>
+                                        <option>Document Classification</option>
+                                        <option>Finance Data Guard</option>
+                                        <option>None (Monitoring Only)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Risk Group</label>
+                                    <select class="form-select" id="fieldRiskGroup">
+                                        <option>High Risk</option>
+                                        <option>Medium Risk</option>
+                                        <option>Standard</option>
+                                        <option>Trusted</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Monitoring Level</label>
+                                    <select class="form-select" id="fieldMonLevel">
+                                        <option>Enhanced</option>
+                                        <option selected>Standard</option>
+                                        <option>Minimal</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OCR Settings -->
+                    <div class="form-card" id="sec-ocr">
+                        <div class="form-card-header">
+                            <div class="form-card-icon blue"><i class="fas fa-eye"></i></div>
+                            <div>
+                                <div class="form-card-title">OCR Configuration</div>
+                                <div class="form-card-subtitle">Scan frequency, sensitivity, and engine settings</div>
+                            </div>
+                        </div>
+                        <div class="form-card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">OCR Engine</label>
+                                    <select class="form-select" id="fieldEngine">
+                                        <option selected>Tesseract v5.3</option>
+                                        <option>Tesseract v4.1</option>
+                                        <option>EasyOCR</option>
+                                        <option>PaddleOCR</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Scan Interval</label>
+                                    <select class="form-select" id="fieldInterval">
+                                        <option>Every 10 seconds</option>
+                                        <option>Every 15 seconds</option>
+                                        <option selected>Every 30 seconds</option>
+                                        <option>Every 60 seconds</option>
+                                        <option>Every 5 minutes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Detection Sensitivity</label>
+                                <div class="range-wrap">
+                                    <input type="range" class="form-range" id="fieldSensitivity" min="0" max="100" value="75" oninput="updateRange(this)">
+                                    <div class="range-labels"><span>Low</span><span>Medium</span><span>High</span></div>
+                                    <div class="range-value-display" id="sensitivityDisplay">75% — High</div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Image Quality</label>
+                                    <select class="form-select">
+                                        <option>High (1920×1080)</option>
+                                        <option selected>Medium (1280×720)</option>
+                                        <option>Low (800×600)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Language Support</label>
+                                    <select class="form-select">
+                                        <option selected>English</option>
+                                        <option>English + Spanish</option>
+                                        <option>English + French</option>
+                                        <option>Multi-language</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-row-info">
+                                    <div class="toggle-row-label">Enable OCR on this Agent</div>
+                                    <div class="toggle-row-desc">Toggles all OCR scanning on this specific agent</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="ocrEnabled" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-row-info">
+                                    <div class="toggle-row-label">GPU Acceleration</div>
+                                    <div class="toggle-row-desc">Use GPU for faster OCR processing if available</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="gpuEnabled">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detection Rules -->
+                    <div class="form-card" id="sec-detection">
+                        <div class="form-card-header">
+                            <div class="form-card-icon purple"><i class="fas fa-search"></i></div>
+                            <div>
+                                <div class="form-card-title">Detection Rules</div>
+                                <div class="form-card-subtitle">Data types and keywords to detect in screen content</div>
+                            </div>
+                        </div>
+                        <div class="form-card-body">
+                            <div class="form-group">
+                                <label class="form-label">Data Types to Detect</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="detectCC" checked>
+                                        <div class="checkbox-item-info">
+                                            <label for="detectCC">Credit Card Numbers</label>
+                                            <div class="checkbox-item-desc">Visa, Mastercard, Amex, Discover patterns</div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="detectSSN" checked>
+                                        <div class="checkbox-item-info">
+                                            <label for="detectSSN">Social Security Numbers (SSN)</label>
+                                            <div class="checkbox-item-desc">US SSN format: XXX-XX-XXXX</div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="detectBank" checked>
+                                        <div class="checkbox-item-info">
+                                            <label for="detectBank">Bank Account Numbers</label>
+                                            <div class="checkbox-item-desc">IBAN, routing numbers, account identifiers</div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="detectEmail">
+                                        <div class="checkbox-item-info">
+                                            <label for="detectEmail">Email Addresses</label>
+                                            <div class="checkbox-item-desc">Standard email format detection</div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="detectPhone">
+                                        <div class="checkbox-item-info">
+                                            <label for="detectPhone">Phone Numbers</label>
+                                            <div class="checkbox-item-desc">US and international formats</div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="detectMed">
+                                        <div class="checkbox-item-info">
+                                            <label for="detectMed">Medical Record Numbers</label>
+                                            <div class="checkbox-item-desc">HIPAA-covered identifiers</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label class="form-label">Custom Keywords</label>
+                                <div class="keywords-container">
+                                    <div class="keywords-list" id="keywordsList">
+                                        <span class="keyword-tag">confidential <button onclick="removeKeyword(this)"><i class="fas fa-times"></i></button></span>
+                                        <span class="keyword-tag">secret <button onclick="removeKeyword(this)"><i class="fas fa-times"></i></button></span>
+                                        <span class="keyword-tag">internal <button onclick="removeKeyword(this)"><i class="fas fa-times"></i></button></span>
+                                        <span class="keyword-tag">proprietary <button onclick="removeKeyword(this)"><i class="fas fa-times"></i></button></span>
+                                    </div>
+                                    <div class="keyword-input-row">
+                                        <input type="text" class="keyword-input" id="keywordInput" placeholder="Type a keyword and press Add or Enter">
+                                        <button class="keyword-add-btn" onclick="addKeyword()">Add</button>
+                                    </div>
+                                </div>
+                                <div class="form-hint">Keywords that will trigger an alert when found in OCR scan results.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions & Alerts -->
+                    <div class="form-card" id="sec-actions">
+                        <div class="form-card-header">
+                            <div class="form-card-icon yellow"><i class="fas fa-bolt"></i></div>
+                            <div>
+                                <div class="form-card-title">Actions &amp; Alerts</div>
+                                <div class="form-card-subtitle">Define what happens when sensitive data is detected</div>
+                            </div>
+                        </div>
+                        <div class="form-card-body">
+                            <div class="form-group">
+                                <label class="form-label">Action on Detection</label>
+                                <select class="form-select" id="fieldAction">
+                                    <option selected>Block screenshot &amp; alert admin</option>
+                                    <option>Alert only (no block)</option>
+                                    <option>Log silently</option>
+                                    <option>Block, alert, and quarantine</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Alert Escalation Level</label>
+                                <select class="form-select" id="fieldEscalation">
+                                    <option>Critical — Immediate escalation</option>
+                                    <option selected>High — Escalate within 15 min</option>
+                                    <option>Medium — Escalate within 1 hour</option>
+                                    <option>Low — Daily digest only</option>
+                                </select>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-row-info">
+                                    <div class="toggle-row-label">Notify User When Blocked</div>
+                                    <div class="toggle-row-desc">Show a message to the user when their screenshot is blocked</div>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-row-info">
+                                    <div class="toggle-row-label">Send Alert to Administrator</div>
+                                    <div class="toggle-row-desc">Notify security admin by email on each violation</div>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-row-info">
+                                    <div class="toggle-row-label">Save Screenshot Evidence</div>
+                                    <div class="toggle-row-desc">Store a copy of the violating screenshot for investigation</div>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-row-info">
+                                    <div class="toggle-row-label">Auto-suspend Agent on Critical Violation</div>
+                                    <div class="toggle-row-desc">Automatically set agent to maintenance mode after 5+ critical violations</div>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Schedule -->
+                    <div class="form-card" id="sec-schedule">
+                        <div class="form-card-header">
+                            <div class="form-card-icon green"><i class="fas fa-clock"></i></div>
+                            <div>
+                                <div class="form-card-title">Monitoring Schedule</div>
+                                <div class="form-card-subtitle">Set when OCR scanning is active for this agent</div>
+                            </div>
+                        </div>
+                        <div class="form-card-body">
+                            <div class="form-group">
+                                <label class="form-label">Monitoring Mode</label>
+                                <select class="form-select" id="fieldScheduleMode" onchange="toggleSchedule(this.value)">
+                                    <option value="always" selected>Always On (24/7)</option>
+                                    <option value="business">Business Hours Only</option>
+                                    <option value="custom">Custom Schedule</option>
+                                    <option value="off">Off</option>
+                                </select>
+                            </div>
+                            <div id="scheduleDetails" style="display:none;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Start Time</label>
+                                        <input type="time" class="form-input" value="09:00">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">End Time</label>
+                                        <input type="time" class="form-input" value="18:00">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Active Days</label>
+                                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+                                        <label style="display:flex;align-items:center;gap:6px;font-size:0.85em;"><input type="checkbox" checked style="accent-color:#2563eb;"> Mon</label>
+                                        <label style="display:flex;align-items:center;gap:6px;font-size:0.85em;"><input type="checkbox" checked style="accent-color:#2563eb;"> Tue</label>
+                                        <label style="display:flex;align-items:center;gap:6px;font-size:0.85em;"><input type="checkbox" checked style="accent-color:#2563eb;"> Wed</label>
+                                        <label style="display:flex;align-items:center;gap:6px;font-size:0.85em;"><input type="checkbox" checked style="accent-color:#2563eb;"> Thu</label>
+                                        <label style="display:flex;align-items:center;gap:6px;font-size:0.85em;"><input type="checkbox" checked style="accent-color:#2563eb;"> Fri</label>
+                                        <label style="display:flex;align-items:center;gap:6px;font-size:0.85em;"><input type="checkbox"> Sat</label>
+                                        <label style="display:flex;align-items:center;gap:6px;font-size:0.85em;"><input type="checkbox"> Sun</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="toggle-row">
+                                <div class="toggle-row-info">
+                                    <div class="toggle-row-label">Pause During Meetings</div>
+                                    <div class="toggle-row-desc">Automatically pause scanning when a calendar event is detected</div>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="form-card" id="sec-danger" style="border-color: #fecaca;">
+                        <div class="form-card-header" style="background:#fff5f5; border-bottom-color:#fecaca;">
+                            <div class="form-card-icon red"><i class="fas fa-triangle-exclamation"></i></div>
+                            <div>
+                                <div class="form-card-title" style="color:#dc2626;">Danger Zone</div>
+                                <div class="form-card-subtitle">Irreversible actions — proceed with caution</div>
+                            </div>
+                        </div>
+                        <div class="form-card-body">
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f3f4f6;">
+                                <div>
+                                    <div style="font-size:0.88em;font-weight:600;color:#111827;">Reset Violation History</div>
+                                    <div style="font-size:0.78em;color:#6b7280;margin-top:3px;">Clear all violation logs for this agent. Cannot be undone.</div>
+                                </div>
+                                <button class="btn btn-danger" onclick="confirmAction('reset')"><i class="fas fa-trash"></i> Reset</button>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f3f4f6;">
+                                <div>
+                                    <div style="font-size:0.88em;font-weight:600;color:#111827;">Reinstall OCR Agent</div>
+                                    <div style="font-size:0.78em;color:#6b7280;margin-top:3px;">Force a remote reinstall of the OCR agent software.</div>
+                                </div>
+                                <button class="btn btn-danger" onclick="confirmAction('reinstall')"><i class="fas fa-rotate"></i> Reinstall</button>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;">
+                                <div>
+                                    <div style="font-size:0.88em;font-weight:600;color:#dc2626;">Remove Agent</div>
+                                    <div style="font-size:0.78em;color:#6b7280;margin-top:3px;">Permanently unregister and remove this agent from DLP Shield.</div>
+                                </div>
+                                <button class="btn btn-danger" onclick="confirmAction('remove')"><i class="fas fa-trash-can"></i> Remove Agent</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Bar -->
+                    <div class="action-bar">
+                        <div class="action-bar-left">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Last saved: Never — unsaved changes</span>
+                        </div>
+                        <div class="action-bar-right">
+                            <a href="ocr-agent-view.html" class="btn btn-secondary" id="cancelBtn2"><i class="fas fa-times"></i> Cancel</a>
+                            <button class="btn btn-success" onclick="saveAgent()"><i class="fas fa-check"></i> Save Changes</button>
+                        </div>
+                    </div>
+
+                </div><!-- /form-sections -->
+            </div><!-- /edit-layout -->
+
+        </div>
+    </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="saveToast">
+    <i class="fas fa-check-circle"></i>
+    <span>Agent settings saved successfully!</span>
+</div>
+
+<script>
+    if (!localStorage.getItem('isLoggedIn')) { window.location.href = 'index.html'; }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const agentId = urlParams.get('agent') || 'DESKTOP-ABC123';
+
+    const agentData = {
+        'DESKTOP-ABC123': { name: 'DESKTOP-ABC123', user: 'john.doe', dept: 'Finance' },
+        'LAPTOP-XYZ789':  { name: 'LAPTOP-XYZ789',  user: 'jane.smith', dept: 'HR' },
+        'WORKSTATION-001':{ name: 'WORKSTATION-001', user: 'bob.wilson', dept: 'IT' },
+        'DESKTOP-DEF456': { name: 'DESKTOP-DEF456', user: 'alice.jones', dept: 'Legal' }
+    };
+
+    function populatePage() {
+        const data = agentData[agentId] || agentData['DESKTOP-ABC123'];
+        document.getElementById('pageTitle').textContent = 'Edit Agent: ' + data.name;
+        document.getElementById('fieldHostname').value = data.name;
+        document.getElementById('fieldUser').value = data.user;
+        document.getElementById('viewBreadcrumb').textContent = data.name;
+        document.getElementById('viewBreadcrumb').href = 'ocr-agent-view.html?agent=' + encodeURIComponent(data.name);
+        document.getElementById('cancelBtn').href = 'ocr-agent-view.html?agent=' + encodeURIComponent(data.name);
+        document.getElementById('cancelBtn2').href = 'ocr-agent-view.html?agent=' + encodeURIComponent(data.name);
+
+        var deptSel = document.getElementById('fieldDept');
+        for (var i = 0; i < deptSel.options.length; i++) {
+            if (deptSel.options[i].text === data.dept) { deptSel.selectedIndex = i; break; }
+        }
+    }
+
+    function updateRange(el) {
+        var val = el.value;
+        var label = val < 34 ? 'Low' : val < 67 ? 'Medium' : 'High';
+        document.getElementById('sensitivityDisplay').textContent = val + '% — ' + label;
+    }
+
+    function toggleSchedule(val) {
+        var det = document.getElementById('scheduleDetails');
+        det.style.display = (val === 'business' || val === 'custom') ? 'block' : 'none';
+    }
+
+    function addKeyword() {
+        var input = document.getElementById('keywordInput');
+        var val = input.value.trim();
+        if (!val) return;
+        var list = document.getElementById('keywordsList');
+        var tag = document.createElement('span');
+        tag.className = 'keyword-tag';
+        tag.innerHTML = val + ' <button onclick="removeKeyword(this)"><i class="fas fa-times"></i></button>';
+        list.appendChild(tag);
+        input.value = '';
+        input.focus();
+    }
+
+    function removeKeyword(btn) { btn.closest('.keyword-tag').remove(); }
+
+    document.getElementById('keywordInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); addKeyword(); } });
+
+    function saveAgent() {
+        var toast = document.getElementById('saveToast');
+        var bar = document.querySelector('.action-bar-left');
+        toast.classList.add('show');
+        var now = new Date();
+        if (bar) bar.innerHTML = '<i class="fas fa-check-circle" style="color:#059669;"></i> <span>Last saved: ' + now.toLocaleTimeString() + '</span>';
+        setTimeout(function() { toast.classList.remove('show'); }, 3000);
+    }
+
+    function confirmAction(type) {
+        var msgs = { reset: 'Are you sure you want to reset all violation history? This cannot be undone.', reinstall: 'Are you sure you want to remotely reinstall the OCR agent?', remove: 'Are you sure you want to permanently remove this agent? This cannot be undone.' };
+        if (confirm(msgs[type] || 'Are you sure?')) { alert(type.charAt(0).toUpperCase() + type.slice(1) + ' action initiated.'); }
+    }
+
+    function scrollToSection(id, el) {
+        document.querySelectorAll('.section-nav-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+        var sec = document.getElementById(id);
+        if (sec) { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    }
+
+    // ===== Sidebar & Header (same as other pages) =====
+    function toggleSubMenu(element) {
+        var sidebar = document.getElementById('sidebar');
+        if (sidebar.classList.contains('collapsed')) return;
+        var subMenu = element.nextElementSibling;
+        document.querySelectorAll('.sub-menu').forEach(m => { if (m !== subMenu) m.classList.remove('open'); });
+        document.querySelectorAll('.nav-dropdown').forEach(l => { if (l !== element) l.classList.remove('expanded'); });
+        element.classList.toggle('expanded');
+        subMenu.classList.toggle('open');
+    }
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        var mainContent = document.getElementById('mainContent');
+        var header = document.getElementById('topHeader');
+        sidebar.classList.toggle('collapsed');
+        var isCollapsed = sidebar.classList.contains('collapsed');
+        if (mainContent) mainContent.classList.toggle('expanded');
+        if (header) header.style.left = isCollapsed ? '70px' : '240px';
+        if (isCollapsed) { document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('open')); document.querySelectorAll('.nav-dropdown').forEach(l => l.classList.remove('expanded')); }
+    }
+    function toggleMobileMenu() {
+        var sidebar = document.getElementById('sidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        if (sidebar.classList.contains('mobile-open')) { closeMobileSidebar(); } else { sidebar.classList.add('mobile-open'); overlay.classList.add('active'); }
+    }
+    function closeMobileSidebar() { document.getElementById('sidebar').classList.remove('mobile-open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
+    function toggleNotifications(event) {
+        event.stopPropagation();
+        var panel = document.getElementById('notificationsPanel');
+        var overlay = document.getElementById('notificationOverlay');
+        if (panel.classList.contains('show')) { closeNotifications(); } else { closeUserDropdown(); panel.classList.add('show'); overlay.classList.add('show'); event.currentTarget.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    }
+    function closeNotifications() { var p = document.getElementById('notificationsPanel'); var o = document.getElementById('notificationOverlay'); var b = document.querySelector('.notification-btn'); if (p) p.classList.remove('show'); if (o) o.classList.remove('show'); if (b) b.classList.remove('active'); document.body.style.overflow = ''; }
+    function switchTab(event, tabName) { document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active')); event.currentTarget.classList.add('active'); document.querySelectorAll('.notification-item').forEach(item => { item.style.display = (tabName === 'unread' && !item.classList.contains('unread')) ? 'none' : 'flex'; }); }
+    function toggleUserDropdown(event) { event.stopPropagation(); var dropdown = document.getElementById('userDropdown'); if (dropdown.classList.contains('show')) { closeUserDropdown(); } else { closeNotifications(); dropdown.classList.add('show'); event.currentTarget.classList.add('active'); } }
+    function closeUserDropdown() { var d = document.getElementById('userDropdown'); var u = document.querySelector('.user-profile'); if (d) d.classList.remove('show'); if (u) u.classList.remove('active'); }
+    function logout(event) { event.preventDefault(); localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userEmail'); window.location.href = 'index.html'; }
+    function loadUserInfo() { var e = localStorage.getItem('userEmail'); if (e) { var n = e.split('@')[0]; var ini = n.split('.').map(x => x[0] ? x[0].toUpperCase() : '').join(''); var fn = n.split('.').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' '); var uname = document.querySelector('.user-name'); var uav = document.querySelector('.user-avatar'); if (uname) uname.textContent = fn; if (uav) uav.textContent = ini; } }
+
+    document.addEventListener('click', function(e) { var u = document.querySelector('.user-profile'); var nb = document.querySelector('.notification-btn'); var np = document.getElementById('notificationsPanel'); if (u && !u.contains(e.target)) closeUserDropdown(); if (nb && np && !nb.contains(e.target) && !np.contains(e.target)) closeNotifications(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeNotifications(); closeUserDropdown(); closeMobileSidebar(); } });
+    window.addEventListener('resize', function() { if (window.innerWidth > 968) { closeMobileSidebar(); var s = document.getElementById('sidebar'); var h = document.getElementById('topHeader'); if (s && h) h.style.left = s.classList.contains('collapsed') ? '70px' : '240px'; } });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadUserInfo();
+        populatePage();
+        var s = document.getElementById('sidebar');
+        var h = document.getElementById('topHeader');
+        if (s && h) h.style.left = window.innerWidth <= 968 ? '0' : (s.classList.contains('collapsed') ? '70px' : '240px');
+    });
+</script>
+</body>
+</html>

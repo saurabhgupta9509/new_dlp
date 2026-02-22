@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - Agent View</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container { display: flex; min-height: 100vh; width: 100%; }
+
+        /* ================ SIDEBAR ================ */
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+            z-index: 1000;
+            left: 0; top: 0;
+            overflow: hidden;
+        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
+
+        .sidebar-header {
+            padding: 18px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+        }
+        .sidebar-logo {
+            width: 38px; height: 38px;
+            background: white;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .sidebar-logo i { font-size: 20px; color: #2563eb; }
+        .sidebar-title { font-size: 1.2em; font-weight: 700; white-space: nowrap; transition: opacity 0.2s, width 0.3s; overflow: hidden; }
+
+        .nav-menu { padding: 12px 0; overflow-y: auto; overflow-x: hidden; flex: 1; }
+        .nav-item { margin: 2px 8px; }
+        .nav-link {
+            display: flex; align-items: center;
+            padding: 10px 12px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 0.9em;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-link.active, .sub-menu-item.active { background: rgba(255,255,255,0.15); color: white; font-weight: 600; }
+        .nav-link i:first-child { width: 20px; font-size: 0.95em; margin-right: 10px; flex-shrink: 0; }
+        .chevron-icon { margin-left: auto !important; font-size: 0.7em !important; transition: transform 0.3s; width: auto !important; flex-shrink: 0; }
+        .nav-link.expanded .chevron-icon { transform: rotate(180deg); }
+
+        .sub-menu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .sub-menu.open { max-height: 500px; }
+        .sub-menu-item {
+            display: flex; align-items: center;
+            padding: 8px 12px 8px 42px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.85em;
+            transition: all 0.2s;
+            border-radius: 8px;
+            margin: 2px 0;
+            white-space: nowrap;
+        }
+        .sub-menu-item:hover { color: white; background: rgba(255,255,255,0.08); }
+        .sub-menu-item::before { content: '•'; margin-right: 10px; font-size: 1.2em; }
+
+        .sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .collapse-btn {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border: none; color: white;
+            border-radius: 8px; cursor: pointer;
+            width: 100%; font-size: 0.85em;
+            transition: all 0.2s; white-space: nowrap; overflow: hidden;
+        }
+        .collapse-btn:hover { background: rgba(255,255,255,0.15); }
+        .collapse-btn i { transition: transform 0.3s; flex-shrink: 0; }
+
+        .sidebar.collapsed { width: 70px; }
+        .sidebar.collapsed .sidebar-title { opacity: 0; width: 0; }
+        .sidebar.collapsed .nav-link span,
+        .sidebar.collapsed .collapse-btn span { display: none; }
+        .sidebar.collapsed .sub-menu { display: none !important; }
+        .sidebar.collapsed .nav-link { justify-content: center; padding: 10px; }
+        .sidebar.collapsed .nav-link i:first-child { margin-right: 0; }
+        .sidebar.collapsed .chevron-icon { display: none; }
+        .sidebar.collapsed .collapse-btn { justify-content: center; }
+        .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
+
+        .sidebar-overlay {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 999;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* ================ HEADER ================ */
+        .top-header {
+            background: white;
+            padding: 14px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid #e5e7eb;
+            position: fixed; top: 0; left: 240px; right: 0;
+            z-index: 500; gap: 16px;
+            transition: left 0.3s ease;
+        }
+        .mobile-menu-toggle { display: none; background: none; border: none; color: #6b7280; font-size: 1.3em; cursor: pointer; padding: 8px; }
+        .search-bar { flex: 1; max-width: 400px; position: relative; }
+        .search-bar i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.9em; }
+        .search-input { width: 100%; padding: 9px 14px 9px 38px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; background: #f9fafb; transition: all 0.3s ease; }
+        .search-input:focus { outline: none; border-color: #3b82f6; background: white; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+
+        .header-actions { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+        .notification-btn { position: relative; background: none; border: none; color: #6b7280; font-size: 1.1em; cursor: pointer; padding: 8px; transition: all 0.2s; border-radius: 8px; }
+        .notification-btn:hover { color: #111827; background: #f3f4f6; }
+        .notification-btn.active { color: #2563eb; background: #eff6ff; }
+        .notification-badge { position: absolute; top: 4px; right: 4px; background: #ef4444; color: white; font-size: 0.65em; min-width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; padding: 0 4px; }
+
+        .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 10px; border-radius: 8px; transition: background 0.2s; position: relative; flex-shrink: 0; }
+        .user-profile:hover { background: #f3f4f6; }
+        .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.9em; flex-shrink: 0; }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-size: 0.9em; font-weight: 600; color: #111827; }
+        .user-role { font-size: 0.75em; color: #6b7280; }
+        .dropdown-icon { color: #6b7280; font-size: 0.75em; margin-left: 4px; transition: transform 0.3s; }
+        .user-profile.active .dropdown-icon { transform: rotate(180deg); }
+
+        .user-dropdown { position: absolute; top: 100%; right: 0; margin-top: 8px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 15px rgba(0,0,0,0.1); min-width: 200px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; z-index: 1000; }
+        .user-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: #374151; text-decoration: none; font-size: 0.9em; transition: background 0.2s; }
+        .dropdown-item:first-child { border-radius: 8px 8px 0 0; }
+        .dropdown-item:last-child { border-radius: 0 0 8px 8px; }
+        .dropdown-item:hover { background: #f3f4f6; }
+        .dropdown-item i { width: 18px; color: #6b7280; font-size: 0.95em; }
+        .dropdown-item.danger { color: #dc2626; }
+        .dropdown-item.danger i { color: #dc2626; }
+        .dropdown-divider { height: 1px; background: #e5e7eb; margin: 4px 0; }
+
+        /* ================ NOTIFICATIONS PANEL ================ */
+        .notifications-panel { position: fixed; top: 0; right: -50%; width: 50%; max-width: 600px; height: 100vh; background: white; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1001; display: flex; flex-direction: column; transition: right 0.4s cubic-bezier(0.4,0,0.2,1); }
+        .notifications-panel.show { right: 0; }
+        .notifications-header { padding: 20px 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .notifications-header h3 { font-size: 1.2em; font-weight: 700; color: #111827; }
+        .close-notifications { background: none; border: none; color: #6b7280; font-size: 1.2em; cursor: pointer; padding: 6px; border-radius: 6px; transition: all 0.2s; }
+        .close-notifications:hover { background: #f3f4f6; color: #111827; }
+        .notifications-tabs { display: flex; border-bottom: 1px solid #e5e7eb; padding: 0 24px; flex-shrink: 0; }
+        .tab-btn { flex: 1; padding: 12px; background: none; border: none; color: #6b7280; font-size: 0.9em; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-btn:hover { color: #111827; }
+        .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+        .notifications-content { flex: 1; overflow-y: auto; padding: 12px 0; }
+        .notification-item { display: flex; gap: 12px; padding: 14px 24px; cursor: pointer; transition: background 0.2s; border-left: 3px solid transparent; }
+        .notification-item:hover { background: #f9fafb; }
+        .notification-item.unread { background: #eff6ff; border-left-color: #3b82f6; }
+        .notification-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1em; flex-shrink: 0; }
+        .notification-icon.critical { background: #fee2e2; color: #dc2626; }
+        .notification-icon.warning { background: #fef3c7; color: #f59e0b; }
+        .notification-icon.info { background: #dbeafe; color: #3b82f6; }
+        .notification-icon.success { background: #d1fae5; color: #10b981; }
+        .notification-body { flex: 1; }
+        .notification-title { font-size: 0.9em; font-weight: 600; color: #111827; margin-bottom: 4px; }
+        .notification-text { font-size: 0.85em; color: #6b7280; margin-bottom: 6px; line-height: 1.4; }
+        .notification-time { font-size: 0.75em; color: #9ca3af; }
+        .notification-dot { width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+        .notifications-footer { padding: 16px 24px; border-top: 1px solid #e5e7eb; flex-shrink: 0; }
+        .view-all-btn { display: block; width: 100%; padding: 10px; background: #f3f4f6; color: #2563eb; text-align: center; text-decoration: none; border-radius: 8px; font-size: 0.9em; font-weight: 600; transition: all 0.2s; }
+        .view-all-btn:hover { background: #e5e7eb; }
+        .notification-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .notification-overlay.show { opacity: 1; visibility: visible; }
+
+        /* ================ MAIN CONTENT ================ */
+        .main-content { flex: 1; margin-left: 240px; transition: margin-left 0.3s ease; min-height: 100vh; width: calc(100% - 240px); }
+        .main-content.expanded { margin-left: 70px; width: calc(100% - 70px); }
+        .content-area { padding: 24px; padding-top: 90px; max-width: 100%; overflow-x: hidden; }
+
+        /* ================ PAGE HEADER ================ */
+        .page-header {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .page-title-section { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .page-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .page-icon i { font-size: 22px; color: white; }
+        .page-title-text h1 { font-size: 1.5em; color: #111827; font-weight: 700; }
+        .page-subtitle { color: #6b7280; font-size: 0.9em; }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.85em; color: #6b7280;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .breadcrumb a { color: #2563eb; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb i { font-size: 0.7em; color: #9ca3af; }
+
+        /* Header Actions */
+        .header-btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 10px 18px; border-radius: 8px; font-size: 0.9em; font-weight: 600; cursor: pointer; border: none; display: flex; align-items: center; gap: 8px; transition: all 0.2s; white-space: nowrap; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: white; color: #374151; border: 1.5px solid #e5e7eb; }
+        .btn-secondary:hover { background: #f9fafb; }
+        .btn-danger { background: white; color: #dc2626; border: 1.5px solid #fecaca; }
+        .btn-danger:hover { background: #fee2e2; }
+
+        /* ================ AGENT VIEW SPECIFIC ================ */
+        .agent-status-bar {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        .agent-avatar-lg {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .agent-avatar-lg i { font-size: 28px; color: white; }
+        .agent-identity { flex: 1; min-width: 200px; }
+        .agent-name-lg { font-size: 1.4em; font-weight: 700; color: #111827; margin-bottom: 4px; }
+        .agent-user { font-size: 0.9em; color: #6b7280; margin-bottom: 8px; }
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em; font-weight: 600;
+        }
+        .status-badge.active { background: #d1fae5; color: #059669; }
+        .status-badge.inactive { background: #f3f4f6; color: #6b7280; }
+        .status-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+        .agent-meta-bar { display: flex; gap: 32px; flex-wrap: wrap; }
+        .meta-item { display: flex; flex-direction: column; gap: 4px; }
+        .meta-label { font-size: 0.72em; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .meta-value { font-size: 0.95em; color: #111827; font-weight: 600; }
+
+        /* Threat Score Ring */
+        .threat-ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+        .threat-ring { position: relative; width: 80px; height: 80px; }
+        .threat-ring svg { transform: rotate(-90deg); width: 80px; height: 80px; }
+        .threat-ring circle { fill: none; stroke-width: 8; stroke-linecap: round; }
+        .threat-ring .track { stroke: #e5e7eb; }
+        .threat-ring .fill-high { stroke: #dc2626; }
+        .threat-ring .fill-medium { stroke: #f59e0b; }
+        .threat-ring .fill-low { stroke: #10b981; }
+        .threat-ring-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.1em; font-weight: 700; color: #111827; }
+        .threat-ring-label { font-size: 0.75em; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Grid layout */
+        .view-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; width: 100%; }
+        .view-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; width: 100%; }
+
+        .card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; width: 100%; overflow: hidden; }
+        .card-header-row {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px; padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .card-title { font-size: 1em; font-weight: 600; color: #111827; }
+        .card-action { font-size: 0.8em; color: #2563eb; text-decoration: none; cursor: pointer; white-space: nowrap; }
+
+        /* Info rows */
+        .info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f3f4f6; flex-wrap: wrap; gap: 8px; }
+        .info-row:last-child { border-bottom: none; }
+        .info-key { font-size: 0.85em; color: #6b7280; }
+        .info-val { font-size: 0.85em; color: #111827; font-weight: 500; text-align: right; }
+
+        /* Violation table - Make it responsive */
+        .violations-table { width: 100%; border-collapse: collapse; }
+        .violations-table thead { background: #f9fafb; }
+        .violations-table th { padding: 10px 12px; text-align: left; font-size: 0.75em; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e5e7eb; }
+        .violations-table td { padding: 12px; font-size: 0.85em; color: #374151; border-bottom: 1px solid #f3f4f6; }
+        .violations-table tbody tr:hover { background: #f9fafb; cursor: pointer; }
+        .violations-table tbody tr:last-child td { border-bottom: none; }
+
+        /* Responsive table */
+        @media screen and (max-width: 768px) {
+            .violations-table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        .score-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.75em; font-weight: 600; white-space: nowrap; }
+        .score-high { background: #fee2e2; color: #dc2626; }
+        .score-medium { background: #fef3c7; color: #f59e0b; }
+        .score-low { background: #d1fae5; color: #059669; }
+
+        .severity-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.75em; font-weight: 600; white-space: nowrap; }
+        .severity-critical { background: #fee2e2; color: #dc2626; }
+        .severity-high { background: #fef3c7; color: #b45309; }
+        .severity-medium { background: #e0f2fe; color: #0369a1; }
+
+        /* Timeline */
+        .timeline { padding: 0; width: 100%; }
+        .timeline-item { display: flex; gap: 14px; padding-bottom: 20px; position: relative; }
+        .timeline-item:last-child { padding-bottom: 0; }
+        .timeline-item:not(:last-child)::after { content: ''; position: absolute; left: 15px; top: 32px; bottom: 0; width: 2px; background: #e5e7eb; }
+        .timeline-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; flex-shrink: 0; z-index: 1; }
+        .timeline-dot.red { background: #fee2e2; color: #dc2626; }
+        .timeline-dot.yellow { background: #fef3c7; color: #f59e0b; }
+        .timeline-dot.blue { background: #dbeafe; color: #2563eb; }
+        .timeline-dot.green { background: #d1fae5; color: #059669; }
+        .timeline-content { flex: 1; min-width: 0; }
+        .timeline-title { font-size: 0.88em; font-weight: 600; color: #111827; margin-bottom: 3px; }
+        .timeline-desc { font-size: 0.8em; color: #6b7280; line-height: 1.4; word-wrap: break-word; }
+        .timeline-time { font-size: 0.72em; color: #9ca3af; margin-top: 4px; }
+
+        /* Mini stat cards */
+        .mini-stat { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+        .mini-stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9em; flex-shrink: 0; }
+        .mini-stat-icon.blue { background: #dbeafe; color: #2563eb; }
+        .mini-stat-icon.red { background: #fee2e2; color: #dc2626; }
+        .mini-stat-icon.green { background: #d1fae5; color: #059669; }
+        .mini-stat-icon.yellow { background: #fef3c7; color: #f59e0b; }
+        .mini-stat-val { font-size: 1.4em; font-weight: 700; color: #111827; line-height: 1; }
+        .mini-stat-lbl { font-size: 0.75em; color: #6b7280; margin-top: 2px; }
+
+        /* Screenshot strip */
+        .screenshot-strip { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; width: 100%; }
+        .screenshot-strip::-webkit-scrollbar { height: 4px; }
+        .screenshot-strip::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+        .screenshot-thumb {
+            flex-shrink: 0; width: 160px; height: 100px;
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            border-radius: 8px; border: 2px solid #e5e7eb;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 6px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
+        }
+        .screenshot-thumb:hover { border-color: #3b82f6; transform: scale(1.02); }
+        .screenshot-thumb.violation-thumb { border-color: #fca5a5; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); }
+        .screenshot-thumb i { font-size: 1.5em; color: #6366f1; }
+        .screenshot-thumb.violation-thumb i { color: #dc2626; }
+        .screenshot-time { font-size: 0.7em; color: #6b7280; font-weight: 600; }
+        .screenshot-alert { position: absolute; top: 6px; right: 6px; background: #dc2626; color: white; font-size: 0.65em; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+
+        /* Responsive */
+        @media (max-width: 1100px) { 
+            .view-grid { grid-template-columns: 1fr; } 
+            .view-grid-3 { grid-template-columns: repeat(2, 1fr); } 
+        }
+        
+        @media (max-width: 968px) {
+            .main-content { 
+                margin-left: 0; 
+                width: 100%;
+            }
+            .main-content.expanded { 
+                margin-left: 0; 
+                width: 100%;
+            }
+            .top-header { left: 0 !important; }
+            .sidebar { transform: translateX(-100%); width: 260px; transition: transform 0.3s ease; }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .mobile-menu-toggle { display: block; }
+            .search-bar { display: none; }
+            .agent-meta-bar { gap: 16px; }
+            .view-grid-3 { grid-template-columns: 1fr; }
+            .agent-status-bar { flex-direction: column; align-items: flex-start; }
+            .threat-ring-wrap { align-self: center; }
+        }
+        
+        @media (max-width: 640px) {
+            .content-area { padding: 16px; padding-top: 80px; }
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .header-btn-group { width: 100%; }
+            .btn { width: 100%; justify-content: center; }
+            .agent-status-bar { gap: 16px; }
+            .agent-meta-bar { gap: 12px; }
+            .view-grid-3[style*="grid-template-columns: repeat(4,1fr)"] {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .user-info { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .view-grid-3[style*="grid-template-columns: repeat(4,1fr)"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo"><i class="fas fa-shield-halved"></i></div>
+            <div class="sidebar-title">DLP Shield</div>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item">
+                <a href="dashboard.html" class="nav-link" data-page="dashboard">
+                    <i class="fas fa-th-large"></i><span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="alerts.html" class="nav-link" data-page="alerts">
+                    <i class="fas fa-triangle-exclamation"></i><span>Alerts &amp; Incidents</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-shield-alt"></i><span>Policies</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu">
+                    <a href="manage-agents.html" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
+                    <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a>
+                    <a href="assign-policy.html" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="agents.html" class="nav-link" data-page="agents">
+                    <i class="fas fa-desktop"></i><span>Agents / Endpoints</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown expanded" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-eye"></i><span>OCR &amp; Image Analysis</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu open">
+                    <a href="ocr-dashboard.html" class="sub-menu-item active" data-page="ocr-dashboard">OCR Dashboard</a>
+                    <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-file-lines"></i><span>Reports &amp; Logs</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu">
+                    <a href="reports.html" class="sub-menu-item">Reports</a>
+                    <a href="generate-report.html" class="sub-menu-item">Generate Report</a>
+                    <a href="audit-logs.html" class="sub-menu-item">Audit Logs</a>
+                    <a href="device-logs.html" class="sub-menu-item">Device Logs</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-users"></i><span>Users &amp; Roles</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu">
+                    <a href="users.html" class="sub-menu-item">Users</a>
+                    <a href="roles.html" class="sub-menu-item">Roles &amp; Permissions</a>
+                    <a href="permissions.html" class="sub-menu-item">Permissions</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-gear"></i><span>Settings</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu">
+                    <a href="general.html" class="sub-menu-item">General</a>
+                    <a href="security.html" class="sub-menu-item">Security</a>
+                    <a href="integrations.html" class="sub-menu-item">Integrations</a>
+                    <a href="data-retention.html" class="sub-menu-item">Data Retention</a>
+                </div>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="collapse-btn" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left"></i><span>Collapse</span>
+            </button>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- ==================== HEADER ==================== -->
+    <header class="top-header" id="topHeader">
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" class="search-input" placeholder="Search alerts, agents, policies...">
+        </div>
+        <div class="header-actions">
+            <button class="notification-btn" onclick="toggleNotifications(event)">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">5</span>
+            </button>
+            <div class="user-profile" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar">JS</div>
+                <div class="user-info">
+                    <div class="user-name">John Smith</div>
+                    <div class="user-role">Security Admin</div>
+                </div>
+                <i class="fas fa-chevron-down dropdown-icon"></i>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="general.html" class="dropdown-item"><i class="fas fa-gear"></i><span>Settings</span></a>
+                    <a href="#" class="dropdown-item"><i class="fas fa-circle-question"></i><span>Help &amp; Support</span></a>
+                    <div class="dropdown-divider"></div>
+                    <a href="index.html" class="dropdown-item danger" onclick="logout(event)"><i class="fas fa-right-from-bracket"></i><span>Sign out</span></a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== NOTIFICATIONS PANEL ==================== -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3>Notifications</h3>
+            <button class="close-notifications" onclick="closeNotifications()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="notifications-tabs">
+            <button class="tab-btn active" onclick="switchTab(event,'all')">All (5)</button>
+            <button class="tab-btn" onclick="switchTab(event,'unread')">Unread (3)</button>
+        </div>
+        <div class="notifications-content">
+            <div class="notification-item unread">
+                <div class="notification-icon critical"><i class="fas fa-shield-exclamation"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Critical Policy Violation</div>
+                    <div class="notification-text">User attempted to copy sensitive files to USB drive</div>
+                    <div class="notification-time">2 minutes ago</div>
+                </div>
+                <div class="notification-dot"></div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notification-icon warning"><i class="fas fa-triangle-exclamation"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Agent Offline</div>
+                    <div class="notification-text">DESKTOP-DEF456 has been offline for 2 hours</div>
+                    <div class="notification-time">15 minutes ago</div>
+                </div>
+                <div class="notification-dot"></div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notification-icon info"><i class="fas fa-info-circle"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Policy Updated</div>
+                    <div class="notification-text">File Protection Policy has been modified by Admin</div>
+                    <div class="notification-time">1 hour ago</div>
+                </div>
+                <div class="notification-dot"></div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon success"><i class="fas fa-check-circle"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Agent Connected</div>
+                    <div class="notification-text">New agent LAPTOP-XYZ789 successfully registered</div>
+                    <div class="notification-time">3 hours ago</div>
+                </div>
+            </div>
+        </div>
+        <div class="notifications-footer">
+            <a href="alerts.html" class="view-all-btn">View All Notifications</a>
+        </div>
+    </div>
+    <div class="notification-overlay" id="notificationOverlay" onclick="closeNotifications()"></div>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="main-content" id="mainContent">
+        <div class="content-area">
+
+            <!-- Breadcrumb -->
+            <div class="breadcrumb">
+                <a href="ocr-dashboard.html"><i class="fas fa-eye"></i> OCR Dashboard</a>
+                <i class="fas fa-chevron-right"></i>
+                <span id="agentNameBreadcrumb">DESKTOP-ABC123</span>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title-section">
+                    <div class="page-icon"><i class="fas fa-desktop"></i></div>
+                    <div class="page-title-text">
+                        <h1 id="pageAgentName">DESKTOP-ABC123</h1>
+                        <p class="page-subtitle">OCR Agent Detail View</p>
+                    </div>
+                </div>
+                <div class="header-btn-group">
+                    <a href="ocr-agent-edit.html" class="btn btn-primary" id="editAgentBtn">
+                        <i class="fas fa-pen"></i><span>Edit Agent</span>
+                    </a>
+                    <button class="btn btn-secondary" onclick="window.location.href='ocr-dashboard.html'">
+                        <i class="fas fa-arrow-left"></i><span>Back</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Agent Status Bar -->
+            <div class="agent-status-bar">
+                <div class="agent-avatar-lg"><i class="fas fa-desktop"></i></div>
+                <div class="agent-identity">
+                    <div class="agent-name-lg" id="agentNameLg">DESKTOP-ABC123</div>
+                    <div class="agent-user"><i class="fas fa-user" style="margin-right:5px;color:#9ca3af;"></i><span id="agentUser">john.doe</span></div>
+                    <span class="status-badge active" id="agentStatusBadge">
+                        <span class="dot"></span> Active
+                    </span>
+                </div>
+                <div class="agent-meta-bar">
+                    <div class="meta-item">
+                        <div class="meta-label">IP Address</div>
+                        <div class="meta-value" id="agentIP">192.168.1.45</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">OS Version</div>
+                        <div class="meta-value" id="agentOS">Windows 11 Pro</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Agent Version</div>
+                        <div class="meta-value" id="agentVersion">v4.2.1</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Last Seen</div>
+                        <div class="meta-value" id="agentLastSeen">2 min ago</div>
+                    </div>
+                </div>
+                <div class="threat-ring-wrap">
+                    <div class="threat-ring">
+                        <svg width="80" height="80" viewBox="0 0 80 80">
+                            <circle class="track" cx="40" cy="40" r="32" />
+                            <circle class="fill-high" id="threatRingFill" cx="40" cy="40" r="32"
+                                stroke-dasharray="201" stroke-dashoffset="30" />
+                        </svg>
+                        <div class="threat-ring-value" id="threatScore">85%</div>
+                    </div>
+                    <div class="threat-ring-label">Threat Score</div>
+                </div>
+            </div>
+
+            <!-- Mini Stats Row -->
+            <div class="view-grid-3" style="grid-template-columns: repeat(4,1fr); margin-bottom: 24px;">
+                <div class="mini-stat">
+                    <div class="mini-stat-icon blue"><i class="fas fa-camera"></i></div>
+                    <div>
+                        <div class="mini-stat-val">1,247</div>
+                        <div class="mini-stat-lbl">Screenshots Today</div>
+                    </div>
+                </div>
+                <div class="mini-stat">
+                    <div class="mini-stat-icon red"><i class="fas fa-triangle-exclamation"></i></div>
+                    <div>
+                        <div class="mini-stat-val" id="violationCount">12</div>
+                        <div class="mini-stat-lbl">Violations (24h)</div>
+                    </div>
+                </div>
+                <div class="mini-stat">
+                    <div class="mini-stat-icon green"><i class="fas fa-shield-check"></i></div>
+                    <div>
+                        <div class="mini-stat-val">98.5%</div>
+                        <div class="mini-stat-lbl">OCR Accuracy</div>
+                    </div>
+                </div>
+                <div class="mini-stat">
+                    <div class="mini-stat-icon yellow"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <div class="mini-stat-val">8.2h</div>
+                        <div class="mini-stat-lbl">Active Today</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main View Grid -->
+            <div class="view-grid">
+                <!-- Left: Violations Table -->
+                <div class="card">
+                    <div class="card-header-row">
+                        <div class="card-title">Recent Violations</div>
+                        <a class="card-action" href="#">View All →</a>
+                    </div>
+                    <table class="violations-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Type</th>
+                                <th>Confidence</th>
+                                <th>Severity</th>
+                                <th>Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>V-001</td>
+                                <td>Credit Card Number</td>
+                                <td><span class="score-badge score-high">98%</span></td>
+                                <td><span class="severity-badge severity-critical">Critical</span></td>
+                                <td>2 min ago</td>
+                                <td><button class="btn btn-secondary" style="padding:4px 10px;font-size:0.78em;" onclick="viewViolationDetail('V-001')"><i class="fas fa-eye"></i></button></td>
+                            </tr>
+                            <tr>
+                                <td>V-002</td>
+                                <td>Social Security Number</td>
+                                <td><span class="score-badge score-high">95%</span></td>
+                                <td><span class="severity-badge severity-critical">Critical</span></td>
+                                <td>18 min ago</td>
+                                <td><button class="btn btn-secondary" style="padding:4px 10px;font-size:0.78em;" onclick="viewViolationDetail('V-002')"><i class="fas fa-eye"></i></button></td>
+                            </tr>
+                            <tr>
+                                <td>V-003</td>
+                                <td>Bank Account</td>
+                                <td><span class="score-badge score-medium">82%</span></td>
+                                <td><span class="severity-badge severity-high">High</span></td>
+                                <td>45 min ago</td>
+                                <td><button class="btn btn-secondary" style="padding:4px 10px;font-size:0.78em;" onclick="viewViolationDetail('V-003')"><i class="fas fa-eye"></i></button></td>
+                            </tr>
+                            <tr>
+                                <td>V-004</td>
+                                <td>Confidential Document</td>
+                                <td><span class="score-badge score-medium">77%</span></td>
+                                <td><span class="severity-badge severity-medium">Medium</span></td>
+                                <td>1 hr ago</td>
+                                <td><button class="btn btn-secondary" style="padding:4px 10px;font-size:0.78em;" onclick="viewViolationDetail('V-004')"><i class="fas fa-eye"></i></button></td>
+                            </tr>
+                            <tr>
+                                <td>V-005</td>
+                                <td>Credit Card Number</td>
+                                <td><span class="score-badge score-high">91%</span></td>
+                                <td><span class="severity-badge severity-critical">Critical</span></td>
+                                <td>2 hr ago</td>
+                                <td><button class="btn btn-secondary" style="padding:4px 10px;font-size:0.78em;" onclick="viewViolationDetail('V-005')"><i class="fas fa-eye"></i></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Right: Activity Timeline -->
+                <div class="card">
+                    <div class="card-header-row">
+                        <div class="card-title">Activity Timeline</div>
+                    </div>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot red"><i class="fas fa-triangle-exclamation"></i></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Critical Violation Detected</div>
+                                <div class="timeline-desc">Credit Card data visible on screen. Screenshot blocked.</div>
+                                <div class="timeline-time">2 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot yellow"><i class="fas fa-bell"></i></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Admin Alerted</div>
+                                <div class="timeline-desc">Security admin notified of high-risk activity.</div>
+                                <div class="timeline-time">18 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot blue"><i class="fas fa-camera"></i></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">OCR Scan Completed</div>
+                                <div class="timeline-desc">1,247 screenshots scanned. 12 violations flagged.</div>
+                                <div class="timeline-time">1 hour ago</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot green"><i class="fas fa-check-circle"></i></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Agent Check-in</div>
+                                <div class="timeline-desc">Agent health check passed. All policies active.</div>
+                                <div class="timeline-time">3 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot blue"><i class="fas fa-sync"></i></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Policy Updated</div>
+                                <div class="timeline-desc">PII Detection policy updated by admin.</div>
+                                <div class="timeline-time">5 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot green"><i class="fas fa-power-off"></i></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Agent Started</div>
+                                <div class="timeline-desc">Agent connected and registered to server.</div>
+                                <div class="timeline-time">8 hours ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Screenshots -->
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header-row">
+                    <div class="card-title">Recent Screenshots</div>
+                    <a class="card-action" href="#">View All Screenshots →</a>
+                </div>
+                <div class="screenshot-strip">
+                    <div class="screenshot-thumb violation-thumb">
+                        <span class="screenshot-alert">ALERT</span>
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div class="screenshot-time">2 min ago</div>
+                    </div>
+                    <div class="screenshot-thumb">
+                        <i class="fas fa-image"></i>
+                        <div class="screenshot-time">8 min ago</div>
+                    </div>
+                    <div class="screenshot-thumb">
+                        <i class="fas fa-image"></i>
+                        <div class="screenshot-time">14 min ago</div>
+                    </div>
+                    <div class="screenshot-thumb violation-thumb">
+                        <span class="screenshot-alert">ALERT</span>
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div class="screenshot-time">18 min ago</div>
+                    </div>
+                    <div class="screenshot-thumb">
+                        <i class="fas fa-image"></i>
+                        <div class="screenshot-time">25 min ago</div>
+                    </div>
+                    <div class="screenshot-thumb">
+                        <i class="fas fa-image"></i>
+                        <div class="screenshot-time">31 min ago</div>
+                    </div>
+                    <div class="screenshot-thumb">
+                        <i class="fas fa-image"></i>
+                        <div class="screenshot-time">38 min ago</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agent System Info -->
+            <div class="view-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="card">
+                    <div class="card-header-row">
+                        <div class="card-title">System Information</div>
+                    </div>
+                    <div class="info-row"><span class="info-key">Hostname</span><span class="info-val" id="sysHostname">DESKTOP-ABC123</span></div>
+                    <div class="info-row"><span class="info-key">Operating System</span><span class="info-val">Windows 11 Pro (22H2)</span></div>
+                    <div class="info-row"><span class="info-key">CPU</span><span class="info-val">Intel Core i7-1260P</span></div>
+                    <div class="info-row"><span class="info-key">RAM</span><span class="info-val">16 GB</span></div>
+                    <div class="info-row"><span class="info-key">MAC Address</span><span class="info-val">00:1B:44:11:3A:B7</span></div>
+                    <div class="info-row"><span class="info-key">Department</span><span class="info-val">Finance</span></div>
+                    <div class="info-row"><span class="info-key">Location</span><span class="info-val">HQ - Floor 3</span></div>
+                    <div class="info-row"><span class="info-key">Enrolled On</span><span class="info-val">Jan 15, 2025</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-header-row">
+                        <div class="card-title">OCR Configuration</div>
+                    </div>
+                    <div class="info-row"><span class="info-key">OCR Engine</span><span class="info-val">Tesseract v5.3</span></div>
+                    <div class="info-row"><span class="info-key">Scan Interval</span><span class="info-val">Every 30 seconds</span></div>
+                    <div class="info-row"><span class="info-key">Active Policy</span><span class="info-val">PII Detection</span></div>
+                    <div class="info-row"><span class="info-key">Sensitivity</span><span class="info-val">High (75%)</span></div>
+                    <div class="info-row"><span class="info-key">Screenshot Mode</span><span class="info-val">Block on Detect</span></div>
+                    <div class="info-row"><span class="info-key">Evidence Saving</span><span class="info-val">Enabled</span></div>
+                    <div class="info-row"><span class="info-key">User Notifications</span><span class="info-val">Enabled</span></div>
+                    <div class="info-row"><span class="info-key">Admin Alerts</span><span class="info-val">Enabled</span></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    if (!localStorage.getItem('isLoggedIn')) { window.location.href = 'index.html'; }
+
+    // Read agent from URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const agentId = urlParams.get('agent') || 'DESKTOP-ABC123';
+
+    // Agent data map
+    const agentData = {
+        'DESKTOP-ABC123': { name: 'DESKTOP-ABC123', user: 'john.doe', status: 'active', ip: '192.168.1.45', os: 'Windows 11 Pro', version: 'v4.2.1', lastSeen: '2 min ago', threat: 85, violations: 12 },
+        'LAPTOP-XYZ789':  { name: 'LAPTOP-XYZ789',  user: 'jane.smith', status: 'active', ip: '192.168.1.82', os: 'Windows 10 Pro', version: 'v4.2.0', lastSeen: '5 min ago', threat: 45, violations: 3 },
+        'WORKSTATION-001':{ name: 'WORKSTATION-001', user: 'bob.wilson', status: 'active', ip: '192.168.1.103', os: 'Windows 11 Ent', version: 'v4.2.1', lastSeen: '1 min ago', threat: 92, violations: 18 },
+        'DESKTOP-DEF456': { name: 'DESKTOP-DEF456', user: 'alice.jones', status: 'inactive', ip: 'N/A', os: 'Windows 10 Pro', version: 'v4.1.8', lastSeen: 'N/A', threat: 0, violations: 0 }
+    };
+
+    function populatePage() {
+        const data = agentData[agentId] || agentData['DESKTOP-ABC123'];
+        document.getElementById('agentNameBreadcrumb').textContent = data.name;
+        document.getElementById('pageAgentName').textContent = data.name;
+        document.getElementById('agentNameLg').textContent = data.name;
+        document.getElementById('agentUser').textContent = data.user;
+        document.getElementById('agentIP').textContent = data.ip;
+        document.getElementById('agentOS').textContent = data.os;
+        document.getElementById('agentVersion').textContent = data.version;
+        document.getElementById('agentLastSeen').textContent = data.lastSeen;
+        document.getElementById('threatScore').textContent = data.threat + '%';
+        document.getElementById('violationCount').textContent = data.violations;
+        document.getElementById('sysHostname').textContent = data.name;
+
+        const editBtn = document.getElementById('editAgentBtn');
+        editBtn.href = 'ocr-agent-edit.html?agent=' + encodeURIComponent(data.name);
+
+        const badge = document.getElementById('agentStatusBadge');
+        if (data.status === 'inactive') {
+            badge.className = 'status-badge inactive';
+            badge.innerHTML = '<span class="dot"></span> Inactive';
+        }
+
+        // Threat ring
+        const circumference = 2 * Math.PI * 32;
+        const offset = circumference - (data.threat / 100) * circumference;
+        const fill = document.getElementById('threatRingFill');
+        fill.style.strokeDasharray = circumference;
+        fill.style.strokeDashoffset = offset;
+        fill.className = data.threat >= 80 ? 'fill-high' : data.threat >= 50 ? 'fill-medium' : 'fill-low';
+    }
+
+    function viewViolationDetail(id) {
+        window.location.href = 'ocr-violation-view.html?violation=' + encodeURIComponent(id) + '&agent=' + encodeURIComponent(agentId);
+    }
+
+    // ===== Sidebar & Header Functions =====
+    function toggleSubMenu(element) {
+        var sidebar = document.getElementById('sidebar');
+        if (sidebar.classList.contains('collapsed')) return;
+        var subMenu = element.nextElementSibling;
+        document.querySelectorAll('.sub-menu').forEach(m => { if (m !== subMenu) m.classList.remove('open'); });
+        document.querySelectorAll('.nav-dropdown').forEach(l => { if (l !== element) l.classList.remove('expanded'); });
+        element.classList.toggle('expanded');
+        subMenu.classList.toggle('open');
+    }
+
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        var mainContent = document.getElementById('mainContent');
+        var header = document.getElementById('topHeader');
+        sidebar.classList.toggle('collapsed');
+        var isCollapsed = sidebar.classList.contains('collapsed');
+        if (mainContent) mainContent.classList.toggle('expanded');
+        if (header) header.style.left = isCollapsed ? '70px' : '240px';
+        if (isCollapsed) { document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('open')); document.querySelectorAll('.nav-dropdown').forEach(l => l.classList.remove('expanded')); }
+    }
+
+    function toggleMobileMenu() {
+        var sidebar = document.getElementById('sidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        if (sidebar.classList.contains('mobile-open')) { closeMobileSidebar(); } else { sidebar.classList.add('mobile-open'); overlay.classList.add('active'); }
+    }
+
+    function closeMobileSidebar() {
+        document.getElementById('sidebar').classList.remove('mobile-open');
+        document.getElementById('sidebarOverlay').classList.remove('active');
+    }
+
+    function toggleNotifications(event) {
+        event.stopPropagation();
+        var panel = document.getElementById('notificationsPanel');
+        var overlay = document.getElementById('notificationOverlay');
+        if (panel.classList.contains('show')) { closeNotifications(); } else { closeUserDropdown(); panel.classList.add('show'); overlay.classList.add('show'); event.currentTarget.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    }
+
+    function closeNotifications() {
+        var panel = document.getElementById('notificationsPanel');
+        var overlay = document.getElementById('notificationOverlay');
+        if (panel) panel.classList.remove('show');
+        if (overlay) overlay.classList.remove('show');
+        var btn = document.querySelector('.notification-btn');
+        if (btn) btn.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function switchTab(event, tabName) {
+        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.style.display = (tabName === 'unread' && !item.classList.contains('unread')) ? 'none' : 'flex';
+        });
+    }
+
+    function toggleUserDropdown(event) {
+        event.stopPropagation();
+        var dropdown = document.getElementById('userDropdown');
+        if (dropdown.classList.contains('show')) { closeUserDropdown(); } else { closeNotifications(); dropdown.classList.add('show'); event.currentTarget.classList.add('active'); }
+    }
+
+    function closeUserDropdown() {
+        var dropdown = document.getElementById('userDropdown');
+        var userProfile = document.querySelector('.user-profile');
+        if (dropdown) dropdown.classList.remove('show');
+        if (userProfile) userProfile.classList.remove('active');
+    }
+
+    function logout(event) { event.preventDefault(); localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userEmail'); window.location.href = 'index.html'; }
+
+    function loadUserInfo() {
+        var userEmail = localStorage.getItem('userEmail');
+        if (userEmail) {
+            var namePart = userEmail.split('@')[0];
+            var initials = namePart.split('.').map(n => n[0] ? n[0].toUpperCase() : '').join('');
+            var fullName = namePart.split('.').map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' ');
+            var el = document.querySelector('.user-name');
+            var av = document.querySelector('.user-avatar');
+            if (el) el.textContent = fullName;
+            if (av) av.textContent = initials;
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        var userProfile = document.querySelector('.user-profile');
+        var notificationBtn = document.querySelector('.notification-btn');
+        var notificationPanel = document.getElementById('notificationsPanel');
+        if (userProfile && !userProfile.contains(e.target)) closeUserDropdown();
+        if (notificationBtn && notificationPanel && !notificationBtn.contains(e.target) && !notificationPanel.contains(e.target)) closeNotifications();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { closeNotifications(); closeUserDropdown(); closeMobileSidebar(); }
+    });
+
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 968) {
+            closeMobileSidebar();
+            var sidebar = document.getElementById('sidebar');
+            var header = document.getElementById('topHeader');
+            if (sidebar && header) header.style.left = sidebar.classList.contains('collapsed') ? '70px' : '240px';
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadUserInfo();
+        populatePage();
+        var sidebar = document.getElementById('sidebar');
+        var header = document.getElementById('topHeader');
+        if (sidebar && header) header.style.left = window.innerWidth <= 968 ? '0' : (sidebar.classList.contains('collapsed') ? '70px' : '240px');
+    });
+</script>
+</body>
+</html>
