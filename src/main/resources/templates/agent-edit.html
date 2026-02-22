@@ -3857,7 +3857,7 @@
           <div class="user-profile" onclick="toggleUserDropdown(event)">
             <div class="user-avatar">[[${userInitials}]]</div>
             <div class="user-info">
-              <div class="user-name">[[${userName}]]</div>
+<!--              <div class="user-name">[[${userName}]]</div>-->
               <div class="user-role">[[${userRole}]]</div>
               <div id="userEmail">[[${userEmail}]]</div>
             </div>
@@ -4179,84 +4179,7 @@
     <script>
       /* ==================== AUTHENTICATION & USER DATA ==================== */
 
-      async function checkAuth() {
-        try {
-          const response = await fetch("/api/auth/check", {
-            credentials: "include",
-          });
 
-          if (!response.ok) {
-            throw new Error("Not authenticated");
-          }
-
-          const result = await response.json();
-
-          if (!result.success) {
-            window.location.href = "index";
-            return null;
-          }
-
-          if (result.data) {
-            localStorage.setItem("userData", JSON.stringify(result.data));
-            return result.data;
-          }
-
-          return null;
-        } catch (err) {
-          window.location.href = "index";
-          return null;
-        }
-      }
-
-      // Load admin info into header
-      function loadAdminInfo() {
-        const userDataStr = localStorage.getItem("userData");
-
-        if (userDataStr) {
-          try {
-            const userData = JSON.parse(userDataStr);
-
-            const userName = document.querySelector(".user-name");
-            const userAvatar = document.querySelector(".user-avatar");
-            const userRole = document.querySelector(".user-role");
-
-            if (userName) {
-              const namePart = userData.username || "Admin";
-              const formattedName = namePart
-                .split(".")
-                .map((n) => n.charAt(0).toUpperCase() + n.slice(1))
-                .join(" ");
-              userName.textContent = formattedName;
-            }
-
-            if (userAvatar) {
-              const namePart = userData.username || "Admin";
-              const initials = namePart
-                .split(".")
-                .map((n) => (n[0] ? n[0].toUpperCase() : ""))
-                .join("");
-              userAvatar.textContent = initials || "A";
-            }
-
-            if (userRole) {
-              userRole.textContent = userData.role || "Security Admin";
-            }
-          } catch (e) {
-            console.error("Error parsing user data:", e);
-          }
-        }
-      }
-
-      async function refreshUserData() {
-        const userData = await checkAuth();
-        if (userData) {
-          localStorage.setItem("userData", JSON.stringify(userData));
-          loadAdminInfo();
-        }
-      }
-
-      // Refresh every 5 minutes
-      setInterval(refreshUserData, 5 * 60 * 1000);
 
       /* ==================== SIDEBAR FUNCTIONS ==================== */
 

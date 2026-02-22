@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" vxmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1005,7 +1005,7 @@
                     </div>
                     <div class="sub-menu">
                         <a href="ocr-dashboard" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
-                        <a href="ocr-policies" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>
+<!--                        <a href="ocr-policies" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>-->
                     </div>
                 </div>
 
@@ -1083,7 +1083,7 @@
                     <div class="user-avatar">[[${userInitials}]]</div>
                     <div class="user-info">
                         <div class="user-name">[[${userName}]]</div>
-                        <div class="user-role">[[${userRole}]]</div>
+<!--                        <div class="user-role">[[${userRole}]]</div>-->
                         <div id="userEmail">[[${userEmail}]]</div>
                     </div>
                     <i class="fas fa-chevron-down dropdown-icon"></i>
@@ -2008,32 +2008,32 @@
         
 
            /* ==================== AUTHENTICATION & USER DATA ==================== */
-    const userData = {
-        username: [[${username}]],
-        userName: [[${userName}]],
-        userInitials: [[${userInitials}]],
-        userRole: [[${userRole}]],
-        userEmail: [[${userEmail}]],
-        userId: [[${userId}]]
-    };
+<!--    const userData = {-->
+<!--        username: [[${username}]],-->
+<!--        userName: [[${userName}]],-->
+<!--        userInitials: [[${userInitials}]],-->
+<!--        userRole: [[${userRole}]],-->
+<!--        userEmail: [[${userEmail}]],-->
+<!--        userId: [[${userId}]]-->
+<!--    };-->
 
-    function loadAdminInfo() {
-        const userName = document.querySelector(".user-name");
-        const userAvatar = document.querySelector(".user-avatar");
-        const userRole = document.querySelector(".user-role");
- 
-        if (userName && userData.userName) {
-            userName.textContent = userData.userName;
-        }
- 
-        if (userAvatar && userData.userInitials) {
-            userAvatar.textContent = userData.userInitials;
-        }
- 
-        if (userRole && userData.userRole) {
-            userRole.textContent = userData.userRole;
-        }
-      }
+<!--    function loadAdminInfo() {-->
+<!--        const userName = document.querySelector(".user-name");-->
+<!--        const userAvatar = document.querySelector(".user-avatar");-->
+<!--        const userRole = document.querySelector(".user-role");-->
+<!-- -->
+<!--        if (userName && userData.userName) {-->
+<!--            userName.textContent = userData.userName;-->
+<!--        }-->
+<!-- -->
+<!--        if (userAvatar && userData.userInitials) {-->
+<!--            userAvatar.textContent = userData.userInitials;-->
+<!--        }-->
+<!-- -->
+<!--        if (userRole && userData.userRole) {-->
+<!--            userRole.textContent = userData.userRole;-->
+<!--        }-->
+<!--      }-->
         
 
 
@@ -2904,7 +2904,7 @@ document.head.appendChild(style);
         // Initialize on DOM ready
         document.addEventListener('DOMContentLoaded', function() {
             setActiveMenuItem();
-            loadAdminInfo();
+<!--            loadAdminInfo();-->
 
             setTimeout(() => {
                 const agentId = getAgentIdFromUrl();

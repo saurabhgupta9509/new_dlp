@@ -5323,7 +5323,7 @@
             <div class="stat-header">
               <div>
                 <div class="stat-label">Total Agents</div>
-                <div class="stat-value" id="totalAgents">0</div>
+                <div class="stat-value" id="totalAgents" th:text="${ManageAgentStats.totalAgents}"></div>
               </div>
               <div class="stat-icon blue"><i class="fas fa-desktop"></i></div>
             </div>
@@ -5332,7 +5332,7 @@
             <div class="stat-header">
               <div>
                 <div class="stat-label">Online</div>
-                <div class="stat-value" id="onlineAgents">0</div>
+                <div class="stat-value" id="onlineAgents" th:text="${ManageAgentStats.onlineAgents}">0</div>
               </div>
               <div class="stat-icon green">
                 <i class="fas fa-check-circle"></i>
@@ -5343,7 +5343,7 @@
             <div class="stat-header">
               <div>
                 <div class="stat-label">Offline</div>
-                <div class="stat-value" id="offlineAgents">0</div>
+                <div class="stat-value" id="offlineAgents" th:text="${ManageAgentStats.offlineAgents}">0</div>
               </div>
               <div class="stat-icon red">
                 <i class="fas fa-circle-xmark"></i>
@@ -5354,7 +5354,7 @@
             <div class="stat-header">
               <div>
                 <div class="stat-label">Needs Update</div>
-                <div class="stat-value" id="needsUpdate">0</div>
+                <div class="stat-value" id="needsUpdate" th:text="${ManageAgentStats.needsUpdate}">0</div>
               </div>
               <div class="stat-icon yellow">
                 <i class="fas fa-triangle-exclamation"></i>
@@ -5417,24 +5417,24 @@
 
     // ============ AUTHENTICATION & USER DATA ============
     // User data from server
-    const userData = {
-      username: [[${ username }]],
-      userName: [[${ userName }]],
-      userInitials: [[${ userInitials }]],
-      userRole: [[${ userRole }]],
-      userEmail: [[${ userEmail }]],
-      userId: [[${ userId }]]
-    };
+<!--    const userData = {-->
+<!--      username: [[${ username }]],-->
+<!--      userName: [[${ userName }]],-->
+<!--      userInitials: [[${ userInitials }]],-->
+<!--      userRole: [[${ userRole }]],-->
+<!--      userEmail: [[${ userEmail }]],-->
+<!--      userId: [[${ userId }]]-->
+<!--    };-->
 
-    function loadAdminInfo() {
-      const userName = document.querySelector(".user-name");
-      const userAvatar = document.querySelector(".user-avatar");
-      const userRole = document.querySelector(".user-role");
+<!--    function loadAdminInfo() {-->
+<!--      const userName = document.querySelector(".user-name");-->
+<!--      const userAvatar = document.querySelector(".user-avatar");-->
+<!--      const userRole = document.querySelector(".user-role");-->
 
-      if (userName && userData.userName) {
-        userName.textContent = userData.userName;
-      }
-    }
+<!--      if (userName && userData.userName) {-->
+<!--        userName.textContent = userData.userName;-->
+<!--      }-->
+<!--    }-->
 
 
     // ============ SIDEBAR FUNCTIONS ============
@@ -5627,7 +5627,7 @@
           currentFilteredData = [...agentsData];
 
           renderAgentsTable();
-          updateStatistics();
+<!--          updateStatistics();-->
 
           isDataLoaded = true;
           return true;
@@ -5708,23 +5708,23 @@
       tableBody.innerHTML = html;
     }
 
-    function updateStatistics() {
-      if (!agentsData.length) return;
+<!--    function updateStatistics() {-->
+<!--      if (!agentsData.length) return;-->
 
-      const totalAgents = agentsData.length;
-      const onlineAgents = agentsData.filter(
-        (agent) => getAgentStatus(agent) === "online"
-      ).length;
-      const offlineAgents = totalAgents - onlineAgents;
-      const needsUpdate = agentsData.filter((agent) => {
-        return agent.version && agent.version !== "v2.4.1";
-      }).length;
+<!--      const totalAgents = agentsData.length;-->
+<!--      const onlineAgents = agentsData.filter(-->
+<!--        (agent) => getAgentStatus(agent) === "online"-->
+<!--      ).length;-->
+<!--      const offlineAgents = totalAgents - onlineAgents;-->
+<!--      const needsUpdate = agentsData.filter((agent) => {-->
+<!--        return agent.version && agent.version !== "v2.4.1";-->
+<!--      }).length;-->
 
-      document.getElementById("totalAgents").textContent = totalAgents;
-      document.getElementById("onlineAgents").textContent = onlineAgents;
-      document.getElementById("offlineAgents").textContent = offlineAgents;
-      document.getElementById("needsUpdate").textContent = needsUpdate;
-    }
+<!--      document.getElementById("totalAgents").textContent = totalAgents;-->
+<!--      document.getElementById("onlineAgents").textContent = onlineAgents;-->
+<!--      document.getElementById("offlineAgents").textContent = offlineAgents;-->
+<!--      document.getElementById("needsUpdate").textContent = needsUpdate;-->
+<!--    }-->
 
     // ============ HELPER FUNCTIONS ============
 
@@ -5998,7 +5998,7 @@
 
     function initApp() {
       // Check auth and load user data 
-      loadAdminInfo();
+<!--      loadAdminInfo();-->
 
       // Set active menu item
       setActiveMenuItem();
