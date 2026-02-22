@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Shield - Create OCR Policy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; overflow-x: hidden; }
+        .dashboard-container { display: flex; min-height: 100vh; }
+
+        /* ============== SIDEBAR (exact from ocr-policies) ============== */
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+            z-index: 1000;
+            left: 0; top: 0;
+            overflow: hidden;
+        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
+        .sidebar-header { padding: 18px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .sidebar-logo { width: 38px; height: 38px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .sidebar-logo i { font-size: 20px; color: #2563eb; }
+        .sidebar-title { font-size: 1.2em; font-weight: 700; white-space: nowrap; transition: opacity 0.2s, width 0.3s; overflow: hidden; }
+        .nav-menu { padding: 12px 0; overflow-y: auto; overflow-x: hidden; flex: 1; }
+        .nav-item { margin: 2px 8px; }
+        .nav-link { display: flex; align-items: center; padding: 10px 12px; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 8px; transition: all 0.2s; font-size: 0.9em; cursor: pointer; white-space: nowrap; }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-link.active, .sub-menu-item.active { background: rgba(255,255,255,0.15); color: white; font-weight: 600; }
+        .nav-link i:first-child { width: 20px; font-size: 0.95em; margin-right: 10px; flex-shrink: 0; }
+        .chevron-icon { margin-left: auto !important; font-size: 0.7em !important; transition: transform 0.3s; width: auto !important; flex-shrink: 0; }
+        .nav-link.expanded .chevron-icon { transform: rotate(180deg); }
+        .sub-menu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .sub-menu.open { max-height: 500px; }
+        .sub-menu-item { display: flex; align-items: center; padding: 8px 12px 8px 42px; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85em; transition: all 0.2s; border-radius: 8px; margin: 2px 0; white-space: nowrap; }
+        .sub-menu-item:hover { color: white; background: rgba(255,255,255,0.08); }
+        .sub-menu-item::before { content: '•'; margin-right: 10px; font-size: 1.2em; }
+        .sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .collapse-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 8px; cursor: pointer; width: 100%; font-size: 0.85em; transition: all 0.2s; white-space: nowrap; overflow: hidden; }
+        .collapse-btn:hover { background: rgba(255,255,255,0.15); }
+        .collapse-btn i { transition: transform 0.3s; flex-shrink: 0; }
+        .sidebar.collapsed { width: 70px; }
+        .sidebar.collapsed .sidebar-title { opacity: 0; width: 0; }
+        .sidebar.collapsed .nav-link span, .sidebar.collapsed .collapse-btn span { display: none; }
+        .sidebar.collapsed .sub-menu { display: none !important; }
+        .sidebar.collapsed .nav-link { justify-content: center; padding: 10px; }
+        .sidebar.collapsed .nav-link i:first-child { margin-right: 0; }
+        .sidebar.collapsed .chevron-icon { display: none; }
+        .sidebar.collapsed .collapse-btn { justify-content: center; }
+        .sidebar.collapsed .collapse-btn i { transform: rotate(180deg); }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; transition: opacity 0.3s; }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        /* ============== HEADER ============== */
+        .top-header { background: white; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e7eb; position: fixed; top: 0; left: 240px; right: 0; z-index: 500; gap: 16px; transition: left 0.3s ease; }
+        .mobile-menu-toggle { display: none; background: none; border: none; color: #6b7280; font-size: 1.3em; cursor: pointer; padding: 8px; }
+        .mobile-menu-toggle:hover { color: #111827; }
+        .search-bar { flex: 1; max-width: 400px; position: relative; }
+        .search-bar i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.9em; }
+        .search-input { width: 100%; padding: 9px 14px 9px 38px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; background: #f9fafb; transition: all 0.3s; }
+        .search-input:focus { outline: none; border-color: #3b82f6; background: white; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .header-actions { display: flex; align-items: center; gap: 16px; }
+        .notification-btn { position: relative; background: none; border: none; color: #6b7280; font-size: 1.1em; cursor: pointer; padding: 8px; transition: all 0.2s; border-radius: 8px; }
+        .notification-btn:hover { color: #111827; background: #f3f4f6; }
+        .notification-badge { position: absolute; top: 4px; right: 4px; background: #ef4444; color: white; font-size: 0.65em; min-width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 10px; border-radius: 8px; transition: background 0.2s; position: relative; }
+        .user-profile:hover { background: #f3f4f6; }
+        .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, #2563eb, #3b82f6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.9em; flex-shrink: 0; }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-size: 0.9em; font-weight: 600; color: #111827; }
+        .user-role { font-size: 0.75em; color: #6b7280; }
+        .dropdown-icon { color: #6b7280; font-size: 0.75em; margin-left: 4px; transition: transform 0.3s; }
+        .user-profile.active .dropdown-icon { transform: rotate(180deg); }
+        .user-dropdown { position: absolute; top: 100%; right: 0; margin-top: 8px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 15px rgba(0,0,0,0.1); min-width: 200px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s; z-index: 1000; }
+        .user-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: #374151; text-decoration: none; font-size: 0.9em; transition: background 0.2s; }
+        .dropdown-item:first-child { border-radius: 8px 8px 0 0; }
+        .dropdown-item:last-child { border-radius: 0 0 8px 8px; }
+        .dropdown-item:hover { background: #f3f4f6; }
+        .dropdown-item i { width: 18px; color: #6b7280; }
+        .dropdown-item.danger { color: #dc2626; }
+        .dropdown-item.danger i { color: #dc2626; }
+        .dropdown-divider { height: 1px; background: #e5e7eb; margin: 4px 0; }
+
+        /* ============== NOTIFICATIONS (exact) ============== */
+        .notifications-panel { position: fixed; top: 0; right: -50%; width: 50%; max-width: 600px; height: 100vh; background: white; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1001; display: flex; flex-direction: column; transition: right 0.4s cubic-bezier(0.4,0,0.2,1); }
+        .notifications-panel.show { right: 0; }
+        .notifications-header { padding: 20px 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .notifications-header h3 { font-size: 1.2em; font-weight: 700; color: #111827; }
+        .close-notifications { background: none; border: none; color: #6b7280; font-size: 1.2em; cursor: pointer; padding: 6px; border-radius: 6px; transition: all 0.2s; }
+        .close-notifications:hover { background: #f3f4f6; }
+        .notifications-tabs { display: flex; border-bottom: 1px solid #e5e7eb; padding: 0 24px; flex-shrink: 0; }
+        .tab-btn { flex: 1; padding: 12px; background: none; border: none; color: #6b7280; font-size: 0.9em; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+        .notifications-content { flex: 1; overflow-y: auto; padding: 12px 0; }
+        .notification-item { display: flex; gap: 12px; padding: 14px 24px; cursor: pointer; transition: background 0.2s; border-left: 3px solid transparent; }
+        .notification-item:hover { background: #f9fafb; }
+        .notification-item.unread { background: #eff6ff; border-left-color: #3b82f6; }
+        .notification-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1em; flex-shrink: 0; }
+        .notification-icon.critical { background: #fee2e2; color: #dc2626; }
+        .notification-icon.warning  { background: #fef3c7; color: #f59e0b; }
+        .notification-icon.info     { background: #dbeafe; color: #3b82f6; }
+        .notification-icon.success  { background: #d1fae5; color: #10b981; }
+        .notification-body { flex: 1; }
+        .notification-title { font-size: 0.9em; font-weight: 600; color: #111827; margin-bottom: 4px; }
+        .notification-text  { font-size: 0.85em; color: #6b7280; margin-bottom: 6px; line-height: 1.4; }
+        .notification-time  { font-size: 0.75em; color: #9ca3af; }
+        .notification-dot   { width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+        .notifications-footer { padding: 16px 24px; border-top: 1px solid #e5e7eb; flex-shrink: 0; }
+        .view-all-btn { display: block; width: 100%; padding: 10px; background: #f3f4f6; color: #2563eb; text-align: center; text-decoration: none; border-radius: 8px; font-size: 0.9em; font-weight: 600; transition: all 0.2s; }
+        .view-all-btn:hover { background: #e5e7eb; }
+        .notification-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .notification-overlay.show { opacity: 1; visibility: visible; }
+
+        /* ============== MAIN CONTENT ============== */
+        .main-content { flex: 1; margin-left: 240px; transition: margin-left 0.3s; min-height: 100vh; }
+        .main-content.expanded { margin-left: 70px; }
+        .content-area { padding: 24px; padding-top: 90px;}
+
+        /* ============== PAGE HEADER (exact class names from ocr-policies) ============== */
+        .page-header { background: white; padding: 20px 24px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title-section { display: flex; align-items: center; gap: 16px; }
+        .page-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .page-icon i { font-size: 22px; color: white; }
+        .page-title-text h1 { font-size: 1.5em; color: #111827; font-weight: 700; }
+        .page-subtitle { color: #6b7280; font-size: 0.9em; }
+
+        /* Breadcrumb */
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.85em; color: #6b7280; margin-bottom: 20px; }
+        .breadcrumb a { color: #2563eb; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb i { font-size: 0.7em; color: #9ca3af; }
+
+        /* ============== BUTTONS (exact from ocr-policies) ============== */
+        .create-btn { padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 0.9em; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .create-btn:hover { background: #1d4ed8; }
+        .btn { padding: 10px 20px; border-radius: 8px; font-size: 0.9em; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: white; color: #374151; border: 1.5px solid #e5e7eb; }
+        .btn-secondary:hover { background: #f9fafb; }
+        .btn-danger { background: white; color: #dc2626; border: 1.5px solid #fecaca; }
+        .btn-danger:hover { background: #fee2e2; }
+
+        /* ============== CARD / CONFIG SECTIONS (exact from ocr-policies) ============== */
+        .policy-config { background: white; padding: 0; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; }
+
+        /* Step Progress Bar */
+        .step-bar { display: flex; align-items: center; padding: 20px 28px; border-bottom: 1px solid #e5e7eb; background: #f9fafb; gap: 0; overflow-x: auto; }
+        .step { display: flex; align-items: center; flex-shrink: 0; }
+        .step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85em; font-weight: 700; flex-shrink: 0; transition: all 0.3s; border: 2px solid #e5e7eb; background: white; color: #9ca3af; }
+        .step-circle.active   { background: #2563eb; border-color: #2563eb; color: white; }
+        .step-circle.done     { background: #10b981; border-color: #10b981; color: white; }
+        .step-label { font-size: 0.78em; margin-left: 8px; color: #9ca3af; font-weight: 500; white-space: nowrap; }
+        .step-label.active { color: #2563eb; font-weight: 600; }
+        .step-label.done   { color: #10b981; }
+        .step-connector { flex: 1; min-width: 20px; height: 2px; background: #e5e7eb; margin: 0 10px; transition: background 0.3s; }
+        .step-connector.done { background: #10b981; }
+
+        /* Section panels */
+        .form-panel { display: none; padding: 28px; }
+        .form-panel.active { display: block; }
+
+        /* Card-header (same class used in ocr-policies) */
+        .card-header { font-size: 1.05em; font-weight: 600; color: #111827; margin-bottom: 4px; }
+        .card-header-sub { font-size: 0.83em; color: #6b7280; margin-bottom: 20px; }
+
+        /* config-section / section-title (exact from ocr-policies) */
+        .config-section { margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid #f3f4f6; }
+        .config-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .section-title { font-size: 0.95em; font-weight: 600; color: #111827; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .section-title i { color: #6b7280; font-size: 0.9em; }
+
+        /* form-group / form-label / form-input / form-select / form-textarea (exact) */
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 0.85em; color: #374151; font-weight: 500; margin-bottom: 6px; }
+        .form-label .optional { font-weight: 400; color: #9ca3af; font-size: 0.9em; }
+        .form-input { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; font-family: inherit; transition: border-color 0.2s; }
+        .form-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.08); }
+        .form-input.error { border-color: #ef4444; }
+        .form-select { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; background: white; font-family: inherit; cursor: pointer; transition: border-color 0.2s; }
+        .form-select:focus { outline: none; border-color: #3b82f6; }
+        .form-textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9em; min-height: 80px; resize: vertical; font-family: inherit; transition: border-color 0.2s; }
+        .form-textarea:focus { outline: none; border-color: #3b82f6; }
+        .field-hint { font-size: 0.78em; color: #9ca3af; margin-top: 5px; }
+        .field-error { font-size: 0.78em; color: #ef4444; margin-top: 5px; display: none; }
+        .field-error.show { display: block; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* char counter */
+        .char-counter { font-size: 0.75em; color: #9ca3af; text-align: right; margin-top: 3px; }
+        .char-counter.warn { color: #f59e0b; }
+        .char-counter.over { color: #ef4444; }
+
+        /* checkbox-group / checkbox-item (exact from ocr-policies) */
+        .checkbox-group { display: flex; flex-direction: column; gap: 10px; }
+        .checkbox-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: #f9fafb; border-radius: 6px; cursor: pointer; border: 1.5px solid transparent; transition: all 0.2s; }
+        .checkbox-item:hover { border-color: #bfdbfe; background: #eff6ff; }
+        .checkbox-item.checked { border-color: #bfdbfe; background: #eff6ff; }
+        .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #2563eb; flex-shrink: 0; }
+        .checkbox-item label { flex: 1; cursor: pointer; font-size: 0.9em; color: #374151; }
+        .checkbox-item .check-desc { font-size: 0.75em; color: #9ca3af; margin-top: 1px; }
+
+        /* 2-col checkbox grid */
+        .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        /* toggle-switch (exact from ocr-policies) */
+        .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; border-radius: 24px; transition: .3s; }
+        .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: .3s; }
+        input:checked + .toggle-slider { background-color: #10b981; }
+        input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+        .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 8px; border: 1.5px solid #e5e7eb; margin-bottom: 10px; }
+        .toggle-row:last-child { margin-bottom: 0; }
+        .toggle-row-info { flex: 1; }
+        .toggle-row-label { font-size: 0.9em; font-weight: 600; color: #111827; margin-bottom: 2px; }
+        .toggle-row-desc  { font-size: 0.78em; color: #6b7280; }
+
+        /* sensitivity slider (exact from ocr-policies) */
+        .sensitivity-slider { width: 100%; height: 6px; background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #dc2626 100%); border-radius: 3px; margin: 8px 0 4px; position: relative; }
+        .slider-labels { display: flex; justify-content: space-between; font-size: 0.75em; color: #6b7280; margin-top: 4px; }
+        input[type="range"].form-input { height: 6px; padding: 0; cursor: pointer; background: transparent; }
+
+        /* keywords-list / keyword-tag (exact from ocr-policies) */
+        .keywords-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; min-height: 20px; }
+        .keyword-tag { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: #eff6ff; color: #2563eb; border-radius: 6px; font-size: 0.85em; border: 1px solid #bfdbfe; }
+        .keyword-tag i { cursor: pointer; font-size: 0.8em; }
+        .keyword-tag i:hover { color: #dc2626; }
+
+        /* Keyword input row */
+        .keyword-input-row { display: flex; gap: 8px; }
+        .keyword-input-row .form-input { flex: 1; }
+        .keyword-add-btn { padding: 10px 14px; background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe; border-radius: 8px; cursor: pointer; font-size: 0.9em; font-weight: 600; transition: all 0.2s; white-space: nowrap; }
+        .keyword-add-btn:hover { background: #dbeafe; }
+
+        /* btn-group (exact from ocr-policies) */
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+
+        /* Schedule grid */
+        .schedule-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 8px; }
+        .day-btn { padding: 10px 4px; border: 1.5px solid #e5e7eb; border-radius: 8px; background: white; font-size: 0.78em; font-weight: 600; color: #6b7280; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .day-btn.selected { background: #eff6ff; border-color: #3b82f6; color: #2563eb; }
+        .day-btn:hover { border-color: #bfdbfe; }
+        .time-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+
+        /* Severity radio cards */
+        .severity-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .severity-card { padding: 14px 12px; border: 2px solid #e5e7eb; border-radius: 10px; cursor: pointer; text-align: center; transition: all 0.2s; background: white; }
+        .severity-card:hover { border-color: #bfdbfe; }
+        .severity-card.selected { border-color: #2563eb; background: #eff6ff; }
+        .severity-card.selected.critical { border-color: #dc2626; background: #fee2e2; }
+        .severity-card.selected.high     { border-color: #f59e0b; background: #fef3c7; }
+        .severity-card.selected.medium   { border-color: #3b82f6; background: #eff6ff; }
+        .severity-card.selected.low      { border-color: #10b981; background: #d1fae5; }
+        .severity-card-dot { width: 12px; height: 12px; border-radius: 50%; margin: 0 auto 8px; }
+        .sev-critical .severity-card-dot { background: #dc2626; }
+        .sev-high     .severity-card-dot { background: #f59e0b; }
+        .sev-medium   .severity-card-dot { background: #3b82f6; }
+        .sev-low      .severity-card-dot { background: #10b981; }
+        .severity-card-label { font-size: 0.85em; font-weight: 600; color: #374151; }
+
+        /* Action type cards */
+        .action-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .action-card { padding: 16px; border: 2px solid #e5e7eb; border-radius: 10px; cursor: pointer; transition: all 0.2s; background: white; display: flex; align-items: flex-start; gap: 12px; }
+        .action-card:hover { border-color: #bfdbfe; background: #f9fafb; }
+        .action-card.selected { border-color: #2563eb; background: #eff6ff; }
+        .action-card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1em; flex-shrink: 0; }
+        .action-card-icon.block   { background: #fee2e2; color: #dc2626; }
+        .action-card-icon.alert   { background: #fef3c7; color: #f59e0b; }
+        .action-card-icon.log     { background: #dbeafe; color: #2563eb; }
+        .action-card-icon.quarantine { background: #ede9fe; color: #7c3aed; }
+        .action-card-label { font-size: 0.88em; font-weight: 700; color: #111827; margin-bottom: 3px; }
+        .action-card-desc  { font-size: 0.78em; color: #6b7280; line-height: 1.4; }
+
+        /* Review summary */
+        .review-section { margin-bottom: 20px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
+        .review-section-header { padding: 12px 16px; background: white; border-bottom: 1px solid #e5e7eb; font-size: 0.88em; font-weight: 700; color: #374151; display: flex; align-items: center; gap: 8px; }
+        .review-section-header i { color: #6b7280; }
+        .review-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 16px; border-bottom: 1px solid #f3f4f6; }
+        .review-row:last-child { border-bottom: none; }
+        .review-key { font-size: 0.82em; color: #6b7280; min-width: 140px; }
+        .review-val { font-size: 0.82em; color: #111827; font-weight: 600; text-align: right; flex: 1; }
+        .review-tags { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+        .review-tag { padding: 2px 8px; background: #eff6ff; color: #2563eb; border-radius: 4px; font-size: 0.75em; font-weight: 600; }
+
+        /* Success screen */
+        .success-screen { text-align: center; padding: 60px 40px; }
+        .success-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; box-shadow: 0 8px 20px rgba(16,185,129,0.3); }
+        .success-icon i { font-size: 36px; color: white; }
+        .success-title { font-size: 1.6em; font-weight: 700; color: #111827; margin-bottom: 10px; }
+        .success-desc  { font-size: 0.95em; color: #6b7280; margin-bottom: 32px; }
+        .success-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 24px; right: 24px; background: #059669; color: white; padding: 14px 20px; border-radius: 10px; display: flex; align-items: center; gap: 10px; font-size: 0.9em; font-weight: 600; z-index: 9999; transform: translateY(100px); opacity: 0; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { background: #dc2626; }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .main-content { margin-left: 0; }
+            .top-header { left: 0 !important; }
+            .sidebar { transform: translateX(-100%); width: 260px; transition: transform 0.3s; }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .mobile-menu-toggle { display: block; }
+            .search-bar { display: none; }
+            .form-row { grid-template-columns: 1fr; }
+            .severity-cards { grid-template-columns: 1fr 1fr; }
+            .action-cards { grid-template-columns: 1fr; }
+            .schedule-grid { grid-template-columns: repeat(4, 1fr); }
+            .checkbox-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+            .content-area { padding: 16px; padding-top: 80px; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .btn-group { flex-direction: column; }
+            .btn { width: 100%; justify-content: center; }
+            .step-label { display: none; }
+            .severity-cards { grid-template-columns: 1fr 1fr; }
+            .success-actions { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo"><i class="fas fa-shield-halved"></i></div>
+            <div class="sidebar-title">DLP Shield</div>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item">
+                <a href="dashboard.html" class="nav-link"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+            </div>
+            <div class="nav-item">
+                <a href="alerts.html" class="nav-link"><i class="fas fa-triangle-exclamation"></i><span>Alerts &amp; Incidents</span></a>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-shield-alt"></i><span>Policies</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu">
+                    <a href="manage-agents.html" class="sub-menu-item">Manage Agents</a>
+                    <a href="file-policies.html" class="sub-menu-item">File Policies</a>
+                    <a href="assign-policy.html" class="sub-menu-item">Assign Policy</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="agents.html" class="nav-link"><i class="fas fa-desktop"></i><span>Agents / Endpoints</span></a>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown expanded" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-eye"></i><span>OCR &amp; Image Analysis</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu open">
+                    <a href="ocr-dashboard.html" class="sub-menu-item">OCR Dashboard</a>
+                    <a href="ocr-policies.html"  class="sub-menu-item active">OCR Policies</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-file-lines"></i><span>Reports &amp; Logs</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu">
+                    <a href="reports.html" class="sub-menu-item">Reports</a>
+                    <a href="audit-logs.html" class="sub-menu-item">Audit Logs</a>
+                    <a href="device-logs.html" class="sub-menu-item">Device Logs</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-users"></i><span>Users &amp; Roles</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu">
+                    <a href="users.html" class="sub-menu-item">Users</a>
+                    <a href="roles.html" class="sub-menu-item">Roles &amp; Permissions</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
+                    <i class="fas fa-gear"></i><span>Settings</span>
+                    <i class="fas fa-chevron-down chevron-icon"></i>
+                </div>
+                <div class="sub-menu">
+                    <a href="general.html" class="sub-menu-item">General</a>
+                    <a href="security.html" class="sub-menu-item">Security</a>
+                    <a href="integrations.html" class="sub-menu-item">Integrations</a>
+                </div>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="collapse-btn" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left"></i><span>Collapse</span>
+            </button>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- ==================== HEADER ==================== -->
+    <header class="top-header" id="topHeader">
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" class="search-input" placeholder="Search alerts, agents, policies...">
+        </div>
+        <div class="header-actions">
+            <button class="notification-btn" onclick="toggleNotifications(event)">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">5</span>
+            </button>
+            <div class="user-profile" onclick="toggleUserDropdown(event)">
+                <div class="user-avatar" id="userAvatar">JS</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">John Smith</div>
+                    <div class="user-role">Security Admin</div>
+                </div>
+                <i class="fas fa-chevron-down dropdown-icon"></i>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="general.html" class="dropdown-item"><i class="fas fa-gear"></i><span>Settings</span></a>
+                    <a href="#" class="dropdown-item"><i class="fas fa-circle-question"></i><span>Help &amp; Support</span></a>
+                    <div class="dropdown-divider"></div>
+                    <a href="index.html" class="dropdown-item danger" onclick="logout(event)"><i class="fas fa-right-from-bracket"></i><span>Sign out</span></a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== NOTIFICATIONS ==================== -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3>Notifications</h3>
+            <button class="close-notifications" onclick="closeNotifications()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="notifications-tabs">
+            <button class="tab-btn active" onclick="switchTab(event,'all')">All (5)</button>
+            <button class="tab-btn" onclick="switchTab(event,'unread')">Unread (3)</button>
+        </div>
+        <div class="notifications-content">
+            <div class="notification-item unread">
+                <div class="notification-icon critical"><i class="fas fa-shield-exclamation"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Critical Policy Violation</div>
+                    <div class="notification-text">User attempted to copy sensitive files to USB drive</div>
+                    <div class="notification-time">2 minutes ago</div>
+                </div>
+                <div class="notification-dot"></div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notification-icon warning"><i class="fas fa-triangle-exclamation"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Agent Offline</div>
+                    <div class="notification-text">DESKTOP-DEF456 has been offline for 2 hours</div>
+                    <div class="notification-time">15 minutes ago</div>
+                </div>
+                <div class="notification-dot"></div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notification-icon info"><i class="fas fa-info-circle"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Policy Updated</div>
+                    <div class="notification-text">File Protection Policy has been modified by Admin</div>
+                    <div class="notification-time">1 hour ago</div>
+                </div>
+                <div class="notification-dot"></div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon success"><i class="fas fa-check-circle"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Agent Connected</div>
+                    <div class="notification-text">New agent LAPTOP-XYZ789 successfully registered</div>
+                    <div class="notification-time">3 hours ago</div>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon info"><i class="fas fa-file-alt"></i></div>
+                <div class="notification-body">
+                    <div class="notification-title">Report Generated</div>
+                    <div class="notification-text">Weekly security report is ready for review</div>
+                    <div class="notification-time">5 hours ago</div>
+                </div>
+            </div>
+        </div>
+        <div class="notifications-footer">
+            <a href="alerts.html" class="view-all-btn">View All Notifications</a>
+        </div>
+    </div>
+    <div class="notification-overlay" id="notificationOverlay" onclick="closeNotifications()"></div>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="main-content" id="mainContent">
+        <div class="content-area">
+
+            <!-- Breadcrumb -->
+            <div class="breadcrumb">
+                <a href="ocr-policies.html"><i class="fas fa-eye"></i> OCR Policies</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Create Policy</span>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title-section">
+                    <div class="page-icon"><i class="fas fa-plus-circle"></i></div>
+                    <div class="page-title-text">
+                        <h1>Create OCR Policy</h1>
+                        <p class="page-subtitle">Define a new screen monitoring and detection policy</p>
+                    </div>
+                </div>
+                <a href="ocr-policies.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i><span>Back to Policies</span>
+                </a>
+            </div>
+
+            <!-- Policy Creation Wizard -->
+            <div class="policy-config">
+
+                <!-- Step Progress Bar -->
+                <div class="step-bar">
+                    <div class="step">
+                        <div class="step-circle active" id="stepCircle1">1</div>
+                        <div class="step-label active" id="stepLabel1">Basic Info</div>
+                    </div>
+                    <div class="step-connector" id="connector1"></div>
+                    <div class="step">
+                        <div class="step-circle" id="stepCircle2">2</div>
+                        <div class="step-label" id="stepLabel2">Detection</div>
+                    </div>
+                    <div class="step-connector" id="connector2"></div>
+                    <div class="step">
+                        <div class="step-circle" id="stepCircle3">3</div>
+                        <div class="step-label" id="stepLabel3">Actions</div>
+                    </div>
+                    <div class="step-connector" id="connector3"></div>
+                    <div class="step">
+                        <div class="step-circle" id="stepCircle4">4</div>
+                        <div class="step-label" id="stepLabel4">Schedule</div>
+                    </div>
+                    <div class="step-connector" id="connector4"></div>
+                    <div class="step">
+                        <div class="step-circle" id="stepCircle5">5</div>
+                        <div class="step-label" id="stepLabel5">Review</div>
+                    </div>
+                </div>
+
+                <!-- ===== STEP 1: Basic Info ===== -->
+                <div class="form-panel active" id="step1">
+                    <div class="card-header">Basic Information</div>
+                    <div class="card-header-sub">Name and classify your new OCR detection policy</div>
+
+                    <div class="config-section">
+                        <div class="section-title"><i class="fas fa-tag"></i> Policy Identity</div>
+                        <div class="form-group">
+                            <label class="form-label">Policy Name <span style="color:#ef4444;">*</span></label>
+                            <input type="text" class="form-input" id="policyName" placeholder="e.g. PII Screen Detection" maxlength="80" oninput="updateCharCount(this,'nameCount',80);updateReview()">
+                            <div class="char-counter" id="nameCount">0 / 80</div>
+                            <div class="field-error" id="policyNameErr">Policy name is required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description <span class="optional">(optional)</span></label>
+                            <textarea class="form-textarea" id="policyDesc" placeholder="Describe what this policy monitors and why..." rows="3" maxlength="300" oninput="updateCharCount(this,'descCount',300);updateReview()"></textarea>
+                            <div class="char-counter" id="descCount">0 / 300</div>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <div class="section-title"><i class="fas fa-shield-alt"></i> Severity &amp; Classification</div>
+                        <div class="form-group">
+                            <label class="form-label">Severity Level</label>
+                            <div class="severity-cards">
+                                <div class="severity-card sev-critical selected critical" onclick="selectSeverity(this,'Critical')" id="sev-critical">
+                                    <div class="severity-card-dot"></div>
+                                    <div class="severity-card-label">Critical</div>
+                                </div>
+                                <div class="severity-card sev-high" onclick="selectSeverity(this,'High')" id="sev-high">
+                                    <div class="severity-card-dot"></div>
+                                    <div class="severity-card-label">High</div>
+                                </div>
+                                <div class="severity-card sev-medium" onclick="selectSeverity(this,'Medium')" id="sev-medium">
+                                    <div class="severity-card-dot"></div>
+                                    <div class="severity-card-label">Medium</div>
+                                </div>
+                                <div class="severity-card sev-low" onclick="selectSeverity(this,'Low')" id="sev-low">
+                                    <div class="severity-card-dot"></div>
+                                    <div class="severity-card-label">Low</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">OCR Policy Type</label>
+                                <select class="form-select" id="policyType" onchange="updateReview()">
+                                    <option value="screen-capture">Screen Capture Control</option>
+                                    <option value="pii-detection">PII Detection</option>
+                                    <option value="document-class">Document Classification</option>
+                                    <option value="keyword-monitor">Keyword Monitoring</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Agent Group / Scope</label>
+                                <select class="form-select" id="policyScope" onchange="updateReview()">
+                                    <option value="all">All Agents (198)</option>
+                                    <option value="finance">Finance Dept. (42)</option>
+                                    <option value="hr">HR Department (28)</option>
+                                    <option value="executive">Executive Team (14)</option>
+                                    <option value="it">IT Department (36)</option>
+                                    <option value="custom">Custom Selection…</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Priority Order</label>
+                            <select class="form-select" id="policyPriority" onchange="updateReview()">
+                                <option value="1">1 — Highest Priority</option>
+                                <option value="2">2 — High Priority</option>
+                                <option value="3" selected>3 — Normal Priority</option>
+                                <option value="4">4 — Low Priority</option>
+                            </select>
+                            <div class="field-hint">Higher priority policies are evaluated first when multiple policies apply.</div>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <div class="section-title"><i class="fas fa-toggle-on"></i> Status</div>
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">Enable Policy Immediately</div>
+                                <div class="toggle-row-desc">Policy will be active as soon as it is saved. Disable to save as draft.</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="policyEnabled" checked onchange="updateReview()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="goToStep(2)"><i class="fas fa-arrow-right"></i> Continue to Detection</button>
+                        <a href="ocr-policies.html" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+                    </div>
+                </div>
+
+                <!-- ===== STEP 2: Detection Settings ===== -->
+                <div class="form-panel" id="step2">
+                    <div class="card-header">Detection Settings</div>
+                    <div class="card-header-sub">Configure what the OCR engine will scan for on screen</div>
+
+                    <div class="config-section">
+                        <div class="section-title"><i class="fas fa-sliders"></i> Detection Sensitivity</div>
+                        <div class="form-group">
+                            <label class="form-label">Sensitivity Level — <strong id="sensitivityLabel">75</strong>%</label>
+                            <input type="range" class="form-input" id="sensitivitySlider" min="0" max="100" value="75" oninput="updateSensitivity(this.value)">
+                            <div class="sensitivity-slider"></div>
+                            <div class="slider-labels">
+                                <span>Low (fewer alerts)</span>
+                                <span>Medium</span>
+                                <span>High (more alerts)</span>
+                            </div>
+                            <div class="field-hint" id="sensitivityHint">Balanced — recommended for most environments.</div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">OCR Engine</label>
+                                <select class="form-select" id="ocrEngine">
+                                    <option value="tesseract">Tesseract (Fast)</option>
+                                    <option value="azure" selected>Azure Cognitive Services</option>
+                                    <option value="google">Google Vision API</option>
+                                    <option value="local">Local GPU Engine</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Minimum Confidence Threshold</label>
+                                <select class="form-select" id="minConfidence">
+                                    <option value="60">60% — Permissive</option>
+                                    <option value="70">70% — Low</option>
+                                    <option value="80" selected>80% — Standard</option>
+                                    <option value="90">90% — Strict</option>
+                                    <option value="95">95% — Very Strict</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <div class="section-title"><i class="fas fa-database"></i> Data Types to Detect</div>
+                        <div class="checkbox-grid">
+                            <div class="checkbox-item" onclick="toggleCheck(this)">
+                                <input type="checkbox" id="cc" checked>
+                                <div>
+                                    <label for="cc">Credit Card Numbers</label>
+                                    <div class="check-desc">Visa, Mastercard, Amex, Discover</div>
+                                </div>
+                            </div>
+                            <div class="checkbox-item" onclick="toggleCheck(this)">
+                                <input type="checkbox" id="ssn" checked>
+                                <div>
+                                    <label for="ssn">Social Security Numbers</label>
+                                    <div class="check-desc">US SSN format (XXX-XX-XXXX)</div>
+                                </div>
+                            </div>
+                            <div class="checkbox-item" onclick="toggleCheck(this)">
+                                <input type="checkbox" id="bank" checked>
+                                <div>
+                                    <label for="bank">Bank Account Numbers</label>
+                                    <div class="check-desc">Routing + account numbers</div>
+                                </div>
+                            </div>
+                            <div class="checkbox-item" onclick="toggleCheck(this)">
+                                <input type="checkbox" id="email">
+                                <div>
+                                    <label for="email">Email Addresses</label>
+                                    <div class="check-desc">Standard email format detection</div>
+                                </div>
+                            </div>
+                            <div class="checkbox-item" onclick="toggleCheck(this)">
+                                <input type="checkbox" id="phone">
+                                <div>
+                                    <label for="phone">Phone Numbers</label>
+                                    <div class="check-desc">US and international formats</div>
+                                </div>
+                            </div>
+                            <div class="checkbox-item" onclick="toggleCheck(this)">
+                                <input type="checkbox" id="passport">
+                                <div>
+                                    <label for="passport">Passport Numbers</label>
+                                    <div class="check-desc">International passport ID patterns</div>
+                                </div>
+                            </div>
+                            <div class="checkbox-item" onclick="toggleCheck(this)">
+                                <input type="checkbox" id="medical">
+                                <div>
+                                    <label for="medical">Medical Record Numbers</label>
+                                    <div class="check-desc">MRN / NPI / DEA identifiers</div>
+                                </div>
+                            </div>
+                            <div class="checkbox-item" onclick="toggleCheck(this)">
+                                <input type="checkbox" id="confidential">
+                                <div>
+                                    <label for="confidential">Confidential Watermarks</label>
+                                    <div class="check-desc">Document classification labels</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <div class="section-title"><i class="fas fa-key"></i> Custom Keywords</div>
+                        <div class="keyword-input-row">
+                            <input type="text" class="form-input" id="keywordInput" placeholder="Type a keyword and press Add or Enter…" onkeydown="if(event.key==='Enter'){addKeyword();event.preventDefault();}">
+                            <button class="keyword-add-btn" onclick="addKeyword()"><i class="fas fa-plus"></i> Add</button>
+                        </div>
+                        <div class="keywords-list" id="keywordsList">
+                            <span class="keyword-tag">confidential <i class="fas fa-times" onclick="removeKeyword(this)"></i></span>
+                            <span class="keyword-tag">secret <i class="fas fa-times" onclick="removeKeyword(this)"></i></span>
+                            <span class="keyword-tag">internal <i class="fas fa-times" onclick="removeKeyword(this)"></i></span>
+                        </div>
+                        <div class="field-hint">Keywords are case-insensitive. Wildcards (*) supported e.g. "project-*"</div>
+                    </div>
+
+                    <div class="config-section">
+                        <div class="section-title"><i class="fas fa-eye-slash"></i> Exclusions</div>
+                        <div class="form-group">
+                            <label class="form-label">Excluded Applications <span class="optional">(optional)</span></label>
+                            <input type="text" class="form-input" id="excludedApps" placeholder="e.g. Calculator.exe, Notepad.exe  (comma-separated)">
+                            <div class="field-hint">These applications will not be scanned by this policy.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Excluded URLs / Domains <span class="optional">(optional)</span></label>
+                            <input type="text" class="form-input" id="excludedUrls" placeholder="e.g. internal.company.com, intranet.local">
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="goToStep(3)"><i class="fas fa-arrow-right"></i> Continue to Actions</button>
+                        <button class="btn btn-secondary" onclick="goToStep(1)"><i class="fas fa-arrow-left"></i> Back</button>
+                    </div>
+                </div>
+
+                <!-- ===== STEP 3: Actions ===== -->
+                <div class="form-panel" id="step3">
+                    <div class="card-header">Response Actions</div>
+                    <div class="card-header-sub">Define what happens when a violation is detected</div>
+
+                    <div class="config-section">
+                        <div class="section-title"><i class="fas fa-bolt"></i> Primary Action</div>
+                        <div class="action-cards">
+                            <div class="action-card selected" onclick="selectAction(this,'block')" id="action-block">
+                                <div class="action-card-icon block"><i class="fas fa-ban"></i></div>
+                                <div>
+                                    <div class="action-card-label">Block &amp; Alert</div>
+                                    <div class="action-card-desc">Block the action (screenshot / copy) and immediately alert admin and user.</div>
+                                </div>
+                            </div>
+                            <div class="action-card" onclick="selectAction(this,'alert')" id="action-alert">
+                                <div class="action-card-icon alert"><i class="fas fa-triangle-exclamation"></i></div>
+                                <div>
+                                    <div class="action-card-label">Alert Only</div>
+                                    <div class="action-card-desc">Allow the action but send alerts. No interruption to the user's workflow.</div>
+                                </div>
+                            </div>
+                            <div class="action-card" onclick="selectAction(this,'log')" id="action-log">
+                                <div class="action-card-icon log"><i class="fas fa-file-lines"></i></div>
+                                <div>
+                                    <div class="action-card-label">Log Silently</div>
+                                    <div class="action-card-desc">Silently record violations. No alerts sent. Useful for audit-only mode.</div>
+                                </div>
+                            </div>
+                            <div class="action-card" onclick="selectAction(this,'quarantine')" id="action-quarantine">
+                                <div class="action-card-icon quarantine"><i class="fas fa-shield-virus"></i></div>
+                                <div>
+                                    <div class="action-card-label">Block &amp; Quarantine</div>
+                                    <div class="action-card-desc">Block action and quarantine the agent session pending admin review.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <div class="section-title"><i class="fas fa-bell"></i> Notifications</div>
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">Notify End User</div>
+                                <div class="toggle-row-desc">Show a warning message to the user explaining the violation.</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notifyUser" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">Alert Security Administrator</div>
+                                <div class="toggle-row-desc">Send an immediate email alert to the security team.</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="alertAdmin" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">Save Screenshot Evidence</div>
+                                <div class="toggle-row-desc">Capture and store the screen as forensic evidence in the violation record.</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="saveEvidence">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-row">
+                            <div class="toggle-row-info">
+                                <div class="toggle-row-label">Auto-Suspend Agent on Critical Violations</div>
+                                <div class="toggle-row-desc">Temporarily suspend the agent if a Critical severity violation occurs.</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoSuspend">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <div class="section-title"><i class="fas fa-arrow-up-right-from-square"></i> Escalation</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Alert Escalation Level</label>
+                                <select class="form-select" id="escalationLevel">
+                                    <option value="none">None</option>
+                                    <option value="l1" selected>L1 — Security Analyst</option>
+                                    <option value="l2">L2 — Security Manager</option>
+                                    <option value="l3">L3 — CISO</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Escalation After (if unresolved)</label>
+                                <select class="form-select" id="escalationTime">
+                                    <option value="30">30 minutes</option>
+                                    <option value="60" selected>1 hour</option>
+                                    <option value="120">2 hours</option>
+                                    <option value="240">4 hours</option>
+                                    <option value="1440">24 hours</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Alert Email Recipients <span class="optional">(optional)</span></label>
+                            <input type="text" class="form-input" id="alertEmails" placeholder="security@company.com, admin@company.com">
+                            <div class="field-hint">Comma-separated. Leave blank to use default security team list.</div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="goToStep(4)"><i class="fas fa-arrow-right"></i> Continue to Schedule</button>
+                        <button class="btn btn-secondary" onclick="goToStep(2)"><i class="fas fa-arrow-left"></i> Back</button>
+                    </div>
+                </div>
+
+                <!-- ===== STEP 4: Schedule ===== -->
+                <div class="form-panel" id="step4">
+                    <div class="card-header">Monitoring Schedule</div>
+                    <div class="card-header-sub">Control when this policy is active</div>
+
+                    <div class="config-section">
+                        <div class="section-title"><i class="fas fa-clock"></i> Schedule Mode</div>
+                        <div class="form-group">
+                            <select class="form-select" id="scheduleMode" onchange="toggleScheduleOptions(this.value)">
+                                <option value="always" selected>Always On — 24 / 7</option>
+                                <option value="business">Business Hours Only</option>
+                                <option value="custom">Custom Schedule</option>
+                                <option value="off">Off (Disabled)</option>
+                            </select>
+                        </div>
+
+                        <!-- Business hours / custom options — shown conditionally -->
+                        <div id="scheduleOptions" style="display:none;">
+                            <div class="form-group">
+                                <label class="form-label">Active Days</label>
+                                <div class="schedule-grid">
+                                    <button type="button" class="day-btn selected" onclick="toggleDay(this)" data-day="Mon">Mon</button>
+                                    <button type="button" class="day-btn selected" onclick="toggleDay(this)" data-day="Tue">Tue</button>
+                                    <button type="button" class="day-btn selected" onclick="toggleDay(this)" data-day="Wed">Wed</button>
+                                    <button type="button" class="day-btn selected" onclick="toggleDay(this)" data-day="Thu">Thu</button>
+                                    <button type="button" class="day-btn selected" onclick="toggleDay(this)" data-day="Fri">Fri</button>
+                                    <button type="button" class="day-btn" onclick="toggleDay(this)" data-day="Sat">Sat</button>
+                                    <button type="button" class="day-btn" onclick="toggleDay(this)" data-day="Sun">Sun</button>
+                                </div>
+                            </div>
+                            <div class="time-row">
+                                <div class="form-group">
+                                    <label class="form-label">Start Time</label>
+                                    <input type="time" class="form-input" id="startTime" value="08:00">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">End Time</label>
+                                    <input type="time" class="form-input" id="endTime" value="18:00">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Timezone</label>
+                                <select class="form-select" id="timezone">
+                                    <option value="UTC">UTC</option>
+                                    <option value="EST" selected>Eastern Time (EST/EDT)</option>
+                                    <option value="CST">Central Time (CST/CDT)</option>
+                                    <option value="MST">Mountain Time (MST/MDT)</option>
+                                    <option value="PST">Pacific Time (PST/PDT)</option>
+                                    <option value="GMT">GMT</option>
+                                    <option value="IST">India Standard Time (IST)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <div class="section-title"><i class="fas fa-gauge"></i> Scan Frequency</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Screenshot Scan Interval</label>
+                                <select class="form-select" id="scanInterval">
+                                    <option value="5">Every 5 seconds</option>
+                                    <option value="10">Every 10 seconds</option>
+                                    <option value="30" selected>Every 30 seconds</option>
+                                    <option value="60">Every 1 minute</option>
+                                    <option value="300">Every 5 minutes</option>
+                                    <option value="on-action">On user action only</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Max Violations Before Suspend</label>
+                                <select class="form-select" id="maxViolations">
+                                    <option value="1">1 violation</option>
+                                    <option value="3">3 violations</option>
+                                    <option value="5" selected>5 violations</option>
+                                    <option value="10">10 violations</option>
+                                    <option value="none">No limit</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <div class="section-title"><i class="fas fa-calendar-xmark"></i> Exclusion Periods</div>
+                        <div class="form-group">
+                            <label class="form-label">Skip Dates <span class="optional">(optional)</span></label>
+                            <input type="text" class="form-input" id="skipDates" placeholder="e.g. 2025-12-25, 2026-01-01  (comma-separated)">
+                            <div class="field-hint">Policy will not run on these dates regardless of schedule.</div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="goToStep(5)"><i class="fas fa-arrow-right"></i> Review &amp; Create</button>
+                        <button class="btn btn-secondary" onclick="goToStep(3)"><i class="fas fa-arrow-left"></i> Back</button>
+                    </div>
+                </div>
+
+                <!-- ===== STEP 5: Review & Create ===== -->
+                <div class="form-panel" id="step5">
+                    <div class="card-header">Review &amp; Create Policy</div>
+                    <div class="card-header-sub">Review all settings before saving. You can go back to change anything.</div>
+
+                    <!-- Basic Info Summary -->
+                    <div class="review-section">
+                        <div class="review-section-header"><i class="fas fa-tag"></i> Basic Information</div>
+                        <div class="review-row"><span class="review-key">Policy Name</span><span class="review-val" id="rv-name">—</span></div>
+                        <div class="review-row"><span class="review-key">Description</span><span class="review-val" id="rv-desc">—</span></div>
+                        <div class="review-row"><span class="review-key">Severity</span><span class="review-val" id="rv-severity">—</span></div>
+                        <div class="review-row"><span class="review-key">Policy Type</span><span class="review-val" id="rv-type">—</span></div>
+                        <div class="review-row"><span class="review-key">Scope</span><span class="review-val" id="rv-scope">—</span></div>
+                        <div class="review-row"><span class="review-key">Priority</span><span class="review-val" id="rv-priority">—</span></div>
+                        <div class="review-row"><span class="review-key">Status</span><span class="review-val" id="rv-status">—</span></div>
+                    </div>
+
+                    <!-- Detection Summary -->
+                    <div class="review-section">
+                        <div class="review-section-header"><i class="fas fa-database"></i> Detection Settings</div>
+                        <div class="review-row"><span class="review-key">Sensitivity</span><span class="review-val" id="rv-sensitivity">—</span></div>
+                        <div class="review-row"><span class="review-key">OCR Engine</span><span class="review-val" id="rv-engine">—</span></div>
+                        <div class="review-row"><span class="review-key">Min Confidence</span><span class="review-val" id="rv-confidence">—</span></div>
+                        <div class="review-row"><span class="review-key">Data Types</span>
+                            <span class="review-val">
+                                <div class="review-tags" id="rv-datatypes">—</div>
+                            </span>
+                        </div>
+                        <div class="review-row"><span class="review-key">Keywords</span>
+                            <span class="review-val">
+                                <div class="review-tags" id="rv-keywords">—</div>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Actions Summary -->
+                    <div class="review-section">
+                        <div class="review-section-header"><i class="fas fa-bolt"></i> Response Actions</div>
+                        <div class="review-row"><span class="review-key">Primary Action</span><span class="review-val" id="rv-action">—</span></div>
+                        <div class="review-row"><span class="review-key">Notify User</span><span class="review-val" id="rv-notify">—</span></div>
+                        <div class="review-row"><span class="review-key">Alert Admin</span><span class="review-val" id="rv-alertadmin">—</span></div>
+                        <div class="review-row"><span class="review-key">Save Evidence</span><span class="review-val" id="rv-evidence">—</span></div>
+                        <div class="review-row"><span class="review-key">Auto-Suspend</span><span class="review-val" id="rv-suspend">—</span></div>
+                        <div class="review-row"><span class="review-key">Escalation</span><span class="review-val" id="rv-escalation">—</span></div>
+                    </div>
+
+                    <!-- Schedule Summary -->
+                    <div class="review-section">
+                        <div class="review-section-header"><i class="fas fa-clock"></i> Schedule</div>
+                        <div class="review-row"><span class="review-key">Mode</span><span class="review-val" id="rv-schedule">—</span></div>
+                        <div class="review-row"><span class="review-key">Scan Interval</span><span class="review-val" id="rv-interval">—</span></div>
+                        <div class="review-row"><span class="review-key">Max Violations</span><span class="review-val" id="rv-maxviolations">—</span></div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="createPolicyFinal()" id="createPolicyBtn">
+                            <i class="fas fa-check"></i> Create Policy
+                        </button>
+                        <button class="btn btn-secondary" onclick="goToStep(4)"><i class="fas fa-arrow-left"></i> Back</button>
+                        <a href="ocr-policies.html" class="btn btn-danger"><i class="fas fa-times"></i> Discard All</a>
+                    </div>
+                </div>
+
+                <!-- ===== SUCCESS SCREEN ===== -->
+                <div class="form-panel" id="stepSuccess">
+                    <div class="success-screen">
+                        <div class="success-icon"><i class="fas fa-check"></i></div>
+                        <div class="success-title">Policy Created Successfully!</div>
+                        <div class="success-desc" id="successDesc">Your new policy is now active and protecting your endpoints.</div>
+                        <div class="success-actions">
+                            <a href="ocr-policies.html" class="btn btn-primary"><i class="fas fa-list"></i> View All Policies</a>
+                            <button class="btn btn-secondary" onclick="createAnother()"><i class="fas fa-plus"></i> Create Another Policy</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /policy-config -->
+        </div>
+    </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><i class="fas fa-check-circle" id="toastIcon"></i><span id="toastMsg">Saved!</span></div>
+
+<script>
+    if (!localStorage.getItem('isLoggedIn')) { window.location.href = 'index.html'; }
+
+    // ============ STATE ============
+    var currentStep    = 1;
+    var totalSteps     = 5;
+    var selectedSeverity = 'Critical';
+    var selectedAction   = 'block';
+
+    // ============ STEP NAVIGATION ============
+    function goToStep(step) {
+        if (step === 2 && !validateStep1()) return;
+
+        // Hide all panels
+        for (var i = 1; i <= totalSteps; i++) {
+            var p = document.getElementById('step' + i);
+            if (p) p.classList.remove('active');
+        }
+
+        // Update circles
+        for (var i = 1; i <= totalSteps; i++) {
+            var circle = document.getElementById('stepCircle' + i);
+            var label  = document.getElementById('stepLabel' + i);
+            var conn   = document.getElementById('connector' + i);
+            if (i < step) {
+                circle.className = 'step-circle done';
+                circle.innerHTML = '<i class="fas fa-check" style="font-size:0.8em;"></i>';
+                if (label) { label.className = 'step-label done'; }
+                if (conn)  { conn.className  = 'step-connector done'; }
+            } else if (i === step) {
+                circle.className = 'step-circle active';
+                circle.textContent = i;
+                if (label) { label.className = 'step-label active'; }
+            } else {
+                circle.className = 'step-circle';
+                circle.textContent = i;
+                if (label) { label.className = 'step-label'; }
+                if (conn)  { conn.className  = 'step-connector'; }
+            }
+        }
+
+        currentStep = step;
+        var panel = document.getElementById('step' + step);
+        if (panel) { panel.classList.add('active'); }
+
+        if (step === 5) buildReview();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ============ VALIDATION ============
+    function validateStep1() {
+        var name = document.getElementById('policyName').value.trim();
+        var err  = document.getElementById('policyNameErr');
+        var inp  = document.getElementById('policyName');
+        if (!name) {
+            err.classList.add('show');
+            inp.classList.add('error');
+            inp.focus();
+            return false;
+        }
+        err.classList.remove('show');
+        inp.classList.remove('error');
+        return true;
+    }
+
+    // ============ SEVERITY ============
+    function selectSeverity(el, label) {
+        document.querySelectorAll('.severity-card').forEach(function(c) {
+            c.classList.remove('selected','critical','high','medium','low');
+        });
+        el.classList.add('selected');
+        var classMap = { 'Critical':'critical','High':'high','Medium':'medium','Low':'low' };
+        el.classList.add(classMap[label] || '');
+        selectedSeverity = label;
+    }
+
+    // ============ ACTION CARD ============
+    function selectAction(el, key) {
+        document.querySelectorAll('.action-card').forEach(function(c) { c.classList.remove('selected'); });
+        el.classList.add('selected');
+        selectedAction = key;
+    }
+
+    // ============ SENSITIVITY ============
+    function updateSensitivity(val) {
+        document.getElementById('sensitivityLabel').textContent = val;
+        var hint = document.getElementById('sensitivityHint');
+        var v = parseInt(val);
+        if (v < 30)       hint.textContent = 'Low — fewer false positives, may miss some data.';
+        else if (v < 60)  hint.textContent = 'Below average — permissive scanning.';
+        else if (v < 80)  hint.textContent = 'Balanced — recommended for most environments.';
+        else if (v < 90)  hint.textContent = 'High — thorough scanning, more alerts expected.';
+        else              hint.textContent = 'Very high — maximum detection, expect false positives.';
+    }
+
+    // ============ CHECKBOX TOGGLE ============
+    function toggleCheck(el) {
+        var cb = el.querySelector('input[type="checkbox"]');
+        if (event.target === cb) return; // native click already handled
+        cb.checked = !cb.checked;
+        el.classList.toggle('checked', cb.checked);
+    }
+    // Sync checked state on load
+    document.querySelectorAll('.checkbox-item').forEach(function(el) {
+        var cb = el.querySelector('input[type="checkbox"]');
+        if (cb && cb.checked) el.classList.add('checked');
+        cb && cb.addEventListener('change', function() { el.classList.toggle('checked', cb.checked); });
+    });
+
+    // ============ KEYWORDS ============
+    function addKeyword() {
+        var inp = document.getElementById('keywordInput');
+        var val = inp.value.trim();
+        if (!val) return;
+        var list = document.getElementById('keywordsList');
+        var tag  = document.createElement('span');
+        tag.className = 'keyword-tag';
+        tag.innerHTML = escapeHtml(val) + ' <i class="fas fa-times" onclick="removeKeyword(this)"></i>';
+        list.appendChild(tag);
+        inp.value = '';
+        inp.focus();
+    }
+    function removeKeyword(icon) { icon.parentElement.remove(); }
+
+    // ============ SCHEDULE ============
+    function toggleScheduleOptions(val) {
+        var opts = document.getElementById('scheduleOptions');
+        opts.style.display = (val === 'business' || val === 'custom') ? 'block' : 'none';
+    }
+    function toggleDay(btn) { btn.classList.toggle('selected'); }
+
+    // ============ CHAR COUNTER ============
+    function updateCharCount(el, counterId, max) {
+        var len = el.value.length;
+        var ctr = document.getElementById(counterId);
+        ctr.textContent = len + ' / ' + max;
+        ctr.className = 'char-counter' + (len > max * 0.9 ? (len >= max ? ' over' : ' warn') : '');
+    }
+
+    // ============ REVIEW BUILD ============
+    function buildReview() {
+        // Step 1
+        var name  = document.getElementById('policyName').value.trim() || '—';
+        var desc  = document.getElementById('policyDesc').value.trim() || 'No description';
+        var scope = document.getElementById('policyScope');
+        var type  = document.getElementById('policyType');
+        var prio  = document.getElementById('policyPriority');
+        var enabled = document.getElementById('policyEnabled').checked;
+        set('rv-name',      name);
+        set('rv-desc',      desc.length > 80 ? desc.slice(0,80)+'…' : desc);
+        set('rv-severity',  selectedSeverity);
+        set('rv-type',      type ? type.options[type.selectedIndex].text : '—');
+        set('rv-scope',     scope ? scope.options[scope.selectedIndex].text : '—');
+        set('rv-priority',  prio ? prio.options[prio.selectedIndex].text : '—');
+        set('rv-status',    enabled ? '✅ Active' : '⏸ Draft');
+
+        // Step 2
+        var sens    = document.getElementById('sensitivitySlider').value;
+        var engine  = document.getElementById('ocrEngine');
+        var confSel = document.getElementById('minConfidence');
+        set('rv-sensitivity', sens + '%');
+        set('rv-engine',      engine ? engine.options[engine.selectedIndex].text : '—');
+        set('rv-confidence',  confSel ? confSel.options[confSel.selectedIndex].text : '—');
+
+        // Data types
+        var dtLabels = {cc:'Credit Card',ssn:'SSN',bank:'Bank Acct',email:'Email',phone:'Phone',passport:'Passport',medical:'Medical',confidential:'Doc Labels'};
+        var dtTags = [];
+        Object.keys(dtLabels).forEach(function(id) {
+            var cb = document.getElementById(id);
+            if (cb && cb.checked) dtTags.push('<span class="review-tag">' + dtLabels[id] + '</span>');
+        });
+        document.getElementById('rv-datatypes').innerHTML = dtTags.length ? dtTags.join('') : '<span style="color:#9ca3af;">None selected</span>';
+
+        // Keywords
+        var kwTags = [];
+        document.querySelectorAll('#keywordsList .keyword-tag').forEach(function(t) {
+            var txt = t.textContent.replace('×','').trim();
+            if (txt) kwTags.push('<span class="review-tag">' + escapeHtml(txt) + '</span>');
+        });
+        document.getElementById('rv-keywords').innerHTML = kwTags.length ? kwTags.join('') : '<span style="color:#9ca3af;">None</span>';
+
+        // Step 3
+        var actionLabels = {block:'Block & Alert', alert:'Alert Only', log:'Log Silently', quarantine:'Block & Quarantine'};
+        set('rv-action',    actionLabels[selectedAction] || selectedAction);
+        set('rv-notify',    document.getElementById('notifyUser').checked   ? 'Yes' : 'No');
+        set('rv-alertadmin',document.getElementById('alertAdmin').checked   ? 'Yes' : 'No');
+        set('rv-evidence',  document.getElementById('saveEvidence').checked ? 'Yes' : 'No');
+        set('rv-suspend',   document.getElementById('autoSuspend').checked  ? 'Yes' : 'No');
+        var esc = document.getElementById('escalationLevel');
+        set('rv-escalation', esc ? esc.options[esc.selectedIndex].text : '—');
+
+        // Step 4
+        var sch  = document.getElementById('scheduleMode');
+        var sint = document.getElementById('scanInterval');
+        var maxv = document.getElementById('maxViolations');
+        set('rv-schedule',     sch  ? sch.options[sch.selectedIndex].text : '—');
+        set('rv-interval',     sint ? sint.options[sint.selectedIndex].text : '—');
+        set('rv-maxviolations',maxv ? maxv.options[maxv.selectedIndex].text : '—');
+    }
+
+    function set(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; }
+    function updateReview() { /* live update breadcrumb title */ }
+
+    // ============ CREATE POLICY ============
+    function createPolicyFinal() {
+        if (!validateStep1()) { goToStep(1); return; }
+        var name    = document.getElementById('policyName').value.trim();
+        var enabled = document.getElementById('policyEnabled').checked;
+
+        var btn = document.getElementById('createPolicyBtn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating…';
+        btn.disabled  = true;
+
+        setTimeout(function() {
+            // Hide all steps, show success
+            for (var i = 1; i <= totalSteps; i++) {
+                var p = document.getElementById('step' + i);
+                if (p) p.classList.remove('active');
+            }
+            // Mark all steps done
+            for (var i = 1; i <= totalSteps; i++) {
+                var circle = document.getElementById('stepCircle' + i);
+                var label  = document.getElementById('stepLabel' + i);
+                var conn   = document.getElementById('connector' + i);
+                if (circle) { circle.className = 'step-circle done'; circle.innerHTML = '<i class="fas fa-check" style="font-size:0.8em;"></i>'; }
+                if (label)  { label.className  = 'step-label done'; }
+                if (conn)   { conn.className   = 'step-connector done'; }
+            }
+
+            document.getElementById('successDesc').textContent =
+                '"' + name + '" has been saved and is now ' +
+                (enabled ? 'active across your selected endpoints.' : 'saved as a draft.');
+            document.getElementById('stepSuccess').classList.add('active');
+            showToast('Policy "' + name + '" created!', false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 1200);
+    }
+
+    function createAnother() {
+        // Reset everything and go back to step 1
+        document.getElementById('stepSuccess').classList.remove('active');
+        document.getElementById('policyName').value = '';
+        document.getElementById('policyDesc').value = '';
+        document.getElementById('policyEnabled').checked = true;
+        selectedSeverity = 'Critical';
+        selectedAction   = 'block';
+        document.querySelectorAll('.severity-card').forEach(function(c) { c.classList.remove('selected','critical','high','medium','low'); });
+        document.getElementById('sev-critical').classList.add('selected','critical');
+        document.querySelectorAll('.action-card').forEach(function(c) { c.classList.remove('selected'); });
+        document.getElementById('action-block').classList.add('selected');
+        document.getElementById('createPolicyBtn').innerHTML = '<i class="fas fa-check"></i> Create Policy';
+        document.getElementById('createPolicyBtn').disabled = false;
+        goToStep(1);
+    }
+
+    // ============ TOAST ============
+    function showToast(msg, isError) {
+        var t   = document.getElementById('toast');
+        var ico = document.getElementById('toastIcon');
+        document.getElementById('toastMsg').textContent = msg;
+        t.className = 'toast' + (isError ? ' error' : '');
+        ico.className = isError ? 'fas fa-circle-exclamation' : 'fas fa-check-circle';
+        t.classList.add('show');
+        setTimeout(function() { t.classList.remove('show'); }, 3000);
+    }
+
+    // ============ HELPERS ============
+    function escapeHtml(text) {
+        var d = document.createElement('div');
+        d.appendChild(document.createTextNode(text));
+        return d.innerHTML;
+    }
+
+    // ============ SIDEBAR & HEADER (exact same as all pages) ============
+    function toggleSubMenu(element) {
+        var sidebar = document.getElementById('sidebar');
+        if (sidebar.classList.contains('collapsed')) return;
+        var subMenu = element.nextElementSibling;
+        document.querySelectorAll('.sub-menu').forEach(function(m) { if (m !== subMenu) m.classList.remove('open'); });
+        document.querySelectorAll('.nav-dropdown').forEach(function(l) { if (l !== element) l.classList.remove('expanded'); });
+        element.classList.toggle('expanded');
+        subMenu.classList.toggle('open');
+    }
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        var mainContent = document.getElementById('mainContent');
+        var header = document.getElementById('topHeader');
+        sidebar.classList.toggle('collapsed');
+        var isCollapsed = sidebar.classList.contains('collapsed');
+        if (mainContent) mainContent.classList.toggle('expanded');
+        if (header) header.style.left = isCollapsed ? '70px' : '240px';
+        if (isCollapsed) { document.querySelectorAll('.sub-menu').forEach(function(m) { m.classList.remove('open'); }); document.querySelectorAll('.nav-dropdown').forEach(function(l) { l.classList.remove('expanded'); }); }
+    }
+    function toggleMobileMenu() {
+        var sidebar = document.getElementById('sidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        if (sidebar.classList.contains('mobile-open')) { closeMobileSidebar(); } else { sidebar.classList.add('mobile-open'); overlay.classList.add('active'); }
+    }
+    function closeMobileSidebar() { document.getElementById('sidebar').classList.remove('mobile-open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
+    function toggleNotifications(event) {
+        event.stopPropagation();
+        var panel = document.getElementById('notificationsPanel');
+        var overlay = document.getElementById('notificationOverlay');
+        if (panel.classList.contains('show')) { closeNotifications(); } else { closeUserDropdown(); panel.classList.add('show'); overlay.classList.add('show'); event.currentTarget.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    }
+    function closeNotifications() {
+        var p = document.getElementById('notificationsPanel');
+        var o = document.getElementById('notificationOverlay');
+        var b = document.querySelector('.notification-btn');
+        if (p) p.classList.remove('show');
+        if (o) o.classList.remove('show');
+        if (b) b.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    function switchTab(event, tabName) {
+        document.querySelectorAll('.tab-btn').forEach(function(t) { t.classList.remove('active'); });
+        event.currentTarget.classList.add('active');
+        document.querySelectorAll('.notification-item').forEach(function(item) {
+            item.style.display = (tabName === 'unread' && !item.classList.contains('unread')) ? 'none' : 'flex';
+        });
+    }
+    function toggleUserDropdown(event) {
+        event.stopPropagation();
+        var dropdown = document.getElementById('userDropdown');
+        if (dropdown.classList.contains('show')) { closeUserDropdown(); } else { closeNotifications(); dropdown.classList.add('show'); event.currentTarget.classList.add('active'); }
+    }
+    function closeUserDropdown() {
+        var d = document.getElementById('userDropdown');
+        var u = document.querySelector('.user-profile');
+        if (d) d.classList.remove('show');
+        if (u) u.classList.remove('active');
+    }
+    function logout(event) { event.preventDefault(); localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userEmail'); window.location.href = 'index.html'; }
+    function loadUserInfo() {
+        var email = localStorage.getItem('userEmail');
+        if (email) {
+            var n   = email.split('@')[0];
+            var ini = n.split('.').map(function(x) { return x[0] ? x[0].toUpperCase() : ''; }).join('');
+            var fn  = n.split('.').map(function(x) { return x.charAt(0).toUpperCase() + x.slice(1); }).join(' ');
+            var el  = document.getElementById('userName');
+            var av  = document.getElementById('userAvatar');
+            if (el) el.textContent = fn;
+            if (av) av.textContent = ini;
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        var u  = document.querySelector('.user-profile');
+        var nb = document.querySelector('.notification-btn');
+        var np = document.getElementById('notificationsPanel');
+        if (u && !u.contains(e.target)) closeUserDropdown();
+        if (nb && np && !nb.contains(e.target) && !np.contains(e.target)) closeNotifications();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { closeNotifications(); closeUserDropdown(); closeMobileSidebar(); }
+    });
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 968) {
+            closeMobileSidebar();
+            var s = document.getElementById('sidebar');
+            var h = document.getElementById('topHeader');
+            if (s && h) h.style.left = s.classList.contains('collapsed') ? '70px' : '240px';
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        loadUserInfo();
+        // Set initial header left
+        var s = document.getElementById('sidebar');
+        var h = document.getElementById('topHeader');
+        if (s && h) h.style.left = window.innerWidth <= 968 ? '0' : (s.classList.contains('collapsed') ? '70px' : '240px');
+    });
+</script>
+</body>
+</html>
