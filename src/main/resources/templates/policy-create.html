@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -767,7 +767,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-check"></i> Create Policy
                             </button>
-                            <a href="file-policies.html" class="btn btn-secondary">
+                            <a href="file-policies" class="btn btn-secondary">
                                 <i class="fas fa-times"></i> Cancel
                             </a>
                         </div>
@@ -792,11 +792,11 @@
                const result = await response.json();
 
                if (!result.success) {
-                   window.location.href = "index.html";
+                   window.location.href = "index";
                }
 
            } catch (err) {
-               window.location.href = "index.html";
+               window.location.href = "index";
            }
        }
 
@@ -1022,7 +1022,7 @@
             alert('Policy created successfully!');
             
             // Redirect to policies list
-            window.location.href = 'file-policies.html';
+            window.location.href = 'file-policies';
         });
 
         // Load components
@@ -1063,8 +1063,8 @@
 
         // Load components when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            loadComponent('sidebar.html', 'sidebarContainer');
-            loadComponent('page-header.html', 'headerContainer');
+            loadComponent('sidebar', 'sidebarContainer');
+            loadComponent('page-header', 'headerContainer');
         });
 
         // Handle sidebar toggle

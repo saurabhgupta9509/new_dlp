@@ -139,17 +139,32 @@ public class PageController {
 
     @GetMapping("/agent-add")
     public String agentAddPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "agent-add");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "agent-add";
     }
 
     @GetMapping("/agent-edit")
     public String agentEditPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "agent-edit");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "agent-edit";
     }
 
     @GetMapping("/agent-view")
     public String agentViewPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "agent-view");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "agent-view";
     }
 
     @GetMapping("/alerts")
@@ -165,97 +180,193 @@ public class PageController {
 
     @GetMapping("/alert-details")
     public String alertsDetailsPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "alert-details");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "alert-details";
     }
 
     @GetMapping("/assign-policy")
     public String assignPolicyPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "assign-policy");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "assign-policy";
     }
 
     @GetMapping("/audit-logs")
     public String auditLogsPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "audit-logs");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "audit-logs";
+
     }
 
     @GetMapping("/data-retention")
     public String dataRetentionPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "data-retention");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "data-retention";
     }
 
     @GetMapping("/device-logs")
     public String deviceLogsPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "device-logs");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "device-logs";
     }
 
     @GetMapping("/file-policies")
     public String filePoliciesPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "file-policies");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "file-policies";
     }
 
     @GetMapping("/general")
     public String generalPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "general");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "general";
     }
 
     @GetMapping("/generate-report")
     public String generateReportPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "generate-report");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "generate-report";
     }
 
     @GetMapping("/integrations")
     public String integrationsPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "integrations");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "integrations";
     }
 
     @GetMapping("/ocr-dashboard")
     public String ocrDashboardPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "ocr-dashboard");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "ocr-dashboard";
     }
 
     @GetMapping("/ocr-policies")
     public String ocrPoliciesPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "ocr-policies");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "ocr-policies";
     }
 
     @GetMapping("/permissions")
     public String permissionsPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "permissions");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "permissions";
     }
 
     @GetMapping("/policy-create")
     public String policyCreatePage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "policy-create");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "policy-create";
     }
 
     @GetMapping("/policy-edit")
     public String policyEditPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "policy-edit");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "policy-edit";
     }
 
     @GetMapping("/policy-view")
     public String policyViewPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "policy-view");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "policy-view";
     }
 
     @GetMapping("/reports")
     public String reportsPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "reports");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "reports";
     }
 
     @GetMapping("/roles")
     public String rolesPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "roles");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "roles";
     }
 
     @GetMapping("/security")
     public String securityPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "security");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "security";
     }
 
     @GetMapping("/users")
     public String usersPage(HttpSession session, Model model) {
-        return checkAuthAndReturn(session, model, "users");
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "users";
     }
 
     @GetMapping("/index")

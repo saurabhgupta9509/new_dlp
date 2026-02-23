@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -259,48 +259,48 @@
             <div class="sidebar-title">DLP Shield</div>
         </div>
         <nav class="nav-menu">
-            <div class="nav-item"><a href="dashboard.html" class="nav-link" data-page="dashboard"><i class="fas fa-th-large"></i><span>Dashboard</span></a></div>
-            <div class="nav-item"><a href="alerts.html" class="nav-link" data-page="alerts"><i class="fas fa-triangle-exclamation"></i><span>Alerts &amp; Incidents</span></a></div>
+            <div class="nav-item"><a href="dashboard" class="nav-link" data-page="dashboard"><i class="fas fa-th-large"></i><span>Dashboard</span></a></div>
+            <div class="nav-item"><a href="alerts" class="nav-link" data-page="alerts"><i class="fas fa-triangle-exclamation"></i><span>Alerts &amp; Incidents</span></a></div>
             <div class="nav-item">
                 <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)"><i class="fas fa-shield-alt"></i><span>Policies</span><i class="fas fa-chevron-down chevron-icon"></i></div>
                 <div class="sub-menu">
-                    <a href="manage-agents.html" class="sub-menu-item">Manage Agents</a>
-                    <a href="file-policies.html" class="sub-menu-item">File Policies</a>
-                    <a href="assign-policy.html" class="sub-menu-item">Assign Policy</a>
+                    <a href="manage-agents" class="sub-menu-item">Manage Agents</a>
+                    <a href="file-policies" class="sub-menu-item">File Policies</a>
+                    <a href="assign-policy" class="sub-menu-item">Assign Policy</a>
                 </div>
             </div>
-            <div class="nav-item"><a href="agents.html" class="nav-link" data-page="agents"><i class="fas fa-desktop"></i><span>Agents / Endpoints</span></a></div>
+            <div class="nav-item"><a href="agents" class="nav-link" data-page="agents"><i class="fas fa-desktop"></i><span>Agents / Endpoints</span></a></div>
             <div class="nav-item">
                 <div class="nav-link nav-dropdown expanded" onclick="toggleSubMenu(this)"><i class="fas fa-eye"></i><span>OCR &amp; Image Analysis</span><i class="fas fa-chevron-down chevron-icon"></i></div>
                 <div class="sub-menu open">
-                    <a href="ocr-dashboard.html" class="sub-menu-item active" data-page="ocr-dashboard">OCR Dashboard</a>
-                    <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>
+                    <a href="ocr-dashboard" class="sub-menu-item active" data-page="ocr-dashboard">OCR Dashboard</a>
+<!--                    <a href="ocr-policies" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>-->
                 </div>
             </div>
             <div class="nav-item">
                 <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)"><i class="fas fa-file-lines"></i><span>Reports &amp; Logs</span><i class="fas fa-chevron-down chevron-icon"></i></div>
                 <div class="sub-menu">
-                    <a href="reports.html" class="sub-menu-item">Reports</a>
-                    <a href="generate-report.html" class="sub-menu-item">Generate Report</a>
-                    <a href="audit-logs.html" class="sub-menu-item">Audit Logs</a>
-                    <a href="device-logs.html" class="sub-menu-item">Device Logs</a>
+                    <a href="reports" class="sub-menu-item">Reports</a>
+                    <a href="generate-report" class="sub-menu-item">Generate Report</a>
+                    <a href="audit-logs" class="sub-menu-item">Audit Logs</a>
+                    <a href="device-logs" class="sub-menu-item">Device Logs</a>
                 </div>
             </div>
             <div class="nav-item">
                 <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)"><i class="fas fa-users"></i><span>Users &amp; Roles</span><i class="fas fa-chevron-down chevron-icon"></i></div>
                 <div class="sub-menu">
-                    <a href="users.html" class="sub-menu-item">Users</a>
-                    <a href="roles.html" class="sub-menu-item">Roles &amp; Permissions</a>
-                    <a href="permissions.html" class="sub-menu-item">Permissions</a>
+                    <a href="users" class="sub-menu-item">Users</a>
+                    <a href="roles" class="sub-menu-item">Roles &amp; Permissions</a>
+                    <a href="permissions" class="sub-menu-item">Permissions</a>
                 </div>
             </div>
             <div class="nav-item">
                 <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)"><i class="fas fa-gear"></i><span>Settings</span><i class="fas fa-chevron-down chevron-icon"></i></div>
                 <div class="sub-menu">
-                    <a href="general.html" class="sub-menu-item">General</a>
-                    <a href="security.html" class="sub-menu-item">Security</a>
-                    <a href="integrations.html" class="sub-menu-item">Integrations</a>
-                    <a href="data-retention.html" class="sub-menu-item">Data Retention</a>
+                    <a href="general" class="sub-menu-item">General</a>
+                    <a href="security" class="sub-menu-item">Security</a>
+                    <a href="integrations" class="sub-menu-item">Integrations</a>
+                    <a href="data-retention" class="sub-menu-item">Data Retention</a>
                 </div>
             </div>
         </nav>
@@ -330,10 +330,10 @@
                 </div>
                 <i class="fas fa-chevron-down dropdown-icon"></i>
                 <div class="user-dropdown" id="userDropdown">
-                    <a href="general.html" class="dropdown-item"><i class="fas fa-gear"></i><span>Settings</span></a>
+                    <a href="general" class="dropdown-item"><i class="fas fa-gear"></i><span>Settings</span></a>
                     <a href="#" class="dropdown-item"><i class="fas fa-circle-question"></i><span>Help &amp; Support</span></a>
                     <div class="dropdown-divider"></div>
-                    <a href="index.html" class="dropdown-item danger" onclick="logout(event)"><i class="fas fa-right-from-bracket"></i><span>Sign out</span></a>
+                    <a href="index" class="dropdown-item danger" onclick="logout(event)"><i class="fas fa-right-from-bracket"></i><span>Sign out</span></a>
                 </div>
             </div>
         </div>
@@ -377,7 +377,7 @@
                 </div>
             </div>
         </div>
-        <div class="notifications-footer"><a href="alerts.html" class="view-all-btn">View All Notifications</a></div>
+        <div class="notifications-footer"><a href="alerts" class="view-all-btn">View All Notifications</a></div>
     </div>
     <div class="notification-overlay" id="notificationOverlay" onclick="closeNotifications()"></div>
 
@@ -387,9 +387,9 @@
 
             <!-- Breadcrumb -->
             <div class="breadcrumb">
-                <a href="ocr-dashboard.html"><i class="fas fa-eye"></i> OCR Dashboard</a>
+                <a href="ocr-dashboard"><i class="fas fa-eye"></i> OCR Dashboard</a>
                 <i class="fas fa-chevron-right"></i>
-                <a href="ocr-agent-view.html" id="viewBreadcrumb">DESKTOP-ABC123</a>
+                <a href="ocr-agent-view" id="viewBreadcrumb">DESKTOP-ABC123</a>
                 <i class="fas fa-chevron-right"></i>
                 <span>Edit</span>
             </div>
@@ -407,7 +407,7 @@
                     <button class="btn btn-success" onclick="saveAgent()">
                         <i class="fas fa-check"></i><span>Save Changes</span>
                     </button>
-                    <a href="ocr-agent-view.html" class="btn btn-secondary" id="cancelBtn">
+                    <a href="ocr-agent-view" class="btn btn-secondary" id="cancelBtn">
                         <i class="fas fa-times"></i><span>Cancel</span>
                     </a>
                 </div>
@@ -865,7 +865,7 @@
                             <span>Last saved: Never — unsaved changes</span>
                         </div>
                         <div class="action-bar-right">
-                            <a href="ocr-agent-view.html" class="btn btn-secondary" id="cancelBtn2"><i class="fas fa-times"></i> Cancel</a>
+                            <a href="ocr-agent-view" class="btn btn-secondary" id="cancelBtn2"><i class="fas fa-times"></i> Cancel</a>
                             <button class="btn btn-success" onclick="saveAgent()"><i class="fas fa-check"></i> Save Changes</button>
                         </div>
                     </div>
@@ -884,7 +884,7 @@
 </div>
 
 <script>
-    if (!localStorage.getItem('isLoggedIn')) { window.location.href = 'index.html'; }
+    if (!localStorage.getItem('isLoggedIn')) { window.location.href = 'index'; }
 
     const urlParams = new URLSearchParams(window.location.search);
     const agentId = urlParams.get('agent') || 'DESKTOP-ABC123';
@@ -902,9 +902,9 @@
         document.getElementById('fieldHostname').value = data.name;
         document.getElementById('fieldUser').value = data.user;
         document.getElementById('viewBreadcrumb').textContent = data.name;
-        document.getElementById('viewBreadcrumb').href = 'ocr-agent-view.html?agent=' + encodeURIComponent(data.name);
-        document.getElementById('cancelBtn').href = 'ocr-agent-view.html?agent=' + encodeURIComponent(data.name);
-        document.getElementById('cancelBtn2').href = 'ocr-agent-view.html?agent=' + encodeURIComponent(data.name);
+        document.getElementById('viewBreadcrumb').href = 'ocr-agent-view?agent=' + encodeURIComponent(data.name);
+        document.getElementById('cancelBtn').href = 'ocr-agent-view?agent=' + encodeURIComponent(data.name);
+        document.getElementById('cancelBtn2').href = 'ocr-agent-view?agent=' + encodeURIComponent(data.name);
 
         var deptSel = document.getElementById('fieldDept');
         for (var i = 0; i < deptSel.options.length; i++) {
@@ -997,7 +997,7 @@
     function switchTab(event, tabName) { document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active')); event.currentTarget.classList.add('active'); document.querySelectorAll('.notification-item').forEach(item => { item.style.display = (tabName === 'unread' && !item.classList.contains('unread')) ? 'none' : 'flex'; }); }
     function toggleUserDropdown(event) { event.stopPropagation(); var dropdown = document.getElementById('userDropdown'); if (dropdown.classList.contains('show')) { closeUserDropdown(); } else { closeNotifications(); dropdown.classList.add('show'); event.currentTarget.classList.add('active'); } }
     function closeUserDropdown() { var d = document.getElementById('userDropdown'); var u = document.querySelector('.user-profile'); if (d) d.classList.remove('show'); if (u) u.classList.remove('active'); }
-    function logout(event) { event.preventDefault(); localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userEmail'); window.location.href = 'index.html'; }
+    function logout(event) { event.preventDefault(); localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userEmail'); window.location.href = 'index'; }
     function loadUserInfo() { var e = localStorage.getItem('userEmail'); if (e) { var n = e.split('@')[0]; var ini = n.split('.').map(x => x[0] ? x[0].toUpperCase() : '').join(''); var fn = n.split('.').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' '); var uname = document.querySelector('.user-name'); var uav = document.querySelector('.user-avatar'); if (uname) uname.textContent = fn; if (uav) uav.textContent = ini; } }
 
     document.addEventListener('click', function(e) { var u = document.querySelector('.user-profile'); var nb = document.querySelector('.notification-btn'); var np = document.getElementById('notificationsPanel'); if (u && !u.contains(e.target)) closeUserDropdown(); if (nb && np && !nb.contains(e.target) && !np.contains(e.target)) closeNotifications(); });

@@ -4,9 +4,11 @@ import com.ma.dlp.Repository.AgentCapabilityRepository;
 import com.ma.dlp.Repository.AlertRepository;
 import com.ma.dlp.Repository.UserRepository;
 import com.ma.dlp.StatDTO.AlertStatsDTO;
+import com.ma.dlp.StatDTO.DashboardStatsDTO;
 import com.ma.dlp.StatDTO.ManageAgentStatsDTO;
 import com.ma.dlp.model.User;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,4 +66,11 @@ public class ManageAgentStatsService {
 
         return stats;
     }
+
+    @Scheduled(fixedRate = 5000)
+    public void pushManageAgentStats() {
+        ManageAgentStatsDTO manageAgentStats = getManageAgentStats();
+        messagingTemplate.convertAndSend("/topic/dashboard-stats", manageAgentStats);
+    }
+
 }

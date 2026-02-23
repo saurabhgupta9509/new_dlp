@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -742,7 +742,7 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- ==================== SIDEBAR (copied from dashboard.html) ==================== -->
+        <!-- ==================== SIDEBAR (copied from dashboard) ==================== -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">
@@ -753,14 +753,14 @@
 
             <nav class="nav-menu">
                 <div class="nav-item">
-                    <a href="dashboard.html" class="nav-link" data-page="dashboard">
+                    <a href="dashboard" class="nav-link" data-page="dashboard">
                         <i class="fas fa-th-large"></i>
                         <span>Dashboard</span>
                     </a>
                 </div>
 
                 <div class="nav-item">
-                    <a href="alerts.html" class="nav-link" data-page="alerts">
+                    <a href="alerts" class="nav-link" data-page="alerts">
                         <i class="fas fa-triangle-exclamation"></i>
                         <span>Alerts &amp; Incidents</span>
                     </a>
@@ -773,18 +773,18 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="manage-agents.html" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
-                        <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a>
-                        <a href="assign-policy.html" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
+                        <a href="manage-agents" class="sub-menu-item" data-page="manage-agents">Manage Agents</a>
+                        <a href="file-policies" class="sub-menu-item" data-page="file-policies">File Policies</a>
+                        <a href="assign-policy" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
                     </div>
                 </div>
 
-                <div class="nav-item">
-                    <a href="agents.html" class="nav-link" data-page="agents">
-                        <i class="fas fa-desktop"></i>
-                        <span>Agents / Endpoints</span>
-                    </a>
-                </div>
+<!--                <div class="nav-item">-->
+<!--                    <a href="agents" class="nav-link" data-page="agents">-->
+<!--                        <i class="fas fa-desktop"></i>-->
+<!--                        <span>Agents / Endpoints</span>-->
+<!--                    </a>-->
+<!--                </div>-->
 
                 <div class="nav-item">
                     <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
@@ -793,8 +793,8 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="ocr-dashboard.html" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
-                        <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>
+                        <a href="ocr-dashboard" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
+<!--                        <a href="ocr-policies" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a>-->
                     </div>
                 </div>
 
@@ -805,10 +805,10 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="reports.html" class="sub-menu-item" data-page="reports">Reports</a>
-                        <a href="generate-report.html" class="sub-menu-item" data-page="generate-report">Generate Report</a>
-                        <a href="audit-logs.html" class="sub-menu-item" data-page="audit-logs">Audit Logs</a>
-                        <a href="device-logs.html" class="sub-menu-item active" data-page="device-logs">Device Logs</a>
+                        <a href="reports" class="sub-menu-item" data-page="reports">Reports</a>
+                        <a href="generate-report" class="sub-menu-item" data-page="generate-report">Generate Report</a>
+                        <a href="audit-logs" class="sub-menu-item" data-page="audit-logs">Audit Logs</a>
+                        <a href="device-logs" class="sub-menu-item active" data-page="device-logs">Device Logs</a>
                     </div>
                 </div>
 
@@ -819,9 +819,9 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="users.html" class="sub-menu-item" data-page="users">Users</a>
-                        <a href="roles.html" class="sub-menu-item" data-page="roles">Roles &amp; Permissions</a>
-                        <a href="permissions.html" class="sub-menu-item" data-page="permissions">Permissions</a>
+                        <a href="users" class="sub-menu-item" data-page="users">Users</a>
+                        <a href="roles" class="sub-menu-item" data-page="roles">Roles &amp; Permissions</a>
+                        <a href="permissions" class="sub-menu-item" data-page="permissions">Permissions</a>
                     </div>
                 </div>
 
@@ -832,10 +832,10 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="general.html" class="sub-menu-item" data-page="general">General</a>
-                        <a href="security.html" class="sub-menu-item" data-page="security">Security</a>
-                        <a href="integrations.html" class="sub-menu-item" data-page="integrations">Integrations</a>
-                        <a href="data-retention.html" class="sub-menu-item" data-page="data-retention">Data Retention</a>
+                        <a href="general" class="sub-menu-item" data-page="general">General</a>
+                        <a href="security" class="sub-menu-item" data-page="security">Security</a>
+                        <a href="integrations" class="sub-menu-item" data-page="integrations">Integrations</a>
+                        <a href="data-retention" class="sub-menu-item" data-page="data-retention">Data Retention</a>
                     </div>
                 </div>
             </nav>
@@ -851,7 +851,7 @@
         <!-- Mobile Overlay (for sidebar) -->
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
-        <!-- ==================== HEADER (copied from dashboard.html) ==================== -->
+        <!-- ==================== HEADER (copied from dashboard) ==================== -->
         <header class="top-header" id="topHeader">
             <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
                 <i class="fas fa-bars"></i>
@@ -877,7 +877,7 @@
                     <i class="fas fa-chevron-down dropdown-icon"></i>
 
                     <div class="user-dropdown" id="userDropdown">
-                        <a href="general.html" class="dropdown-item">
+                        <a href="general" class="dropdown-item">
                             <i class="fas fa-gear"></i>
                             <span>Settings</span>
                         </a>
@@ -886,7 +886,7 @@
                             <span>Help &amp; Support</span>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a href="index.html" class="dropdown-item danger" onclick="logout(event)">
+                        <a href="index" class="dropdown-item danger" onclick="logout(event)">
                             <i class="fas fa-right-from-bracket"></i>
                             <span>Sign out</span>
                         </a>
@@ -970,7 +970,7 @@
             </div>
 
             <div class="notifications-footer">
-                <a href="alerts.html" class="view-all-btn">View All Notifications</a>
+                <a href="alerts" class="view-all-btn">View All Notifications</a>
             </div>
         </div>
 
@@ -1122,11 +1122,9 @@
 
     <script>
         // ==================== AUTHENTICATION CHECK ====================
-        if (!localStorage.getItem('isLoggedIn')) {
-            window.location.href = 'index.html';
-        }
 
-        // ==================== SIDEBAR & HEADER FUNCTIONS (from dashboard.html) ====================
+
+        // ==================== SIDEBAR & HEADER FUNCTIONS (from dashboard) ====================
         function toggleSubMenu(element) {
             var sidebar = document.getElementById('sidebar');
             if (sidebar.classList.contains('collapsed')) return;
@@ -1261,12 +1259,12 @@
             event.preventDefault();
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('userEmail');
-            window.location.href = 'index.html';
+            window.location.href = 'index';
         }
 
         function setActiveMenuItem() {
-            var currentPage = window.location.pathname.split('/').pop() || 'device-logs.html';
-            if (!currentPage) currentPage = 'device-logs.html';
+            var currentPage = window.location.pathname.split('/').pop() || 'device-logs';
+            if (!currentPage) currentPage = 'device-log';
 
             // Main nav links
             document.querySelectorAll('.nav-link[data-page]').forEach(function (link) {

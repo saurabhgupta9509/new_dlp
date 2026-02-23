@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -529,7 +529,7 @@
             <div class="content-area">
                 <div class="page-header">
                     <div class="page-title-section">
-                        <a href="file-policies.html" class="back-btn" title="Back to Policies">
+                        <a href="file-policies" class="back-btn" title="Back to Policies">
                             <i class="fas fa-arrow-left"></i>
                         </a>
                         <div class="page-title-text">
@@ -543,7 +543,7 @@
                         </div>
                     </div>
                     <div class="action-buttons">
-                        <a href="policy-edit.html" class="btn btn-primary">
+                        <a href="policy-edit" class="btn btn-primary">
                             <i class="fas fa-edit"></i> Edit Policy
                         </a>
                         <button class="btn btn-danger" onclick="deletePolicy()">
@@ -732,11 +732,11 @@ External Storage Devices</div>
                const result = await response.json();
 
                if (!result.success) {
-                   window.location.href = "index.html";
+                   window.location.href = "index";
                }
 
            } catch (err) {
-               window.location.href = "index.html";
+               window.location.href = "index";
            }
        }
 
@@ -759,7 +759,7 @@ External Storage Devices</div>
                 // Show success message
                 alert('Policy deleted successfully!');
                 // Redirect to policies list
-                window.location.href = 'file-policies.html';
+                window.location.href = 'file-policies';
             }
         }
 
@@ -801,8 +801,8 @@ External Storage Devices</div>
 
         // Load components when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            loadComponent('sidebar.html', 'sidebarContainer');
-            loadComponent('page-header.html', 'headerContainer');
+            loadComponent('sidebar', 'sidebarContainer');
+            loadComponent('page-header', 'headerContainer');
             loadPolicyData();
         });
 

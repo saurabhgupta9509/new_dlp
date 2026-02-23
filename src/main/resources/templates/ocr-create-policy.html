@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -342,10 +342,10 @@
         </div>
         <nav class="nav-menu">
             <div class="nav-item">
-                <a href="dashboard.html" class="nav-link"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+                <a href="dashboard" class="nav-link"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
             </div>
             <div class="nav-item">
-                <a href="alerts.html" class="nav-link"><i class="fas fa-triangle-exclamation"></i><span>Alerts &amp; Incidents</span></a>
+                <a href="alerts" class="nav-link"><i class="fas fa-triangle-exclamation"></i><span>Alerts &amp; Incidents</span></a>
             </div>
             <div class="nav-item">
                 <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
@@ -353,13 +353,13 @@
                     <i class="fas fa-chevron-down chevron-icon"></i>
                 </div>
                 <div class="sub-menu">
-                    <a href="manage-agents.html" class="sub-menu-item">Manage Agents</a>
-                    <a href="file-policies.html" class="sub-menu-item">File Policies</a>
-                    <a href="assign-policy.html" class="sub-menu-item">Assign Policy</a>
+                    <a href="manage-agents" class="sub-menu-item">Manage Agents</a>
+                    <a href="file-policies" class="sub-menu-item">File Policies</a>
+                    <a href="assign-policy" class="sub-menu-item">Assign Policy</a>
                 </div>
             </div>
             <div class="nav-item">
-                <a href="agents.html" class="nav-link"><i class="fas fa-desktop"></i><span>Agents / Endpoints</span></a>
+                <a href="agents" class="nav-link"><i class="fas fa-desktop"></i><span>Agents / Endpoints</span></a>
             </div>
             <div class="nav-item">
                 <div class="nav-link nav-dropdown expanded" onclick="toggleSubMenu(this)">
@@ -367,8 +367,8 @@
                     <i class="fas fa-chevron-down chevron-icon"></i>
                 </div>
                 <div class="sub-menu open">
-                    <a href="ocr-dashboard.html" class="sub-menu-item">OCR Dashboard</a>
-                    <a href="ocr-policies.html"  class="sub-menu-item active">OCR Policies</a>
+                    <a href="ocr-dashboard" class="sub-menu-item">OCR Dashboard</a>
+<!--                    <a href="ocr-policies"  class="sub-menu-item active">OCR Policies</a>-->
                 </div>
             </div>
             <div class="nav-item">
@@ -377,9 +377,9 @@
                     <i class="fas fa-chevron-down chevron-icon"></i>
                 </div>
                 <div class="sub-menu">
-                    <a href="reports.html" class="sub-menu-item">Reports</a>
-                    <a href="audit-logs.html" class="sub-menu-item">Audit Logs</a>
-                    <a href="device-logs.html" class="sub-menu-item">Device Logs</a>
+                    <a href="reports" class="sub-menu-item">Reports</a>
+                    <a href="audit-logs" class="sub-menu-item">Audit Logs</a>
+                    <a href="device-logs" class="sub-menu-item">Device Logs</a>
                 </div>
             </div>
             <div class="nav-item">
@@ -388,8 +388,8 @@
                     <i class="fas fa-chevron-down chevron-icon"></i>
                 </div>
                 <div class="sub-menu">
-                    <a href="users.html" class="sub-menu-item">Users</a>
-                    <a href="roles.html" class="sub-menu-item">Roles &amp; Permissions</a>
+                    <a href="users" class="sub-menu-item">Users</a>
+                    <a href="roles" class="sub-menu-item">Roles &amp; Permissions</a>
                 </div>
             </div>
             <div class="nav-item">
@@ -398,9 +398,9 @@
                     <i class="fas fa-chevron-down chevron-icon"></i>
                 </div>
                 <div class="sub-menu">
-                    <a href="general.html" class="sub-menu-item">General</a>
-                    <a href="security.html" class="sub-menu-item">Security</a>
-                    <a href="integrations.html" class="sub-menu-item">Integrations</a>
+                    <a href="general" class="sub-menu-item">General</a>
+                    <a href="security" class="sub-menu-item">Security</a>
+                    <a href="integrations" class="sub-menu-item">Integrations</a>
                 </div>
             </div>
         </nav>
@@ -433,10 +433,10 @@
                 </div>
                 <i class="fas fa-chevron-down dropdown-icon"></i>
                 <div class="user-dropdown" id="userDropdown">
-                    <a href="general.html" class="dropdown-item"><i class="fas fa-gear"></i><span>Settings</span></a>
+                    <a href="general" class="dropdown-item"><i class="fas fa-gear"></i><span>Settings</span></a>
                     <a href="#" class="dropdown-item"><i class="fas fa-circle-question"></i><span>Help &amp; Support</span></a>
                     <div class="dropdown-divider"></div>
-                    <a href="index.html" class="dropdown-item danger" onclick="logout(event)"><i class="fas fa-right-from-bracket"></i><span>Sign out</span></a>
+                    <a href="index" class="dropdown-item danger" onclick="logout(event)"><i class="fas fa-right-from-bracket"></i><span>Sign out</span></a>
                 </div>
             </div>
         </div>
@@ -498,7 +498,7 @@
             </div>
         </div>
         <div class="notifications-footer">
-            <a href="alerts.html" class="view-all-btn">View All Notifications</a>
+            <a href="alerts" class="view-all-btn">View All Notifications</a>
         </div>
     </div>
     <div class="notification-overlay" id="notificationOverlay" onclick="closeNotifications()"></div>
@@ -508,11 +508,11 @@
         <div class="content-area">
 
             <!-- Breadcrumb -->
-            <div class="breadcrumb">
-                <a href="ocr-policies.html"><i class="fas fa-eye"></i> OCR Policies</a>
-                <i class="fas fa-chevron-right"></i>
-                <span>Create Policy</span>
-            </div>
+<!--            <div class="breadcrumb">-->
+<!--                <a href="ocr-policies"><i class="fas fa-eye"></i> OCR Policies</a>-->
+<!--                <i class="fas fa-chevron-right"></i>-->
+<!--                <span>Create Policy</span>-->
+<!--            </div>-->
 
             <!-- Page Header -->
             <div class="page-header">
@@ -523,7 +523,7 @@
                         <p class="page-subtitle">Define a new screen monitoring and detection policy</p>
                     </div>
                 </div>
-                <a href="ocr-policies.html" class="btn btn-secondary">
+                <a href="ocr-policies" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i><span>Back to Policies</span>
                 </a>
             </div>
@@ -653,7 +653,7 @@
 
                     <div class="btn-group">
                         <button class="btn btn-primary" onclick="goToStep(2)"><i class="fas fa-arrow-right"></i> Continue to Detection</button>
-                        <a href="ocr-policies.html" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+                        <a href="ocr-policies" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
                     </div>
                 </div>
 
@@ -1068,7 +1068,7 @@
                             <i class="fas fa-check"></i> Create Policy
                         </button>
                         <button class="btn btn-secondary" onclick="goToStep(4)"><i class="fas fa-arrow-left"></i> Back</button>
-                        <a href="ocr-policies.html" class="btn btn-danger"><i class="fas fa-times"></i> Discard All</a>
+                        <a href="ocr-policies" class="btn btn-danger"><i class="fas fa-times"></i> Discard All</a>
                     </div>
                 </div>
 
@@ -1079,7 +1079,7 @@
                         <div class="success-title">Policy Created Successfully!</div>
                         <div class="success-desc" id="successDesc">Your new policy is now active and protecting your endpoints.</div>
                         <div class="success-actions">
-                            <a href="ocr-policies.html" class="btn btn-primary"><i class="fas fa-list"></i> View All Policies</a>
+                            <a href="ocr-policies" class="btn btn-primary"><i class="fas fa-list"></i> View All Policies</a>
                             <button class="btn btn-secondary" onclick="createAnother()"><i class="fas fa-plus"></i> Create Another Policy</button>
                         </div>
                     </div>
@@ -1094,7 +1094,7 @@
 <div class="toast" id="toast"><i class="fas fa-check-circle" id="toastIcon"></i><span id="toastMsg">Saved!</span></div>
 
 <script>
-    if (!localStorage.getItem('isLoggedIn')) { window.location.href = 'index.html'; }
+    if (!localStorage.getItem('isLoggedIn')) { window.location.href = 'index'; }
 
     // ============ STATE ============
     var currentStep    = 1;
@@ -1425,7 +1425,7 @@
         if (d) d.classList.remove('show');
         if (u) u.classList.remove('active');
     }
-    function logout(event) { event.preventDefault(); localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userEmail'); window.location.href = 'index.html'; }
+    function logout(event) { event.preventDefault(); localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userEmail'); window.location.href = 'index'; }
     function loadUserInfo() {
         var email = localStorage.getItem('userEmail');
         if (email) {

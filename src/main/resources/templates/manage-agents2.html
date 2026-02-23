@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1082,14 +1082,14 @@
 
             <nav class="nav-menu">
                 <div class="nav-item">
-                    <a href="dashboard.html" class="nav-link" data-page="dashboard">
+                    <a href="dashboard" class="nav-link" data-page="dashboard">
                         <i class="fas fa-th-large"></i>
                         <span>Dashboard</span>
                     </a>
                 </div>
 
                 <div class="nav-item">
-                    <a href="alerts.html" class="nav-link" data-page="alerts">
+                    <a href="alerts" class="nav-link" data-page="alerts">
                         <i class="fas fa-triangle-exclamation"></i>
                         <span>Alerts &amp; Incidents</span>
                     </a>
@@ -1102,14 +1102,14 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="manage-agents.html" class="sub-menu-item active" data-page="manage-agents">Manage Agents</a>
-                        <!-- <a href="file-policies.html" class="sub-menu-item" data-page="file-policies">File Policies</a> -->
-                        <a href="assign-policy.html" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
+                        <a href="manage-agents" class="sub-menu-item active" data-page="manage-agents">Manage Agents</a>
+                        <!-- <a href="file-policies" class="sub-menu-item" data-page="file-policies">File Policies</a> -->
+                        <a href="assign-policy" class="sub-menu-item" data-page="assign-policy">Assign Policy</a>
                     </div>
                 </div>
 
                 <!-- <div class="nav-item">
-                    <a href="agents.html" class="nav-link" data-page="agents">
+                    <a href="agents" class="nav-link" data-page="agents">
                         <i class="fas fa-desktop"></i>
                         <span>Agents / Endpoints</span>
                     </a>
@@ -1122,8 +1122,8 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="ocr-dashboard.html" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
-                        <!-- <a href="ocr-policies.html" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a> -->
+                        <a href="ocr-dashboard" class="sub-menu-item" data-page="ocr-dashboard">OCR Dashboard</a>
+                        <!-- <a href="ocr-policies" class="sub-menu-item" data-page="ocr-policies">OCR Policies</a> -->
                     </div>
                 </div>
 
@@ -1134,10 +1134,10 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="reports.html" class="sub-menu-item" data-page="reports">Reports</a>
-                        <a href="generate-report.html" class="sub-menu-item" data-page="generate-report">Generate Report</a>
-                        <a href="audit-logs.html" class="sub-menu-item" data-page="audit-logs">Audit Logs</a>
-                        <a href="device-logs.html" class="sub-menu-item" data-page="device-logs">Device Logs</a>
+                        <a href="reports" class="sub-menu-item" data-page="reports">Reports</a>
+                        <a href="generate-report" class="sub-menu-item" data-page="generate-report">Generate Report</a>
+                        <a href="audit-logs" class="sub-menu-item" data-page="audit-logs">Audit Logs</a>
+                        <a href="device-logs" class="sub-menu-item" data-page="device-logs">Device Logs</a>
                     </div>
                 </div>
 
@@ -1148,9 +1148,9 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="users.html" class="sub-menu-item" data-page="users">Users</a>
-                        <a href="roles.html" class="sub-menu-item" data-page="roles">Roles &amp; Permissions</a>
-                        <a href="permissions.html" class="sub-menu-item" data-page="permissions">Permissions</a>
+                        <a href="users" class="sub-menu-item" data-page="users">Users</a>
+                        <a href="roles" class="sub-menu-item" data-page="roles">Roles &amp; Permissions</a>
+                        <a href="permissions" class="sub-menu-item" data-page="permissions">Permissions</a>
                     </div>
                 </div>
 
@@ -1161,10 +1161,10 @@
                         <i class="fas fa-chevron-down chevron-icon"></i>
                     </div>
                     <div class="sub-menu">
-                        <a href="general.html" class="sub-menu-item" data-page="general">General</a>
-                        <a href="security.html" class="sub-menu-item" data-page="security">Security</a>
-                        <a href="integrations.html" class="sub-menu-item" data-page="integrations">Integrations</a>
-                        <a href="data-retention.html" class="sub-menu-item" data-page="data-retention">Data Retention</a>
+                        <a href="general" class="sub-menu-item" data-page="general">General</a>
+                        <a href="security" class="sub-menu-item" data-page="security">Security</a>
+                        <a href="integrations" class="sub-menu-item" data-page="integrations">Integrations</a>
+                        <a href="data-retention" class="sub-menu-item" data-page="data-retention">Data Retention</a>
                     </div>
                 </div>
             </nav>
@@ -1206,7 +1206,7 @@
                     <i class="fas fa-chevron-down dropdown-icon"></i>
 
                     <div class="user-dropdown" id="userDropdown">
-                        <a href="general.html" class="dropdown-item">
+                        <a href="general" class="dropdown-item">
                             <i class="fas fa-gear"></i>
                             <span>Settings</span>
                         </a>
@@ -1215,7 +1215,7 @@
                             <span>Help &amp; Support</span>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a href="index.html" class="dropdown-item danger" onclick="logout(event)">
+                        <a href="index" class="dropdown-item danger" onclick="logout(event)">
                             <i class="fas fa-right-from-bracket"></i>
                             <span>Sign out</span>
                         </a>
@@ -1299,7 +1299,7 @@
             </div>
 
             <div class="notifications-footer">
-                <a href="alerts.html" class="view-all-btn">View All Notifications</a>
+                <a href="alerts" class="view-all-btn">View All Notifications</a>
             </div>
         </div>
 
@@ -1317,7 +1317,7 @@
                             <p class="page-subtitle">Monitor and configure endpoint agents</p>
                         </div>
                     </div>
-                    <button class="add-btn" onclick="window.location.href='agent-add.html'"><i class="fas fa-plus"></i> Add Agent</button>
+                    <button class="add-btn" onclick="window.location.href='agent-add'"><i class="fas fa-plus"></i> Add Agent</button>
                 </div>
 
                 <div class="stats-grid">
@@ -1380,15 +1380,15 @@
                                     <td><span class="os-badge"><i class="fab fa-windows os-icon"></i> Windows 11 Pro</span></td>
                                     <td>192.168.1.100</td>
                                     <td><span class="status-badge online">Online</span></td>
-                                    <td><a href="agent-view.html?id=DESKTOP-ABC123&tab=policies" class="policies-link" onclick="event.stopPropagation()">5 policies</a></td>
+                                    <td><a href="agent-view?id=DESKTOP-ABC123&tab=policies" class="policies-link" onclick="event.stopPropagation()">5 policies</a></td>
                                     <td>2 min ago</td>
                                     <td>v2.4.1</td>
                                     <td>
                                         <div class="action-menu">
                                             <button class="actions-btn" onclick="toggleActionMenu(event, 'menu1')"><i class="fas fa-ellipsis-vertical"></i></button>
                                             <div class="action-dropdown" id="menu1">
-                                                <a href="agent-view.html?id=DESKTOP-ABC123"><i class="fas fa-eye"></i> View Details</a>
-                                                <a href="agent-edit.html?id=DESKTOP-ABC123"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="agent-view?id=DESKTOP-ABC123"><i class="fas fa-eye"></i> View Details</a>
+                                                <a href="agent-edit?id=DESKTOP-ABC123"><i class="fas fa-edit"></i> Edit</a>
                                                 <a href="#" onclick="restartAgent('DESKTOP-ABC123')"><i class="fas fa-power-off"></i> Restart</a>
                                                 <a href="#" class="delete-action" onclick="deleteAgent('DESKTOP-ABC123')"><i class="fas fa-trash"></i> Delete</a>
                                             </div>
@@ -1401,15 +1401,15 @@
                                     <td><span class="os-badge"><i class="fab fa-apple os-icon"></i> macOS Sonoma</span></td>
                                     <td>192.168.1.101</td>
                                     <td><span class="status-badge online">Online</span></td>
-                                    <td><a href="agent-view.html?id=LAPTOP-XYZ789&tab=policies" class="policies-link" onclick="event.stopPropagation()">4 policies</a></td>
+                                    <td><a href="agent-view?id=LAPTOP-XYZ789&tab=policies" class="policies-link" onclick="event.stopPropagation()">4 policies</a></td>
                                     <td>5 min ago</td>
                                     <td>v2.4.1</td>
                                     <td>
                                         <div class="action-menu">
                                             <button class="actions-btn" onclick="toggleActionMenu(event, 'menu2')"><i class="fas fa-ellipsis-vertical"></i></button>
                                             <div class="action-dropdown" id="menu2">
-                                                <a href="agent-view.html?id=LAPTOP-XYZ789"><i class="fas fa-eye"></i> View Details</a>
-                                                <a href="agent-edit.html?id=LAPTOP-XYZ789"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="agent-view?id=LAPTOP-XYZ789"><i class="fas fa-eye"></i> View Details</a>
+                                                <a href="agent-edit?id=LAPTOP-XYZ789"><i class="fas fa-edit"></i> Edit</a>
                                                 <a href="#" onclick="restartAgent('LAPTOP-XYZ789')"><i class="fas fa-power-off"></i> Restart</a>
                                                 <a href="#" class="delete-action" onclick="deleteAgent('LAPTOP-XYZ789')"><i class="fas fa-trash"></i> Delete</a>
                                             </div>
@@ -1422,15 +1422,15 @@
                                     <td><span class="os-badge"><i class="fab fa-windows os-icon"></i> Windows 11 Pro</span></td>
                                     <td>192.168.1.102</td>
                                     <td><span class="status-badge online">Online</span></td>
-                                    <td><a href="agent-view.html?id=WORKSTATION-001&tab=policies" class="policies-link" onclick="event.stopPropagation()">6 policies</a></td>
+                                    <td><a href="agent-view?id=WORKSTATION-001&tab=policies" class="policies-link" onclick="event.stopPropagation()">6 policies</a></td>
                                     <td>1 min ago</td>
                                     <td>v2.4.1</td>
                                     <td>
                                         <div class="action-menu">
                                             <button class="actions-btn" onclick="toggleActionMenu(event, 'menu3')"><i class="fas fa-ellipsis-vertical"></i></button>
                                             <div class="action-dropdown" id="menu3">
-                                                <a href="agent-view.html?id=WORKSTATION-001"><i class="fas fa-eye"></i> View Details</a>
-                                                <a href="agent-edit.html?id=WORKSTATION-001"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="agent-view?id=WORKSTATION-001"><i class="fas fa-eye"></i> View Details</a>
+                                                <a href="agent-edit?id=WORKSTATION-001"><i class="fas fa-edit"></i> Edit</a>
                                                 <a href="#" onclick="restartAgent('WORKSTATION-001')"><i class="fas fa-power-off"></i> Restart</a>
                                                 <a href="#" class="delete-action" onclick="deleteAgent('WORKSTATION-001')"><i class="fas fa-trash"></i> Delete</a>
                                             </div>
@@ -1443,15 +1443,15 @@
                                     <td><span class="os-badge"><i class="fab fa-linux os-icon"></i> Ubuntu 22.04</span></td>
                                     <td>192.168.1.103</td>
                                     <td><span class="status-badge offline">Offline</span></td>
-                                    <td><a href="agent-view.html?id=DESKTOP-DEF456&tab=policies" class="policies-link" onclick="event.stopPropagation()">3 policies</a></td>
+                                    <td><a href="agent-view?id=DESKTOP-DEF456&tab=policies" class="policies-link" onclick="event.stopPropagation()">3 policies</a></td>
                                     <td>2 hours ago</td>
                                     <td>v2.3.8</td>
                                     <td>
                                         <div class="action-menu">
                                             <button class="actions-btn" onclick="toggleActionMenu(event, 'menu4')"><i class="fas fa-ellipsis-vertical"></i></button>
                                             <div class="action-dropdown" id="menu4">
-                                                <a href="agent-view.html?id=DESKTOP-DEF456"><i class="fas fa-eye"></i> View Details</a>
-                                                <a href="agent-edit.html?id=DESKTOP-DEF456"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="agent-view?id=DESKTOP-DEF456"><i class="fas fa-eye"></i> View Details</a>
+                                                <a href="agent-edit?id=DESKTOP-DEF456"><i class="fas fa-edit"></i> Edit</a>
                                                 <a href="#" onclick="restartAgent('DESKTOP-DEF456')"><i class="fas fa-power-off"></i> Restart</a>
                                                 <a href="#" class="delete-action" onclick="deleteAgent('DESKTOP-DEF456')"><i class="fas fa-trash"></i> Delete</a>
                                             </div>
@@ -1469,7 +1469,7 @@
     <script>
         // Check authentication
         if (!localStorage.getItem('isLoggedIn')) {
-            window.location.href = 'index.html';
+            window.location.href = 'index';
         }
 
         /* ==================== SIDEBAR & HEADER FUNCTIONS ==================== */
@@ -1610,8 +1610,8 @@
         }
 
         function setActiveMenuItem() {
-            var currentPage = window.location.pathname.split('/').pop() || 'manage-agents.html';
-            if (!currentPage) currentPage = 'manage-agents.html';
+            var currentPage = window.location.pathname.split('/').pop() || 'manage-agents';
+            if (!currentPage) currentPage = 'manage-agents';
 
             // Main nav links
             document.querySelectorAll('.nav-link[data-page]').forEach(function (link) {
@@ -1661,7 +1661,7 @@
 
         function viewAgent(agentId) {
             if (!event.target.closest('.action-menu') && !event.target.closest('.policies-link')) {
-                window.location.href = `agent-view.html?id=${agentId}`;
+                window.location.href = `agent-view?id=${agentId}`;
             }
         }
 
