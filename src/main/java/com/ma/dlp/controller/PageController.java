@@ -289,6 +289,36 @@ public class PageController {
         return "ocr-policies";
     }
 
+    @GetMapping("/ocr-agent-view")
+    public String ocrAgentViewPage(HttpSession session, Model model) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "ocr-agent-view";
+    }
+
+    @GetMapping("/ocr-agent-edit")
+    public String ocrAgentEditPage(HttpSession session, Model model) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "ocr-agent-edit";
+    }
+
+    @GetMapping("/ocr-violation-view")
+    public String ocrViolationViewPage(HttpSession session, Model model) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/index";
+        }
+
+        addUserToModel(session, model); // 🔥 THIS WAS MISSING
+        return "ocr-violation-view";
+    }
+
     @GetMapping("/permissions")
     public String permissionsPage(HttpSession session, Model model) {
         if (!isAuthenticated(session)) {
