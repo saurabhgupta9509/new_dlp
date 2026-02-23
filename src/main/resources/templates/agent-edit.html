@@ -4043,22 +4043,22 @@
                 </div>
 
                 <div class="form-row">
-                  <div class="form-group">
-                    <label>Agent Name <span class="required">*</span></label>
-                    <input
-                      type="text"
-                      id="agentName"
-                      value=""
-                      required
-                      disabled
-                    />
-                    <span class="form-help"
-                      >Unique identifier for this agent</span
-                    >
-                  </div>
+<!--                  <div class="form-group">-->
+<!--                    <label>Agent Name <span class="required">*</span></label>-->
+<!--                    <input-->
+<!--                      type="text"-->
+<!--                      id="agentName"-->
+<!--                      value=""-->
+<!--                      required-->
+<!--                      disabled-->
+<!--                    />-->
+<!--                    <span class="form-help"-->
+<!--                      >Unique identifier for this agent</span-->
+<!--                    >-->
+<!--                  </div>-->
 
                   <div class="form-group">
-                    <label>Hostname <span class="required">*</span></label>
+                    <label>Agent Name(Hostname) <span class="required">*</span></label>
                     <input
                       type="text"
                       id="hostname"
@@ -4405,10 +4405,12 @@
 
           if (result.success) {
             const agent = result.data.find((a) => a.id.toString() === agentId);
+               console.log("Found agent:", agent);  // ✅ 2. Agent object dekho
+      console.log("Email from API:", agent.email);
             if (agent) {
               // Populate form fields
-              document.getElementById("agentName").value =
-                agent.hostname || "N/A";
+<!--              document.getElementById("agentName").value =-->
+<!--                agent.hostname || "N/A";-->
               document.getElementById("hostname").value =
                 agent.hostname || "N/A";
               document.getElementById("ipAddress").value =
@@ -4507,7 +4509,7 @@
         document.getElementById("lastSeenValue").textContent = "Loading...";
 
         // Set loading text in form fields
-        document.getElementById("agentName").value = "Loading...";
+<!--        document.getElementById("agentName").value = "Loading...";-->
         document.getElementById("hostname").value = "Loading...";
         document.getElementById("ipAddress").value = "Loading...";
         document.getElementById("macAddress").value = "Loading...";
@@ -4571,7 +4573,7 @@
         const online = isAgentOnline(agent);
 
         // Disable fields that can only be updated when agent is online
-        document.getElementById("agentName").disabled = true;
+<!--        document.getElementById("agentName").disabled = true;-->
         document.getElementById("hostname").disabled = true;
         document.getElementById("ipAddress").disabled = true;
         document.getElementById("macAddress").disabled = true;
@@ -4823,11 +4825,8 @@
 
       // Initialize on DOM ready
       document.addEventListener("DOMContentLoaded", async function () {
-        try {
-          const userData = await checkAuth();
-          if (userData) {
-            loadAdminInfo();
-          }
+
+<!--            loadAdminInfo();-->
 
           // Get agent ID from URL
           const agentId = getAgentIdFromUrl();
@@ -4841,8 +4840,8 @@
           setActiveMenuItem();
 
           // Load components
-          await loadComponent("sidebar", "sidebarContainer");
-          await loadComponent("page-header", "headerContainer");
+<!--          await loadComponent("sidebar", "sidebarContainer");-->
+<!--          await loadComponent("page-header", "headerContainer");-->
 
           // LOAD AGENT DATA AFTER COMPONENTS ARE LOADED
           await loadAgentData(agentId);
@@ -4867,9 +4866,7 @@
               }
             }
           }
-        } catch (error) {
-          console.error("Error initializing page:", error);
-        }
+
       });
 
       // Make functions globally available

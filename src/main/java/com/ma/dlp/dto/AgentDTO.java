@@ -4,6 +4,7 @@ package com.ma.dlp.dto;
 
 import com.fasterxml.jackson.core.JsonToken;
 import com.ma.dlp.model.User;
+import jakarta.persistence.Column;
 import jakarta.persistence.Transient;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,9 @@ public class AgentDTO {
     private Long id;
     private String username;
     private String status;
+
+    @Column(unique = true, nullable = true) // Email is only for admins
+    private String email;
 
     @Transient
     private String agentRuntimeState;
@@ -36,6 +40,7 @@ public class AgentDTO {
         AgentDTO dto = new AgentDTO();
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
         dto.setStatus(user.getStatus().toString());
 //        dto.setStatus(agentService.deriveRuntimeStatus(user));
         dto.setAgentRuntimeState(user.getAgentRuntimeState());
@@ -49,6 +54,13 @@ public class AgentDTO {
         return dto;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String getAgentRuntimeState() {
         return agentRuntimeState;
