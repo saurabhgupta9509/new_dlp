@@ -1,0 +1,187 @@
+﻿[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.ma:dlp:jar:0.0.1-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.springframework.boot:spring-boot-starter-websocket:jar -> duplicate declaration of version (?) @ line 113, column 15
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] -----------------------------< com.ma:dlp >-----------------------------
+[INFO] Building dlp 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.5.6:run (default-cli) > test-compile @ dlp >>>
+[WARNING] The artifact mysql:mysql-connector-java:jar:8.0.33 has been relocated to com.mysql:mysql-connector-j:jar:8.0.33: MySQL Connector/J artifacts moved to reverse-DNS compliant Maven 2+ coordinates.
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ dlp ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 390 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.0:compile (default-compile) @ dlp ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ dlp ---
+[INFO] skip non existing resourceDirectory C:\Users\pp684\dlp\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.0:testCompile (default-testCompile) @ dlp ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] <<< spring-boot:3.5.6:run (default-cli) < test-compile @ dlp <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.5.6:run (default-cli) @ dlp ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.6)
+
+2026-02-23T17:51:01.208+05:30  INFO 5696 --- [dlp] [           main] com.ma.dlp.DlpApplication                : Starting DlpApplication using Java 21.0.9 with PID 5696 (C:\Users\pp684\dlp\target\classes started by pp684 in C:\Users\pp684\dlp)
+2026-02-23T17:51:01.208+05:30 DEBUG 5696 --- [dlp] [           main] com.ma.dlp.DlpApplication                : Running with Spring Boot v3.5.6, Spring v6.2.11
+2026-02-23T17:51:01.208+05:30  INFO 5696 --- [dlp] [           main] com.ma.dlp.DlpApplication                : No active profile set, falling back to 1 default profile: "default"
+2026-02-23T17:51:02.186+05:30  INFO 5696 --- [dlp] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-23T17:51:02.346+05:30  INFO 5696 --- [dlp] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 152 ms. Found 26 JPA repository interfaces.
+2026-02-23T17:51:02.926+05:30  INFO 5696 --- [dlp] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 9090 (http)
+2026-02-23T17:51:02.938+05:30  INFO 5696 --- [dlp] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-23T17:51:02.939+05:30  INFO 5696 --- [dlp] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.46]
+2026-02-23T17:51:03.000+05:30  INFO 5696 --- [dlp] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-02-23T17:51:03.000+05:30  INFO 5696 --- [dlp] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1732 ms
+2026-02-23T17:51:03.170+05:30  INFO 5696 --- [dlp] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-23T17:51:03.210+05:30  INFO 5696 --- [dlp] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.29.Final
+2026-02-23T17:51:03.236+05:30  INFO 5696 --- [dlp] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-02-23T17:51:03.428+05:30  INFO 5696 --- [dlp] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-23T17:51:03.451+05:30  INFO 5696 --- [dlp] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-23T17:51:03.556+05:30  INFO 5696 --- [dlp] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2d3c501b
+2026-02-23T17:51:03.566+05:30  INFO 5696 --- [dlp] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-23T17:51:03.602+05:30  WARN 5696 --- [dlp] [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-23T17:51:03.602+05:30  WARN 5696 --- [dlp] [           main] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-02-23T17:51:03.609+05:30  INFO 5696 --- [dlp] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-02-23T17:51:04.756+05:30  INFO 5696 --- [dlp] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-23T17:51:05.003+05:30  INFO 5696 --- [dlp] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-23T17:51:05.456+05:30  INFO 5696 --- [dlp] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-23T17:51:05.956+05:30  INFO 5696 --- [dlp] [           main] com.ma.dlp.component.AgentSyncService    : Syncing policies with Rust Agent on startup...
+2026-02-23T17:51:06.032+05:30 DEBUG 5696 --- [dlp] [           main] org.hibernate.SQL                        : select fp1_0.id,fp1_0.action,fp1_0.agent_policy_id,fp1_0.agent_synced,fp1_0.comment,fp1_0.confirmed,fp1_0.created_at,fp1_0.created_by,fp1_0.is_active,fp1_0.node_id,fp1_0.operations,fp1_0.scope,fp1_0.updated_at from file_policies fp1_0 where fp1_0.is_active and fp1_0.agent_synced
+Hibernate: select fp1_0.id,fp1_0.action,fp1_0.agent_policy_id,fp1_0.agent_synced,fp1_0.comment,fp1_0.confirmed,fp1_0.created_at,fp1_0.created_by,fp1_0.is_active,fp1_0.node_id,fp1_0.operations,fp1_0.scope,fp1_0.updated_at from file_policies fp1_0 where fp1_0.is_active and fp1_0.agent_synced
+2026-02-23T17:51:06.046+05:30  INFO 5696 --- [dlp] [           main] com.ma.dlp.component.AgentSyncService    : Found 0 active policies to sync with agent
+2026-02-23T17:51:06.782+05:30 DEBUG 5696 --- [dlp] [           main] org.hibernate.SQL                        : select u1_0.id,u1_0.created_at,u1_0.email,u1_0.hostname,u1_0.ip_address,u1_0.last_heartbeat,u1_0.last_login,u1_0.mac_address,u1_0.password,u1_0.role,u1_0.status,u1_0.token,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.hostname,u1_0.ip_address,u1_0.last_heartbeat,u1_0.last_login,u1_0.mac_address,u1_0.password,u1_0.role,u1_0.status,u1_0.token,u1_0.username from users u1_0 where u1_0.username=?
+2026-02-23T17:51:07.950+05:30  INFO 5696 --- [dlp] [           main] c.ma.dlp.controller.WebSocketController  : Connecting to Agent WebSocket: ws://127.0.0.1:8080/api/v1/ws
+2026-02-23T17:51:07.958+05:30 DEBUG 5696 --- [dlp] [           main] o.s.w.s.c.s.StandardWebSocketClient      : Connecting to ws://127.0.0.1:8080/api/v1/ws
+2026-02-23T17:51:08.006+05:30  WARN 5696 --- [dlp] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-23T17:51:08.076+05:30 DEBUG 5696 --- [dlp] [           main] o.s.w.s.s.s.WebSocketHandlerMapping      : Patterns [/ws/**] in 'stompWebSocketHandlerMapping'
+2026-02-23T17:51:08.096+05:30  INFO 5696 --- [dlp] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-02-23T17:51:08.188+05:30 DEBUG 5696 --- [dlp] [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 190 mappings in 'requestMappingHandlerMapping'
+2026-02-23T17:51:08.226+05:30 DEBUG 5696 --- [dlp] [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**, /*.html] in 'resourceHandlerMapping'
+2026-02-23T17:51:08.256+05:30  INFO 5696 --- [dlp] [           main] eAuthenticationProviderManagerConfigurer : Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2026-02-23T17:51:08.256+05:30  WARN 5696 --- [dlp] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+2026-02-23T17:51:08.468+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	c.m.d.c.AdminController:
+	
+2026-02-23T17:51:08.468+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	c.m.d.c.AgentController:
+	
+2026-02-23T17:51:08.468+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	c.m.d.c.AuthController:
+	
+2026-02-23T17:51:08.468+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	c.m.d.c.ExplorerController:
+	
+2026-02-23T17:51:08.468+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	c.m.d.c.FilePolicyController:
+	
+2026-02-23T17:51:08.468+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	c.m.d.c.FileSystemController:
+	
+2026-02-23T17:51:08.468+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	c.m.d.c.OcrAdminController:
+	
+2026-02-23T17:51:08.468+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	c.m.d.c.OcrAgentController:
+	
+2026-02-23T17:51:08.468+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	c.m.d.c.PageController:
+	
+2026-02-23T17:51:08.468+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	c.m.d.c.PhishingAlertController:
+	
+2026-02-23T17:51:08.468+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	c.m.d.c.PythonClientController:
+	
+2026-02-23T17:51:08.477+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	c.m.d.c.WebSocketController:
+	{[MESSAGE],[/kernel-events]}: handleKernelEvent(String)
+2026-02-23T17:51:08.477+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	c.m.d.R.agentView:
+	
+2026-02-23T17:51:08.477+05:30 DEBUG 5696 --- [dlp] [           main] .WebSocketAnnotationMethodMessageHandler : 
+	o.s.b.a.w.s.e.BasicErrorController:
+	
+2026-02-23T17:51:08.575+05:30 DEBUG 5696 --- [dlp] [           main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-02-23T17:51:08.659+05:30 DEBUG 5696 --- [dlp] [           main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 1 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-02-23T17:51:09.016+05:30 DEBUG 5696 --- [dlp] [           main] org.springframework.web.SimpLogging      : clientOutboundChannel added SubProtocolWebSocketHandler[StompSubProtocolHandler[v10.stomp, v11.stomp, v12.stomp]]
+2026-02-23T17:51:09.016+05:30 DEBUG 5696 --- [dlp] [           main] org.springframework.web.SimpLogging      : clientInboundChannel added WebSocketAnnotationMethodMessageHandler[prefixes=[/app/]]
+2026-02-23T17:51:09.016+05:30  INFO 5696 --- [dlp] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-02-23T17:51:09.016+05:30 DEBUG 5696 --- [dlp] [           main] org.springframework.web.SimpLogging      : clientInboundChannel added SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@6df723a7]
+2026-02-23T17:51:09.016+05:30 DEBUG 5696 --- [dlp] [           main] org.springframework.web.SimpLogging      : brokerChannel added SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@6df723a7]
+2026-02-23T17:51:09.016+05:30  INFO 5696 --- [dlp] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@6df723a7]]
+2026-02-23T17:51:09.016+05:30  INFO 5696 --- [dlp] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-02-23T17:51:09.019+05:30 DEBUG 5696 --- [dlp] [           main] org.springframework.web.SimpLogging      : clientInboundChannel added UserDestinationMessageHandler[DefaultUserDestinationResolver[prefix=/user/]]
+2026-02-23T17:51:09.019+05:30 DEBUG 5696 --- [dlp] [           main] org.springframework.web.SimpLogging      : brokerChannel added UserDestinationMessageHandler[DefaultUserDestinationResolver[prefix=/user/]]
+2026-02-23T17:51:09.026+05:30 DEBUG 5696 --- [dlp] [           main] org.springframework.web.SimpLogging      : clientOutboundChannel removed SubProtocolWebSocketHandler[StompSubProtocolHandler[v10.stomp, v11.stomp, v12.stomp]]
+2026-02-23T17:51:09.026+05:30 DEBUG 5696 --- [dlp] [           main] org.springframework.web.SimpLogging      : clientInboundChannel removed WebSocketAnnotationMethodMessageHandler[prefixes=[/app/]]
+2026-02-23T17:51:09.026+05:30  INFO 5696 --- [dlp] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-02-23T17:51:09.026+05:30  INFO 5696 --- [dlp] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@6df723a7]]
+2026-02-23T17:51:09.026+05:30 DEBUG 5696 --- [dlp] [           main] org.springframework.web.SimpLogging      : clientInboundChannel removed SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@6df723a7]
+2026-02-23T17:51:09.026+05:30 DEBUG 5696 --- [dlp] [           main] org.springframework.web.SimpLogging      : brokerChannel removed SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@6df723a7]
+2026-02-23T17:51:09.026+05:30  INFO 5696 --- [dlp] [           main] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-02-23T17:51:09.026+05:30 DEBUG 5696 --- [dlp] [           main] org.springframework.web.SimpLogging      : clientInboundChannel removed UserDestinationMessageHandler[DefaultUserDestinationResolver[prefix=/user/]]
+2026-02-23T17:51:09.026+05:30 DEBUG 5696 --- [dlp] [           main] org.springframework.web.SimpLogging      : brokerChannel removed UserDestinationMessageHandler[DefaultUserDestinationResolver[prefix=/user/]]
+2026-02-23T17:51:09.041+05:30  WARN 5696 --- [dlp] [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-02-23T17:51:09.046+05:30  INFO 5696 --- [dlp] [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-23T17:51:09.046+05:30  INFO 5696 --- [dlp] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-02-23T17:51:09.046+05:30  INFO 5696 --- [dlp] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-02-23T17:51:09.056+05:30  INFO 5696 --- [dlp] [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-02-23T17:51:09.078+05:30 ERROR 5696 --- [dlp] [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 9090 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 9090 or configure this application to listen on another port.
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  12.319 s
+[INFO] Finished at: 2026-02-23T17:51:09+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.5.6:run (default-cli) on project dlp: Process terminated with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

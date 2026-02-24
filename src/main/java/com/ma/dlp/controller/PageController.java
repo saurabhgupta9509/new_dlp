@@ -4,12 +4,15 @@ import com.ma.dlp.RestService.AlertStatsService;
 import com.ma.dlp.RestService.DashBoardService;
 import com.ma.dlp.RestService.ManageAgentStatsService;
 import com.ma.dlp.model.User;
+import com.ma.dlp.service.PhishingAlertService;
+import com.ma.dlp.dto.PhishingAlertResponse;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -24,6 +27,10 @@ public class PageController {
 
     @Autowired
     private ManageAgentStatsService manageAgentStatsService;
+
+    @Autowired
+    private PhishingAlertService phishingAlertService;
+
     // Helper method to check if user is authenticated
     private boolean isAuthenticated(HttpSession session) {
         User currentUser = (User) session.getAttribute("currentUser");
@@ -169,7 +176,7 @@ public class PageController {
 
     @GetMapping("/alerts")
     public String alertsPage(HttpSession session, Model model) {
-       if (!isAuthenticated(session)) {
+        if (!isAuthenticated(session)) {
             return "redirect:/index";
         }
 
@@ -179,12 +186,31 @@ public class PageController {
     }
 
     @GetMapping("/alert-details")
-    public String alertsDetailsPage(HttpSession session, Model model) {
+    public String alertsDetailsPage(@RequestParam(name = "id", required = false) String id, HttpSession session,
+            Model model) {
         if (!isAuthenticated(session)) {
             return "redirect:/index";
         }
 
         addUserToModel(session, model); // 🔥 THIS WAS MISSING
+
+        if (id != null && !id.isEmpty()) {
+            try {
+                Long numericId;
+                if (id.startsWith("ALT-")) {
+                    numericId = Long.parseLong(id.substring(4));
+                } else {
+                    numericId = Long.parseLong(id);
+                }
+
+                PhishingAlertResponse alert = phishingAlertService.getAlertById(numericId);
+                model.addAttribute("alert", alert);
+            } catch (Exception e) {
+                // If alert not found or error, you might want to handle it
+                model.addAttribute("error", "Alert not found: " + e.getMessage());
+            }
+        }
+
         return "alert-details";
     }
 

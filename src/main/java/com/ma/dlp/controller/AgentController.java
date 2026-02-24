@@ -51,14 +51,14 @@ public class AgentController {
     @Autowired
     private WebsocketMessageService websocketMessageService;
 
-
-
-    public AgentController(WebHistoryLogRepository webHistoryLogRepository, FileEventLogRepository fileEventLogRepository) {
+    public AgentController(WebHistoryLogRepository webHistoryLogRepository,
+            FileEventLogRepository fileEventLogRepository) {
         this.webHistoryLogRepository = webHistoryLogRepository;
         this.fileEventLogRepository = fileEventLogRepository;
 
     }
-      private String cleanToken(String authHeader) {
+
+    private String cleanToken(String authHeader) {
         if (authHeader != null) {
             // Remove ALL occurrences of "Bearer " (case-insensitive)
             String cleaned = authHeader.replaceAll("(?i)Bearer ", "");
@@ -66,8 +66,10 @@ public class AgentController {
         }
         return authHeader;
     }
+
     @GetMapping("/commands/{agentId}")
-    public ResponseEntity<Map<String, Object>> getPendingCommand(@RequestHeader("Authorization") String token, @PathVariable Long agentId) {
+    public ResponseEntity<Map<String, Object>> getPendingCommand(@RequestHeader("Authorization") String token,
+            @PathVariable(name = "agentId") Long agentId) {
 
         String cleanToken = cleanToken(token);
         log.info("🔐 Clean token: {}", cleanToken);
@@ -99,49 +101,39 @@ public class AgentController {
 
     @GetMapping("/agents/{agentId}/browse-files")
     public ResponseEntity<?> browseFiles(
-            @PathVariable Long agentId,
-            @RequestParam(required = false) String path
-    ) {
+            @PathVariable(name = "agentId") Long agentId,
+            @RequestParam(name = "path", required = false) String path) {
         log.info("📁 Browse requested for agent {} on path '{}'", agentId, path);
 
-
         FileBrowseResponseDTO cached = agentService.getBrowseResponse(agentId);
-
 
         if (cached != null && cached.getItems() != null && !cached.getItems().isEmpty()) {
             log.info("📁 Returning cached browse response for agent {}", agentId);
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "pending", false,
-                    "data", cached.getItems()
-            ));
+                    "data", cached.getItems()));
         }
 
-
-// enqueue command for agent to pick up
+        // enqueue command for agent to pick up
         agentService.sendBrowseCommand(agentId, path != null ? path : "");
         log.info("📤 Browse command queued for agent {} — waiting for agent response...", agentId);
-
 
         return ResponseEntity.ok(Map.of(
                 "success", true,
                 "pending", true,
-                "data", List.of()
-        ));
+                "data", List.of()));
     }
-
 
     @PostMapping("/file-browse-response")
     public ResponseEntity<ApiResponse<String>> receiveBrowseResponse(
             @RequestHeader("Authorization") String token,
             @RequestBody FileBrowseResponseDTO response) {
 
-
         Long agentId = response.getAgentId();
         if (agentId == null) {
             return ResponseEntity.status(400).body(new ApiResponse<>(false, "agentId missing"));
         }
-
 
         if (!agentService.validateToken(token, agentId)) {
             return ResponseEntity.status(401).body(new ApiResponse<>(false, "Invalid token"));
@@ -152,57 +144,58 @@ public class AgentController {
         try {
             websocketMessageService.sendBrowseUpdate(agentId, response);
 
-
-            Map<String,Object> payload = new HashMap<>();
+            Map<String, Object> payload = new HashMap<>();
             payload.put("agentId", response.getAgentId());
             payload.put("currentPath", response.getCurrentPath());
             payload.put("parentPath", response.getParentPath());
             payload.put("items", response.getItems());
-            payload.put("partial", response.getPartial()!=null?response.getPartial():false);
-            payload.put("complete", response.getComplete()!=null?response.getComplete():false);
-
+            payload.put("partial", response.getPartial() != null ? response.getPartial() : false);
+            payload.put("complete", response.getComplete() != null ? response.getComplete() : false);
 
             String dest = String.format("/topic/agent/%d/browse", agentId);
             simpMessagingTemplate.convertAndSend(dest, payload);
-            log.info("🔔 Broadcasted browse response to topic {} (partial={}, complete={})", dest, payload.get("partial"), payload.get("complete"));
+            log.info("🔔 Broadcasted browse response to topic {} (partial={}, complete={})", dest,
+                    payload.get("partial"), payload.get("complete"));
         } catch (Exception e) {
             log.error("Failed to broadcast browse response: {}", e.getMessage(), e);
         }
-
 
         if (Boolean.TRUE.equals(response.getComplete())) {
             agentService.markBrowseCommandProcessed(agentId);
             log.info("Marked browse command processed for agent {}", agentId);
         }
 
-
         return ResponseEntity.ok(new ApiResponse<>(true, "Browse response received"));
     }
 
-
-//    @PostMapping("/login")
-//    public ResponseEntity<ApiResponse<AgentAuthResponse>> agentLogin(@RequestBody AgentLoginRequest request) {
-//        try {
-//            AgentAuthResponse response;
-//
-//            if (request.getHostname() != null && request.getMacAddress() != null) {
-//                response = agentService.authenticateAgent(request.getHostname(), request.getMacAddress() ,request.getIpAddress() );
-//            } else if (request.getUsername() != null && request.getPassword() != null) {
-//                response = agentService.loginWithCredentials(
-//                        request.getUsername(),
-//                        request.getPassword(),
-//                        request.getHostname(), // Optional - update if provided
-//                        request.getMacAddress(), // Optional - update if provided
-//                        request.getIpAddress());
-//            } else {
-//                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Invalid login request"));
-//            }
-//
-//            return ResponseEntity.ok(new ApiResponse<>(true, "Agent authenticated", response));
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Authentication failed: " + e.getMessage()));
-//        }
-//    }
+    // @PostMapping("/login")
+    // public ResponseEntity<ApiResponse<AgentAuthResponse>> agentLogin(@RequestBody
+    // AgentLoginRequest request) {
+    // try {
+    // AgentAuthResponse response;
+    //
+    // if (request.getHostname() != null && request.getMacAddress() != null) {
+    // response = agentService.authenticateAgent(request.getHostname(),
+    // request.getMacAddress() ,request.getIpAddress() );
+    // } else if (request.getUsername() != null && request.getPassword() != null) {
+    // response = agentService.loginWithCredentials(
+    // request.getUsername(),
+    // request.getPassword(),
+    // request.getHostname(), // Optional - update if provided
+    // request.getMacAddress(), // Optional - update if provided
+    // request.getIpAddress());
+    // } else {
+    // return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Invalid
+    // login request"));
+    // }
+    //
+    // return ResponseEntity.ok(new ApiResponse<>(true, "Agent authenticated",
+    // response));
+    // } catch (Exception e) {
+    // return ResponseEntity.badRequest().body(new ApiResponse<>(false,
+    // "Authentication failed: " + e.getMessage()));
+    // }
+    // }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AgentAuthResponse>> agentLogin(@RequestBody AgentLoginRequest request) {
@@ -220,8 +213,7 @@ public class AgentController {
                     request.getPassword(),
                     request.getHostname(),
                     request.getMacAddress(),
-                    request.getIpAddress()
-            );
+                    request.getIpAddress());
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Agent authenticated successfully", response));
 
@@ -232,9 +224,9 @@ public class AgentController {
         }
     }
 
-
     @PostMapping("/capabilities")
-    public ResponseEntity<ApiResponse<String>> reportCapabilities(@RequestHeader("Authorization") String token, @RequestBody CapabilityReportRequest request) {
+    public ResponseEntity<ApiResponse<String>> reportCapabilities(@RequestHeader("Authorization") String token,
+            @RequestBody CapabilityReportRequest request) {
 
         if (!agentService.validateToken(token, request.getAgentId())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, "Invalid token"));
@@ -245,12 +237,14 @@ public class AgentController {
             return ResponseEntity.ok(new ApiResponse<>(true, "Capabilities reported successfully"));
         } catch (Exception e) {
             log.error("❌ Failed to report capabilities for agent {}: {}", request.getAgentId(), e.getMessage(), e);
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to report capabilities: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to report capabilities: " + e.getMessage()));
         }
     }
 
     @GetMapping("/active-policies")
-    public ResponseEntity<ApiResponse<AgentPoliciesResponse>> getActivePolicies(@RequestHeader("Authorization") String token, @RequestParam Long agentId) {
+    public ResponseEntity<ApiResponse<AgentPoliciesResponse>> getActivePolicies(
+            @RequestHeader("Authorization") String token, @RequestParam(name = "agentId") Long agentId) {
 
         // 1. You check if the token is valid
         if (!agentService.validateToken(token, agentId)) {
@@ -262,28 +256,33 @@ public class AgentController {
             User agent = userService.findById(agentId).orElseThrow(() -> new RuntimeException("Agent not found"));
             if (agent.getStatus() != User.UserStatus.ACTIVE) {
                 log.warn("Agent {} is not active, rejecting policy request.", agentId);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Agent account is not active."));
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ApiResponse<>(false, "Agent account is not active."));
             }
 
             // Get active capabilities and convert to policies
             List<AgentCapability> activeCapabilities = agentService.getActiveCapabilities(agentId);
-                // --- SYNTHETIC OCR POLICY ---
-                AgentCapability ocrCapability = new AgentCapability();
-                // Use the correct constant from the Rust agent for the toggle state
-                ocrCapability.setCapabilityCode("OCR_MONITOR");
-                ocrCapability.setIsActive(true);
-                ocrCapability.setCategory("OCR");
-                ocrCapability.setName("OCR Screen Monitoring");
-                ocrCapability.setDescription("Dynamically controlled OCR status");
-                ocrCapability.setAction("MONITOR");
-                ocrCapability.setTarget("SCREEN_CONTENT");
-                ocrCapability.setSeverity("MEDIUM");
+            // --- SYNTHETIC OCR POLICY ---
+            AgentCapability ocrCapability = new AgentCapability();
+            // Use the correct constant from the Rust agent for the toggle state
+            ocrCapability.setCapabilityCode("OCR_MONITOR");
+            ocrCapability.setIsActive(true);
+            ocrCapability.setCategory("OCR");
+            ocrCapability.setName("OCR Screen Monitoring");
+            ocrCapability.setDescription("Dynamically controlled OCR status");
+            ocrCapability.setAction("MONITOR");
+            ocrCapability.setTarget("SCREEN_CONTENT");
+            ocrCapability.setSeverity("MEDIUM");
 
-                activeCapabilities.add(ocrCapability);
+            activeCapabilities.add(ocrCapability);
 
-                log.info("📢 OCR Monitoring is OFF for agent {}.", agentId);
+            log.info("📢 OCR Monitoring is OFF for agent {}.", agentId);
 
-            List<PolicyCapabilityDTO> policyDTOs = activeCapabilities.stream().map(this::convertCapabilityToPolicyDTO) // Call the correct DTO converter
+            List<PolicyCapabilityDTO> policyDTOs = activeCapabilities.stream().map(this::convertCapabilityToPolicyDTO) // Call
+                                                                                                                       // the
+                                                                                                                       // correct
+                                                                                                                       // DTO
+                                                                                                                       // converter
                     .collect(Collectors.toList());
 
             AgentPoliciesResponse response = new AgentPoliciesResponse();
@@ -296,7 +295,8 @@ public class AgentController {
             return ResponseEntity.ok(new ApiResponse<>(true, "Active policies retrieved", response));
         } catch (Exception e) {
             log.error("❌ Failed to get active policies for agent {}: {}", agentId, e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to get active policies: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get active policies: " + e.getMessage()));
         }
     }
 
@@ -315,14 +315,16 @@ public class AgentController {
     }
 
     @PostMapping("/alerts")
-    public ResponseEntity<ApiResponse<String>> submitAlert(@RequestHeader("Authorization") String token, @RequestBody AgentAlertRequest alertRequest) {
+    public ResponseEntity<ApiResponse<String>> submitAlert(@RequestHeader("Authorization") String token,
+            @RequestBody AgentAlertRequest alertRequest) {
 
         if (!agentService.validateToken(token, alertRequest.getAgentId())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, "Invalid token"));
         }
 
         try {
-            User agent = userService.findById(alertRequest.getAgentId()).orElseThrow(() -> new RuntimeException("Agent not found"));
+            User agent = userService.findById(alertRequest.getAgentId())
+                    .orElseThrow(() -> new RuntimeException("Agent not found"));
 
             // Update agent's hostname if provided
             if (alertRequest.getAgentHostname() != null && !alertRequest.getAgentHostname().isEmpty()) {
@@ -344,12 +346,14 @@ public class AgentController {
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Alert received successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to save alert: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to save alert: " + e.getMessage()));
         }
     }
 
     @PostMapping("/heartbeat")
-    public ResponseEntity<ApiResponse<String>> heartbeat(@RequestHeader("Authorization") String token, @RequestParam Long agentId) {
+    public ResponseEntity<ApiResponse<String>> heartbeat(@RequestHeader("Authorization") String token,
+            @RequestParam(name = "agentId") Long agentId) {
 
         // Check 1: Is the token valid?
         if (!agentService.validateToken(token, agentId)) {
@@ -358,11 +362,13 @@ public class AgentController {
 
         try {
             // Check 2: Is the agent's account ACTIVE?
-            User agent = userService.findById(agentId).orElseThrow(() -> new RuntimeException("Agent not found with ID: " + agentId));
+            User agent = userService.findById(agentId)
+                    .orElseThrow(() -> new RuntimeException("Agent not found with ID: " + agentId));
 
             if (agent.getStatus() != User.UserStatus.ACTIVE) {
                 log.warn("Agent {} is not active, rejecting heartbeat.", agentId);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Agent account is not active."));
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ApiResponse<>(false, "Agent account is not active."));
             }
 
             // If both checks pass, proceed
@@ -374,18 +380,26 @@ public class AgentController {
     }
 
     @PostMapping("/usb-alert")
-    public ResponseEntity<ApiResponse<String>> submitUSBAlert(@RequestHeader("Authorization") String token, @RequestBody USBAlertRequest usbAlert) {
+    public ResponseEntity<ApiResponse<String>> submitUSBAlert(@RequestHeader("Authorization") String token,
+            @RequestBody USBAlertRequest usbAlert) {
 
         if (!agentService.validateToken(token, usbAlert.getAgentId())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, "Invalid token"));
         }
 
         try {
-            User agent = userService.findById(usbAlert.getAgentId()).orElseThrow(() -> new RuntimeException("Agent not found"));
+            User agent = userService.findById(usbAlert.getAgentId())
+                    .orElseThrow(() -> new RuntimeException("Agent not found"));
 
-            String description = String.format("USB Device Detected: %s - %d files analyzed, %d file types, %d suspicious files. Total size: %d bytes", usbAlert.getDeviceInfo().getDriveLetter(), usbAlert.getFileAnalysis().getTotalFiles(), usbAlert.getFileAnalysis().getFileTypes().size(), usbAlert.getFileAnalysis().getSuspiciousFiles().size(), usbAlert.getFileAnalysis().getTotalSize());
+            String description = String.format(
+                    "USB Device Detected: %s - %d files analyzed, %d file types, %d suspicious files. Total size: %d bytes",
+                    usbAlert.getDeviceInfo().getDriveLetter(), usbAlert.getFileAnalysis().getTotalFiles(),
+                    usbAlert.getFileAnalysis().getFileTypes().size(),
+                    usbAlert.getFileAnalysis().getSuspiciousFiles().size(), usbAlert.getFileAnalysis().getTotalSize());
 
-            String fileDetails = String.format("File Types: %s | Suspicious Files: %s", usbAlert.getFileAnalysis().getFileTypes().toString(), usbAlert.getFileAnalysis().getSuspiciousFiles().toString());
+            String fileDetails = String.format("File Types: %s | Suspicious Files: %s",
+                    usbAlert.getFileAnalysis().getFileTypes().toString(),
+                    usbAlert.getFileAnalysis().getSuspiciousFiles().toString());
 
             Alert alert = new Alert();
             alert.setAgent(agent);
@@ -401,7 +415,8 @@ public class AgentController {
 
             return ResponseEntity.ok(new ApiResponse<>(true, "USB alert received"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to process USB alert: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to process USB alert: " + e.getMessage()));
         }
     }
 
@@ -425,23 +440,27 @@ public class AgentController {
 
             webHistoryLogRepository.save(logEntry);
 
-            log.info("📝 Detailed web history logged for agent {}: {} - {}", agentId, request.getAction(), request.getUrl());
+            log.info("📝 Detailed web history logged for agent {}: {} - {}", agentId, request.getAction(),
+                    request.getUrl());
             return ResponseEntity.ok(new ApiResponse<>(true, "Detailed history logged successfully", null));
         } catch (Exception e) {
             log.error("❌ Failed to log detailed web history for agent {}: {}", agentId, e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to log detailed history: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to log detailed history: " + e.getMessage()));
         }
     }
 
     @PostMapping("/web-alerts")
-    public ResponseEntity<ApiResponse<String>> submitWebAlert(@RequestHeader("Authorization") String token, @RequestBody WebAlertRequest alertRequest) {
+    public ResponseEntity<ApiResponse<String>> submitWebAlert(@RequestHeader("Authorization") String token,
+            @RequestBody WebAlertRequest alertRequest) {
 
         if (!agentService.validateToken(token, alertRequest.getAgentId())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, "Invalid token"));
         }
 
         try {
-            User agent = userService.findById(alertRequest.getAgentId()).orElseThrow(() -> new RuntimeException("Agent not found"));
+            User agent = userService.findById(alertRequest.getAgentId())
+                    .orElseThrow(() -> new RuntimeException("Agent not found"));
 
             Alert alert = new Alert();
             alert.setAgent(agent);
@@ -455,7 +474,8 @@ public class AgentController {
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Web alert received successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to save web alert: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to save web alert: " + e.getMessage()));
         }
     }
 
@@ -486,7 +506,7 @@ public class AgentController {
 
     @PostMapping("/file-events")
     public ResponseEntity<ApiResponse<String>> logFileEvents( // Renamed to plural
-                                                              @RequestBody FileEventRequest request) { // This request now contains a List
+            @RequestBody FileEventRequest request) { // This request now contains a List
 
         Long agentId = request.getAgentId();
         if (agentId == null) {
@@ -518,12 +538,14 @@ public class AgentController {
             return ResponseEntity.ok(new ApiResponse<>(true, "File events logged successfully", null));
         } catch (Exception e) {
             log.error("❌ Failed to log file events for agent {}: {}", agentId, e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to log file events: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to log file events: " + e.getMessage()));
         }
     }
 
     @GetMapping("/file-policies/{agentId}")
-    public ResponseEntity<ApiResponse<Map<String, List<String>>>> getFilePolicies(@PathVariable Long agentId, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<ApiResponse<Map<String, List<String>>>> getFilePolicies(
+            @PathVariable(name = "agentId") Long agentId, @RequestHeader("Authorization") String token) {
 
         if (!agentService.validateToken(token, agentId)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, "Invalid token"));
@@ -592,21 +614,27 @@ public class AgentController {
 
         } catch (Exception e) {
             log.error("❌ Failed to get file policies for agent {}: {}", agentId, e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to get file policies: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get file policies: " + e.getMessage()));
         }
     }
 
     private String buildFileEventDescription(FileEventDTO event) {
         String action = event.isBlocked() ? "BLOCKED" : "DETECTED";
-        return String.format("File %s %s: %s (Process: %s, User: %s)", event.getOperation(), action, event.getFilePath(), event.getProcessName(), event.getUserId());
+        return String.format("File %s %s: %s (Process: %s, User: %s)", event.getOperation(), action,
+                event.getFilePath(), event.getProcessName(), event.getUserId());
     }
 
     private String buildFileEventDeviceInfo(FileEventDTO event) {
-        return String.format("Process: %s (PID: %d), Extension: %s, Size: %s", event.getProcessName(), event.getProcessId(), event.getFileExtension(), event.getFileSize() != null ? event.getFileSize() + " bytes" : "N/A");
+        return String.format("Process: %s (PID: %d), Extension: %s, Size: %s", event.getProcessName(),
+                event.getProcessId(), event.getFileExtension(),
+                event.getFileSize() != null ? event.getFileSize() + " bytes" : "N/A");
     }
 
     private String buildFileEventDetails(FileEventDTO event) {
-        return String.format("Operation: %s, Path: %s, Extension: %s, Timestamp: %s, Reason: %s", event.getOperation(), event.getFilePath(), event.getFileExtension(), event.getTimestamp(), event.getReason() != null ? event.getReason() : "N/A");
+        return String.format("Operation: %s, Path: %s, Extension: %s, Timestamp: %s, Reason: %s", event.getOperation(),
+                event.getFilePath(), event.getFileExtension(), event.getTimestamp(),
+                event.getReason() != null ? event.getReason() : "N/A");
     }
 
     private String determineFileEventSeverity(FileEventDTO event) {
@@ -637,5 +665,3 @@ public class AgentController {
     }
 
 }
-
-

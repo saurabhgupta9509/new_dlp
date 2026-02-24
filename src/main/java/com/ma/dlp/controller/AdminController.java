@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 // done
 @RestController
 @RequestMapping("/api/admin")
@@ -51,8 +50,6 @@ public class AdminController {
     @Autowired
     private PolicyRepository policyRepository;
 
-    
-
     @Autowired
     private FileEventLogRepository fileEventLogRepository;
 
@@ -60,13 +57,12 @@ public class AdminController {
     private EventLogRepository eventLogRepository;
 
     @Autowired
-    private  WebHistoryLogRepository webHistoryLogRepository;
+    private WebHistoryLogRepository webHistoryLogRepository;
 
     private static final Logger log = LoggerFactory.getLogger(AdminController.class);
 
     @Autowired
     private AlertRepository alertRepository;
-
 
     @Autowired
     private AgentCommandRepository agentCommandRepository;
@@ -77,27 +73,24 @@ public class AdminController {
     @Autowired
     private USBActivityRepository usbActivityRepository;
 
+    @GetMapping("/agents/{agentId}/browse-result")
+    public ResponseEntity<ApiResponse<FileBrowseResponseDTO>> getBrowseResult(@PathVariable Long agentId) {
 
-        @GetMapping("/agents/{agentId}/browse-result")
-        public ResponseEntity<ApiResponse<FileBrowseResponseDTO>> getBrowseResult(@PathVariable Long agentId) {
+        FileBrowseResponseDTO response = agentService.getBrowseResponse(agentId);
 
-            FileBrowseResponseDTO response = agentService.getBrowseResponse(agentId);
-
-            if (response == null) {
-                return ResponseEntity.ok(
-                        new ApiResponse<FileBrowseResponseDTO>(false, "No data yet", null)
-                );
-            }
-
+        if (response == null) {
             return ResponseEntity.ok(
-                    new ApiResponse<FileBrowseResponseDTO>(true, "Success", response)
-            );
+                    new ApiResponse<FileBrowseResponseDTO>(false, "No data yet", null));
         }
 
+        return ResponseEntity.ok(
+                new ApiResponse<FileBrowseResponseDTO>(true, "Success", response));
+    }
 
     // In AdminController.java - update the createAgent endpoint
     @PostMapping("/agents/create")
-    public ResponseEntity<ApiResponse<AgentAuthResponse>> createAgent(@RequestBody CreateUpdateAgentRequest request, HttpSession session) {
+    public ResponseEntity<ApiResponse<AgentAuthResponse>> createAgent(@RequestBody CreateUpdateAgentRequest request,
+            HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
@@ -105,44 +98,46 @@ public class AdminController {
 
         try {
             // ✅ Pass the custom password to the service method
-            AgentAuthResponse response = agentService.createAgentDirectly(null, null , request.getUsername(), request.getPassword() , null ,request.getEmail()    // ✅ Pass the custom password
+            AgentAuthResponse response = agentService.createAgentDirectly(null, null, request.getUsername(),
+                    request.getPassword(), null, request.getEmail() // ✅ Pass the custom password
             );
             return ResponseEntity.ok(new ApiResponse<>(true, "Agent created successfully", response));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to create agent: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to create agent: " + e.getMessage()));
         }
     }
 
     @PutMapping("/agents/{id}")
-public ResponseEntity<ApiResponse<User>> updateAgent(
-        @PathVariable Long id,
-        @RequestBody CreateUpdateAgentRequest request,
-        HttpSession session) {
+    public ResponseEntity<ApiResponse<User>> updateAgent(
+            @PathVariable Long id,
+            @RequestBody CreateUpdateAgentRequest request,
+            HttpSession session) {
 
-    if (!isAdminAuthenticated(session)) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ApiResponse<>(false, "Admin access required"));
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ApiResponse<>(false, "Admin access required"));
+        }
+
+        try {
+            User updatedUser = agentService.updateAgent(
+                    id,
+                    request.getUsername(),
+                    request.getPassword(),
+                    request.getEmail());
+
+            return ResponseEntity.ok(
+                    new ApiResponse<>(true, "Agent updated successfully", updatedUser));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to update agent: " + e.getMessage()));
+        }
     }
 
-    try {
-        User updatedUser = agentService.updateAgent(
-            id, 
-            request.getUsername(),
-            request.getPassword(),
-            request.getEmail()
-        );
-        
-        return ResponseEntity.ok(
-            new ApiResponse<>(true, "Agent updated successfully", updatedUser)
-        );
-    } catch (Exception e) {
-        return ResponseEntity.badRequest()
-            .body(new ApiResponse<>(false, "Failed to update agent: " + e.getMessage()));
-    }
-}
     // In AdminController.java - add debug endpoint
     @GetMapping("/debug/agent-by-mac/{macAddress}")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> debugAgentByMac(@PathVariable String macAddress, HttpSession session) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> debugAgentByMac(@PathVariable String macAddress,
+            HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
@@ -187,7 +182,13 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
                 try {
                     List<AgentCapability> capabilities = agentService.getAllCapabilities(agent.getId());
                     dto.setCapabilityCount(capabilities != null ? capabilities.size() : 0);
-                    dto.setActivePolicyCount(capabilities != null ? (int) capabilities.stream().filter(cap -> cap != null && cap.getIsActive() != null && cap.getIsActive()).count() : 0);
+                    dto.setActivePolicyCount(
+                            capabilities != null
+                                    ? (int) capabilities.stream()
+                                            .filter(cap -> cap != null && cap.getIsActive() != null
+                                                    && cap.getIsActive())
+                                            .count()
+                                    : 0);
                 } catch (Exception e) {
                     log.warn("Failed to get capabilities for agent {}: {}", agent.getId(), e.getMessage());
                     dto.setCapabilityCount(0);
@@ -200,12 +201,14 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
             return ResponseEntity.ok(new ApiResponse<>(true, "Agents retrieved successfully", agentDTOs));
         } catch (Exception e) {
             log.error("❌ Error getting agents: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to get agents: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get agents: " + e.getMessage()));
         }
     }
 
     @PutMapping("/agents/{id}/status")
-    public ResponseEntity<ApiResponse<User>> updateAgentStatus(@PathVariable Long id, @RequestParam String status, HttpSession session) {
+    public ResponseEntity<ApiResponse<User>> updateAgentStatus(@PathVariable Long id, @RequestParam String status,
+            HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
@@ -216,10 +219,10 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
             User updatedUser = userService.updateUserStatus(id, userStatus);
             return ResponseEntity.ok(new ApiResponse<>(true, "User status updated", updatedUser));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to update status: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to update status: " + e.getMessage()));
         }
     }
-
 
     @PostMapping("/agents/{id}/reset-password")
     public ResponseEntity<ApiResponse<String>> resetAgentPassword(@PathVariable Long id, HttpSession session) {
@@ -268,10 +271,10 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
                 user.getAlerts().clear();
             }
 
-//             If you have AgentCapabilities relationship:
-             if (user.getAgentCapabilities() != null) {
-                 user.getAgentCapabilities().clear();
-             }
+            // If you have AgentCapabilities relationship:
+            if (user.getAgentCapabilities() != null) {
+                user.getAgentCapabilities().clear();
+            }
 
             userRepository.save(user); // Save to persist all removals
 
@@ -280,7 +283,8 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Agent deleted successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to delete agent: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to delete agent: " + e.getMessage()));
         }
     }
 
@@ -302,17 +306,20 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
                 policiesByCategory.put(category, policyService.getPoliciesByCategory(category));
             }
 
-            log.info("🛡️ Returning protection policies for {} dynamically found categories", policiesByCategory.size());
+            log.info("🛡️ Returning protection policies for {} dynamically found categories",
+                    policiesByCategory.size());
             return ResponseEntity.ok(new ApiResponse<>(true, "Protection policies retrieved", policiesByCategory));
 
         } catch (Exception e) {
             log.error("❌ Error getting protection policies: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to get protection policies: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get protection policies: " + e.getMessage()));
         }
     }
 
     @PostMapping("/assign-protection")
-    public ResponseEntity<ApiResponse<String>> assignProtectionPolicy(@RequestBody ProtectionAssignmentRequest request, HttpSession session) {
+    public ResponseEntity<ApiResponse<String>> assignProtectionPolicy(@RequestBody ProtectionAssignmentRequest request,
+            HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
@@ -340,12 +347,14 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
             return ResponseEntity.ok(new ApiResponse<>(true, message));
         } catch (Exception e) {
             log.error("❌ Failed to assign policy {}: {}", request.getPolicyCode(), e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to assign policy: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to assign policy: " + e.getMessage()));
         }
     }
 
     @GetMapping("/agents/{agentId}/file-operations")
-    public ResponseEntity<ApiResponse<List<String>>> getAgentFileOperations(@PathVariable Long agentId, HttpSession session) {
+    public ResponseEntity<ApiResponse<List<String>>> getAgentFileOperations(@PathVariable Long agentId,
+            HttpSession session) {
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
         }
@@ -361,13 +370,14 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
 
             return ResponseEntity.ok(new ApiResponse<>(true, "File operations retrieved", fileOperations));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to get file operations: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get file operations: " + e.getMessage()));
         }
     }
 
-
     @PostMapping("/file-policy/assign")
-    public ResponseEntity<ApiResponse<String>> assignFilePolicy(@RequestBody FilePolicyAssignmentRequest request, HttpSession session) {
+    public ResponseEntity<ApiResponse<String>> assignFilePolicy(@RequestBody FilePolicyAssignmentRequest request,
+            HttpSession session) {
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
         }
@@ -381,13 +391,14 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
 
             return ResponseEntity.ok(new ApiResponse<>(true, "File policy assigned successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to assign file policy: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to assign file policy: " + e.getMessage()));
         }
     }
 
-
     @PostMapping("/deactivate-protection")
-    public ResponseEntity<ApiResponse<String>> deactivateProtectionPolicy(@RequestBody ProtectionAssignmentRequest request, HttpSession session) {
+    public ResponseEntity<ApiResponse<String>> deactivateProtectionPolicy(
+            @RequestBody ProtectionAssignmentRequest request, HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
@@ -413,7 +424,8 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
 
             return ResponseEntity.ok(new ApiResponse<>(true, message));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to deactivate policy: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to deactivate policy: " + e.getMessage()));
         }
     }
 
@@ -425,7 +437,8 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
 
     // In AdminController.java - UPDATE THE MAPPING
     @GetMapping("/web-history-detailed/{agentId}")
-    public ResponseEntity<ApiResponse<List<WebHistoryLog>>> getDetailedWebHistory(@PathVariable Long agentId, HttpSession session) {
+    public ResponseEntity<ApiResponse<List<WebHistoryLog>>> getDetailedWebHistory(@PathVariable Long agentId,
+            HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
@@ -436,12 +449,14 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
             return ResponseEntity.ok(new ApiResponse<>(true, "Detailed web history retrieved", history));
         } catch (Exception e) {
             log.error("❌ Failed to get detailed web history for agent {}: {}", agentId, e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to get detailed history: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get detailed history: " + e.getMessage()));
         }
     }
 
     @GetMapping("/file-events/{agentId}")
-    public ResponseEntity<ApiResponse<List<FileEventLog>>> getFileEvents(@PathVariable Long agentId, HttpSession session) {
+    public ResponseEntity<ApiResponse<List<FileEventLog>>> getFileEvents(@PathVariable Long agentId,
+            HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
@@ -452,28 +467,33 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
             return ResponseEntity.ok(new ApiResponse<>(true, "File events retrieved", fileEvents));
         } catch (Exception e) {
             log.error("❌ Failed to get file events for agent {}: {}", agentId, e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to get file events: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get file events: " + e.getMessage()));
         }
     }
 
     @GetMapping("/file-events/blocked/{agentId}")
-    public ResponseEntity<ApiResponse<List<FileEventLog>>> getBlockedFileEvents(@PathVariable Long agentId, HttpSession session) {
+    public ResponseEntity<ApiResponse<List<FileEventLog>>> getBlockedFileEvents(@PathVariable Long agentId,
+            HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
         }
 
         try {
-            List<FileEventLog> blockedEvents = fileEventLogRepository.findByAgentIdAndBlockedTrueOrderByTimestampDesc(agentId);
+            List<FileEventLog> blockedEvents = fileEventLogRepository
+                    .findByAgentIdAndBlockedTrueOrderByTimestampDesc(agentId);
             return ResponseEntity.ok(new ApiResponse<>(true, "Blocked file events retrieved", blockedEvents));
         } catch (Exception e) {
             log.error("❌ Failed to get blocked file events for agent {}: {}", agentId, e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to get blocked file events: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get blocked file events: " + e.getMessage()));
         }
     }
 
     @GetMapping("/stats/file-events/{agentId}")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getFileEventStats(@PathVariable Long agentId, HttpSession session) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getFileEventStats(@PathVariable Long agentId,
+            HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
@@ -496,13 +516,15 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
 
             // Recent activity (last 24 hours)
             LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
-            List<FileEventLog> recentActivity = fileEventLogRepository.findByAgentIdAndTimestampBetween(agentId, yesterday, LocalDateTime.now());
+            List<FileEventLog> recentActivity = fileEventLogRepository.findByAgentIdAndTimestampBetween(agentId,
+                    yesterday, LocalDateTime.now());
             stats.put("recentActivityCount", recentActivity.size());
 
             return ResponseEntity.ok(new ApiResponse<>(true, "File event stats retrieved", stats));
         } catch (Exception e) {
             log.error("❌ Failed to get file event stats for agent {}: {}", agentId, e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to get file event stats: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get file event stats: " + e.getMessage()));
         }
     }
 
@@ -545,21 +567,23 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
             List<CombinedHistoryDTO> allHistory = new ArrayList<>();
 
             // Get file events
-            List<FileEventLog> fileEvents = fileEventLogRepository.findByAgentIdAndTimestampAfterOrderByTimestampDesc(agentId, startDate);
+            List<FileEventLog> fileEvents = fileEventLogRepository
+                    .findByAgentIdAndTimestampAfterOrderByTimestampDesc(agentId, startDate);
             fileEvents.forEach(event -> allHistory.add(CombinedHistoryDTO.fromFileEvent(event)));
 
             // Get web history
-            List<WebHistoryLog> webHistory = webHistoryLogRepository.findByAgentIdAndVisitTimestampAfterOrderByVisitTimestampDesc(agentId, startDate);
+            List<WebHistoryLog> webHistory = webHistoryLogRepository
+                    .findByAgentIdAndVisitTimestampAfterOrderByVisitTimestampDesc(agentId, startDate);
             webHistory.forEach(entry -> allHistory.add(CombinedHistoryDTO.fromWebHistory(entry)));
 
             // Get USB history
-            List<USBActivityLog> usbHistory = usbActivityRepository.findByAgentIdAndTimestampAfterOrderByTimestampDesc(agentId, startDate);
+            List<USBActivityLog> usbHistory = usbActivityRepository
+                    .findByAgentIdAndTimestampAfterOrderByTimestampDesc(agentId, startDate);
             usbHistory.forEach(entry -> allHistory.add(CombinedHistoryDTO.fromUSBActivity(entry)));
 
             // Get alerts
             List<Alert> alerts = alertRepository.findByAgentIdAndCreatedAtAfterOrderByCreatedAtDesc(agentId, startDate);
             alerts.forEach(alert -> allHistory.add(CombinedHistoryDTO.fromAlert(alert)));
-
 
             // Sort by timestamp (newest first)
             allHistory.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
@@ -567,7 +591,8 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
             return ResponseEntity.ok(new ApiResponse<>(true, "All history retrieved", allHistory));
         } catch (Exception e) {
             log.error("❌ Failed to get all history for agent {}: {}", agentId, e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to get history: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get history: " + e.getMessage()));
         }
     }
 
@@ -597,7 +622,8 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
             }
 
             if ("ALL".equals(logType) || "WEB_HISTORY".equals(logType)) {
-                Long webCount = webHistoryLogRepository.countByVisitTimestampBetweenAndAgentId(startDate, endDate, agentId);
+                Long webCount = webHistoryLogRepository.countByVisitTimestampBetweenAndAgentId(startDate, endDate,
+                        agentId);
                 counts.put("webHistory", webCount);
                 total += webCount != null ? webCount : 0;
             }
@@ -620,7 +646,8 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
 
         } catch (Exception e) {
             log.error("❌ Failed to get log counts: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to get log counts: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get log counts: " + e.getMessage()));
         }
     }
 
@@ -648,14 +675,17 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
             }
 
             if ("ALL".equals(request.getLogType()) || "WEB_HISTORY".equals(request.getLogType())) {
-                int deleted = webHistoryLogRepository.deleteByVisitTimestampBetweenAndAgentId(startDate, endDate, agentId);
+                int deleted = webHistoryLogRepository.deleteByVisitTimestampBetweenAndAgentId(startDate, endDate,
+                        agentId);
                 result.put("webHistoryDeleted", deleted);
                 totalDeleted += deleted;
             }
 
             if ("ALL".equals(request.getLogType()) || "USB_HISTORY".equals(request.getLogType())) {
                 // Assuming you have a USBHistoryLogRepository
-                // int deleted = usbHistoryLogRepository.deleteByTimestampBetweenAndAgentId(startDate, endDate, agentId);
+                // int deleted =
+                // usbHistoryLogRepository.deleteByTimestampBetweenAndAgentId(startDate,
+                // endDate, agentId);
                 int deleted = 0; // Replace with actual deletion
                 result.put("usbHistoryDeleted", deleted);
                 totalDeleted += deleted;
@@ -676,10 +706,10 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
 
         } catch (Exception e) {
             log.error("❌ Failed to delete logs: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to delete logs: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to delete logs: " + e.getMessage()));
         }
     }
-
 
     @GetMapping("/agents/usb-history/{agentId}")
     public ResponseEntity<ApiResponse<List<USBActivityDTO>>> getUsbHistory(
@@ -693,7 +723,8 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
 
         try {
             LocalDateTime startDate = calculateStartDate(period);
-            List<USBActivityLog> usbHistory = usbActivityRepository.findByAgentIdAndTimestampAfterOrderByTimestampDesc(agentId, startDate);
+            List<USBActivityLog> usbHistory = usbActivityRepository
+                    .findByAgentIdAndTimestampAfterOrderByTimestampDesc(agentId, startDate);
 
             List<USBActivityDTO> usbDTOs = usbHistory.stream()
                     .map(this::convertToUSBDTO)
@@ -702,9 +733,11 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
             return ResponseEntity.ok(new ApiResponse<>(true, "USB history retrieved", usbDTOs));
         } catch (Exception e) {
             log.error("❌ Failed to get USB history for agent {}: {}", agentId, e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to get USB history: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get USB history: " + e.getMessage()));
         }
     }
+
     private LocalDateTime calculateStartDate(String period) {
         return switch (period.toUpperCase()) {
             case "WEEK" -> LocalDateTime.now().minusWeeks(1);
@@ -727,7 +760,6 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
         return dto;
     }
 
-
     @GetMapping("/agents/{agentId}/capabilities")
     public ResponseEntity<ApiResponse<Map<String, List<PolicyCapabilityDTO>>>> getAgentCapabilities(
             @PathVariable Long agentId, HttpSession session) {
@@ -739,8 +771,8 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
 
         try {
             // Get ONLY capabilities that this agent actually has
-            Map<String, List<PolicyCapabilityDTO>> capabilitiesByCategory =
-                    agentService.getCapabilitiesByCategory(agentId);
+            Map<String, List<PolicyCapabilityDTO>> capabilitiesByCategory = agentService
+                    .getCapabilitiesByCategory(agentId);
 
             // Filter out empty categories and ensure we only return what agent has
             Map<String, List<PolicyCapabilityDTO>> filteredCapabilities = new HashMap<>();
@@ -765,7 +797,8 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
 
     // In AdminController.java - Add new file policy endpoints
     @PostMapping("/file-policy/create")
-    public ResponseEntity<ApiResponse<String>> createFilePolicy(@RequestBody CreateFilePolicyRequest request, HttpSession session) {
+    public ResponseEntity<ApiResponse<String>> createFilePolicy(@RequestBody CreateFilePolicyRequest request,
+            HttpSession session) {
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
         }
@@ -807,7 +840,8 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
             return ResponseEntity.ok(new ApiResponse<>(true, message));
         } catch (Exception e) {
             log.error("❌ Failed to create file policy: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to create file policy: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to create file policy: " + e.getMessage()));
         }
     }
 
@@ -829,7 +863,7 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
         cmd.setProcessed(false);
         agentCommandRepository.save(cmd);
         try {
-            Map<String,Object> pending = new HashMap<>();
+            Map<String, Object> pending = new HashMap<>();
             pending.put("agentId", agentId);
             pending.put("pending", true);
             pending.put("path", path == null ? "" : path);
@@ -881,15 +915,16 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
             // Save via repository
             agentCommandRepository.save(cmd);
 
-            // Respond to UI that request has been sent. UI should poll /agents/{id}/browse-result
+            // Respond to UI that request has been sent. UI should poll
+            // /agents/{id}/browse-result
             return ResponseEntity.ok(new ApiResponse<>(false, "Browse request sent (pending)"));
 
         } catch (Exception e) {
             log.error("❌ Failed to browse agent files: {}", e.getMessage(), e);
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to browse files: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to browse files: " + e.getMessage()));
         }
     }
-
 
     @GetMapping("/agents/{agentId}/validate-path")
     public ResponseEntity<ApiResponse<PathValidationResponse>> validateAgentPath(
@@ -908,7 +943,8 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
             return ResponseEntity.ok(new ApiResponse<>(true, "Path validated", response));
         } catch (Exception e) {
             log.error("❌ Failed to validate path: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to validate path: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to validate path: " + e.getMessage()));
         }
     }
 
@@ -1034,92 +1070,138 @@ public ResponseEntity<ApiResponse<User>> updateAgent(
         List<AlertDTO> alerts = alertService.getAllAlerts();
         return ResponseEntity.ok(new ApiResponse<>(true, "All alerts retrieved", alerts));
     }
-    
-/**
- * Get count of high threat agents (threat score ≥ 70) from OCR status
- * This is already being called by your frontend
- */
-@GetMapping("/ocr/high-threat-agents/count")
-public ResponseEntity<ApiResponse<Map<String, Object>>> getHighThreatAgentsCount(HttpSession session) {
-    
-    if (!isAdminAuthenticated(session)) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ApiResponse<>(false, "Admin access required"));
-    }
-    
-    try {
-        // Get all OCR statuses with threat score ≥ 70
-        List<OcrDashboardStatsDTO> highThreatAgents = ocrService.getLatestStatusForAllAgents()
-                .stream()
-                .filter(agent -> agent.getCurrentThreatScore() >= 70)
-                .collect(Collectors.toList());
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("count", highThreatAgents.size());
-        response.put("agents", highThreatAgents);
-        response.put("timestamp", LocalDateTime.now().toString());
-        
-        log.info("📊 High threat agents count: {}", highThreatAgents.size());
-        return ResponseEntity.ok(new ApiResponse<>(true, "High threat count retrieved", response));
-        
-    } catch (Exception e) {
-        log.error("❌ Failed to get high threat count: {}", e.getMessage(), e);
-        return ResponseEntity.badRequest()
-                .body(new ApiResponse<>(false, "Failed to get count: " + e.getMessage()));
-    }
-}
 
-/**
- * Get OCR high threat alerts for the Alerts tab
- * This endpoint is called by your frontend's loadOcrHighThreatAlerts() function
- */
-@GetMapping("/ocr/high-threat-alerts")
-public ResponseEntity<ApiResponse<List<AlertDTO>>> getOcrHighThreatAlerts(
-        @RequestParam(defaultValue = "20") int limit,
-        HttpSession session) {
-    
-    if (!isAdminAuthenticated(session)) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ApiResponse<>(false, "Admin access required"));
-    }
-    
-    try {
-        List<Alert> alerts = alertRepository.findRecentOcrHighThreatAlerts(limit);
-        List<AlertDTO> alertDTOs = alerts.stream()
-                .map(this::convertToAlertDTO)
-                .collect(Collectors.toList());
-        
-        log.info("📊 Retrieved {} OCR high threat alerts", alertDTOs.size());
-        return ResponseEntity.ok(new ApiResponse<>(true, "OCR high threat alerts retrieved", alertDTOs));
-        
-    } catch (Exception e) {
-        log.error("❌ Failed to get OCR high threat alerts: {}", e.getMessage(), e);
-        return ResponseEntity.badRequest()
-                .body(new ApiResponse<>(false, "Failed to get alerts: " + e.getMessage()));
-    }
-}
+    @GetMapping("/alerts/{id}")
+    public ResponseEntity<ApiResponse<AlertDTO>> getAlertById(@PathVariable(name = "id") String id,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ApiResponse<>(false, "Admin access required"));
+        }
 
+        try {
+            Long alertId = null;
+            Alert alert = null;
 
-// Helper method to convert Alert to AlertDTO
-private AlertDTO convertToAlertDTO(Alert alert) {
-    AlertDTO dto = new AlertDTO();
-    dto.setId(alert.getId());
-    dto.setAgentId(alert.getAgent().getId());
-    dto.setAgentName(alert.getAgent().getHostname());
-    dto.setUsername(alert.getAgent().getUsername());
-    dto.setAlertType(alert.getAlertType());
-    dto.setDescription(alert.getDescription());
-    dto.setDeviceInfo(alert.getDeviceInfo());
-    dto.setFileDetails(alert.getFileDetails());
-    dto.setSeverity(alert.getSeverity());
-    dto.setStatus(alert.getStatus());
-    dto.setActionTaken(alert.getActionTaken());
-    dto.setCreatedAt(alert.getCreatedAt());
-    return dto;
-}
+            if (id.startsWith("ALT-")) {
+                alert = alertRepository.findByAlertCode(id)
+                        .orElse(null);
+
+                if (alert == null) {
+                    // Try parsing the numeric part if search by code fails
+                    try {
+                        alertId = Long.parseLong(id.substring(4));
+                        alert = alertRepository.findById(alertId).orElse(null);
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            } else {
+                try {
+                    alertId = Long.parseLong(id);
+                    alert = alertRepository.findById(alertId).orElse(null);
+                } catch (NumberFormatException ignored) {
+                }
+            }
+
+            if (alert == null) {
+                throw new RuntimeException("Alert not found with ID: " + id);
+            }
+
+            AlertDTO alertDTO = AlertDTO.fromEntity(alert);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Alert retrieved successfully", alertDTO));
+
+        } catch (Exception e) {
+            log.error("❌ Failed to get alert {}: {}", id, e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get alert: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Get count of high threat agents (threat score ≥ 70) from OCR status
+     * This is already being called by your frontend
+     */
+    @GetMapping("/ocr/high-threat-agents/count")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getHighThreatAgentsCount(HttpSession session) {
+
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ApiResponse<>(false, "Admin access required"));
+        }
+
+        try {
+            // Get all OCR statuses with threat score ≥ 70
+            List<OcrDashboardStatsDTO> highThreatAgents = ocrService.getLatestStatusForAllAgents()
+                    .stream()
+                    .filter(agent -> agent.getCurrentThreatScore() >= 70)
+                    .collect(Collectors.toList());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("count", highThreatAgents.size());
+            response.put("agents", highThreatAgents);
+            response.put("timestamp", LocalDateTime.now().toString());
+
+            log.info("📊 High threat agents count: {}", highThreatAgents.size());
+            return ResponseEntity.ok(new ApiResponse<>(true, "High threat count retrieved", response));
+
+        } catch (Exception e) {
+            log.error("❌ Failed to get high threat count: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get count: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Get OCR high threat alerts for the Alerts tab
+     * This endpoint is called by your frontend's loadOcrHighThreatAlerts() function
+     */
+    @GetMapping("/ocr/high-threat-alerts")
+    public ResponseEntity<ApiResponse<List<AlertDTO>>> getOcrHighThreatAlerts(
+            @RequestParam(defaultValue = "20") int limit,
+            HttpSession session) {
+
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ApiResponse<>(false, "Admin access required"));
+        }
+
+        try {
+            List<Alert> alerts = alertRepository.findRecentOcrHighThreatAlerts(limit);
+            List<AlertDTO> alertDTOs = alerts.stream()
+                    .map(this::convertToAlertDTO)
+                    .collect(Collectors.toList());
+
+            log.info("📊 Retrieved {} OCR high threat alerts", alertDTOs.size());
+            return ResponseEntity.ok(new ApiResponse<>(true, "OCR high threat alerts retrieved", alertDTOs));
+
+        } catch (Exception e) {
+            log.error("❌ Failed to get OCR high threat alerts: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get alerts: " + e.getMessage()));
+        }
+    }
+
+    // Helper method to convert Alert to AlertDTO
+    private AlertDTO convertToAlertDTO(Alert alert) {
+        AlertDTO dto = new AlertDTO();
+        dto.setId(alert.getId());
+        dto.setAgentId(alert.getAgent().getId());
+        dto.setAgentName(alert.getAgent().getHostname());
+        dto.setUsername(alert.getAgent().getUsername());
+        dto.setAlertType(alert.getAlertType());
+        dto.setDescription(alert.getDescription());
+        dto.setDeviceInfo(alert.getDeviceInfo());
+        dto.setFileDetails(alert.getFileDetails());
+        dto.setSeverity(alert.getSeverity());
+        dto.setStatus(alert.getStatus());
+        dto.setActionTaken(alert.getActionTaken());
+        dto.setCreatedAt(alert.getCreatedAt());
+        return dto;
+    }
 
     @GetMapping("/agents-with-capability/{policyCode}")
-    public ResponseEntity<ApiResponse<List<AgentPolicyStatusDTO>>> getAgentsWithCapability(@PathVariable String policyCode, HttpSession session) {
+    public ResponseEntity<ApiResponse<List<AgentPolicyStatusDTO>>> getAgentsWithCapability(
+            @PathVariable String policyCode, HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
@@ -1129,23 +1211,57 @@ private AlertDTO convertToAlertDTO(Alert alert) {
             List<AgentPolicyStatusDTO> agentStatuses = agentService.getAgentPolicyStatuses(policyCode);
             return ResponseEntity.ok(new ApiResponse<>(true, "Agents retrieved successfully", agentStatuses));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to get agents: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to get agents: " + e.getMessage()));
         }
     }
 
-    @PostMapping("/alerts/{alertId}/decision")
-    public ResponseEntity<ApiResponse<AlertDTO>> handleAlertDecision(@PathVariable Long alertId, @RequestParam String decision, HttpSession session) {
+    @PostMapping("/alerts/{id}/decision")
+    public ResponseEntity<ApiResponse<AlertDTO>> handleAlertDecision(@PathVariable(name = "id") String id,
+            @RequestParam(name = "decision") String decision, HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
         }
 
-        AlertDTO updatedAlert = alertService.handleDecision(alertId, decision);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Decision processed", updatedAlert));
+        try {
+            Long alertId = null;
+            Alert alert = null;
+
+            if (id.startsWith("ALT-")) {
+                alert = alertRepository.findByAlertCode(id).orElse(null);
+                if (alert == null) {
+                    try {
+                        alertId = Long.parseLong(id.substring(4));
+                    } catch (NumberFormatException ignored) {
+                    }
+                } else {
+                    alertId = alert.getId();
+                }
+            } else {
+                try {
+                    alertId = Long.parseLong(id);
+                } catch (NumberFormatException ignored) {
+                }
+            }
+
+            if (alertId == null) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Invalid alert ID format"));
+            }
+
+            AlertDTO updatedAlert = alertService.handleDecision(alertId, decision);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Decision processed", updatedAlert));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to process decision: " + e.getMessage()));
+        }
     }
 
     @PostMapping("/alerts/create-test")
-    public ResponseEntity<ApiResponse<Alert>> createTestAlert(@RequestParam Long agentId, @RequestParam String alertType, @RequestParam String description, @RequestParam String deviceInfo, @RequestParam String fileDetails, HttpSession session) {
+    public ResponseEntity<ApiResponse<Alert>> createTestAlert(@RequestParam(name = "agentId") Long agentId,
+            @RequestParam(name = "alertType") String alertType, @RequestParam(name = "description") String description,
+            @RequestParam(name = "deviceInfo") String deviceInfo,
+            @RequestParam(name = "fileDetails") String fileDetails, HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
@@ -1167,7 +1283,7 @@ private AlertDTO convertToAlertDTO(Alert alert) {
         return ResponseEntity.ok(new ApiResponse<>(true, "Alert stats by severity retrieved", stats));
     }
 
-    //THIS ENDPOINT for the Bar Chart
+    // THIS ENDPOINT for the Bar Chart
     @GetMapping("/stats/alerts-by-date")
     public ResponseEntity<ApiResponse<List<AlertsByDateDTO>>> getAlertsByDate(HttpSession session) {
         if (!isAdminAuthenticated(session)) {
@@ -1179,7 +1295,8 @@ private AlertDTO convertToAlertDTO(Alert alert) {
 
     // ADD THIS NEW ENDPOINT
     @PostMapping("/update-policy-data")
-    public ResponseEntity<ApiResponse<String>> updatePolicyData(@RequestBody UpdatePolicyDataRequest request, HttpSession session) {
+    public ResponseEntity<ApiResponse<String>> updatePolicyData(@RequestBody UpdatePolicyDataRequest request,
+            HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
@@ -1190,10 +1307,10 @@ private AlertDTO convertToAlertDTO(Alert alert) {
             return ResponseEntity.ok(new ApiResponse<>(true, "Policy data updated successfully"));
         } catch (Exception e) {
             log.error("❌ Failed to update policy data: {}", e.getMessage(), e);
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Failed to update data: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to update data: " + e.getMessage()));
         }
     }
-
 
     private Policy convertToPolicy(AgentCapability capability, User agent) {
         Policy policy = new Policy();
@@ -1214,7 +1331,6 @@ private AlertDTO convertToAlertDTO(Alert alert) {
 
         return policy;
     }
-
 
     private boolean isAdminAuthenticated(HttpSession session) {
         User currentUser = (User) session.getAttribute("currentUser");

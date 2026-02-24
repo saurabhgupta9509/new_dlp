@@ -1280,20 +1280,64 @@
                     </div>
 
                     <div id="urlHistory" class="tab-content">
-                        <div class="url-filters">
-                            <input type="text" class="filter-input" placeholder="Search URLs...">
-                            <select class="filter-input"><option>All Categories</option><option>Work</option><option>Social</option><option>Blocked</option></select>
-                            <select class="filter-input"><option>Today</option><option>This Week</option><option>This Month</option></select>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4><i class="bi bi-link text-success me-2"></i>URL History by Device</h4>
+                            <div class="input-group" style="max-width: 300px;">
+                                <input type="text" class="filter-input" placeholder="Search URLs..." id="searchUrls">
+                                <button class="btn btn-outline-success" type="button" id="searchUrlsBtn">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
                         </div>
-                        <table class="url-table">
-                            <thead><tr><th>URL</th><th>Category</th><th>Visits</th><th>Time Spent</th><th>Last Visit</th><th>Status</th></tr></thead>
-                            <tbody>
-                                <tr><td><a href="#" class="url-link">github.com/company/project</a></td><td><span class="category-tag work">Work</span></td><td>87</td><td>4h 32m</td><td>5m ago</td><td><span class="status-badge online">Allowed</span></td></tr>
-                                <tr><td><a href="#" class="url-link">stackoverflow.com</a></td><td><span class="category-tag work">Work</span></td><td>52</td><td>2h 15m</td><td>15m ago</td><td><span class="status-badge online">Allowed</span></td></tr>
-                                <tr><td><a href="#" class="url-link">linkedin.com</a></td><td><span class="category-tag social">Social</span></td><td>12</td><td>45m</td><td>1h ago</td><td><span class="status-badge online">Allowed</span></td></tr>
-                                <tr><td><a href="#" class="url-link">gambling-site.com</a></td><td><span class="category-tag blocked">Blocked</span></td><td>1</td><td>0m</td><td>3d ago</td><td><span class="status-badge offline">Blocked</span></td></tr>
-                            </tbody>
-                        </table>
+
+                        <!-- URL Statistics Cards -->
+                        <div class="row mb-4">
+                            <div class="col-md-4 col-sm-6 mb-3">
+                                <div class="card stat-card" style="background: #f9fafb; border-radius: 12px; padding: 15px;">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="text-muted mb-2">Total Visits</h6>
+                                            <h3 class="mb-0" id="totalUrlVisits">0</h3>
+                                        </div>
+                                        <i class="bi bi-globe" style="font-size: 2rem; color: #3b82f6;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 mb-3">
+                                <div class="card stat-card" style="background: #f9fafb; border-radius: 12px; padding: 15px;">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="text-muted mb-2">Suspicious</h6>
+                                            <h3 class="mb-0" id="totalSuspiciousUrls">0</h3>
+                                        </div>
+                                        <i class="bi bi-exclamation-triangle" style="font-size: 2rem; color: #f59e0b;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 mb-3">
+                                <div class="card stat-card" style="background: #f9fafb; border-radius: 12px; padding: 15px;">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="text-muted mb-2">Blocked</h6>
+                                            <h3 class="mb-0" id="totalBlockedUrls">0</h3>
+                                        </div>
+                                        <i class="bi bi-ban" style="font-size: 2rem; color: #ef4444;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- URL History Container - This will be populated dynamically -->
+                        <div id="urlsContainer">
+                            <!-- URLs grouped by deviceId will be loaded here -->
+                        </div>
+
+                        <!-- Loading Spinner -->
+                        <div class="text-center mt-3" id="urlsLoading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="appUsage" class="tab-content">
