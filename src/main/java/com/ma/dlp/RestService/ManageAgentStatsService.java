@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
 public class ManageAgentStatsService {
 
@@ -21,15 +22,15 @@ public class ManageAgentStatsService {
     private final SimpMessagingTemplate messagingTemplate;
 
     public ManageAgentStatsService(UserRepository userRepository,
-                                   AlertRepository alertRepository,
-                                   AgentCapabilityRepository agentCapabilityRepository,
-                                   SimpMessagingTemplate messagingTemplate) {
+            AlertRepository alertRepository,
+            AgentCapabilityRepository agentCapabilityRepository,
+            SimpMessagingTemplate messagingTemplate) {
         this.userRepository = userRepository;
         this.agentCapabilityRepository = agentCapabilityRepository;
         this.messagingTemplate = messagingTemplate;
     }
 
-    public ManageAgentStatsDTO getManageAgentStats(){
+    public ManageAgentStatsDTO getManageAgentStats() {
 
         List<User> tAgents = userRepository.findAllAgents(); // Using the specific method for agents
         long totalAgents = tAgents.size(); // Total agents count
@@ -44,33 +45,33 @@ public class ManageAgentStatsService {
 
         // Calculate agents that need update
         // Option 1: Based on some criteria (e.g., agents with outdated versions)
-//        long needsUpdate = tAgents.stream()
-//                .filter(agent -> {
-//                    // Example logic: agents with version older than 1.0
-//                    // You can modify this based on your actual requirements
-//                    return agent.getVersion() != null &&
-//                            !agent.getVersion().equals("1.0"); // or any other condition
-//                })
-//                .count();
+        // long needsUpdate = tAgents.stream()
+        // .filter(agent -> {
+        // // Example logic: agents with version older than 1.0
+        // // You can modify this based on your actual requirements
+        // return agent.getVersion() != null &&
+        // !agent.getVersion().equals("1.0"); // or any other condition
+        // })
+        // .count();
 
         // Option 2: If you want to use static values for demonstration/testing
         // long offlineAgents = 5; // static value
-        // long needsUpdate = 3;   // static value
+        // long needsUpdate = 3; // static value
 
         // Create and return the DTO
-        ManageAgentStatsDTO stats = new ManageAgentStatsDTO();
-        stats.setTotalAgents(totalAgents);
-        stats.setOnlineAgents(onlineAgents);
-        stats.setOfflineAgents(offlineAgents);
-        stats.setNeedsUpdate(1);
+        ManageAgentStatsDTO manageAgentStats = new ManageAgentStatsDTO();
+        manageAgentStats.setTotalAgents(totalAgents);
+        manageAgentStats.setOnlineAgents(onlineAgents);
+        manageAgentStats.setOfflineAgents(offlineAgents);
+        manageAgentStats.setNeedsUpdate(1);
 
-        return stats;
+        return manageAgentStats;
     }
 
     @Scheduled(fixedRate = 5000)
     public void pushManageAgentStats() {
         ManageAgentStatsDTO manageAgentStats = getManageAgentStats();
-        messagingTemplate.convertAndSend("/topic/dashboard-stats", manageAgentStats);
+        messagingTemplate.convertAndSend("/topic/manageAgentStats", manageAgentStats);
     }
 
 }
