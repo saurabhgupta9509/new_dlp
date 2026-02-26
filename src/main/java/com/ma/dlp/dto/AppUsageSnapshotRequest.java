@@ -34,5 +34,69 @@ public class AppUsageSnapshotRequest {
     @JsonProperty("topApps")
     @JsonAlias({"top_apps"})
     private Object topApps;
+
+    public Double getActiveUsageTime() {
+        return activeUsageTime;
+    }
+
+    public void setActiveUsageTime(Double activeUsageTime) {
+        this.activeUsageTime = activeUsageTime;
+    }
+
+    public Map<String, Double> getCategoryBreakdown() {
+        return categoryBreakdown;
+    }
+
+    public void setCategoryBreakdown(Map<String, Double> categoryBreakdown) {
+        this.categoryBreakdown = categoryBreakdown;
+    }
+
+    public String getCurrentApp() {
+        return currentApp;
+    }
+
+    public void setCurrentApp(String currentApp) {
+        this.currentApp = currentApp;
+    }
+
+    public Double getCurrentSessionDuration() {
+        return currentSessionDuration;
+    }
+
+    public void setCurrentSessionDuration(Double currentSessionDuration) {
+        this.currentSessionDuration = currentSessionDuration;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public Object getTopApps() {
+        return topApps;
+    }
+
+    public void setTopApps(Object topApps) {
+        this.topApps = topApps;
+    }
+
+    public Integer getTotalAppsTracked() {
+        return totalAppsTracked;
+    }
+
+    public void setTotalAppsTracked(Integer totalAppsTracked) {
+        this.totalAppsTracked = totalAppsTracked;
+    }
+
+    public Double getTotalTimeTracked() {
+        return totalTimeTracked;
+    }
+
+    public void setTotalTimeTracked(Double totalTimeTracked) {
+        this.totalTimeTracked = totalTimeTracked;
+    }
 }
 
