@@ -85,4 +85,12 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
 
     @Query(value = "SELECT * FROM alerts WHERE alert_type = 'OCR_HIGH_THREAT' ORDER BY created_at DESC LIMIT :limit", nativeQuery = true)
     List<Alert> findRecentOcrHighThreatAlerts(@Param("limit") int limit);
+
+     int countByAgentIdAndSeverityInAndCreatedAtAfter(
+        Long agentId, 
+        List<String> severities, 
+        LocalDateTime after
+    );
+
+
 }

@@ -3,6 +3,7 @@ package com.ma.dlp.service;
 import com.ma.dlp.Repository.BlockedUrlRepository;
 import com.ma.dlp.dto.BlockedUrlRequest;
 import com.ma.dlp.model.BlockedUrlEntity;
+import com.ma.dlp.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -14,48 +15,62 @@ import java.util.stream.Collectors;
 
 @Service
 public class BlockedUrlService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(BlockedUrlService.class);
-    
+
     private final BlockedUrlRepository blockedUrlRepository;
-    private final PythonClientService pythonClientService;
-    
-    public BlockedUrlService(BlockedUrlRepository blockedUrlRepository, 
-                            PythonClientService pythonClientService) {
+    private final com.ma.dlp.Repository.UserRepository userRepository;
+    private final AgentService agentService;
+
+    public BlockedUrlService(BlockedUrlRepository blockedUrlRepository,
+            com.ma.dlp.Repository.UserRepository userRepository,
+            AgentService agentService) {
         this.blockedUrlRepository = blockedUrlRepository;
-        this.pythonClientService = pythonClientService;
+        this.userRepository = userRepository;
+        this.agentService = agentService;
     }
-    
+
+    public List<BlockedUrlEntity> getBlockedUrlsForAgent(Long agentId) {
+        return userRepository.findById(agentId)
+                .map(agent -> {
+                    String deviceId = agent.getMacAddress(); // Using MAC as deviceId
+                    if (deviceId == null)
+                        deviceId = agent.getHostname();
+                    return getApplicableBlockedUrls(deviceId, String.valueOf(agent.getId()));
+                })
+                .orElse(Collections.emptyList());
+    }
+
     // Get all blocked URLs (sorted by updated date)
     public List<BlockedUrlEntity> getAllBlockedUrls() {
         return blockedUrlRepository.findAllByOrderByUpdatedAtDesc();
     }
-    
+
     // Get active blocked URLs
     public List<BlockedUrlEntity> getActiveBlockedUrls() {
         return blockedUrlRepository.findByActiveTrue();
     }
-    
+
     // Get global blocked URLs
     public List<BlockedUrlEntity> getGlobalBlockedUrls() {
         return blockedUrlRepository.findByGlobalTrueAndActiveTrue();
     }
-    
+
     // Get blocked URLs for a specific device
     public List<BlockedUrlEntity> getBlockedUrlsForDevice(String deviceId) {
         return blockedUrlRepository.findByDeviceIdAndActiveTrue(deviceId);
     }
-    
+
     // Get blocked URLs for a specific user
     public List<BlockedUrlEntity> getBlockedUrlsForUser(String userId) {
         return blockedUrlRepository.findByUserIdAndActiveTrue(userId);
     }
-    
+
     // Get all applicable blocked URLs for a device (global + device-specific)
     public List<BlockedUrlEntity> getApplicableBlockedUrls(String deviceId, String userId) {
         return blockedUrlRepository.findApplicableForDevice(deviceId, userId);
     }
-    
+
     // Get blocked URLs as simple list of patterns
     public List<String> getBlockedUrlPatterns(String deviceId, String userId) {
         List<BlockedUrlEntity> blockedUrls = getApplicableBlockedUrls(deviceId, userId);
@@ -63,14 +78,14 @@ public class BlockedUrlService {
                 .map(BlockedUrlEntity::getUrlPattern)
                 .collect(Collectors.toList());
     }
-    
+
     // Add a single blocked URL
     @Transactional
     public BlockedUrlEntity addBlockedUrl(BlockedUrlRequest request, String addedBy) {
         if (blockedUrlRepository.existsByUrlPattern(request.getUrlPattern())) {
             throw new IllegalArgumentException("URL pattern already exists: " + request.getUrlPattern());
         }
-        
+
         BlockedUrlEntity entity = new BlockedUrlEntity();
         entity.setUrlPattern(request.getUrlPattern());
         entity.setDomain(extractDomain(request.getUrlPattern()));
@@ -81,65 +96,78 @@ public class BlockedUrlService {
         entity.setDeviceId(request.getDeviceId());
         entity.setUserId(request.getUserId());
         entity.setAddedBy(addedBy);
-        
+
         BlockedUrlEntity saved = blockedUrlRepository.save(entity);
         logger.info("✅ Blocked URL added: {} by {}", saved.getUrlPattern(), addedBy);
-        
-        // Notify affected devices if this is a global rule
-        if (saved.isGlobal() && saved.isActive()) {
-            notifyDevicesOfRuleUpdate();
-        }
-        
+
+        // Notify affected devices
+        notifyDevicesOfRuleUpdate(saved.getDeviceId(), saved.getUserId());
+
         return saved;
     }
-    
+
     // Add multiple blocked URLs
     @Transactional
-    public List<BlockedUrlEntity> addBlockedUrls(List<BlockedUrlRequest> requests, String addedBy) {
-        List<BlockedUrlEntity> savedEntities = new ArrayList<>();
-        
-        for (BlockedUrlRequest request : requests) {
-            try {
-                // Check if already exists
-                if (!blockedUrlRepository.existsByUrlPattern(request.getUrlPattern())) {
-                    BlockedUrlEntity entity = new BlockedUrlEntity();
-                    entity.setUrlPattern(request.getUrlPattern());
-                    entity.setDomain(extractDomain(request.getUrlPattern()));
-                    entity.setReason(request.getReason());
-                    entity.setCategory(request.getCategory());
-                    entity.setActive(request.isActive());
-                    entity.setGlobal(request.getDeviceId() == null && request.getUserId() == null);
-                    entity.setDeviceId(request.getDeviceId());
-                    entity.setUserId(request.getUserId());
-                    entity.setAddedBy(addedBy);
-                    
-                    BlockedUrlEntity saved = blockedUrlRepository.save(entity);
-                    savedEntities.add(saved);
-                    logger.info("✅ Blocked URL added: {}", saved.getUrlPattern());
-                } else {
-                    logger.warn("⚠️ Skipping duplicate URL pattern: {}", request.getUrlPattern());
-                }
-            } catch (Exception e) {
-                logger.warn("⚠️ Failed to add blocked URL: {}", e.getMessage());
+public List<BlockedUrlEntity> addBlockedUrls(List<BlockedUrlRequest> requests, String addedBy) {
+    List<BlockedUrlEntity> savedEntities = new ArrayList<>();
+    LocalDateTime now = LocalDateTime.now(); // Use same timestamp for all
+
+    for (BlockedUrlRequest request : requests) {
+        try {
+            // Check if already exists - if yes, update it instead
+            Optional<BlockedUrlEntity> existing = blockedUrlRepository.findByUrlPattern(request.getUrlPattern());
+            
+            BlockedUrlEntity entity;
+            if (existing.isPresent()) {
+                // Update existing
+                entity = existing.get();
+                entity.setReason(request.getReason());
+                entity.setCategory(request.getCategory());
+                entity.setActive(request.isActive());
+                entity.setGlobal(request.getDeviceId() == null && request.getUserId() == null);
+                entity.setDeviceId(request.getDeviceId());
+                entity.setUserId(request.getUserId());
+                entity.setAddedBy(addedBy);
+                entity.setUpdatedAt(now); // IMPORTANT: Set update time
+                logger.info("🔄 Updating existing blocked URL: {}", request.getUrlPattern());
+            } else {
+                // Create new
+                entity = new BlockedUrlEntity();
+                entity.setUrlPattern(request.getUrlPattern());
+                entity.setDomain(extractDomain(request.getUrlPattern()));
+                entity.setReason(request.getReason());
+                entity.setCategory(request.getCategory());
+                entity.setActive(request.isActive());
+                entity.setGlobal(request.getDeviceId() == null && request.getUserId() == null);
+                entity.setDeviceId(request.getDeviceId());
+                entity.setUserId(request.getUserId());
+                entity.setAddedBy(addedBy);
+                entity.setCreatedAt(now); // IMPORTANT: Set create time
+                entity.setUpdatedAt(now); // IMPORTANT: Set update time
+                logger.info("✅ Creating new blocked URL: {}", request.getUrlPattern());
             }
+
+            BlockedUrlEntity saved = blockedUrlRepository.save(entity);
+            savedEntities.add(saved);
+            
+        } catch (Exception e) {
+            logger.error("⚠️ Failed to add blocked URL {}: {}", request.getUrlPattern(), e.getMessage());
         }
-        
-        if (!savedEntities.isEmpty()) {
-            notifyDevicesOfRuleUpdate();
-        }
-        
-        return savedEntities;
     }
-    
+
+    if (!savedEntities.isEmpty()) {
+        notifyDevicesOfRuleUpdate(null, null);
+        logger.info("📊 Saved {} blocked URLs with timestamps", savedEntities.size());
+    }
+
+    return savedEntities;
+}
     // Update a blocked URL
     @Transactional
     public BlockedUrlEntity updateBlockedUrl(Long id, BlockedUrlRequest request) {
         BlockedUrlEntity entity = blockedUrlRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Blocked URL not found with id: " + id));
-        
-        boolean wasActive = entity.isActive();
-        boolean wasGlobal = entity.isGlobal();
-        
+
         entity.setUrlPattern(request.getUrlPattern());
         entity.setDomain(extractDomain(request.getUrlPattern()));
         entity.setReason(request.getReason());
@@ -149,35 +177,30 @@ public class BlockedUrlService {
         entity.setUserId(request.getUserId());
         entity.setGlobal(request.getDeviceId() == null && request.getUserId() == null);
         entity.setUpdatedAt(LocalDateTime.now());
-        
+
         BlockedUrlEntity updated = blockedUrlRepository.save(entity);
         logger.info("✅ Blocked URL updated: {}", updated.getUrlPattern());
-        
+
         // Notify devices if the rule status changed
-        if ((wasActive != updated.isActive()) || (wasGlobal != updated.isGlobal())) {
-            notifyDevicesOfRuleUpdate();
-        }
-        
+        notifyDevicesOfRuleUpdate(updated.getDeviceId(), updated.getUserId());
+
         return updated;
     }
-    
+
     // Delete blocked URL
     @Transactional
     public void deleteBlockedUrl(Long id) {
         BlockedUrlEntity entity = blockedUrlRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Blocked URL not found with id: " + id));
-        
-        boolean wasGlobal = entity.isGlobal();
+
         blockedUrlRepository.delete(entity);
         logger.info("🗑️ Blocked URL deleted: {}", entity.getUrlPattern());
-        
-        // Notify devices if this was a global rule
-        if (wasGlobal) {
-            notifyDevicesOfRuleUpdate();
-        }
+
+        // Notify devices
+        notifyDevicesOfRuleUpdate(entity.getDeviceId(), entity.getUserId());
     }
-    
-    // Delete by patterns
+
+    // Delete by patterns 
     @Transactional
     public int deleteByPatterns(List<String> patterns) {
         int deletedCount = 0;
@@ -190,31 +213,31 @@ public class BlockedUrlService {
                 logger.warn("⚠️ Failed to delete blocked URL by pattern: {}", pattern);
             }
         }
-        
+
         if (deletedCount > 0) {
-            notifyDevicesOfRuleUpdate();
+            notifyDevicesOfRuleUpdate(null, null);
         }
-        
+
         return deletedCount;
     }
-    
+
     // Toggle blocked URL status
     @Transactional
     public BlockedUrlEntity toggleBlockedUrl(Long id, boolean active) {
         BlockedUrlEntity entity = blockedUrlRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Blocked URL not found with id: " + id));
-        
+
         entity.setActive(active);
         entity.setUpdatedAt(LocalDateTime.now());
-        
+
         BlockedUrlEntity updated = blockedUrlRepository.save(entity);
         logger.info("🔄 Blocked URL {}: {}", active ? "activated" : "deactivated", updated.getUrlPattern());
-        
-        notifyDevicesOfRuleUpdate();
-        
+
+        notifyDevicesOfRuleUpdate(updated.getDeviceId(), updated.getUserId());
+
         return updated;
     }
-    
+
     // Increment hit count when a URL is blocked
     @Transactional
     public void incrementHitCount(String urlPattern) {
@@ -224,11 +247,11 @@ public class BlockedUrlService {
                     blockedUrlRepository.save(entity);
                 });
     }
-    
+
     // Get statistics
     public Map<String, Object> getStatistics() {
         Map<String, Object> stats = new HashMap<>();
-        
+
         List<BlockedUrlEntity> allUrls = blockedUrlRepository.findAll();
         long totalUrls = allUrls.size();
         long activeUrls = allUrls.stream().filter(BlockedUrlEntity::isActive).count();
@@ -239,19 +262,18 @@ public class BlockedUrlService {
         long userSpecificUrls = allUrls.stream()
                 .filter(url -> url.getUserId() != null && !url.getUserId().isEmpty())
                 .count();
-        
+
         // Category breakdown
         Map<String, Long> categoryCount = allUrls.stream()
                 .collect(Collectors.groupingBy(
-                    url -> url.getCategory() != null ? url.getCategory() : "uncategorized",
-                    Collectors.counting()
-                ));
-        
+                        url -> url.getCategory() != null ? url.getCategory() : "uncategorized",
+                        Collectors.counting()));
+
         // Total hits
         int totalHits = allUrls.stream()
                 .mapToInt(BlockedUrlEntity::getHitCount)
                 .sum();
-        
+
         stats.put("totalUrls", totalUrls);
         stats.put("activeUrls", activeUrls);
         stats.put("globalUrls", globalUrls);
@@ -260,10 +282,10 @@ public class BlockedUrlService {
         stats.put("categoryBreakdown", categoryCount);
         stats.put("totalHits", totalHits);
         stats.put("lastUpdated", LocalDateTime.now());
-        
+
         return stats;
     }
-    
+
     // Get most blocked URLs (by hit count)
     public List<Map<String, Object>> getMostBlockedUrls(int limit) {
         return blockedUrlRepository.findAll().stream()
@@ -272,64 +294,82 @@ public class BlockedUrlService {
                 .map(this::convertToMap)
                 .collect(Collectors.toList());
     }
-    
+
     // Get blocked URLs for a specific category
     public List<BlockedUrlEntity> getUrlsByCategory(String category) {
         return blockedUrlRepository.findByCategory(category);
     }
-    
+
     // Search blocked URLs
     public List<BlockedUrlEntity> searchUrls(String keyword) {
         List<BlockedUrlEntity> allUrls = blockedUrlRepository.findAll();
         return allUrls.stream()
-                .filter(url -> 
-                    (url.getUrlPattern() != null && url.getUrlPattern().toLowerCase().contains(keyword.toLowerCase())) ||
-                    (url.getDomain() != null && url.getDomain().toLowerCase().contains(keyword.toLowerCase())) ||
-                    (url.getReason() != null && url.getReason().toLowerCase().contains(keyword.toLowerCase())) ||
-                    (url.getCategory() != null && url.getCategory().toLowerCase().contains(keyword.toLowerCase()))
-                )
+                .filter(url -> (url.getUrlPattern() != null
+                        && url.getUrlPattern().toLowerCase().contains(keyword.toLowerCase())) ||
+                        (url.getDomain() != null && url.getDomain().toLowerCase().contains(keyword.toLowerCase())) ||
+                        (url.getReason() != null && url.getReason().toLowerCase().contains(keyword.toLowerCase())) ||
+                        (url.getCategory() != null && url.getCategory().toLowerCase().contains(keyword.toLowerCase())))
                 .collect(Collectors.toList());
     }
-    
-    // Notify all Python clients about rule updates
-    private void notifyDevicesOfRuleUpdate() {
-        // This will trigger devices to fetch updated rules on next heartbeat
-        logger.info("🔄 Blocked URL rules updated. Devices will fetch new rules on next heartbeat.");
-        
-        // You could implement real-time push notifications here
-        // For now, we'll rely on devices polling on heartbeat
+
+    // Notify affected clients about rule updates
+    private void notifyDevicesOfRuleUpdate(String deviceId, String userId) {
+        logger.info("🔄 Blocked URL rules updated. Triggering notifications (device={}, user={})", deviceId, userId);
+
+        if (deviceId == null && userId == null) {
+            // Global update - notify all active agents
+            userRepository.findAllAgents().stream()
+                    .filter(u -> u.getStatus() == User.UserStatus.ACTIVE)
+                    .forEach(agent -> agentService.sendPolicyUpdateNotification(agent.getId()));
+        } else if (deviceId != null) {
+            // Specific device
+            userRepository.findAllByMacAddress(deviceId)
+                    .forEach(agent -> agentService.sendPolicyUpdateNotification(agent.getId()));
+
+            // Also try by hostname if deviceId might be hostname
+            userRepository.findByHostname(deviceId)
+                    .ifPresent(agent -> agentService.sendPolicyUpdateNotification(agent.getId()));
+        } else if (userId != null) {
+            // Specific user
+            try {
+                Long uid = Long.parseLong(userId);
+                agentService.sendPolicyUpdateNotification(uid);
+            } catch (Exception e) {
+                logger.warn("Failed to parse userId '{}' for notification", userId);
+            }
+        }
     }
-    
+
     // Extract domain from URL pattern
     private String extractDomain(String urlPattern) {
         if (urlPattern == null || urlPattern.trim().isEmpty()) {
             return "";
         }
-        
+
         try {
             String pattern = urlPattern.trim().toLowerCase();
-            
+
             // Remove protocol if present
             if (pattern.contains("://")) {
                 pattern = pattern.split("://")[1];
             }
-            
+
             // Remove path and query parameters
             pattern = pattern.split("/")[0];
-            
+
             // Remove port if present
             pattern = pattern.split(":")[0];
-            
+
             // Remove wildcards
             pattern = pattern.replace("*", "");
-            
+
             return pattern;
         } catch (Exception e) {
             logger.warn("⚠️ Failed to extract domain from pattern: {}", urlPattern);
             return urlPattern;
         }
     }
-    
+
     // Convert entity to map for response
     private Map<String, Object> convertToMap(BlockedUrlEntity entity) {
         Map<String, Object> map = new HashMap<>();

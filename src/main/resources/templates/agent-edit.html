@@ -4390,61 +4390,131 @@
         return urlParams.get("id");
       }
 
-      async function loadAgentData(agentId) {
+//       async function loadAgentData(agentId) {
+//         try {
+//           // Show loading state
+//           showLoadingState();
+
+//           const response = await fetch(`/api/admin/agents`, {
+//             credentials: "include",
+//           });
+
+//           if (!response.ok) throw new Error("Failed to fetch agents");
+
+//           const result = await response.json();
+
+//           if (result.success) {
+//             const agent = result.data.find((a) => a.id.toString() === agentId);
+//                console.log("Found agent:", agent);  // ✅ 2. Agent object dekho
+//       console.log("Email from API:", agent.email);
+//             if (agent) {
+//               // Populate form fields
+// // <!--              document.getElementById("agentName").value =-->
+// // <!--                agent.hostname || "N/A";-->
+//               document.getElementById("hostname").value =
+//                 agent.hostname || "N/A";
+//               document.getElementById("ipAddress").value =
+//                 agent.ipAddress || "N/A";
+//               document.getElementById("macAddress").value =
+//                 agent.macAddress || "Not available";
+//               document.getElementById("username").value = agent.username || "";
+//               document.getElementById("email").value = agent.email || "";
+
+//               // Clear password fields
+//               document.getElementById("password").value = "";
+//               document.getElementById("confirmPassword").value = "";
+
+//               setFieldStates(agent);
+
+//               // Update status badge
+//               updateStatusBadge(agent);
+
+//               // Update info card with ALL available data
+//               updateInfoCard(agent);
+
+//               // Store original form data for reset
+//               captureOriginalFormData();
+//             } else {
+//               alert("Agent not found");
+//               window.location.href = "manage-agents";
+//             }
+//           }
+//         } catch (error) {
+//           console.error("Error loading agent:", error);
+//           showErrorState();
+//         }
+//       }
+async function loadAgentData(agentId) {
+    try {
+        // Show loading state
+        showLoadingState();
+
+        // Try the detail endpoint first
         try {
-          // Show loading state
-          showLoadingState();
-
-          const response = await fetch(`/api/admin/agents`, {
-            credentials: "include",
-          });
-
-          if (!response.ok) throw new Error("Failed to fetch agents");
-
-          const result = await response.json();
-
-          if (result.success) {
-            const agent = result.data.find((a) => a.id.toString() === agentId);
-               console.log("Found agent:", agent);  // ✅ 2. Agent object dekho
-      console.log("Email from API:", agent.email);
-            if (agent) {
-              // Populate form fields
-<!--              document.getElementById("agentName").value =-->
-<!--                agent.hostname || "N/A";-->
-              document.getElementById("hostname").value =
-                agent.hostname || "N/A";
-              document.getElementById("ipAddress").value =
-                agent.ipAddress || "N/A";
-              document.getElementById("macAddress").value =
-                agent.macAddress || "Not available";
-              document.getElementById("username").value = agent.username || "";
-              document.getElementById("email").value = agent.email || "";
-
-              // Clear password fields
-              document.getElementById("password").value = "";
-              document.getElementById("confirmPassword").value = "";
-
-              setFieldStates(agent);
-
-              // Update status badge
-              updateStatusBadge(agent);
-
-              // Update info card with ALL available data
-              updateInfoCard(agent);
-
-              // Store original form data for reset
-              captureOriginalFormData();
-            } else {
-              alert("Agent not found");
-              window.location.href = "manage-agents";
+            const detailResponse = await fetch(`/api/admin/agents/${agentId}/detail`, {
+                credentials: "include",
+            });
+            
+            if (detailResponse.ok) {
+                const detailResult = await detailResponse.json();
+                if (detailResult.success && detailResult.data) {
+                    console.log("Agent loaded via detail endpoint:", detailResult.data);
+                    populateAgentData(detailResult.data);
+                    return;
+                }
             }
-          }
-        } catch (error) {
-          console.error("Error loading agent:", error);
-          showErrorState();
+        } catch (detailError) {
+            console.log("Detail endpoint failed, falling back to agents list");
         }
-      }
 
+        // Fallback: Get all agents and find the one we need
+        const response = await fetch(`/api/admin/agents`, {
+            credentials: "include",
+        });
+
+        if (!response.ok) throw new Error(`Failed to fetch agents: ${response.status}`);
+
+        const result = await response.json();
+
+        if (result.success) {
+            const agent = result.data.find((a) => a.id.toString() === agentId);
+            if (agent) {
+                console.log("Found agent in list:", agent);
+                populateAgentData(agent);
+            } else {
+                alert("Agent not found");
+                window.location.href = "manage-agents";
+            }
+        }
+    } catch (error) {
+        console.error("Error loading agent:", error);
+        showErrorState();
+    }
+}
+
+  function populateAgentData(agent) {
+    // Populate form fields
+    document.getElementById("hostname").value = agent.hostname || "N/A";
+    document.getElementById("ipAddress").value = agent.ipAddress || "N/A";
+    document.getElementById("macAddress").value = agent.macAddress || "Not available";
+    document.getElementById("username").value = agent.username || "";
+    document.getElementById("email").value = agent.email || "";
+
+    // Clear password fields
+    document.getElementById("password").value = "";
+    document.getElementById("confirmPassword").value = "";
+
+    setFieldStates(agent);
+
+    // Update status badge
+    updateStatusBadge(agent);
+
+    // Update info card with ALL available data
+    updateInfoCard(agent);
+
+    // Store original form data for reset
+    captureOriginalFormData();
+}
       // Update status badge
       function updateStatusBadge(agent) {
         const statusDiv = document.getElementById("agentStatus");
@@ -4552,28 +4622,49 @@
       }
 
       // Format time ago helper
-      function formatTimeAgo(timestamp) {
-        if (!timestamp) return "Never";
-        const seconds = Math.floor((Date.now() - new Date(timestamp)) / 1000);
-        if (seconds < 60) return `${seconds}s ago`;
-        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-        return `${Math.floor(seconds / 86400)}d ago`;
-      }
-
-      function isAgentOnline(agent) {
-        if (!agent.lastHeartbeat) return false;
-        const secondsSince = Math.floor(
-          (Date.now() - new Date(agent.lastHeartbeat).getTime()) / 1000
-        );
-        return secondsSince <= 15;
-      }
+      // Format time ago helper (updated to handle array dates)
+function formatTimeAgo(timestamp) {
+    if (!timestamp) return "Never";
+    
+    let date;
+    
+    // Handle array format [year, month, day, hour, minute, second]
+    if (Array.isArray(timestamp)) {
+        const [year, month, day, hour, minute, second] = timestamp;
+        date = new Date(year, month - 1, day, hour, minute, second);
+    } else {
+        date = new Date(timestamp);
+    }
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) return "Invalid date";
+    
+    const seconds = Math.floor((Date.now() - date) / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    return `${Math.floor(seconds / 86400)}d ago`;
+}
+   function isAgentOnline(agent) {
+    if (!agent.lastHeartbeat) return false;
+    
+    let lastHeartbeat;
+    if (Array.isArray(agent.lastHeartbeat)) {
+        const [year, month, day, hour, minute, second] = agent.lastHeartbeat;
+        lastHeartbeat = new Date(year, month - 1, day, hour, minute, second);
+    } else {
+        lastHeartbeat = new Date(agent.lastHeartbeat);
+    }
+    
+    const secondsSince = Math.floor((Date.now() - lastHeartbeat) / 1000);
+    return secondsSince <= 45; // 45 seconds threshold for online
+}
 
       function setFieldStates(agent) {
         const online = isAgentOnline(agent);
 
         // Disable fields that can only be updated when agent is online
-<!--        document.getElementById("agentName").disabled = true;-->
+// <!--        document.getElementById("agentName").disabled = true;-->
         document.getElementById("hostname").disabled = true;
         document.getElementById("ipAddress").disabled = true;
         document.getElementById("macAddress").disabled = true;
@@ -4634,84 +4725,144 @@
       }
 
       async function handleSubmit(event) {
-        event.preventDefault();
+    event.preventDefault();
 
-        const agentId = getAgentIdFromUrl();
-        const username = document.getElementById("username").value;
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-        const passwordDisabled = document.getElementById("password").disabled;
-        const confirmPassword = document.getElementById("confirmPassword").value;
+    const agentId = getAgentIdFromUrl();
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const passwordDisabled = document.getElementById("password").disabled;
+    const confirmPassword = document.getElementById("confirmPassword").value;
 
-        // Validate
-        if (!username || !email) {
-          alert("Username and Email are required!");
-          return;
-        }
+    // Validate
+    if (!username || !email) {
+        alert("Username and Email are required!");
+        return;
+    }
 
-        // Email validation
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(email)) {
-          alert("Please enter a valid email address!");
-          return;
-        }
+    // Email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+        alert("Please enter a valid email address!");
+        return;
+    }
 
-        // Password validation (only if password is provided AND fields are enabled)
-        if (!passwordDisabled && (password || confirmPassword)) {
-          if (password !== confirmPassword) {
+    // Password validation
+    if (!passwordDisabled && (password || confirmPassword)) {
+        if (password !== confirmPassword) {
             alert("Passwords do not match!");
             return;
-          }
-          if (password.length < 6) {
+        }
+        if (password.length < 6) {
             alert("Password must be at least 6 characters long!");
             return;
-          }
         }
+    }
 
-        // Prepare request data
-        const requestData = {
-          username: username,
-          email: email,
-        };
+    // Prepare request data
+    const requestData = {
+        username: username,
+        email: email,
+    };
 
-        // Only include password if it was changed AND fields are enabled
-        if (!passwordDisabled && password) {
-          requestData.password = password;
-        }
+    if (!passwordDisabled && password) {
+        requestData.password = password;
+    }
 
-        // Disable submit button
-        const submitBtn = event.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner"></span> Saving...';
+    // Disable submit button
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner"></span> Saving...';
 
-        try {
-          const response = await fetch(`/api/admin/agents/${agentId}`, {
+    try {
+        const response = await fetch(`/api/admin/agents/${agentId}`, {
             method: "PUT",
             headers: {
-              "Content-Type": "application/json",
+                "Content-Type": "application/json",
             },
             credentials: "include",
             body: JSON.stringify(requestData),
-          });
+        });
 
-          const result = await response.json();
+        const responseText = await response.text();
+        console.log("Raw response (first 500 chars):", responseText.substring(0, 500));
 
-          if (response.ok && result.success) {
+        // Try multiple strategies to parse the response
+        let result = null;
+        let parseSuccess = false;
+
+        // Strategy 1: Try direct parse
+        try {
+            result = JSON.parse(responseText);
+            parseSuccess = true;
+            console.log("Successfully parsed with strategy 1");
+        } catch (e) {
+            console.log("Strategy 1 failed:", e.message);
+            
+            // Strategy 2: Remove recursive references
+            try {
+                // Remove the recursive "agent" fields that cause infinite nesting
+                const cleanedForRecursion = responseText
+                    .replace(/"agent":\{[^{]*?(?:id[^}]*)?\}/g, '"agent":null') // Remove agent objects
+                    .replace(/"agent":null,/g, '') // Remove null agents with comma
+                    .replace(/,"agent":null/g, '') // Remove null agents without comma
+                    .replace(/"agent":null/g, '"agent":null'); // Final cleanup
+                
+                // Fix common JSON issues
+                const cleanedText = cleanedForRecursion
+                    .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
+                    .replace(/\]\s*\]/g, ']') // Fix double closing brackets
+                    .replace(/\}\s*\}/g, '}') // Fix double closing braces
+                    .replace(/"lastScreenshotTime":\[\s*\]/g, '"lastScreenshotTime":null') // Fix empty arrays
+                    .replace(/\[\s*\]/g, 'null'); // Replace any empty arrays with null
+                
+                console.log("Cleaned text (first 500 chars):", cleanedText.substring(0, 500));
+                result = JSON.parse(cleanedText);
+                parseSuccess = true;
+                console.log("Successfully parsed with strategy 2");
+            } catch (e2) {
+                console.log("Strategy 2 failed:", e2.message);
+                
+                // Strategy 3: Extract just the outer object
+                try {
+                    // Find the outermost structure
+                    const match = responseText.match(/\{.*"success".*"message".*"data".*\}/s);
+                    if (match) {
+                        const extracted = match[0];
+                        const cleanedExtracted = extracted
+                            .replace(/"agent":\{[^{]*?(?:id[^}]*)?\}/g, '"agent":null')
+                            .replace(/,(\s*[}\]])/g, '$1');
+                        
+                        result = JSON.parse(cleanedExtracted);
+                        parseSuccess = true;
+                        console.log("Successfully parsed with strategy 3");
+                    }
+                } catch (e3) {
+                    console.error("All parsing strategies failed");
+                }
+            }
+        }
+
+        if (!parseSuccess) {
+            throw new Error("Could not parse server response");
+        }
+
+        if (response.ok && result.success) {
             alert("Agent updated successfully!");
             window.location.href = `agent-view?id=${agentId}`;
-          } else {
+        } else {
             alert(result.message || "Failed to update agent");
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
-          }
-        } catch (error) {
-          console.error("Error updating agent:", error);
-          alert("Network error: Could not connect to server");
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = originalText;
         }
-      }
+    } catch (error) {
+        console.error("Error updating agent:", error);
+        alert("Network error: Could not connect to server. " + error.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
+}
 
       // Function to execute scripts after loading components
       function executeScripts(element) {
@@ -4826,7 +4977,7 @@
       // Initialize on DOM ready
       document.addEventListener("DOMContentLoaded", async function () {
 
-<!--            loadAdminInfo();-->
+// <!--            loadAdminInfo();-->
 
           // Get agent ID from URL
           const agentId = getAgentIdFromUrl();
@@ -4839,9 +4990,9 @@
           // Set active menu item
           setActiveMenuItem();
 
-          // Load components
-<!--          await loadComponent("sidebar", "sidebarContainer");-->
-<!--          await loadComponent("page-header", "headerContainer");-->
+//           // Load components
+// <!--          await loadComponent("sidebar", "sidebarContainer");-->
+// <!--          await loadComponent("page-header", "headerContainer");-->
 
           // LOAD AGENT DATA AFTER COMPONENTS ARE LOADED
           await loadAgentData(agentId);

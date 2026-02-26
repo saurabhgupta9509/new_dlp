@@ -1,6 +1,7 @@
 package com.ma.dlp.controller;
 
 import com.ma.dlp.Repository.AgentCommandRepository;
+import com.ma.dlp.Repository.AppUsageLogRepository;
 import com.ma.dlp.Repository.FileEventLogRepository;
 import com.ma.dlp.Repository.UserRepository;
 import com.ma.dlp.Repository.WebHistoryLogRepository;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import com.ma.dlp.dto.FileEventDTO;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,35 +30,50 @@ import org.slf4j.LoggerFactory;
 @RequestMapping("/api/agent")
 public class AgentController {
 
-    @Autowired
-    private AgentService agentService;
-
-    @Autowired
-    private AlertService alertService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private AgentCommandRepository agentCommandRepository;
-
+    private final AgentService agentService;
+    private final AlertService alertService;
+    private final UserService userService;
+    private final UserRepository userRepository;
+    private final AgentCommandRepository agentCommandRepository;
     private final WebHistoryLogRepository webHistoryLogRepository;
     private final FileEventLogRepository fileEventLogRepository;
+    private final AppUsageLogRepository appUsageLogRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final WebsocketMessageService websocketMessageService;
+    private final BlockedUrlService blockedUrlService;
+    private final PartialAccessService partialAccessService;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+
     private static final Logger log = LoggerFactory.getLogger(AgentController.class);
 
     @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
-
-    @Autowired
-    private WebsocketMessageService websocketMessageService;
-
-    public AgentController(WebHistoryLogRepository webHistoryLogRepository,
-            FileEventLogRepository fileEventLogRepository) {
+    public AgentController(
+            AgentService agentService,
+            AlertService alertService,
+            UserService userService,
+            UserRepository userRepository,
+            AgentCommandRepository agentCommandRepository,
+            WebHistoryLogRepository webHistoryLogRepository,
+            FileEventLogRepository fileEventLogRepository,
+            AppUsageLogRepository appUsageLogRepository,
+            SimpMessagingTemplate simpMessagingTemplate,
+            WebsocketMessageService websocketMessageService,
+            BlockedUrlService blockedUrlService,
+            PartialAccessService partialAccessService,
+            com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
+        this.agentService = agentService;
+        this.alertService = alertService;
+        this.userService = userService;
+        this.userRepository = userRepository;
+        this.agentCommandRepository = agentCommandRepository;
         this.webHistoryLogRepository = webHistoryLogRepository;
         this.fileEventLogRepository = fileEventLogRepository;
-
+        this.appUsageLogRepository = appUsageLogRepository;
+        this.simpMessagingTemplate = simpMessagingTemplate;
+        this.websocketMessageService = websocketMessageService;
+        this.blockedUrlService = blockedUrlService;
+        this.partialAccessService = partialAccessService;
+        this.objectMapper = objectMapper;
     }
 
     private String cleanToken(String authHeader) {
@@ -68,8 +86,8 @@ public class AgentController {
     }
 
     @GetMapping("/commands/{agentId}")
-    public ResponseEntity<Map<String, Object>> getPendingCommand(@RequestHeader("Authorization") String token,
-            @PathVariable(name = "agentId") Long agentId) {
+    public ResponseEntity<Map<String, Object>> getPendingCommand(@RequestHeader(value = "Authorization") String token,
+            @PathVariable(value = "agentId") Long agentId) {
 
         String cleanToken = cleanToken(token);
         log.info("🔐 Clean token: {}", cleanToken);
@@ -99,9 +117,43 @@ public class AgentController {
         return ResponseEntity.ok(resp);
     }
 
+    /**
+     * Agent fetch for blocked URLs
+     */
+    @GetMapping("/{agentId}/blocked-urls")
+    public ResponseEntity<ApiResponse<List<BlockedUrlEntity>>> getAgentBlockedUrls(
+            @RequestHeader(value = "Authorization") String token,
+            @PathVariable(value = "agentId") Long agentId) {
+
+        String cleanToken = cleanToken(token);
+        if (!agentService.validateToken(cleanToken, agentId)) {
+            return ResponseEntity.status(401).body(new ApiResponse<>(false, "Invalid token"));
+        }
+
+        List<BlockedUrlEntity> blockedUrls = blockedUrlService.getBlockedUrlsForAgent(agentId);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Blocked URLs retrieved", blockedUrls));
+    }
+
+    /**
+     * Agent fetch for partial access rules
+     */
+    @GetMapping("/{agentId}/partial-access")
+    public ResponseEntity<ApiResponse<List<PartialAccessEntity>>> getAgentPartialAccess(
+            @RequestHeader(value = "Authorization") String token,
+            @PathVariable(value = "agentId") Long agentId) {
+
+        String cleanToken = cleanToken(token);
+        if (!agentService.validateToken(cleanToken, agentId)) {
+            return ResponseEntity.status(401).body(new ApiResponse<>(false, "Invalid token"));
+        }
+
+        List<PartialAccessEntity> partialAccess = partialAccessService.getPartialAccessForAgent(agentId);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Partial access configuration retrieved", partialAccess));
+    }
+
     @GetMapping("/agents/{agentId}/browse-files")
     public ResponseEntity<?> browseFiles(
-            @PathVariable(name = "agentId") Long agentId,
+            @PathVariable(value = "agentId") Long agentId,
             @RequestParam(name = "path", required = false) String path) {
         log.info("📁 Browse requested for agent {} on path '{}'", agentId, path);
 
@@ -127,7 +179,7 @@ public class AgentController {
 
     @PostMapping("/file-browse-response")
     public ResponseEntity<ApiResponse<String>> receiveBrowseResponse(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader(value = "Authorization") String token,
             @RequestBody FileBrowseResponseDTO response) {
 
         Long agentId = response.getAgentId();
@@ -225,7 +277,7 @@ public class AgentController {
     }
 
     @PostMapping("/capabilities")
-    public ResponseEntity<ApiResponse<String>> reportCapabilities(@RequestHeader("Authorization") String token,
+    public ResponseEntity<ApiResponse<String>> reportCapabilities(@RequestHeader(value = "Authorization") String token,
             @RequestBody CapabilityReportRequest request) {
 
         if (!agentService.validateToken(token, request.getAgentId())) {
@@ -244,7 +296,7 @@ public class AgentController {
 
     @GetMapping("/active-policies")
     public ResponseEntity<ApiResponse<AgentPoliciesResponse>> getActivePolicies(
-            @RequestHeader("Authorization") String token, @RequestParam(name = "agentId") Long agentId) {
+            @RequestHeader(value = "Authorization") String token, @RequestParam(name = "agentId") Long agentId) {
 
         // 1. You check if the token is valid
         if (!agentService.validateToken(token, agentId)) {
@@ -265,7 +317,7 @@ public class AgentController {
             // --- SYNTHETIC OCR POLICY ---
             AgentCapability ocrCapability = new AgentCapability();
             // Use the correct constant from the Rust agent for the toggle state
-            ocrCapability.setCapabilityCode("OCR_MONITOR");
+            ocrCapability.setCapabilityCode("POLICY_OCR_MONITOR");
             ocrCapability.setIsActive(true);
             ocrCapability.setCategory("OCR");
             ocrCapability.setName("OCR Screen Monitoring");
@@ -315,7 +367,7 @@ public class AgentController {
     }
 
     @PostMapping("/alerts")
-    public ResponseEntity<ApiResponse<String>> submitAlert(@RequestHeader("Authorization") String token,
+    public ResponseEntity<ApiResponse<String>> submitAlert(@RequestHeader(value = "Authorization") String token,
             @RequestBody AgentAlertRequest alertRequest) {
 
         if (!agentService.validateToken(token, alertRequest.getAgentId())) {
@@ -344,6 +396,14 @@ public class AgentController {
 
             alertService.saveAlert(alert);
 
+            // Real-time broadcast
+            try {
+                String dest = String.format("/topic/agent/%d/alerts", alert.getAgent().getId());
+                simpMessagingTemplate.convertAndSend(dest, alert);
+            } catch (Exception e) {
+                log.error("Failed to broadcast alert: {}", e.getMessage());
+            }
+
             return ResponseEntity.ok(new ApiResponse<>(true, "Alert received successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest()
@@ -352,7 +412,7 @@ public class AgentController {
     }
 
     @PostMapping("/heartbeat")
-    public ResponseEntity<ApiResponse<String>> heartbeat(@RequestHeader("Authorization") String token,
+    public ResponseEntity<ApiResponse<String>> heartbeat(@RequestHeader(value = "Authorization") String token,
             @RequestParam(name = "agentId") Long agentId) {
 
         // Check 1: Is the token valid?
@@ -380,7 +440,7 @@ public class AgentController {
     }
 
     @PostMapping("/usb-alert")
-    public ResponseEntity<ApiResponse<String>> submitUSBAlert(@RequestHeader("Authorization") String token,
+    public ResponseEntity<ApiResponse<String>> submitUSBAlert(@RequestHeader(value = "Authorization") String token,
             @RequestBody USBAlertRequest usbAlert) {
 
         if (!agentService.validateToken(token, usbAlert.getAgentId())) {
@@ -440,6 +500,14 @@ public class AgentController {
 
             webHistoryLogRepository.save(logEntry);
 
+            // Real-time broadcast
+            try {
+                String dest = String.format("/topic/agent/%d/web-history", agentId);
+                simpMessagingTemplate.convertAndSend(dest, logEntry);
+            } catch (Exception e) {
+                log.error("Failed to broadcast web history: {}", e.getMessage());
+            }
+
             log.info("📝 Detailed web history logged for agent {}: {} - {}", agentId, request.getAction(),
                     request.getUrl());
             return ResponseEntity.ok(new ApiResponse<>(true, "Detailed history logged successfully", null));
@@ -451,7 +519,7 @@ public class AgentController {
     }
 
     @PostMapping("/web-alerts")
-    public ResponseEntity<ApiResponse<String>> submitWebAlert(@RequestHeader("Authorization") String token,
+    public ResponseEntity<ApiResponse<String>> submitWebAlert(@RequestHeader(value = "Authorization") String token,
             @RequestBody WebAlertRequest alertRequest) {
 
         if (!agentService.validateToken(token, alertRequest.getAgentId())) {
@@ -504,6 +572,126 @@ public class AgentController {
         return ResponseEntity.ok(new ApiResponse<>(true, "History logged successfully", null));
     }
 
+    @PostMapping("/web-visits")
+    public ResponseEntity<ApiResponse<String>> logWebVisit(
+            @RequestHeader(value = "Authorization") String token,
+            @RequestBody WebVisitRequest request) {
+        Long agentId = request.getAgentId();
+        if (agentId == null) {
+            return ResponseEntity.status(400).body(new ApiResponse<>(false, "Agent ID is missing", null));
+        }
+
+        if (!agentService.validateToken(token, agentId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, "Invalid token", null));
+        }
+
+        try {
+            WebHistoryLog logEntry = new WebHistoryLog();
+            logEntry.setAgentId(agentId);
+            logEntry.setUrl(request.getUrl() != null ? request.getUrl() : "");
+            logEntry.setBrowser("Unknown");
+            logEntry.setAction("VISIT");
+            logEntry.setBlocked(false);
+
+            // Parse RFC3339 timestamp if provided; fall back to now.
+            LocalDateTime ts = LocalDateTime.now();
+            if (request.getTimestamp() != null && !request.getTimestamp().isBlank()) {
+                try {
+                    ts = OffsetDateTime.parse(request.getTimestamp())
+                            .atZoneSameInstant(ZoneId.systemDefault())
+                            .toLocalDateTime();
+                } catch (Exception ignored) {
+                    // keep now
+                }
+            }
+            logEntry.setVisitTimestamp(ts);
+
+            webHistoryLogRepository.save(logEntry);
+
+            // Real-time broadcast
+            try {
+                String dest = String.format("/topic/agent/%d/web-history", agentId);
+                simpMessagingTemplate.convertAndSend(dest, logEntry);
+            } catch (Exception e) {
+                log.error("Failed to broadcast web visit: {}", e.getMessage());
+            }
+
+            return ResponseEntity.ok(new ApiResponse<>(true, "Web visit logged", null));
+        } catch (Exception e) {
+            log.error("❌ Failed to log web visit for agent {}: {}", agentId, e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Failed to log web visit: " + e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/app-usage/{agentId}")
+    public ResponseEntity<ApiResponse<String>> logAppUsage(
+            @RequestHeader(value = "Authorization") String token,
+            @PathVariable(value = "agentId") Long agentId,
+            @RequestBody AppUsageSnapshotRequest request) {
+
+        log.info("📱 Received app usage reporting request for agent {}", agentId);
+        String cleanToken = cleanToken(token);
+
+        /*
+         * if (!agentService.validateToken(cleanToken, agentId)) {
+         * log.warn("🔐 Unauthorized app usage reporting attempt for agent {}",
+         * agentId);
+         * return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new
+         * ApiResponse<>(false, "Invalid token", null));
+         * }
+         */
+
+        try {
+            if (request == null) {
+                log.error("❌ App usage request body is NULL for agent {}", agentId);
+                return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Request body is null", null));
+            }
+
+            log.info("📱 Payload contents: currentApp={}, activeUsageTime={}, timestamp={}",
+                    request.getCurrentApp(), request.getActiveUsageTime(), request.getTimestamp());
+
+            AppUsageLog logEntry = new AppUsageLog();
+            logEntry.setAgentId(agentId);
+            logEntry.setCurrentApp(request.getCurrentApp());
+            logEntry.setActiveUsageTime(request.getActiveUsageTime());
+            logEntry.setReceivedAt(java.time.LocalDateTime.now()); // Explicitly set to avoid any issues
+
+            // Store raw payload for forward compatibility.
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("timestamp", request.getTimestamp());
+            payload.put("currentApp", request.getCurrentApp());
+            payload.put("currentSessionDuration", request.getCurrentSessionDuration());
+            payload.put("totalAppsTracked", request.getTotalAppsTracked());
+            payload.put("totalTimeTracked", request.getTotalTimeTracked());
+            payload.put("activeUsageTime", request.getActiveUsageTime());
+            payload.put("categoryBreakdown", request.getCategoryBreakdown());
+            payload.put("topApps", request.getTopApps());
+
+            String jsonPayload = objectMapper.writeValueAsString(payload);
+            logEntry.setPayloadJson(jsonPayload);
+
+            log.info("📱 Saving app usage log to repository...");
+            appUsageLogRepository.save(logEntry);
+            log.info("✅ App usage log saved successfully with ID: {}", logEntry.getId());
+
+            // Real-time broadcast
+            try {
+                String dest = String.format("/topic/agent/%d/app-usage", agentId);
+                simpMessagingTemplate.convertAndSend(dest, logEntry);
+                log.info("✅ Broadcast sent to {}", dest);
+            } catch (Exception e) {
+                log.error("❌ Failed to broadcast app usage: {}", e.getMessage());
+            }
+
+            return ResponseEntity.ok(new ApiResponse<>(true, "App usage logged", null));
+        } catch (Throwable t) {
+            log.error("🔥 CRITICAL FAILURE in logAppUsage for agent {}: {}", agentId, t.getMessage(), t);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Internal Server Error: " + t.getMessage(), null));
+        }
+    }
+
     @PostMapping("/file-events")
     public ResponseEntity<ApiResponse<String>> logFileEvents( // Renamed to plural
             @RequestBody FileEventRequest request) { // This request now contains a List
@@ -532,6 +720,14 @@ public class AgentController {
             }
 
             fileEventLogRepository.saveAll(logEntries); // Save all at once
+
+            // Real-time broadcast
+            try {
+                String dest = String.format("/topic/agent/%d/file-events", agentId);
+                simpMessagingTemplate.convertAndSend(dest, logEntries);
+            } catch (Exception e) {
+                log.error("Failed to broadcast file events: {}", e.getMessage());
+            }
 
             log.info("📁 {} file events logged for agent {}", logEntries.size(), agentId);
 

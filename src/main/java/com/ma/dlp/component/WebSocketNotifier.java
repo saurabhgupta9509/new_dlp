@@ -1,6 +1,5 @@
 package com.ma.dlp.component;
 
-
 import com.ma.dlp.dto.FileBrowseResponseDTO;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -19,12 +18,14 @@ public class WebSocketNotifier {
 
     /**
      * Send a browse response to subscribed UIs.
-     * @param dto file browse DTO from agent
-     * @param partial whether this is a partial chunk (true) or full (false)
+     * 
+     * @param dto      file browse DTO from agent
+     * @param partial  whether this is a partial chunk (true) or full (false)
      * @param complete whether browse operation completed
      */
     public void notifyBrowseResponse(FileBrowseResponseDTO dto, boolean partial, boolean complete) {
-        if (dto == null || dto.getAgentId() == null) return;
+        if (dto == null || dto.getAgentId() == null)
+            return;
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("agentId", dto.getAgentId());
@@ -36,5 +37,15 @@ public class WebSocketNotifier {
 
         String dest = "/topic/agent/" + dto.getAgentId() + "/browse";
         template.convertAndSend(dest, payload);
+    }
+
+    public void notifyPolicyUpdate(Long agentId) {
+        Map<String, Object> signal = new HashMap<>();
+        signal.put("agentId", agentId);
+        signal.put("type", "POLICY_UPDATE");
+        signal.put("timestamp", System.currentTimeMillis());
+
+        String dest = "/topic/agent/" + agentId + "/signals";
+        template.convertAndSend(dest, signal);
     }
 }

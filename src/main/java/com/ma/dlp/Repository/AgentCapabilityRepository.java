@@ -14,13 +14,15 @@ import java.util.Optional;
 @Repository
 public interface AgentCapabilityRepository extends JpaRepository<AgentCapability, Long> {
 
-    List<AgentCapability> findByAgentId(Long agentId);
+    List<AgentCapability> findByAgent_Id(Long agentId);
 
-    List<AgentCapability> findByAgentIdAndIsActiveTrue(Long agentId);
+    List<AgentCapability> findByAgent_IdAndIsActiveTrue(Long agentId);
 
-    Optional<AgentCapability> findByAgentIdAndCapabilityCode(Long agentId, String capabilityCode);
+    Optional<AgentCapability> findByAgent_IdAndCapabilityCode(@Param("agentId") Long agentId,
+            @Param("capabilityCode") String capabilityCode);
 
-    boolean existsByAgentIdAndCapabilityCode(Long agentId, String capabilityCode);
+    boolean existsByAgent_IdAndCapabilityCode(@Param("agentId") Long agentId,
+            @Param("capabilityCode") String capabilityCode);
 
     @Query("SELECT ac FROM AgentCapability ac WHERE ac.agent.id = :agentId AND ac.isActive = true")
     List<AgentCapability> findActiveCapabilitiesByAgentId(@Param("agentId") Long agentId);
@@ -55,9 +57,9 @@ public interface AgentCapabilityRepository extends JpaRepository<AgentCapability
             """)
     List<Long> findAgentIdsWithCapability(@Param("capabilityCode") String capabilityCode);
 
-    boolean existsByAgentIdAndCapabilityCodeAndIsActiveTrue(
-            Long agentId,
-            String capabilityCode);
+    boolean existsByAgent_IdAndCapabilityCodeAndIsActiveTrue(
+            @Param("agentId") Long agentId,
+            @Param("capabilityCode") String capabilityCode);
 
     // ADD THIS METHOD:
     Long countByIsActiveTrue();

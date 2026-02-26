@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.stream.Collectors;
 
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -55,16 +54,13 @@ public class AgentService {
     @Autowired
     private WebSocketNotifier webSocketNotifier;
 
-
     private static final Logger log = LoggerFactory.getLogger(AgentService.class);
-
 
     public final ConcurrentHashMap<String, Long> agentTokens = new ConcurrentHashMap<>();
     private final Map<String, PendingAgent> pendingAgents = new ConcurrentHashMap<>();
     // In service/AgentService.java
     private static final Set<String> NON_REMOVABLE_CAPABILITIES = Set.of(
-            "POLICY_OCR_MONITOR"
-    );
+            "POLICY_OCR_MONITOR");
 
     private final Map<Long, FileBrowseResponseDTO> browseCache = new ConcurrentHashMap<>();
     private final Map<Long, SortedMap<Integer, List<com.ma.dlp.dto.FileSystemItemDTO>>> browseChunks = new ConcurrentHashMap<>();
@@ -75,22 +71,24 @@ public class AgentService {
         log.error("🔥 saveAgentCapabilities HIT for agentId={}", agentId);
         log.error("🔥 Incoming capabilities from Rust = {}",
                 capabilities.stream().map(PolicyCapabilityDTO::getCode).toList());
-//        try {
-            syncPoliciesWithCapabilities(capabilities);
-//        } catch (Exception e) {
-//            log.error("CRITICAL: Failed to sync capabilities to main policies table: {}", e.getMessage(), e);
-            // We continue anyway, so the agent can still get capabilities
-//        }
+        // try {
+        syncPoliciesWithCapabilities(capabilities);
+        // } catch (Exception e) {
+        // log.error("CRITICAL: Failed to sync capabilities to main policies table: {}",
+        // e.getMessage(), e);
+        // We continue anyway, so the agent can still get capabilities
+        // }
         User agent = userRepository.findById(agentId)
                 .orElseThrow(() -> new RuntimeException("Agent not found: " + agentId));
 
-        // Step 1: Get current capabilities from the agent (what Rust agent actually has NOW)
+        // Step 1: Get current capabilities from the agent (what Rust agent actually has
+        // NOW)
         Set<String> currentCapabilityCodes = capabilities.stream()
                 .map(PolicyCapabilityDTO::getCode)
                 .collect(Collectors.toSet());
 
         // Step 2: Get existing capabilities from database
-        List<AgentCapability> existingCapabilities = agentCapabilityRepository.findByAgentId(agentId);
+        List<AgentCapability> existingCapabilities = agentCapabilityRepository.findByAgent_Id(agentId);
 
         // Step 3: REMOVE capabilities that are no longer in the Rust agent
         List<AgentCapability> capabilitiesToRemove = existingCapabilities.stream()
@@ -98,7 +96,7 @@ public class AgentService {
                 .collect(Collectors.toList());
 
         if (!capabilitiesToRemove.isEmpty()) {
-//            agentCapabilityRepository.deleteAll(capabilitiesToRemove);
+            // agentCapabilityRepository.deleteAll(capabilitiesToRemove);
             for (AgentCapability cap : capabilitiesToRemove) {
                 log.error("🔥 REMOVING capability = {}", cap.getCapabilityCode());
                 // Structural capabilities are NEVER deleted
@@ -148,7 +146,8 @@ public class AgentService {
                 agentCap.setIsActive(false);
 
                 agentCapabilityRepository.save(agentCap);
-                log.info("✅ Discovered and saved new capability '{}' for agent {}", capDto.getCode(), agent.getUsername());
+                log.info("✅ Discovered and saved new capability '{}' for agent {}", capDto.getCode(),
+                        agent.getUsername());
             }
         }
 
@@ -190,8 +189,7 @@ public class AgentService {
         // OFFLINE: no heartbeat in last 60 sec
         if (agent.getLastHeartbeat() == null ||
                 agent.getLastHeartbeat().before(
-                        new Date(System.currentTimeMillis() - 10_000)
-                )) {
+                        new Date(System.currentTimeMillis() - 10_000))) {
             return "OFFLINE";
         }
 
@@ -209,8 +207,8 @@ public class AgentService {
         return "ONLINE";
     }
 
-
-    private AdminController.FileSystemItem createFileItem(String name, String fullPath, boolean isDirectory, long size) {
+    private AdminController.FileSystemItem createFileItem(String name, String fullPath, boolean isDirectory,
+            long size) {
         AdminController.FileSystemItem item = new AdminController.FileSystemItem();
         item.setName(name);
         item.setFullPath(fullPath);
@@ -249,7 +247,7 @@ public class AgentService {
      */
     public void activateCapability(Long agentId, String capabilityCode, String policyData) {
         AgentCapability capability = agentCapabilityRepository
-                .findByAgentIdAndCapabilityCode(agentId, capabilityCode)
+                .findByAgent_IdAndCapabilityCode(agentId, capabilityCode)
                 .orElseThrow(() -> new RuntimeException(
                         String.format("Capability %s not found for agent %d", capabilityCode, agentId)));
 
@@ -274,7 +272,7 @@ public class AgentService {
      */
     public void deactivateCapability(Long agentId, String capabilityCode) {
         AgentCapability capability = agentCapabilityRepository
-                .findByAgentIdAndCapabilityCode(agentId, capabilityCode)
+                .findByAgent_IdAndCapabilityCode(agentId, capabilityCode)
                 .orElseThrow(() -> new RuntimeException(
                         String.format("Capability %s not found for agent %d", capabilityCode, agentId)));
 
@@ -288,27 +286,26 @@ public class AgentService {
      * Get active capabilities for an agent
      */
     // public List<AgentCapability> getActiveCapabilities(Long agentId) {
-    //     return agentCapabilityRepository.findActiveCapabilitiesByAgentId(agentId);
+    // return agentCapabilityRepository.findActiveCapabilitiesByAgentId(agentId);
     // }
-            // In AgentService.java
-        public List<AgentCapability> getActiveCapabilities(Long agentId) {
-            // Try different queries to see which one works
-            List<AgentCapability> caps1 = agentCapabilityRepository.findByAgentId(agentId);
-            System.out.println("All capabilities for agent " + agentId + ": " + caps1.size());
-            
-            List<AgentCapability> caps2 = agentCapabilityRepository.findByAgentIdAndIsActiveTrue(agentId);
-            System.out.println("Active capabilities for agent " + agentId + ": " + caps2.size());
-            
-            return caps2; // Return the active ones
-        }
+    // In AgentService.java
+    public List<AgentCapability> getActiveCapabilities(Long agentId) {
+        // Try different queries to see which one works
+        List<AgentCapability> caps1 = agentCapabilityRepository.findByAgent_Id(agentId);
+        System.out.println("All capabilities for agent " + agentId + ": " + caps1.size());
+
+        List<AgentCapability> caps2 = agentCapabilityRepository.findByAgent_IdAndIsActiveTrue(agentId);
+        System.out.println("Active capabilities for agent " + agentId + ": " + caps2.size());
+
+        return caps2; // Return the active ones
+    }
 
     /**
      * Get all capabilities for an agent
      */
     public List<AgentCapability> getAllCapabilities(Long agentId) {
-        return agentCapabilityRepository.findByAgentId(agentId);
+        return agentCapabilityRepository.findByAgent_Id(agentId);
     }
-
 
     public AgentDTO getAgentById(Long agentId) {
         User agent = userRepository.findById(agentId)
@@ -346,11 +343,11 @@ public class AgentService {
         }).collect(Collectors.toList());
     }
 
-
     public List<User> getAgentsWithCapability(String capabilityCode) {
         List<AgentCapability> capabilities = agentCapabilityRepository.findByCapabilityCode(capabilityCode);
 
-        // Convert the list of AgentCapability objects to a distinct list of User objects
+        // Convert the list of AgentCapability objects to a distinct list of User
+        // objects
         return capabilities.stream()
                 .map(AgentCapability::getAgent)
                 .distinct()
@@ -367,7 +364,7 @@ public class AgentService {
 
         try {
             // Get ONLY the capabilities this agent actually has from database
-            List<AgentCapability> agentCapabilities = agentCapabilityRepository.findByAgentId(agentId);
+            List<AgentCapability> agentCapabilities = agentCapabilityRepository.findByAgent_Id(agentId);
 
             if (agentCapabilities.isEmpty()) {
                 log.info("Agent {} has no capabilities registered", agentId);
@@ -418,7 +415,7 @@ public class AgentService {
     @Transactional
     public void updatePolicyData(Long agentId, String capabilityCode, String policyData) {
         AgentCapability capability = agentCapabilityRepository
-                .findByAgentIdAndCapabilityCode(agentId, capabilityCode)
+                .findByAgent_IdAndCapabilityCode(agentId, capabilityCode)
                 .orElseThrow(() -> new RuntimeException(
                         String.format("Capability %s not found for agent %d", capabilityCode, agentId)));
 
@@ -428,7 +425,6 @@ public class AgentService {
 
         log.info("✅ Updated policy data for '{}' on agent: {}", capabilityCode, agentId);
     }
-
 
     // ADD THIS NEW HELPER METHOD
     private PolicyCapabilityDTO convertToDto(AgentCapability entity) {
@@ -447,93 +443,95 @@ public class AgentService {
         return dto;
     }
 
+    // public AgentAuthResponse authenticateAgent(String hostname, String macAddress
+    // , String ipAddress) {
+    // List<User> existingAgents = userRepository.findAllByMacAddress(macAddress);
+    // User agent;
+    //
+    // if (!existingAgents.isEmpty()) {
+    // agent = existingAgents.stream()
+    // .max(Comparator.comparing(User::getLastLogin,
+    // Comparator.nullsFirst(Comparator.naturalOrder())))
+    // .orElse(existingAgents.get(0));
+    // log.info("🔄 Existing agent found: {}", agent.getUsername());
+    //
+    //// // ✅ Update IP address if it's provided
+    //// if (ipAddress != null && !ipAddress.trim().isEmpty()) {
+    //// agent.setIpAddress(ipAddress);
+    //// }
+    // // ✅ UPDATE agent info on login
+    // agent.setHostname(hostname);
+    // agent.setMacAddress(macAddress);
+    // if (ipAddress != null && !ipAddress.trim().isEmpty()) {
+    // agent.setIpAddress(ipAddress);
+    // }
+    // if (agent.getPlainPassword() == null) {
+    // String newPassword = generateSecurePassword();
+    // agent.setPlainPassword(newPassword);
+    // agent.setPassword(passwordEncoder.encode(newPassword));
+    // userRepository.save(agent);
+    // log.info("🔑 Fixed null password for existing agent: {}",
+    // agent.getUsername());
+    // }
+    // } else {
+    //// agent = createAgent(hostname, macAddress, null, null ,null);
+    //// log.info("✅ New agent created: {}", agent.getUsername());
+    //
+    // String username = "agent_" + hostname.toLowerCase().replace(" ", "_");
+    // Optional<User> agentByUsername = userRepository.findByUsername(username);
+    //
+    // if (agentByUsername.isPresent()) {
+    // agent = agentByUsername.get();
+    // // ✅ UPDATE agent info
+    // agent.setHostname(hostname);
+    // agent.setMacAddress(macAddress);
+    // if (ipAddress != null && !ipAddress.trim().isEmpty()) {
+    // agent.setIpAddress(ipAddress);
+    // }
+    // userRepository.save(agent);
+    // log.info("✅ Updated existing agent with hostname/mac/ip: {}", username);
+    // } else {
+    // // Create new agent if not found
+    // agent = createAgent(hostname, macAddress, null, null, ipAddress);
+    // log.info("✅ New agent created with login info: {}", hostname);
+    // }
+    // }
+    //
+    // agent.setLastLogin(new Date());
+    // String token = generateToken();
+    // agent.setToken(token);
+    // userRepository.save(agent);
+    //
+    //// String token = generateToken();
+    // agentTokens.put(token, agent.getId()); // ✅ FIXED
+    // agentTokens.put("Bearer " + token, agent.getId());
+    // return new AgentAuthResponse(
+    // agent.getId(),
+    // agent.getUsername(),
+    // agent.getPlainPassword(),
+    // "ACTIVE",
+    // token
+    // );
+    // }
 
-//    public AgentAuthResponse authenticateAgent(String hostname, String macAddress , String ipAddress) {
-//        List<User> existingAgents = userRepository.findAllByMacAddress(macAddress);
-//        User agent;
-//
-//        if (!existingAgents.isEmpty()) {
-//            agent = existingAgents.stream()
-//                    .max(Comparator.comparing(User::getLastLogin,
-//                            Comparator.nullsFirst(Comparator.naturalOrder())))
-//                    .orElse(existingAgents.get(0));
-//            log.info("🔄 Existing agent found: {}", agent.getUsername());
-//
-////            // ✅ Update IP address if it's provided
-////            if (ipAddress != null && !ipAddress.trim().isEmpty()) {
-////                agent.setIpAddress(ipAddress);
-////            }
-//            // ✅ UPDATE agent info on login
-//                        agent.setHostname(hostname);
-//                        agent.setMacAddress(macAddress);
-//                        if (ipAddress != null && !ipAddress.trim().isEmpty()) {
-//                            agent.setIpAddress(ipAddress);
-//                        }
-//            if (agent.getPlainPassword() == null) {
-//                String newPassword = generateSecurePassword();
-//                agent.setPlainPassword(newPassword);
-//                agent.setPassword(passwordEncoder.encode(newPassword));
-//                userRepository.save(agent);
-//                log.info("🔑 Fixed null password for existing agent: {}", agent.getUsername());
-//            }
-//        } else {
-////            agent = createAgent(hostname, macAddress, null, null ,null);
-////            log.info("✅ New agent created: {}", agent.getUsername());
-//
-//            String username = "agent_" + hostname.toLowerCase().replace(" ", "_");
-//            Optional<User> agentByUsername = userRepository.findByUsername(username);
-//
-//            if (agentByUsername.isPresent()) {
-//                agent = agentByUsername.get();
-//                // ✅ UPDATE agent info
-//                agent.setHostname(hostname);
-//                agent.setMacAddress(macAddress);
-//                if (ipAddress != null && !ipAddress.trim().isEmpty()) {
-//                    agent.setIpAddress(ipAddress);
-//                }
-//                userRepository.save(agent);
-//                log.info("✅ Updated existing agent with hostname/mac/ip: {}", username);
-//            } else {
-//                // Create new agent if not found
-//                agent = createAgent(hostname, macAddress, null, null, ipAddress);
-//                log.info("✅ New agent created with login info: {}", hostname);
-//            }
-//        }
-//
-//        agent.setLastLogin(new Date());
-//        String token = generateToken();
-//        agent.setToken(token);
-//        userRepository.save(agent);
-//
-////        String token = generateToken();
-//        agentTokens.put(token, agent.getId());  // ✅ FIXED
-//        agentTokens.put("Bearer " + token, agent.getId());
-//        return new AgentAuthResponse(
-//                agent.getId(),
-//                agent.getUsername(),
-//                agent.getPlainPassword(),
-//                "ACTIVE",
-//                token
-//        );
-//    }
-
-    public AgentAuthResponse createAgentDirectly(String hostname, String macAddress, String username, String customPassword , String ipAddress , String email) {
+    public AgentAuthResponse createAgentDirectly(String hostname, String macAddress, String username,
+            String customPassword, String ipAddress, String email) {
         try {
-            User agent = createAgent(hostname, macAddress, username, customPassword , ipAddress,email);
+            User agent = createAgent(hostname, macAddress, username, customPassword, ipAddress, email);
 
             String token = generateToken();
-            agentTokens.put(token, agent.getId());  // ✅ FIXED
+            agentTokens.put(token, agent.getId()); // ✅ FIXED
 
             log.info("✅ Admin directly created agent: {} (MAC: {})", hostname, macAddress);
-            log.info("🔑 Agent credentials - Username: {}, Password: {}", agent.getUsername(), agent.getPlainPassword());
+            log.info("🔑 Agent credentials - Username: {}, Password: {}", agent.getUsername(),
+                    agent.getPlainPassword());
 
             return new AgentAuthResponse(
                     agent.getId(),
                     agent.getUsername(),
                     agent.getPlainPassword(),
                     "ACTIVE",
-                    token
-            );
+                    token);
         } catch (Exception e) {
             log.error("❌ Failed to create agent: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create agent: " + e.getMessage());
@@ -559,139 +557,159 @@ public class AgentService {
         log.info("🔐 Cleared tokens for agent: {}", agentId);
     }
 
+    // public boolean validateToken(String token, Long agentId) {
+    // if (token == null || token.isBlank()) return false;
+    //
+    // log.info("🔐 Validating token for agent {}: '{}'", agentId, token);
+    //
+    // // Accept both "Bearer <token>" and "<token>"
+    //// String cleaned = token.replace("Bearer", "").trim();
+    // String cleaned = token.replaceAll("(?i)^Bearer\\s+", "").trim();
+    // log.info("🔐 Cleaned token: '{}'", cleaned);
+    //
+    // // Check if token exists in agentTokens store
+    // Long storedAgentId = agentTokens.get(cleaned);
+    // boolean isValid = storedAgentId != null && storedAgentId.equals(agentId);
+    //
+    //// return storedAgentId != null && storedAgentId.equals(agentId);
+    // log.info("🔐 Token validation result: {}", isValid);
+    // log.info("🔐 Stored agent ID for token: {}", storedAgentId);
+    //
+    // return isValid;
+    // }
 
-//    public boolean validateToken(String token, Long agentId) {
-//        if (token == null || token.isBlank()) return false;
-//
-//        log.info("🔐 Validating token for agent {}: '{}'", agentId, token);
-//
-//        // Accept both "Bearer <token>" and "<token>"
-////        String cleaned = token.replace("Bearer", "").trim();
-//        String cleaned = token.replaceAll("(?i)^Bearer\\s+", "").trim();
-//        log.info("🔐 Cleaned token: '{}'", cleaned);
-//
-//        // Check if token exists in agentTokens store
-//        Long storedAgentId = agentTokens.get(cleaned);
-//        boolean isValid = storedAgentId != null && storedAgentId.equals(agentId);
-//
-////        return storedAgentId != null && storedAgentId.equals(agentId);
-//        log.info("🔐 Token validation result: {}", isValid);
-//        log.info("🔐 Stored agent ID for token: {}", storedAgentId);
-//
-//        return isValid;
-//    }
+    public void sendPolicyUpdateNotification(Long agentId) {
+        log.info("📢 Triggering policy update notification for agent: {}", agentId);
 
-public boolean validateToken(String token, Long agentId) {
-    if (token == null || token.isBlank()) return false;
+        // 1. Queue an AGENT_UPDATE_POLICY command
+        AgentCommand cmd = new AgentCommand();
+        cmd.setAgentId(agentId);
+        cmd.setCommand("AGENT_UPDATE_POLICY");
+        cmd.setPath("");
+        cmd.setProcessed(false);
+        cmd.setCreatedAt(LocalDateTime.now());
+        agentCommandRepository.save(cmd);
 
-    log.info("🔐 Validating token for agent {}: '{}'", agentId, token);
-
-    // Always clean the token the same way
-    String cleaned = cleanToken(token);
-
-    // Check BOTH with and without "Bearer " prefix
-    Long storedAgentId = agentTokens.get(cleaned);
-
-    // Also check if token was stored with "Bearer " prefix
-    if (storedAgentId == null && cleaned.startsWith("Bearer ")) {
-        String withoutBearer = cleaned.substring(7).trim();
-        storedAgentId = agentTokens.get(withoutBearer);
-    }
-
-    // 🔴 NEW: If not found in cache, check database
-    if (storedAgentId == null) {
-        Optional<User> agentOpt = userRepository.findById(agentId);
-        if (agentOpt.isPresent() && cleaned.equals(agentOpt.get().getToken())) {
-            // Token found in database, add to cache
-            storedAgentId = agentId;
-            agentTokens.put(cleaned, agentId);
-            log.info("🔐 Token loaded from database and cached");
+        // 2. Broadcast a signal via WebSockets
+        try {
+            webSocketNotifier.notifyPolicyUpdate(agentId);
+        } catch (Exception e) {
+            log.error("Failed to broadcast policy update signal: {}", e.getMessage());
         }
     }
 
-    boolean isValid = storedAgentId != null && storedAgentId.equals(agentId);
+    public boolean validateToken(String token, Long agentId) {
+        if (token == null || token.isBlank())
+            return false;
 
-    log.info("🔐 Token validation result: {}", isValid);
-    log.info("🔐 Stored agent ID for token: {}", storedAgentId);
+        log.info("🔐 Validating token for agent {}: '{}'", agentId, token);
 
-    return isValid;
-}
+        // Always clean the token the same way
+        String cleaned = cleanToken(token);
 
-//    public String cleanToken(String token) {
-//        if (token == null) return null;
-//        // Remove "Bearer " prefix if present
-//        return token.replaceAll("(?i)^Bearer\\s+", "").trim();
-//    }
+        // Check BOTH with and without "Bearer " prefix
+        Long storedAgentId = agentTokens.get(cleaned);
+
+        // Also check if token was stored with "Bearer " prefix
+        if (storedAgentId == null && cleaned.startsWith("Bearer ")) {
+            String withoutBearer = cleaned.substring(7).trim();
+            storedAgentId = agentTokens.get(withoutBearer);
+        }
+
+        // 🔴 NEW: If not found in cache, check database
+        if (storedAgentId == null) {
+            Optional<User> agentOpt = userRepository.findById(agentId);
+            if (agentOpt.isPresent() && cleaned.equals(agentOpt.get().getToken())) {
+                // Token found in database, add to cache
+                storedAgentId = agentId;
+                agentTokens.put(cleaned, agentId);
+                log.info("🔐 Token loaded from database and cached");
+            }
+        }
+
+        boolean isValid = storedAgentId != null && storedAgentId.equals(agentId);
+
+        log.info("🔐 Token validation result: {}", isValid);
+        log.info("🔐 Stored agent ID for token: {}", storedAgentId);
+
+        return isValid;
+    }
+
+    // public String cleanToken(String token) {
+    // if (token == null) return null;
+    // // Remove "Bearer " prefix if present
+    // return token.replaceAll("(?i)^Bearer\\s+", "").trim();
+    // }
 
     public String cleanToken(String tokenHeader) {
-        if (tokenHeader == null) return null;
-        if (tokenHeader.startsWith("Bearer ")) {
-            return tokenHeader.substring(7).trim();
-        }
-        return tokenHeader.trim();
+        if (tokenHeader == null)
+            return null;
+        // Standardize: case-insensitive removal of "Bearer " prefix
+        return tokenHeader.replaceAll("(?i)Bearer ", "").trim();
     }
 
-
-
-//    public AgentAuthResponse loginWithCredentials(String username, String password ,String hostname, String macAddress, String ipAddress) {
-//
-//        Optional<User> agentOpt = userRepository.findByUsername(username);
-//        if (agentOpt.isEmpty())  {
-//            throw new RuntimeException("Agent not found");
-//        }
-//
-//        User agent = agentOpt.get();
-//
-//        if (!passwordEncoder.matches(password, agent.getPassword())) {
-//            throw new RuntimeException("Invalid credentials");
-//        }
-//
-//        if (agent.getStatus() != User.UserStatus.ACTIVE) {
-//            throw new RuntimeException("Agent account is not active");
-//        }
-//
-//        agent.setHostname(hostname);
-//        agent.setMacAddress(macAddress);
-//        if (ipAddress != null && !ipAddress.trim().isEmpty()) {
-//            agent.setIpAddress(ipAddress);
-//        }
-//
-//        // Fix null plainPassword if needed
-//        if (agent.getPlainPassword() == null) {
-//            String newPassword = generateSecurePassword();
-//            agent.setPlainPassword(newPassword);
-//            log.info("🔑 Fixed null plainPassword for agent: {}", agent.getUsername());
-//        }
-//
-//
-//        String token = generateToken();
-//        agent.setToken(token);// ✅ FIXED
-//
-//        agent.setLastLogin(new Date());
-//
-//        userRepository.save(agent);
-//
-//        // Store in memory cache
-//        agentTokens.put(token, agent.getId());
-//
-//        // Also store with "Bearer " prefix for compatibility
-//        agentTokens.put("Bearer " + token, agent.getId());
-//
-//        log.info("✅ Agent logged in with credentials: {} from {} (MAC: {}, IP: {})", username , hostname, macAddress, ipAddress);
-//        log.info("🔐 Token generated and saved for agent {}: {}", agent.getId(), token);
-//
-//        return new AgentAuthResponse(
-//                agent.getId(),
-//                agent.getUsername(),
-//                agent.getPlainPassword(),
-//                agent.getStatus().toString(),
-//                token
-//        );
-//    }
+    // public AgentAuthResponse loginWithCredentials(String username, String
+    // password ,String hostname, String macAddress, String ipAddress) {
+    //
+    // Optional<User> agentOpt = userRepository.findByUsername(username);
+    // if (agentOpt.isEmpty()) {
+    // throw new RuntimeException("Agent not found");
+    // }
+    //
+    // User agent = agentOpt.get();
+    //
+    // if (!passwordEncoder.matches(password, agent.getPassword())) {
+    // throw new RuntimeException("Invalid credentials");
+    // }
+    //
+    // if (agent.getStatus() != User.UserStatus.ACTIVE) {
+    // throw new RuntimeException("Agent account is not active");
+    // }
+    //
+    // agent.setHostname(hostname);
+    // agent.setMacAddress(macAddress);
+    // if (ipAddress != null && !ipAddress.trim().isEmpty()) {
+    // agent.setIpAddress(ipAddress);
+    // }
+    //
+    // // Fix null plainPassword if needed
+    // if (agent.getPlainPassword() == null) {
+    // String newPassword = generateSecurePassword();
+    // agent.setPlainPassword(newPassword);
+    // log.info("🔑 Fixed null plainPassword for agent: {}", agent.getUsername());
+    // }
+    //
+    //
+    // String token = generateToken();
+    // agent.setToken(token);// ✅ FIXED
+    //
+    // agent.setLastLogin(new Date());
+    //
+    // userRepository.save(agent);
+    //
+    // // Store in memory cache
+    // agentTokens.put(token, agent.getId());
+    //
+    // // Also store with "Bearer " prefix for compatibility
+    // agentTokens.put("Bearer " + token, agent.getId());
+    //
+    // log.info("✅ Agent logged in with credentials: {} from {} (MAC: {}, IP: {})",
+    // username , hostname, macAddress, ipAddress);
+    // log.info("🔐 Token generated and saved for agent {}: {}", agent.getId(),
+    // token);
+    //
+    // return new AgentAuthResponse(
+    // agent.getId(),
+    // agent.getUsername(),
+    // agent.getPlainPassword(),
+    // agent.getStatus().toString(),
+    // token
+    // );
+    // }
 
     public AgentAuthResponse loginWithCredentials(String username, String password,
-                                                  String hostname, String macAddress,
-                                                  String ipAddress) {
+            String hostname, String macAddress,
+            String ipAddress) {
 
         Optional<User> agentOpt = userRepository.findByUsername(username);
         if (agentOpt.isEmpty()) {
@@ -747,66 +765,69 @@ public boolean validateToken(String token, Long agentId) {
                 agent.getUsername(),
                 agent.getPlainPassword(),
                 agent.getStatus().toString(),
-                token
-        );
+                token);
     }
 
     // In AgentService.java - add detailed logging to createAgent method
-//    private User createAgent(String hostname, String macAddress, String customUsername, String customPassword ,String ipAddress) {
-//        log.info("🔍 CREATE_AGENT DEBUG - Start:");
-//        log.info("  Hostname: {}", hostname);
-//        log.info("  MAC: {}", macAddress);
-//        log.info("  IP Address: {}", ipAddress);
-//        log.info("  Custom Username: {}", customUsername);
-//        log.info("  Custom Password: {}", customPassword);
-//
-//        List<User> existingAgents = userRepository.findAllByMacAddress(macAddress);
-//        log.info("  Existing agents found: {}", existingAgents.size());
-//
-//        if (!existingAgents.isEmpty()) {
-//            User existingAgent = existingAgents.get(0);
-//            log.info("  🔄 Returning existing agent: {}", existingAgent.getUsername());
-//            log.info("  Existing agent plainPassword: {}", existingAgent.getPlainPassword());
-//            // ✅ Update IP address for existing agent
-//            if (ipAddress != null && !ipAddress.trim().isEmpty()) {
-//                existingAgent.setIpAddress(ipAddress);
-//                userRepository.save(existingAgent);
-//                log.info("  Updated IP address for existing agent: {}", ipAddress);
-//            }
-//            return existingAgent;
-//        }
-//
-//        String username = customUsername != null ? customUsername :
-//                "agent_" + hostname.toLowerCase().replace(" ", "_");
-//        log.info("  Final username: {}", username);
-//
-//        String plainPassword = (customPassword != null && !customPassword.trim().isEmpty()) ?
-//                customPassword : generateSecurePassword();
-//        log.info("  Final plainPassword: {}", plainPassword);
-//
-//        User agent = new User();
-//        agent.setUsername(username);
-//        agent.setPassword(passwordEncoder.encode(plainPassword));
-//        agent.setRole(User.UserRole.AGENT);
-//        agent.setStatus(User.UserStatus.ACTIVE);
-//        agent.setHostname(hostname);
-//        agent.setMacAddress(macAddress);
-//        agent.setIpAddress(ipAddress);
-//        agent.setLastHeartbeat(new Date());
-//        agent.setPlainPassword(plainPassword);
-//
-//        log.info("  Before save - agent.plainPassword: {}", agent.getPlainPassword());
-//
-//        User savedAgent = userRepository.save(agent);
-//
-//        log.info("  After save - savedAgent.plainPassword: {}", savedAgent.getPlainPassword());
-//        log.info("  ✅ Agent created successfully");
-//
-//        return savedAgent;
-//    }
+    // private User createAgent(String hostname, String macAddress, String
+    // customUsername, String customPassword ,String ipAddress) {
+    // log.info("🔍 CREATE_AGENT DEBUG - Start:");
+    // log.info(" Hostname: {}", hostname);
+    // log.info(" MAC: {}", macAddress);
+    // log.info(" IP Address: {}", ipAddress);
+    // log.info(" Custom Username: {}", customUsername);
+    // log.info(" Custom Password: {}", customPassword);
+    //
+    // List<User> existingAgents = userRepository.findAllByMacAddress(macAddress);
+    // log.info(" Existing agents found: {}", existingAgents.size());
+    //
+    // if (!existingAgents.isEmpty()) {
+    // User existingAgent = existingAgents.get(0);
+    // log.info(" 🔄 Returning existing agent: {}", existingAgent.getUsername());
+    // log.info(" Existing agent plainPassword: {}",
+    // existingAgent.getPlainPassword());
+    // // ✅ Update IP address for existing agent
+    // if (ipAddress != null && !ipAddress.trim().isEmpty()) {
+    // existingAgent.setIpAddress(ipAddress);
+    // userRepository.save(existingAgent);
+    // log.info(" Updated IP address for existing agent: {}", ipAddress);
+    // }
+    // return existingAgent;
+    // }
+    //
+    // String username = customUsername != null ? customUsername :
+    // "agent_" + hostname.toLowerCase().replace(" ", "_");
+    // log.info(" Final username: {}", username);
+    //
+    // String plainPassword = (customPassword != null &&
+    // !customPassword.trim().isEmpty()) ?
+    // customPassword : generateSecurePassword();
+    // log.info(" Final plainPassword: {}", plainPassword);
+    //
+    // User agent = new User();
+    // agent.setUsername(username);
+    // agent.setPassword(passwordEncoder.encode(plainPassword));
+    // agent.setRole(User.UserRole.AGENT);
+    // agent.setStatus(User.UserStatus.ACTIVE);
+    // agent.setHostname(hostname);
+    // agent.setMacAddress(macAddress);
+    // agent.setIpAddress(ipAddress);
+    // agent.setLastHeartbeat(new Date());
+    // agent.setPlainPassword(plainPassword);
+    //
+    // log.info(" Before save - agent.plainPassword: {}", agent.getPlainPassword());
+    //
+    // User savedAgent = userRepository.save(agent);
+    //
+    // log.info(" After save - savedAgent.plainPassword: {}",
+    // savedAgent.getPlainPassword());
+    // log.info(" ✅ Agent created successfully");
+    //
+    // return savedAgent;
+    // }
 
     private User createAgent(String hostname, String macAddress, String customUsername,
-                             String customPassword, String ipAddress , String email) {
+            String customPassword, String ipAddress, String email) {
         log.info("🔍 CREATE_AGENT - Admin creating agent");
         log.info("  Username: {}", customUsername);
         log.info("  Hostname: {}", hostname);
@@ -853,7 +874,7 @@ public boolean validateToken(String token, Long agentId) {
         agent.setLastLogin(new Date());
 
         User savedAgent = userRepository.save(agent);
-        
+
         log.info("  ✅ Created new agent with ID: {}", savedAgent.getId());
         log.info("  Username: {}, Password: {}", savedAgent.getUsername(), savedAgent.getPlainPassword());
 
@@ -862,23 +883,23 @@ public boolean validateToken(String token, Long agentId) {
 
     public User updateAgent(Long agentId, String username, String password, String email) {
         User agent = userRepository.findById(agentId)
-            .orElseThrow(() -> new RuntimeException("Agent not found"));
-        
+                .orElseThrow(() -> new RuntimeException("Agent not found"));
+
         if (username != null && !username.trim().isEmpty()) {
             agent.setUsername(username);
         }
-        
+
         if (email != null && !email.trim().isEmpty()) {
             agent.setEmail(email);
         }
-        
+
         if (password != null && !password.trim().isEmpty()) {
             // Encode the password
             agent.setPassword(passwordEncoder.encode(password));
             // Store plain password if needed (for agent auth)
             agent.setPlainPassword(password);
         }
-        
+
         return userRepository.save(agent);
     }
 
@@ -1006,32 +1027,35 @@ public boolean validateToken(String token, Long agentId) {
             filePolicies.putIfAbsent(key, new ArrayList<>());
         }
     }
+
     /*
-     browse
+     * browse
      */
     public void storeBrowseResponse(Long agentId, FileBrowseResponseDTO dto) {
-        if (dto == null || agentId == null) return;
-
+        if (dto == null || agentId == null)
+            return;
 
         Boolean partial = dto.getPartial() != null ? dto.getPartial() : false;
         Boolean complete = dto.getComplete() != null ? dto.getComplete() : false;
         Integer chunkId = dto.getChunkId();
 
-
         if (Boolean.TRUE.equals(partial) && chunkId != null) {
             log.info("📥 Received partial chunk {} for agent {}", chunkId, agentId);
             browseChunks.compute(agentId, (k, v) -> {
-                if (v == null) v = new TreeMap<>();
+                if (v == null)
+                    v = new TreeMap<>();
                 v.put(chunkId, dto.getItems() != null ? dto.getItems() : Collections.emptyList());
                 return v;
             });
 
-
             // streaming preview cache
             List<FileSystemItemDTO> flattened = new ArrayList<>();
             SortedMap<Integer, List<com.ma.dlp.dto.FileSystemItemDTO>> map = browseChunks.get(agentId);
-            if (map != null) map.values().forEach(list -> { if (list != null) flattened.addAll(list); });
-
+            if (map != null)
+                map.values().forEach(list -> {
+                    if (list != null)
+                        flattened.addAll(list);
+                });
 
             FileBrowseResponseDTO streaming = new FileBrowseResponseDTO();
             streaming.setAgentId(agentId);
@@ -1041,21 +1065,22 @@ public boolean validateToken(String token, Long agentId) {
             streaming.setPartial(true);
             streaming.setComplete(false);
 
-
             browseCache.put(agentId, streaming);
             return;
         }
-
 
         if (Boolean.TRUE.equals(complete)) {
             log.info("📦 Received final browse response for agent {}", agentId);
             List<com.ma.dlp.dto.FileSystemItemDTO> finalItems = new ArrayList<>();
             SortedMap<Integer, List<com.ma.dlp.dto.FileSystemItemDTO>> map = browseChunks.remove(agentId);
-            if (map != null) map.values().forEach(list -> { if (list != null) finalItems.addAll(list); });
+            if (map != null)
+                map.values().forEach(list -> {
+                    if (list != null)
+                        finalItems.addAll(list);
+                });
 
-
-            if (dto.getItems() != null && !dto.getItems().isEmpty()) finalItems.addAll(dto.getItems());
-
+            if (dto.getItems() != null && !dto.getItems().isEmpty())
+                finalItems.addAll(dto.getItems());
 
             FileBrowseResponseDTO finalDto = new FileBrowseResponseDTO();
             finalDto.setAgentId(agentId);
@@ -1066,17 +1091,13 @@ public boolean validateToken(String token, Long agentId) {
             finalDto.setComplete(true);
             finalDto.setChunkId(null);
 
-
             browseCache.put(agentId, finalDto);
             return;
         }
 
-
-// one-shot
+        // one-shot
         browseCache.put(agentId, dto);
     }
-
-
 
     public FileBrowseResponseDTO getBrowseResponse(Long agentId) {
         return browseCache.get(agentId);
@@ -1095,7 +1116,10 @@ public boolean validateToken(String token, Long agentId) {
         AgentCommand cmd = opt.get();
         cmd.setProcessed(true);
         // if AgentCommand has setProcessedAt
-        try { cmd.setProcessedAt(LocalDateTime.now()); } catch (Exception ignored) {}
+        try {
+            cmd.setProcessedAt(LocalDateTime.now());
+        } catch (Exception ignored) {
+        }
         agentCommandRepository.save(cmd);
         log.info("Marked AgentCommand id={} as processed for agent {}", cmd.getId(), agentId);
     }
@@ -1128,4 +1152,3 @@ public boolean validateToken(String token, Long agentId) {
     }
 
 }
-

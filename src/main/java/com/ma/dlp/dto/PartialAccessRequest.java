@@ -1,5 +1,4 @@
 package com.ma.dlp.dto;
-
 import java.util.List;
 
 public class PartialAccessRequest {
@@ -13,10 +12,6 @@ public class PartialAccessRequest {
     private boolean allowDownload = false;
     private List<String> restrictedFileTypes;
     private String monitorMode = "block"; // block, warn, log-only
-    
-    // For bulk operations
-    private List<PartialAccessRequest> partialAccessSites;
-    private List<String> deletePatterns;
     private String deviceId;
     private String userId;
     
@@ -99,22 +94,6 @@ public class PartialAccessRequest {
     
     public void setMonitorMode(String monitorMode) {
         this.monitorMode = monitorMode;
-    }
-    
-    public List<PartialAccessRequest> getPartialAccessSites() {
-        return partialAccessSites;
-    }
-    
-    public void setPartialAccessSites(List<PartialAccessRequest> partialAccessSites) {
-        this.partialAccessSites = partialAccessSites;
-    }
-    
-    public List<String> getDeletePatterns() {
-        return deletePatterns;
-    }
-    
-    public void setDeletePatterns(List<String> deletePatterns) {
-        this.deletePatterns = deletePatterns;
     }
     
     public String getDeviceId() {

@@ -1,5 +1,6 @@
 package com.ma.dlp.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ma.dlp.Repository.*;
 import com.ma.dlp.dto.*;
 import com.ma.dlp.model.*;
@@ -59,7 +60,8 @@ public class AdminController {
     @Autowired
     private WebHistoryLogRepository webHistoryLogRepository;
 
-    private static final Logger log = LoggerFactory.getLogger(AdminController.class);
+    @Autowired
+    private AppUsageLogRepository appUsageLogRepository;
 
     @Autowired
     private AlertRepository alertRepository;
@@ -73,8 +75,23 @@ public class AdminController {
     @Autowired
     private USBActivityRepository usbActivityRepository;
 
+    @Autowired
+    private BlockedUrlService blockedUrlService;
+
+    @Autowired
+    private PartialAccessService partialAccessService;
+
+    @Autowired
+    private PythonClientService pythonClientService;
+
+    @Autowired
+    private CertificateGenerationService certificateGenerationService;
+
+
+    private static final Logger log = LoggerFactory.getLogger(AdminController.class);
     @GetMapping("/agents/{agentId}/browse-result")
-    public ResponseEntity<ApiResponse<FileBrowseResponseDTO>> getBrowseResult(@PathVariable Long agentId) {
+    public ResponseEntity<ApiResponse<FileBrowseResponseDTO>> getBrowseResult(
+            @PathVariable(name = "agentId") Long agentId) {
 
         FileBrowseResponseDTO response = agentService.getBrowseResponse(agentId);
 
@@ -108,30 +125,322 @@ public class AdminController {
         }
     }
 
-    @PutMapping("/agents/{id}")
-    public ResponseEntity<ApiResponse<User>> updateAgent(
-            @PathVariable Long id,
-            @RequestBody CreateUpdateAgentRequest request,
-            HttpSession session) {
+   @PutMapping("/agents/{id}")
+public ResponseEntity<ApiResponse<Map<String, Object>>> updateAgent(
+        @PathVariable Long id,
+        @RequestBody CreateUpdateAgentRequest request,
+        HttpSession session) {
 
+    if (!isAdminAuthenticated(session)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ApiResponse<>(false, "Admin access required", null));
+    }
+
+    try {
+        User updatedUser = agentService.updateAgent(
+                id,
+                request.getUsername(),
+                request.getPassword(),
+                request.getEmail());
+
+        // Return ONLY the updated fields, not the full object with relationships
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", updatedUser.getId());
+        response.put("username", updatedUser.getUsername());
+        response.put("email", updatedUser.getEmail());
+        response.put("message", "Agent updated successfully");
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, "Agent updated successfully", response));
+    } catch (Exception e) {
+        return ResponseEntity.badRequest()
+                .body(new ApiResponse<>(false, "Failed to update agent: " + e.getMessage(), null));
+    }
+}
+
+   @GetMapping("/agents/{agentId}/blocked-urls")
+public ResponseEntity<ApiResponse<List<BlockedUrlEntity>>> getAgentBlockedUrls(
+        @PathVariable Long agentId,
+        HttpSession session) {
+    
+    if (!isAdminAuthenticated(session)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ApiResponse<>(false, "Admin access required", null));
+    }
+
+    try {
+        // Get agent details
+        User agent = userRepository.findById(agentId)
+                .orElseThrow(() -> new RuntimeException("Agent not found"));
+        
+        // Get device ID (MAC address or hostname)
+        String deviceId = agent.getMacAddress();
+        if (deviceId == null || deviceId.isEmpty()) {
+            deviceId = agent.getHostname();
+        }
+        
+        // Get applicable blocked URLs (global + device-specific)
+        List<BlockedUrlEntity> blockedUrls = blockedUrlService.getApplicableBlockedUrls(
+                deviceId, 
+                String.valueOf(agentId)
+        );
+        
+        log.info("📋 Retrieved {} blocked URLs for agent {}", blockedUrls.size(), agentId);
+        
+        return ResponseEntity.ok(new ApiResponse<>(true, 
+                "Blocked URLs retrieved successfully", 
+                blockedUrls));
+                
+    } catch (Exception e) {
+        log.error("❌ Failed to get blocked URLs for agent {}: {}", agentId, e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse<>(false, 
+                        "Failed to get blocked URLs: " + e.getMessage(), 
+                        null));
+    }
+}
+
+/**
+ * Get all applicable blocked URLs for a device/user
+ * This combines global rules + device-specific + user-specific rules
+ */
+// public List<BlockedUrlEntity> getApplicableBlockedUrls(String deviceId, String userId) {
+//     List<BlockedUrlEntity> result = new ArrayList<>();
+    
+//     // Get global active URLs
+//     result.addAll(blockedUrlRepository.findByGlobalTrueAndActiveTrue());
+    
+//     // Get device-specific URLs if deviceId provided
+//     if (deviceId != null && !deviceId.isEmpty()) {
+//         result.addAll(blockedUrlRepository.findByDeviceIdAndActiveTrue(deviceId));
+//     }
+    
+//     // Get user-specific URLs if userId provided
+//     if (userId != null && !userId.isEmpty()) {
+//         result.addAll(blockedUrlRepository.findByUserIdAndActiveTrue(userId));
+//     }
+    
+//     // Remove duplicates (by ID)
+//     return result.stream()
+//             .distinct()
+//             .sorted((a, b) -> {
+//                 if (a.getUpdatedAt() == null) return -1;
+//                 if (b.getUpdatedAt() == null) return 1;
+//                 return b.getUpdatedAt().compareTo(a.getUpdatedAt());
+//             })
+//             .collect(Collectors.toList());
+// }
+
+
+   /**
+ * Add a single partial access site
+ */
+@PostMapping("/partial-access")
+public ResponseEntity<ApiResponse<PartialAccessEntity>> addPartialAccess(
+        @RequestBody PartialAccessRequest request,
+        HttpSession session) {
+    
+    if (!isAdminAuthenticated(session)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ApiResponse<>(false, "Admin access required", null));
+    }
+    
+    try {
+        User admin = (User) session.getAttribute("currentUser");
+        
+        // Set default values if not provided
+        if (request.getCategory() == null) request.setCategory("Other");
+        if (request.getMonitorMode() == null) request.setMonitorMode("block");
+        
+        PartialAccessEntity saved = partialAccessService.addPartialAccessSite(request, admin.getUsername());
+        log.info("✅ Partial access site added: {} by {}", request.getUrlPattern(), admin.getUsername());
+        
+        return ResponseEntity.ok(new ApiResponse<>(true, "Site added successfully", saved));
+    } catch (Exception e) {
+        log.error("❌ Failed to add partial access site: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse<>(false, "Failed to add site: " + e.getMessage(), null));
+    }
+}
+
+
+    // --- Blocked URLs Admin Logic ---
+
+    @GetMapping("/blocked-urls")
+    public ResponseEntity<ApiResponse<List<BlockedUrlEntity>>> getAllBlockedUrls(HttpSession session) {
         if (!isAdminAuthenticated(session)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new ApiResponse<>(false, "Admin access required"));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
         }
+        return ResponseEntity.ok(new ApiResponse<>(true, "All blocked URLs retrieved",
+                blockedUrlService.getAllBlockedUrls()));
+    }
 
-        try {
-            User updatedUser = agentService.updateAgent(
-                    id,
-                    request.getUsername(),
-                    request.getPassword(),
-                    request.getEmail());
-
-            return ResponseEntity.ok(
-                    new ApiResponse<>(true, "Agent updated successfully", updatedUser));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse<>(false, "Failed to update agent: " + e.getMessage()));
+    @PostMapping("/blocked-urls/bulk")
+    public ResponseEntity<ApiResponse<List<BlockedUrlEntity>>> addBlockedUrlsBulk(
+            @RequestBody List<BlockedUrlRequest> requests,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
         }
+        User admin = (User) session.getAttribute("currentUser");
+        return ResponseEntity.ok(new ApiResponse<>(true, "Blocked URLs added successfully",
+                blockedUrlService.addBlockedUrls(requests, admin.getUsername())));
+    }
+
+    @PutMapping("/blocked-urls/{id}")
+    public ResponseEntity<ApiResponse<BlockedUrlEntity>> updateBlockedUrl(
+            @PathVariable Long id,
+            @RequestBody BlockedUrlRequest request,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(true, "Blocked URL updated",
+                blockedUrlService.updateBlockedUrl(id, request)));
+    }
+
+    @DeleteMapping("/blocked-urls/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteBlockedUrl(
+            @PathVariable Long id,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        blockedUrlService.deleteBlockedUrl(id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Blocked URL deleted", null));
+    }
+
+    @PatchMapping("/blocked-urls/{id}/toggle")
+    public ResponseEntity<ApiResponse<BlockedUrlEntity>> toggleBlockedUrl(
+            @PathVariable Long id,
+            @RequestParam boolean active,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(true, "Blocked URL status updated",
+                blockedUrlService.toggleBlockedUrl(id, active)));
+    }
+
+    @GetMapping("/blocked-urls/search")
+    public ResponseEntity<ApiResponse<List<BlockedUrlEntity>>> searchBlockedUrls(
+            @RequestParam String keyword,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(true, "Search results retrieved",
+                blockedUrlService.searchUrls(keyword)));
+    }
+
+    // --- Partial Access Admin Logic ---
+
+   /**
+ * Get partial access sites for a specific agent
+ */
+@GetMapping("/agents/{agentId}/partial-access")
+public ResponseEntity<ApiResponse<List<PartialAccessEntity>>> getAgentPartialAccess(
+        @PathVariable Long agentId,
+        HttpSession session) {
+    if (!isAdminAuthenticated(session)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+    }
+    return ResponseEntity.ok(new ApiResponse<>(true, "Partial access rules retrieved",
+            partialAccessService.getPartialAccessForAgent(agentId)));
+}
+
+/**
+ * Get all partial access sites (admin)
+ */
+@GetMapping("/partial-access")
+public ResponseEntity<ApiResponse<List<PartialAccessEntity>>> getAllPartialAccess(HttpSession session) {
+    if (!isAdminAuthenticated(session)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+    }
+    return ResponseEntity.ok(new ApiResponse<>(true, "All partial access rules retrieved",
+            partialAccessService.getAllPartialAccessSites()));
+}
+
+    @PostMapping("/partial-access/bulk")
+    public ResponseEntity<ApiResponse<List<PartialAccessEntity>>> addPartialAccessBulk(
+            @RequestBody List<PartialAccessRequest> requests,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        User admin = (User) session.getAttribute("currentUser");
+        return ResponseEntity.ok(new ApiResponse<>(true, "Partial access rules added successfully",
+                partialAccessService.addPartialAccessSites(requests, admin.getUsername())));
+    }
+
+    @PutMapping("/partial-access/{id}")
+    public ResponseEntity<ApiResponse<PartialAccessEntity>> updatePartialAccess(
+            @PathVariable Long id,
+            @RequestBody PartialAccessRequest request,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(true, "Partial access rule updated",
+                partialAccessService.updatePartialAccessSite(id, request)));
+    }
+
+    @DeleteMapping("/partial-access/{id}")
+    public ResponseEntity<ApiResponse<String>> deletePartialAccess(
+            @PathVariable Long id,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        partialAccessService.deletePartialAccessSite(id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Partial access rule deleted", null));
+    }
+
+    @PatchMapping("/partial-access/{id}/toggle")
+    public ResponseEntity<ApiResponse<PartialAccessEntity>> togglePartialAccess(
+            @PathVariable Long id,
+            @RequestParam boolean active,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(true, "Partial access status updated",
+                partialAccessService.togglePartialAccessSite(id, active)));
+    }
+
+    @GetMapping("/partial-access/search")
+    public ResponseEntity<ApiResponse<List<PartialAccessEntity>>> searchPartialAccess(
+            @RequestParam String keyword,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(true, "Search results retrieved",
+                partialAccessService.searchPartialAccessSites(keyword)));
+    }
+
+    @GetMapping("/agents/{agentId}/web-urls/summary")
+    public ResponseEntity<ApiResponse<List<WebHistoryLog>>> getAgentWebSummary(
+            @PathVariable Long agentId,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        List<WebHistoryLog> history = webHistoryLogRepository.findByAgentIdOrderByVisitTimestampDesc(agentId);
+        List<WebHistoryLog> summary = history.stream().limit(10).collect(Collectors.toList());
+        return ResponseEntity.ok(new ApiResponse<>(true, "Web history summary retrieved", summary));
+    }
+
+    @GetMapping("/agents/{agentId}/app-usage/summary")
+    public ResponseEntity<ApiResponse<List<AppUsageLog>>> getAgentAppSummary(
+            @PathVariable Long agentId,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        List<AppUsageLog> usage = appUsageLogRepository.findByAgentIdOrderByReceivedAtDesc(agentId);
+        List<AppUsageLog> summary = usage.stream().limit(10).collect(Collectors.toList());
+        return ResponseEntity.ok(new ApiResponse<>(true, "App usage summary retrieved", summary));
     }
 
     // In AdminController.java - add debug endpoint
@@ -205,6 +514,157 @@ public class AdminController {
                     .body(new ApiResponse<>(false, "Failed to get agents: " + e.getMessage()));
         }
     }
+
+    /**
+ * Get single agent details by ID
+ */
+@GetMapping("/agents/{agentId}")
+public ResponseEntity<ApiResponse<AgentDTO>> getAgentById(
+        @PathVariable Long agentId,
+        HttpSession session) {
+    
+    if (!isAdminAuthenticated(session)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ApiResponse<>(false, "Admin access required", null));
+    }
+    
+    try {
+        User agent = userRepository.findById(agentId)
+                .orElseThrow(() -> new RuntimeException("Agent not found"));
+        
+        AgentDTO dto = AgentDTO.fromUser(agent);
+        dto.setAgentRuntimeState(agentService.calculateRuntimeState(agent));
+        
+        try {
+            List<AgentCapability> capabilities = agentService.getAllCapabilities(agent.getId());
+            dto.setCapabilityCount(capabilities != null ? capabilities.size() : 0);
+            dto.setActivePolicyCount(
+                    capabilities != null
+                            ? (int) capabilities.stream()
+                                    .filter(cap -> cap != null && cap.getIsActive() != null && cap.getIsActive())
+                                    .count()
+                            : 0);
+        } catch (Exception e) {
+            log.warn("Failed to get capabilities for agent {}: {}", agent.getId(), e.getMessage());
+            dto.setCapabilityCount(0);
+            dto.setActivePolicyCount(0);
+        }
+        
+        return ResponseEntity.ok(new ApiResponse<>(true, "Agent details retrieved", dto));
+        
+    } catch (Exception e) {
+        log.error("❌ Failed to get agent {}: {}", agentId, e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse<>(false, "Failed to get agent: " + e.getMessage(), null));
+    }
+}
+
+
+@GetMapping("/agents/{agentId}/detail")
+public ResponseEntity<ApiResponse<AgentDetailDTO>> getAgentDetail(
+        @PathVariable Long agentId,
+        HttpSession session) {
+    
+    if (!isAdminAuthenticated(session)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ApiResponse<>(false, "Admin access required", null));
+    }
+    
+    try {
+        User agent = userRepository.findById(agentId)
+                .orElseThrow(() -> new RuntimeException("Agent not found"));
+        
+        AgentDetailDTO dto = new AgentDetailDTO();
+        dto.setId(agent.getId());
+        dto.setUsername(agent.getUsername());
+        dto.setEmail(agent.getEmail());
+        dto.setHostname(agent.getHostname());
+        dto.setMacAddress(agent.getMacAddress());
+        dto.setIpAddress(agent.getIpAddress());
+        dto.setLastHeartbeat(agent.getLastHeartbeat());
+        dto.setLastLogin(agent.getLastLogin());
+        dto.setCreatedAt(agent.getCreatedAt());
+        dto.setStatus(agent.getStatus() != null ? agent.getStatus().toString() : null);
+        dto.setRole(agent.getRole() != null ? agent.getRole().toString() : null);
+        
+        dto.setAgentRuntimeState(agentService.calculateRuntimeState(agent));
+        
+        // Get capabilities count
+        try {
+            List<AgentCapability> capabilities = agentService.getAllCapabilities(agent.getId());
+            dto.setCapabilityCount(capabilities != null ? capabilities.size() : 0);
+            dto.setActivePolicyCount(
+                    capabilities != null
+                            ? (int) capabilities.stream()
+                                    .filter(cap -> cap != null && cap.getIsActive() != null && cap.getIsActive())
+                                    .count()
+                            : 0);
+        } catch (Exception e) {
+            log.warn("Failed to get capabilities for agent {}: {}", agent.getId(), e.getMessage());
+            dto.setCapabilityCount(0);
+            dto.setActivePolicyCount(0);
+        }
+        
+        // Get OCR statuses WITHOUT recursive references
+        if (agent.getOcrStatuses() != null && !agent.getOcrStatuses().isEmpty()) {
+            List<Map<String, Object>> simplifiedStatuses = new ArrayList<>();
+            for (OcrStatus status : agent.getOcrStatuses()) {
+                Map<String, Object> statusMap = new HashMap<>();
+                statusMap.put("id", status.getId());
+                statusMap.put("ocrEnabled", status.isOcrEnabled());
+                statusMap.put("ocrCapable", status.isOcrCapable());
+                statusMap.put("threatScore", status.getThreatScore());
+                statusMap.put("violationsLast24h", status.getViolationsLast24h());
+                statusMap.put("lastScreenshotTime", status.getLastScreenshotTime());
+                statusMap.put("updatedAt", status.getUpdatedAt());
+                // DON'T include the agent reference
+                simplifiedStatuses.add(statusMap);
+            }
+            dto.setOcrStatuses(simplifiedStatuses);
+        }
+        
+        return ResponseEntity.ok(new ApiResponse<>(true, "Agent details retrieved", dto));
+        
+    } catch (Exception e) {
+        log.error("❌ Failed to get agent {}: {}", agentId, e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse<>(false, "Failed to get agent: " + e.getMessage(), null));
+    }
+}
+
+/**
+ * Get violations count for an agent
+ */
+@GetMapping("/agents/{agentId}/violations")
+public ResponseEntity<ApiResponse<Integer>> getAgentViolations(
+        @PathVariable Long agentId,
+        HttpSession session) {
+    
+    if (!isAdminAuthenticated(session)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ApiResponse<>(false, "Admin access required", null));
+    }
+    
+    try {
+        // Count alerts with HIGH/CRITICAL severity in last 24 hours for this agent
+        LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
+        
+        // You need to add this method to your AlertRepository
+        int violations = alertRepository.countByAgentIdAndSeverityInAndCreatedAtAfter(
+                agentId, 
+                Arrays.asList("HIGH", "CRITICAL"),
+                yesterday
+        );
+        
+        log.info("📊 Agent {} has {} violations in last 24 hours", agentId, violations);
+        
+        return ResponseEntity.ok(new ApiResponse<>(true, "Violations count retrieved", violations));
+    } catch (Exception e) {
+        log.error("❌ Failed to get violations for agent {}: {}", agentId, e.getMessage());
+        // Return 0 instead of error to not break UI
+        return ResponseEntity.ok(new ApiResponse<>(true, "Violations count retrieved (with default)", 0));
+    }
+}
 
     @PutMapping("/agents/{id}/status")
     public ResponseEntity<ApiResponse<User>> updateAgentStatus(@PathVariable Long id, @RequestParam String status,
@@ -431,8 +891,14 @@ public class AdminController {
 
     @GetMapping("/web-history/{agentId}")
     public ResponseEntity<ApiResponse<List<WebHistoryLog>>> getWebHistory(@PathVariable Long agentId) {
-        List<WebHistoryLog> history = webHistoryLogRepository.findByAgentIdOrderByVisitTimestampDesc(agentId);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Web history retrieved", history));
+        try {
+            List<WebHistoryLog> history = webHistoryLogRepository.findByAgentIdOrderByVisitTimestampDesc(agentId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Web history retrieved", history));
+        } catch (Exception e) {
+            log.error("❌ Failed to get web history for agent {}: {}", agentId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Failed to get history: " + e.getMessage()));
+        }
     }
 
     // In AdminController.java - UPDATE THE MAPPING
@@ -451,6 +917,32 @@ public class AdminController {
             log.error("❌ Failed to get detailed web history for agent {}: {}", agentId, e.getMessage());
             return ResponseEntity.badRequest()
                     .body(new ApiResponse<>(false, "Failed to get detailed history: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/app-usage/{agentId}")
+    public ResponseEntity<ApiResponse<List<AppUsageLog>>> getAppUsage(
+            @PathVariable Long agentId,
+            @RequestParam(defaultValue = "50") int limit,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+
+        try {
+            // Fix: Use findByAgentIdOrderByReceivedAtDesc which exists in repository
+            List<AppUsageLog> usage = appUsageLogRepository.findByAgentIdOrderByReceivedAtDesc(agentId);
+
+            // Limit results
+            if (usage.size() > limit) {
+                usage = usage.subList(0, limit);
+            }
+
+            return ResponseEntity.ok(new ApiResponse<>(true, "App usage retrieved", usage));
+        } catch (Exception e) {
+            log.error("❌ Failed to get app usage for agent {}: {}", agentId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Failed to get app usage: " + e.getMessage()));
         }
     }
 
@@ -762,7 +1254,7 @@ public class AdminController {
 
     @GetMapping("/agents/{agentId}/capabilities")
     public ResponseEntity<ApiResponse<Map<String, List<PolicyCapabilityDTO>>>> getAgentCapabilities(
-            @PathVariable Long agentId, HttpSession session) {
+            @PathVariable(name = "agentId") Long agentId, HttpSession session) {
 
         if (!isAdminAuthenticated(session)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -1335,6 +1827,204 @@ public class AdminController {
     private boolean isAdminAuthenticated(HttpSession session) {
         User currentUser = (User) session.getAttribute("currentUser");
         return currentUser != null && currentUser.getRole() == User.UserRole.ADMIN;
+    }
+
+    // --- Agent-specific Data Views (Migrated from PythonClientController) ---
+
+    @GetMapping("/agents/{agentId}/logs")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAgentLogs(
+            @PathVariable Long agentId,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        User agent = userRepository.findById(agentId)
+                .orElseThrow(() -> new RuntimeException("Agent not found"));
+
+        String deviceId = getDeviceIdForAgent(agent);
+        List<Map<String, Object>> logs = pythonClientService.getDeviceLogs(deviceId).stream()
+                .map(log -> {
+                    Map<String, Object> logMap = new HashMap<>();
+                    logMap.put("id", log.getId());
+                    logMap.put("deviceId", log.getDeviceId());
+                    logMap.put("logType", log.getLogType());
+                    logMap.put("logContent", log.getLogContent());
+                    logMap.put("timestamp", log.getTimestamp());
+                    logMap.put("fileSize", log.getFileSize());
+                    return logMap;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "Agent logs retrieved", logs));
+    }
+
+    @GetMapping("/agents/{agentId}/web-history")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAgentWebHistory(
+            @PathVariable Long agentId,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        User agent = userRepository.findById(agentId)
+                .orElseThrow(() -> new RuntimeException("Agent not found"));
+
+        String deviceId = getDeviceIdForAgent(agent);
+        List<Map<String, Object>> urls = pythonClientService.getDeviceUrlHistory(deviceId).stream()
+                .map(url -> {
+                    Map<String, Object> urlMap = new HashMap<>();
+                    urlMap.put("id", url.getId());
+                    urlMap.put("deviceId", url.getDeviceId());
+                    urlMap.put("urls", url.getUrls());
+                    urlMap.put("blockedCount", url.getBlockedCount());
+                    urlMap.put("suspiciousCount", url.getSuspiciousCount());
+                    urlMap.put("totalVisits", url.getTotalVisits());
+                    urlMap.put("timestamp", url.getTimestamp());
+                    return urlMap;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "Agent URL history retrieved", urls));
+    }
+
+    @GetMapping("/agents/{agentId}/app-usage")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAgentAppUsage(
+            @PathVariable Long agentId,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        User agent = userRepository.findById(agentId)
+                .orElseThrow(() -> new RuntimeException("Agent not found"));
+
+        String deviceId = getDeviceIdForAgent(agent);
+        List<Map<String, Object>> appUsage = pythonClientService.getDeviceAppUsageHistory(deviceId).stream()
+                .map(app -> {
+                    Map<String, Object> appMap = new HashMap<>();
+                    appMap.put("id", app.getId());
+                    appMap.put("deviceId", app.getDeviceId());
+                    appMap.put("currentApp", app.getCurrentApp());
+                    appMap.put("currentSessionDuration", app.getCurrentSessionDuration());
+                    appMap.put("totalAppsTracked", app.getTotalAppsTracked());
+                    appMap.put("totalTimeTracked", app.getTotalTimeTracked());
+                    appMap.put("activeUsageTime", app.getActiveUsageTime());
+                    appMap.put("topApps", app.getTopApps());
+                    appMap.put("categoryBreakdown", app.getCategoryBreakdown());
+                    appMap.put("timestamp", app.getTimestamp());
+                    return appMap;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "Agent app usage retrieved", appUsage));
+    }
+
+    @PostMapping("/api/agent/app-usage/{agentId}")
+    public ResponseEntity<ApiResponse<String>> receiveAppUsage(
+            @PathVariable Long agentId,
+            @RequestBody AppUsageData appUsageData,
+            HttpSession session) {
+
+    try {
+        // Convert the entire AppUsageData to JSON string
+        ObjectMapper objectMapper = new ObjectMapper();
+        String payloadJson = objectMapper.writeValueAsString(appUsageData);
+        
+        // Create and save log matching your model
+        AppUsageLog Applog = new AppUsageLog();
+        Applog.setAgentId(agentId);
+        Applog.setReceivedAt(LocalDateTime.now());
+        Applog.setCurrentApp(appUsageData.getCurrentApp());
+        Applog.setActiveUsageTime(appUsageData.getActiveUsageTime());
+        Applog.setPayloadJson(payloadJson);  // Store everything as JSON
+        
+        appUsageLogRepository.save(Applog);
+        
+        log.info("📥 Received app usage data from agent {}: current_app={}, active_time={}", 
+                 agentId, appUsageData.getCurrentApp(), appUsageData.getActiveUsageTime());
+        
+        return ResponseEntity.ok(new ApiResponse<>(true, "App usage data received", null));
+    } catch (Exception e) {
+        log.error("❌ Failed to save app usage data from agent {}: {}", agentId, e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse<>(false, "Failed to save: " + e.getMessage(), null));
+    }
+}
+
+    @GetMapping("/agents/{agentId}/certificates")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAgentCertificates(
+            @PathVariable Long agentId,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        User agent = userRepository.findById(agentId)
+                .orElseThrow(() -> new RuntimeException("Agent not found"));
+
+        String deviceId = getDeviceIdForAgent(agent);
+        List<Map<String, Object>> certificates = pythonClientService.getDeviceCertificates(deviceId).stream()
+                .map(cert -> {
+                    Map<String, Object> certMap = new HashMap<>();
+                    certMap.put("id", cert.getId());
+                    certMap.put("deviceId", cert.getDeviceId());
+                    certMap.put("certificateId", cert.getCertificateId());
+                    certMap.put("uploadedAt", cert.getUploadedAt());
+                    certMap.put("generated", cert.getGenerated());
+                    certMap.put("validUntil", cert.getValidUntil());
+                    certMap.put("issuer", cert.getIssuer());
+                    certMap.put("recipient", cert.getRecipient());
+                    certMap.put("device", cert.getDevice());
+                    certMap.put("securityMetrics", cert.getSecurityMetrics());
+                    certMap.put("detailedAnalysis", cert.getDetailedAnalysis());
+                    certMap.put("recommendations", cert.getRecommendations());
+                    certMap.put("signature", cert.getSignature());
+                    return certMap;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "Agent certificates retrieved", certificates));
+    }
+
+    @PostMapping("/agents/{agentId}/certificates/generate")
+    public ResponseEntity<ApiResponse<String>> generateCertificateForAgent(
+            @PathVariable Long agentId,
+            HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        User agent = userRepository.findById(agentId)
+                .orElseThrow(() -> new RuntimeException("Agent not found"));
+
+        String deviceId = getDeviceIdForAgent(agent);
+        try {
+            certificateGenerationService.generateCertificateForDeviceNow(deviceId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Certificate generation triggered for agent: " + agentId));
+        } catch (Exception e) {
+            log.error("❌ Failed to generate certificate: {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Certificate generation failed: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/certificates/generate-all")
+    public ResponseEntity<ApiResponse<String>> generateCertificatesForAllAgents(HttpSession session) {
+        if (!isAdminAuthenticated(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "Admin access required"));
+        }
+        try {
+            certificateGenerationService.generateCertificatesFromRecentUrls();
+            return ResponseEntity.ok(new ApiResponse<>(true, "Certificate generation triggered for all agents"));
+        } catch (Exception e) {
+            log.error("❌ Failed to generate certificates: {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Certificate generation failed: " + e.getMessage()));
+        }
+    }
+
+    private String getDeviceIdForAgent(User agent) {
+        String deviceId = agent.getMacAddress();
+        if (deviceId == null || deviceId.isEmpty()) {
+            deviceId = agent.getHostname();
+        }
+        return deviceId;
     }
 
 }

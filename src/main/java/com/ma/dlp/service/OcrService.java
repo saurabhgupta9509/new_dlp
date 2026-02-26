@@ -1,4 +1,5 @@
 package com.ma.dlp.service;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,13 +56,12 @@ public class OcrService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    //  private static final String OCR_CAPABILITY_CODE = "SECURITY_MONITOR";
+    // private static final String OCR_CAPABILITY_CODE = "SECURITY_MONITOR";
     private static final String OCR_CAPABILITY_CODE = "POLICY_OCR_MONITOR";
 
     // --- FROM AGENT (Rust) ---
 
-
-     public long getTotalOcrCapableAgents() {
+    public long getTotalOcrCapableAgents() {
         return agentCapabilityRepository
                 .countAgentsWithCapability(OCR_CAPABILITY_CODE);
     }
@@ -69,17 +69,17 @@ public class OcrService {
     public OcrDashboardSummaryDTO getOcrDashboardSummary() {
 
         // 1️⃣ Get ALL OCR-capable agents
-        List<Long> ocrCapableAgentIds =
-                agentCapabilityRepository.findAgentIdsWithCapability(OCR_CAPABILITY_CODE);
+        List<Long> ocrCapableAgentIds = agentCapabilityRepository.findAgentIdsWithCapability(OCR_CAPABILITY_CODE);
 
         long totalCapableAgents = ocrCapableAgentIds.size();
 
-//        if (totalCapableAgents == 0) {
-//            return new OcrDashboardSummaryDTO(0, 0);
-//        }
+        // if (totalCapableAgents == 0) {
+        // return new OcrDashboardSummaryDTO(0, 0);
+        // }
 
-//        // 2️⃣ Get latest status for these agents
-//        List<OcrStatus> latestStatuses = statusRepository.findLatestForAgents(ocrCapableAgentIds);
+        // // 2️⃣ Get latest status for these agents
+        // List<OcrStatus> latestStatuses =
+        // statusRepository.findLatestForAgents(ocrCapableAgentIds);
 
         // 3️⃣ Count agents with ocrEnabled = true in their latest status
         long activeOcr = statusRepository.findLatestForAgents(ocrCapableAgentIds)
@@ -90,33 +90,28 @@ public class OcrService {
         return new OcrDashboardSummaryDTO(activeOcr, totalCapableAgents);
     }
 
-
-
     public long getActiveOcrAgents() {
-            return statusRepository.countByOcrEnabledTrue();
-        }
-
+        return statusRepository.countByOcrEnabledTrue();
+    }
 
     public void saveStatusFromAgent(OcrStatusUpdateDTO dto) {
         OcrStatus status =
-//                new OcrStatus();
+                // new OcrStatus();
                 statusRepository
-                .findTopByAgentIdOrderByUpdatedAtDesc(dto.getAgentId())
-                .orElse(new OcrStatus());
+                        .findTopByAgentIdOrderByUpdatedAtDesc(dto.getAgentId())
+                        .orElse(new OcrStatus());
 
         status.setAgentId(dto.getAgentId());
         status.setAgentHostname(dto.getAgentHostname());
-//        status.setOcrEnabled(dto.isOcrEnabled());
+        // status.setOcrEnabled(dto.isOcrEnabled());
         status.setAgentUsername(dto.getUsername());
-        boolean isCapableAndActive =
-                agentCapabilityRepository
-                        .existsByAgentIdAndCapabilityCodeAndIsActiveTrue(
-                                dto.getAgentId(),
-                                OCR_CAPABILITY_CODE
-                        );
+        boolean isCapableAndActive = agentCapabilityRepository
+                .existsByAgent_IdAndCapabilityCodeAndIsActiveTrue(
+                        dto.getAgentId(),
+                        OCR_CAPABILITY_CODE);
 
         status.setOcrEnabled(isCapableAndActive && dto.isOcrEnabled());
-//        status.setOcrEnabled(isCapableAndActive && dto.isOcrEnabled());
+        // status.setOcrEnabled(isCapableAndActive && dto.isOcrEnabled());
         status.setThreatScore(dto.getThreatScore());
         // ✅ NEW: Save threat arrow and trend color
         status.setThreatArrow(dto.getThreatArrow() != null ? dto.getThreatArrow() : "→");
@@ -130,7 +125,7 @@ public class OcrService {
                 .ifPresent(status::setAgent);
 
         statusRepository.save(status);
-  }
+    }
 
     public void saveLiveDataFromAgent(OcrLiveDataDTO dto) {
         OcrLiveData live = new OcrLiveData();
@@ -152,23 +147,23 @@ public class OcrService {
         liveDataRepository.save(live);
     }
 
-//     public Long  saveViolationFromAgent(OcrViolationDTO dto) {
-//         OcrViolation violation = new OcrViolation();
-//         violation.setAgentId(dto.getAgentId());
-//         violation.setRuleType(dto.getRuleType());
-//         violation.setMatchedText(dto.getMatchedText());
-//         violation.setConfidence(dto.getConfidence());
-//         violation.setThreatScore(dto.getThreatScore());
-//         violation.setContextConfidence(dto.getContextConfidence());
-//         violation.setScreenshotPath(dto.getScreenshotPath());
-//         violation.setTimestamp(parseDateTime(dto.getTimestamp()));
-// //
-// //        userService.findById(dto.getAgentId())
-// //                .ifPresent(violation::setAgent);
+    // public Long saveViolationFromAgent(OcrViolationDTO dto) {
+    // OcrViolation violation = new OcrViolation();
+    // violation.setAgentId(dto.getAgentId());
+    // violation.setRuleType(dto.getRuleType());
+    // violation.setMatchedText(dto.getMatchedText());
+    // violation.setConfidence(dto.getConfidence());
+    // violation.setThreatScore(dto.getThreatScore());
+    // violation.setContextConfidence(dto.getContextConfidence());
+    // violation.setScreenshotPath(dto.getScreenshotPath());
+    // violation.setTimestamp(parseDateTime(dto.getTimestamp()));
+    // //
+    // // userService.findById(dto.getAgentId())
+    // // .ifPresent(violation::setAgent);
 
-//         violationRepository.save(violation);
-//     }
- @Transactional
+    // violationRepository.save(violation);
+    // }
+    @Transactional
     public Long saveViolationFromAgent(OcrViolationDTO dto) {
         // Convert DTO to entity
         OcrViolation entity = new OcrViolation();
@@ -187,217 +182,215 @@ public class OcrService {
     }
 
     // public List<OcrDashboardStatsDTO> getLatestStatusForAllAgents() {
-    //     return statusRepository.findLatestForAllAgents()
-    //             .stream()
-    //             .map(this::toDashboardDTO)
-    //             .collect(Collectors.toList());
+    // return statusRepository.findLatestForAllAgents()
+    // .stream()
+    // .map(this::toDashboardDTO)
+    // .collect(Collectors.toList());
     // }
 
+    // public List<OcrDashboardStatsDTO> getLatestStatusForAllAgents() {
+    //
+    // // 1️⃣ Get agents that are OCR-capable
+    // List<Long> ocrCapableAgentIds =
+    // agentCapabilityRepository.findAllAgentIdsWithCapability(OCR_CAPABILITY_CODE);
+    //
+    // if (ocrCapableAgentIds.isEmpty()) {
+    // return List.of();
+    // }
+    //
+    // System.out.println("OCR Capable Agent IDs: " + ocrCapableAgentIds); // Debug
+    // log System.out.println("OCR Capable Agent IDs: " + ocrCapableAgentIds); //
+    // Debug log
+    //
+    // // 2️⃣ Fetch latest OCR status for ALL capable agents
+    // List<OcrStatus> allStatuses =
+    // statusRepository.findLatestForAgents(ocrCapableAgentIds);
+    //
+    // // 3️⃣ Create a map to ensure we have at least a placeholder for each capable
+    // agent
+    // Map<Long, OcrStatus> statusMap = allStatuses.stream()
+    // .collect(Collectors.toMap(OcrStatus::getAgentId, Function.identity()));
+    //
+    // // 4️⃣ Return DTOs for ALL capable agents
+    // return ocrCapableAgentIds.stream()
+    // .map(agentId -> {
+    // OcrStatus status = statusMap.get(agentId);
+    // if (status != null) {
+    // OcrDashboardStatsDTO dto = toDashboardDTO(status);
+    // dto.setOcrCapable(true);
+    // return dto;
+    // } else {
+    // // Create a default DTO for agents with no status yet
+    // OcrDashboardStatsDTO dto = new OcrDashboardStatsDTO();
+    // dto.setAgentId(agentId);
+    // dto.setOcrCapable(true); // This agent HAS OCR capability
+    // dto.setOcrEnabled(false); // But OCR is not enabled/reported yet
+    //
+    // dto.setCurrentThreatScore(0f);
+    // dto.setViolationsLast24h(0);
+    //
+    // // Try to get agent hostname from UserService if available
+    // userService.findById(agentId).ifPresent(user -> {
+    // dto.setAgentHostname(user.getHostname() != null ? user.getHostname() :
+    // user.getUsername() != null ? user.getUsername() :
+    // "Agent " + agentId);
+    // });
+    //
+    // if (dto.getAgentHostname() == null) {
+    // dto.setAgentHostname("Agent " + agentId);
+    // }
+    //
+    // return dto;
+    // }
+    // })
+    // .collect(Collectors.toList());
+    //
+    // }
 
-//    public List<OcrDashboardStatsDTO> getLatestStatusForAllAgents() {
-//
-//    // 1️⃣ Get agents that are OCR-capable
-//    List<Long> ocrCapableAgentIds =
-//            agentCapabilityRepository.findAllAgentIdsWithCapability(OCR_CAPABILITY_CODE);
-//
-//    if (ocrCapableAgentIds.isEmpty()) {
-//        return List.of();
-//    }
-//
-//        System.out.println("OCR Capable Agent IDs: " + ocrCapableAgentIds);  // Debug log System.out.println("OCR Capable Agent IDs: " + ocrCapableAgentIds);  // Debug log
-//
-//            // 2️⃣ Fetch latest OCR status for ALL capable agents
-//        List<OcrStatus> allStatuses = statusRepository.findLatestForAgents(ocrCapableAgentIds);
-//
-//        // 3️⃣ Create a map to ensure we have at least a placeholder for each capable agent
-//        Map<Long, OcrStatus> statusMap = allStatuses.stream()
-//                .collect(Collectors.toMap(OcrStatus::getAgentId, Function.identity()));
-//
-//        // 4️⃣ Return DTOs for ALL capable agents
-//        return ocrCapableAgentIds.stream()
-//                .map(agentId -> {
-//                    OcrStatus status = statusMap.get(agentId);
-//                    if (status != null) {
-//                        OcrDashboardStatsDTO dto = toDashboardDTO(status);
-//                        dto.setOcrCapable(true);
-//                        return dto;
-//                    } else {
-//                        // Create a default DTO for agents with no status yet
-//                        OcrDashboardStatsDTO dto = new OcrDashboardStatsDTO();
-//                        dto.setAgentId(agentId);
-//                        dto.setOcrCapable(true); // This agent HAS OCR capability
-//                        dto.setOcrEnabled(false); // But OCR is not enabled/reported yet
-//
-//                        dto.setCurrentThreatScore(0f);
-//                        dto.setViolationsLast24h(0);
-//
-//                        // Try to get agent hostname from UserService if available
-//                        userService.findById(agentId).ifPresent(user -> {
-//                            dto.setAgentHostname(user.getHostname() != null ? user.getHostname() :
-//                                    user.getUsername() != null ? user.getUsername() :
-//                                            "Agent " + agentId);
-//                        });
-//
-//                        if (dto.getAgentHostname() == null) {
-//                            dto.setAgentHostname("Agent " + agentId);
-//                        }
-//
-//                        return dto;
-//                    }
-//                })
-//                .collect(Collectors.toList());
-//
-//     }
+    // public List<OcrDashboardStatsDTO> getLatestStatusForAllAgents() {
 
-//     public List<OcrDashboardStatsDTO> getLatestStatusForAllAgents() {
+    // // 1️⃣ ONLY OCR-capable agents (SOURCE OF TRUTH)
+    // List<Long> ocrCapableAgentIds =
+    // agentCapabilityRepository.findAgentIdsWithCapability(OCR_CAPABILITY_CODE);
 
-//         // 1️⃣ ONLY OCR-capable agents (SOURCE OF TRUTH)
-//         List<Long> ocrCapableAgentIds =
-//                 agentCapabilityRepository.findAgentIdsWithCapability(OCR_CAPABILITY_CODE);
+    // if (ocrCapableAgentIds.isEmpty()) {
+    // return List.of();
+    // }
 
-//         if (ocrCapableAgentIds.isEmpty()) {
-//             return List.of();
-//         }
+    // // 2️⃣ Latest OCR status ONLY for capable agents
+    // List<OcrStatus> latestStatuses =
+    // statusRepository.findLatestForAgents(ocrCapableAgentIds);
 
-//         // 2️⃣ Latest OCR status ONLY for capable agents
-//         List<OcrStatus> latestStatuses =
-//                 statusRepository.findLatestForAgents(ocrCapableAgentIds);
+    // Map<Long, OcrStatus> statusMap = latestStatuses.stream()
+    // .collect(Collectors.toMap(OcrStatus::getAgentId, Function.identity()));
 
-//         Map<Long, OcrStatus> statusMap = latestStatuses.stream()
-//                 .collect(Collectors.toMap(OcrStatus::getAgentId, Function.identity()));
+    // // 3️⃣ Build DTO for EVERY capable agent
+    // return ocrCapableAgentIds.stream()
+    // .map(agentId -> {
+    // OcrDashboardStatsDTO dto = new OcrDashboardStatsDTO();
+    // dto.setAgentId(agentId);
+    // // dto.setOcrCapable(true); // 🔒 ALWAYS true here
 
-//         // 3️⃣ Build DTO for EVERY capable agent
-//         return ocrCapableAgentIds.stream()
-//                 .map(agentId -> {
-//                     OcrDashboardStatsDTO dto = new OcrDashboardStatsDTO();
-//                     dto.setAgentId(agentId);
-// //                    dto.setOcrCapable(true); // 🔒 ALWAYS true here
+    // OcrStatus status = statusMap.get(agentId);
 
-//                     OcrStatus status = statusMap.get(agentId);
+    // if (status != null) {
+    // dto.setAgentHostname(status.getAgentHostname());
+    // dto.setAgentUsername(status.getAgentUsername());
+    // dto.setOcrEnabled(status.isOcrEnabled());
+    // dto.setCurrentThreatScore(
+    // status.getThreatScore() != null ? status.getThreatScore() : 0f
+    // );
 
-//                     if (status != null) {
-//                         dto.setAgentHostname(status.getAgentHostname());
-//                         dto.setAgentUsername(status.getAgentUsername());
-//                         dto.setOcrEnabled(status.isOcrEnabled());
-//                         dto.setCurrentThreatScore(
-//                                 status.getThreatScore() != null ? status.getThreatScore() : 0f
-//                         );
+    // // ✅ NEW: Set threat arrow and trend color
+    // dto.setThreatArrow(status.getThreatArrow());
+    // dto.setTrendColor(status.getTrendColor());
 
-//                         // ✅ NEW: Set threat arrow and trend color
-//                         dto.setThreatArrow(status.getThreatArrow());
-//                         dto.setTrendColor(status.getTrendColor());
+    // dto.setViolationsLast24h(
+    // status.getViolationsLast24h() != null ? status.getViolationsLast24h() : 0
+    // );
+    // dto.setLastScreenshotTime(status.getLastScreenshotTime());
+    // } else {
+    // // Never reported yet → default OFF
+    // dto.setOcrEnabled(false);
+    // dto.setCurrentThreatScore(0f);
 
-//                         dto.setViolationsLast24h(
-//                                 status.getViolationsLast24h() != null ? status.getViolationsLast24h() : 0
-//                         );
-//                         dto.setLastScreenshotTime(status.getLastScreenshotTime());
-//                     } else {
-//                         // Never reported yet → default OFF
-//                         dto.setOcrEnabled(false);
-//                         dto.setCurrentThreatScore(0f);
+    // dto.setThreatArrow("→"); // Default arrow
+    // dto.setTrendColor("gray"); // Default color
 
-//                         dto.setThreatArrow("→");          // Default arrow
-//                         dto.setTrendColor("gray");          // Default color
+    // dto.setViolationsLast24h(0);
+    // dto.setLastScreenshotTime(null);
 
-//                         dto.setViolationsLast24h(0);
-//                         dto.setLastScreenshotTime(null);
+    // userService.findById(agentId).ifPresent(user ->{
+    // dto.setAgentUsername(user.getUsername());
+    // dto.setAgentHostname(
+    // user.getHostname() != null
+    // ? user.getHostname()
+    // : user.getUsername()
+    // );
+    // }
 
-//                         userService.findById(agentId).ifPresent(user ->{
-//                             dto.setAgentUsername(user.getUsername());
-//                             dto.setAgentHostname(
-//                                     user.getHostname() != null
-//                                             ? user.getHostname()
-//                                             : user.getUsername()
-//                             );
-//                                 }
+    // );
+    // if (dto.getAgentUsername() == null) {
+    // dto.setAgentUsername("Agent " + agentId);
+    // }
+    // if (dto.getAgentHostname() == null) {
+    // dto.setAgentHostname("Agent " + agentId);
+    // }
+    // }
 
-
-//                         );
-//                         if (dto.getAgentUsername() == null) {
-//                             dto.setAgentUsername("Agent " + agentId);
-//                         }
-//                         if (dto.getAgentHostname() == null) {
-//                             dto.setAgentHostname("Agent " + agentId);
-//                         }
-//                     }
-
-//                     return dto;
-//                 })
-//                 .collect(Collectors.toList());
-//     }
+    // return dto;
+    // })
+    // .collect(Collectors.toList());
+    // }
 
     public List<OcrDashboardStatsDTO> getLatestStatusForAllAgents() {
-    // 1️⃣ ONLY OCR-capable agents (SOURCE OF TRUTH)
-    List<Long> ocrCapableAgentIds = 
-            agentCapabilityRepository.findAgentIdsWithCapability(OCR_CAPABILITY_CODE);
+        // 1️⃣ ONLY OCR-capable agents (SOURCE OF TRUTH)
+        List<Long> ocrCapableAgentIds = agentCapabilityRepository.findAgentIdsWithCapability(OCR_CAPABILITY_CODE);
 
-    if (ocrCapableAgentIds.isEmpty()) {
-        return List.of();
+        if (ocrCapableAgentIds.isEmpty()) {
+            return List.of();
+        }
+
+        // 2️⃣ Latest OCR status ONLY for capable agents
+        List<OcrStatus> latestStatuses = statusRepository.findLatestForAgents(ocrCapableAgentIds);
+
+        Map<Long, OcrStatus> statusMap = latestStatuses.stream()
+                .collect(Collectors.toMap(OcrStatus::getAgentId, Function.identity()));
+
+        // 3️⃣ Build DTO for EVERY capable agent
+        return ocrCapableAgentIds.stream()
+                .map(agentId -> {
+                    OcrDashboardStatsDTO dto = new OcrDashboardStatsDTO();
+                    dto.setAgentId(agentId);
+
+                    OcrStatus status = statusMap.get(agentId);
+                    // ✅ ALWAYS get hostname from User entity, not from OCR status
+                    Optional<User> userOpt = userService.findById(agentId);
+                    if (userOpt.isPresent()) {
+                        User user = userOpt.get();
+                        // Get actual hostname from User entity
+                        String actualHostname = user.getHostname();
+                        String username = user.getUsername();
+
+                        dto.setAgentHostname(actualHostname != null ? actualHostname : "Agent " + agentId);
+                        dto.setAgentUsername(username != null ? username : "N/A");
+                    } else {
+                        // Fallback if user not found
+                        dto.setAgentHostname("Agent " + agentId);
+                        dto.setAgentUsername("Unknown");
+                    }
+
+                    if (status != null) {
+                        // ✅ DON'T overwrite hostname from status (it's IP)
+                        // Keep the hostname from User entity above
+
+                        dto.setOcrEnabled(status.isOcrEnabled());
+                        dto.setCurrentThreatScore(
+                                status.getThreatScore() != null ? status.getThreatScore() : 0f);
+
+                        // ✅ NEW: Set threat arrow and trend color
+                        dto.setThreatArrow(status.getThreatArrow());
+                        dto.setTrendColor(status.getTrendColor());
+
+                        dto.setViolationsLast24h(
+                                status.getViolationsLast24h() != null ? status.getViolationsLast24h() : 0);
+                        dto.setLastScreenshotTime(status.getLastScreenshotTime());
+                    } else {
+                        // Never reported yet → default OFF
+                        dto.setOcrEnabled(false);
+                        dto.setCurrentThreatScore(0f);
+
+                        dto.setThreatArrow("→"); // Default arrow
+                        dto.setTrendColor("gray"); // Default color
+
+                        dto.setViolationsLast24h(0);
+                        dto.setLastScreenshotTime(null);
+                    }
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
-
-    // 2️⃣ Latest OCR status ONLY for capable agents
-    List<OcrStatus> latestStatuses = 
-            statusRepository.findLatestForAgents(ocrCapableAgentIds);
-
-    Map<Long, OcrStatus> statusMap = latestStatuses.stream()
-            .collect(Collectors.toMap(OcrStatus::getAgentId, Function.identity()));
-
-    // 3️⃣ Build DTO for EVERY capable agent
-    return ocrCapableAgentIds.stream()
-            .map(agentId -> {
-                OcrDashboardStatsDTO dto = new OcrDashboardStatsDTO();
-                dto.setAgentId(agentId);
-                
-                OcrStatus status = statusMap.get(agentId);
-                 // ✅ ALWAYS get hostname from User entity, not from OCR status
-                Optional<User> userOpt = userService.findById(agentId);
-                if (userOpt.isPresent()) {
-                    User user = userOpt.get();
-                    // Get actual hostname from User entity
-                    String actualHostname = user.getHostname();
-                    String username = user.getUsername();
-                    
-                    dto.setAgentHostname(actualHostname != null ? actualHostname : "Agent " + agentId);
-                    dto.setAgentUsername(username != null ? username : "N/A");
-                } else {
-                    // Fallback if user not found
-                    dto.setAgentHostname("Agent " + agentId);
-                    dto.setAgentUsername("Unknown");
-                }
-
-                if (status != null) {
-                    // ✅ DON'T overwrite hostname from status (it's IP)
-                    // Keep the hostname from User entity above
-                    
-                    dto.setOcrEnabled(status.isOcrEnabled());
-                    dto.setCurrentThreatScore(
-                            status.getThreatScore() != null ? status.getThreatScore() : 0f
-                    );
-
-                    // ✅ NEW: Set threat arrow and trend color
-                    dto.setThreatArrow(status.getThreatArrow());
-                    dto.setTrendColor(status.getTrendColor());
-
-                    dto.setViolationsLast24h(
-                            status.getViolationsLast24h() != null ? status.getViolationsLast24h() : 0
-                    );
-                    dto.setLastScreenshotTime(status.getLastScreenshotTime());
-                } else {
-                    // Never reported yet → default OFF
-                    dto.setOcrEnabled(false);
-                    dto.setCurrentThreatScore(0f);
-
-                    dto.setThreatArrow("→");          // Default arrow
-                    dto.setTrendColor("gray");        // Default color
-
-                    dto.setViolationsLast24h(0);
-                    dto.setLastScreenshotTime(null);
-                }
-
-                return dto;
-            })
-            .collect(Collectors.toList());
-}
 
     public List<OcrLiveData> getRecentLiveData(Long agentId) {
         return liveDataRepository.findTop50ByAgentIdOrderByTimestampDesc(agentId);
@@ -407,52 +400,55 @@ public class OcrService {
         return ocrviolationRepository.findByAgentIdOrderByTimestampDesc(agentId);
     }
 
-
-//    public void saveCertificateFromAgent(SecurityCertificateDTO dto , List<Long> violationIds) {
-//
-//        OcrSecurityCertificate cert = new OcrSecurityCertificate();
-//
-//        cert.setAgentId(dto.getAgentId());
-//        cert.setAssessmentTime(dto.getAssessmentTime());
-//        cert.setUserDevice(dto.getUserDevice());
-//        cert.setUserMac(dto.getUserMac());
-//
-//        cert.setThreatLevel(dto.getThreatLevel());
-//        cert.setEmoji(dto.getEmoji());
-//        cert.setThreatScore(dto.getThreatScore());
-//        cert.setPrimaryContext(dto.getPrimaryContext());
-//
-//        cert.setTotalViolations(dto.getTotalViolations());
-//        cert.setRuleBreakdown(dto.getRuleBreakdown());
-//
-//        cert.setRiskAnalysis(dto.getRiskAnalysis());
-//        cert.setImmediateActions(dto.getImmediateActions());
-//
-//        cert.setCreatedAt(LocalDateTime.now().toString());
-//        cert.setExpiresAt(LocalDateTime.now().plusMinutes(10).toString());
-//    try{
-//        // Generate UUID for certificate
-//        cert.setCertificateFilePath("CERT-" + UUID.randomUUID());
-//        String baseDir = "src/main/resources/certificates/agent_" + cert.getAgentId();
-//        File dir = new File(baseDir);
-//        if (!dir.exists()) dir.mkdirs();
-//
-//        String filename = "certificate_" + cert.getAssessmentTime().replace(":", "-") + ".pdf";
-//        String pdfPath = baseDir + "/" + filename;
-//
-//
-////        String pdfPath = baseDir + "certificates/" + cert.getAgentId() + "_" + System.currentTimeMillis() + ".pdf";
-//
-//        generateCertificatePdf(cert, pdfPath);
-//
-//        cert.setCertificateFilePath(pdfPath);
-//        certificateRepository.save(cert);
-//        certificateRepository.save(cert);
-//    }catch (Exception e) {
-//        e.printStackTrace();
-//    }
-//
-//    }
+    // public void saveCertificateFromAgent(SecurityCertificateDTO dto , List<Long>
+    // violationIds) {
+    //
+    // OcrSecurityCertificate cert = new OcrSecurityCertificate();
+    //
+    // cert.setAgentId(dto.getAgentId());
+    // cert.setAssessmentTime(dto.getAssessmentTime());
+    // cert.setUserDevice(dto.getUserDevice());
+    // cert.setUserMac(dto.getUserMac());
+    //
+    // cert.setThreatLevel(dto.getThreatLevel());
+    // cert.setEmoji(dto.getEmoji());
+    // cert.setThreatScore(dto.getThreatScore());
+    // cert.setPrimaryContext(dto.getPrimaryContext());
+    //
+    // cert.setTotalViolations(dto.getTotalViolations());
+    // cert.setRuleBreakdown(dto.getRuleBreakdown());
+    //
+    // cert.setRiskAnalysis(dto.getRiskAnalysis());
+    // cert.setImmediateActions(dto.getImmediateActions());
+    //
+    // cert.setCreatedAt(LocalDateTime.now().toString());
+    // cert.setExpiresAt(LocalDateTime.now().plusMinutes(10).toString());
+    // try{
+    // // Generate UUID for certificate
+    // cert.setCertificateFilePath("CERT-" + UUID.randomUUID());
+    // String baseDir = "src/main/resources/certificates/agent_" +
+    // cert.getAgentId();
+    // File dir = new File(baseDir);
+    // if (!dir.exists()) dir.mkdirs();
+    //
+    // String filename = "certificate_" + cert.getAssessmentTime().replace(":", "-")
+    // + ".pdf";
+    // String pdfPath = baseDir + "/" + filename;
+    //
+    //
+    //// String pdfPath = baseDir + "certificates/" + cert.getAgentId() + "_" +
+    // System.currentTimeMillis() + ".pdf";
+    //
+    // generateCertificatePdf(cert, pdfPath);
+    //
+    // cert.setCertificateFilePath(pdfPath);
+    // certificateRepository.save(cert);
+    // certificateRepository.save(cert);
+    // }catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    //
+    // }
 
     public void saveCertificateFromAgent(SecurityCertificateDTO dto, List<Long> violationIds) {
         OcrSecurityCertificate cert = new OcrSecurityCertificate();
@@ -479,7 +475,8 @@ public class OcrService {
 
             String baseDir = "src/main/resources/certificates/agent_" + cert.getAgentId();
             File dir = new File(baseDir);
-            if (!dir.exists()) dir.mkdirs();
+            if (!dir.exists())
+                dir.mkdirs();
 
             String filename = "certificate_" + cert.getAssessmentTime().replace(":", "-") + ".pdf";
             String pdfPath = baseDir + "/" + filename;
@@ -506,7 +503,6 @@ public class OcrService {
             e.printStackTrace();
         }
     }
-
 
     public void generateCertificatePdf(OcrSecurityCertificate cert, String path) {
         try (PDDocument doc = new PDDocument()) {
@@ -550,7 +546,6 @@ public class OcrService {
         return y - 20;
     }
 
-
     public OcrSecurityCertificate getLatestCertificate(Long agentId) {
         return certificateRepository.findTopByAgentIdOrderByCreatedAtDesc(agentId)
                 .orElse(null);
@@ -582,9 +577,9 @@ public class OcrService {
         OcrDashboardStatsDTO dto = new OcrDashboardStatsDTO();
         dto.setAgentId(status.getAgentId());
         dto.setAgentHostname(status.getAgentHostname());
-        dto.setAgentUsername(status.getAgentUsername());  // Set username
+        dto.setAgentUsername(status.getAgentUsername()); // Set username
         dto.setOcrEnabled(status.isOcrEnabled());
-//        dto.setOcrCapable(status.isOcrCapable());
+        // dto.setOcrCapable(status.isOcrCapable());
         dto.setCurrentThreatScore(status.getThreatScore() != null ? status.getThreatScore() : 0f);
 
         // ✅ NEW: Add threat arrow and trend color
@@ -595,9 +590,6 @@ public class OcrService {
         dto.setLastScreenshotTime(status.getLastScreenshotTime());
         return dto;
     }
-
-
-
 
     // Add these methods to count OCR violations
     public Long countViolationsSince(LocalDateTime since) {
