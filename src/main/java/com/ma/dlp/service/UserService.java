@@ -36,23 +36,6 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-//    // NEW: Method to find user by username OR email (for admin login)
-//    public Optional<User> findByUsernameOrEmail(String loginInput) {
-//        if (loginInput == null || loginInput.trim().isEmpty()) {
-//            return Optional.empty();
-//        }
-//
-//        // Check if it's an email format
-//        if (loginInput.contains("@")) {
-//            Optional<User> byEmail = userRepository.findByEmail(loginInput);
-//            if (byEmail.isPresent()) {
-//                return byEmail;
-//            }
-//        }
-//        // Try username
-//        return userRepository.findByUsername(loginInput);
-//    }
-
     public Optional<User> findByUsernameOrEmail(String loginInput) {
         if (loginInput == null || loginInput.trim().isEmpty()) {
             return Optional.empty();
@@ -69,7 +52,6 @@ public class UserService {
         // Otherwise → treat as username
         return userRepository.findByUsername(loginInput);
     }
-
 
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
@@ -119,14 +101,13 @@ public class UserService {
         userRepository.delete(user);
     }
 
-//    public void deleteUser(Long userId) {
-//        // First delete related ocr_status records
-//        ocrStatusRepository.deleteByAgentUserId(userId);
-//
-//        // Then delete the user
-//        userRepository.deleteById(userId);
-//    }
-
+    // public void deleteUser(Long userId) {
+    // // First delete related ocr_status records
+    // ocrStatusRepository.deleteByAgentUserId(userId);
+    //
+    // // Then delete the user
+    // userRepository.deleteById(userId);
+    // }
 
     public List<User> findByMacAddress(String macAddress) {
         return userRepository.findAllByMacAddress(macAddress);
@@ -156,7 +137,13 @@ public class UserService {
         agent.setLastHeartbeat(new Date());
         userRepository.save(agent);
 
-        dashBoardService.pushDashboardUpdate();
+        // Dashboard push is a non-critical side-effect — never let it fail the
+        // heartbeat
+        try {
+            dashBoardService.pushDashboardUpdate();
+        } catch (Exception e) {
+            // Suppress WebSocket/messaging errors so heartbeat still returns 200
+        }
     }
 
     @PostConstruct

@@ -47,7 +47,7 @@ public class AgentService {
     @Autowired
     private AgentCapabilityRepository agentCapabilityRepository;
 
-    @Autowired
+    @Autowired  
     private AgentCommandRepository agentCommandRepository;
 
     // at top of class
