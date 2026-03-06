@@ -426,9 +426,12 @@ public class SecurityConfig {
                         // ============= ADMIN API - REQUIRES ADMIN ROLE =============
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                                .requestMatchers("/agent-ws/**").permitAll()
+                                .requestMatchers("/ws/**").permitAll()
                         // ============= ANY OTHER REQUEST =============
                         .anyRequest().authenticated()
                 )
+                       
 
                 .formLogin(form -> form
                         .loginPage("/index")

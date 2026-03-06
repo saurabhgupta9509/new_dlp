@@ -39,7 +39,7 @@ public class DashBoardService {
 
         long onlineAgents = agents.stream()
                 .filter(agent -> agent.getLastHeartbeat() != null &&
-                        (System.currentTimeMillis() - agent.getLastHeartbeat().getTime()) <= 5000)
+                        (System.currentTimeMillis() - agent.getLastHeartbeat().getTime()) <= 12000)
                 .count();
         
         return new DashboardStatsDTO(

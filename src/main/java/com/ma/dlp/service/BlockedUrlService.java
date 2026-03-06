@@ -36,7 +36,7 @@ public class BlockedUrlService {
                     String deviceId = agent.getMacAddress(); // Using MAC as deviceId
                     if (deviceId == null)
                         deviceId = agent.getHostname();
-                    return getApplicableBlockedUrls(deviceId, String.valueOf(agent.getId()));
+                    return getApplicableBlockedUrls(deviceId, String.valueOf(agent.getId()) , agent.getId());
                 })
                 .orElse(Collections.emptyList());
     }
@@ -66,14 +66,54 @@ public class BlockedUrlService {
         return blockedUrlRepository.findByUserIdAndActiveTrue(userId);
     }
 
-    // Get all applicable blocked URLs for a device (global + device-specific)
-    public List<BlockedUrlEntity> getApplicableBlockedUrls(String deviceId, String userId) {
-        return blockedUrlRepository.findApplicableForDevice(deviceId, userId);
+   public List<BlockedUrlEntity> getApplicableBlockedUrls(String deviceId, String userId , Long agentId) {
+    List<BlockedUrlEntity> result = new ArrayList<>();
+    
+    // FIRST: Get agent-specific URLs (these are the most specific)
+    if (agentId != null) {
+        result.addAll(blockedUrlRepository.findByAgentIdAndActiveTrue(agentId));
     }
+    
+    // THEN: Get user-specific URLs (if no agent-specific match)
+    if (userId != null && !userId.isEmpty()) {
+        List<BlockedUrlEntity> userUrls = blockedUrlRepository.findByUserIdAndActiveTrue(userId);
+        for (BlockedUrlEntity url : userUrls) {
+            // Only add if not already added by agentId
+            if (result.stream().noneMatch(r -> r.getId().equals(url.getId()))) {
+                result.add(url);
+            }
+        }
+    }
+    
+    // THEN: Get device-specific URLs (lowest priority)
+    if (deviceId != null && !deviceId.isEmpty()) {
+        List<BlockedUrlEntity> deviceUrls = blockedUrlRepository.findByDeviceIdAndActiveTrue(deviceId);
+        for (BlockedUrlEntity url : deviceUrls) {
+            // Only add if not already added by agentId or userId
+            if (result.stream().noneMatch(r -> r.getId().equals(url.getId()))) {
+                // Also check if this URL belongs to a different agent
+                if (url.getAgentId() == null || url.getAgentId().equals(agentId)) {
+                    result.add(url);
+                }
+            }
+        }
+    }
+    
+    // LAST: Get global URLs (lowest priority)
+    List<BlockedUrlEntity> globalUrls = blockedUrlRepository.findByGlobalTrueAndActiveTrue();
+    for (BlockedUrlEntity url : globalUrls) {
+        // Only add if not already added
+        if (result.stream().noneMatch(r -> r.getId().equals(url.getId()))) {
+            result.add(url);
+        }
+    }
+    
+    return result;
+}
 
     // Get blocked URLs as simple list of patterns
-    public List<String> getBlockedUrlPatterns(String deviceId, String userId) {
-        List<BlockedUrlEntity> blockedUrls = getApplicableBlockedUrls(deviceId, userId);
+    public List<String> getBlockedUrlPatterns(String deviceId, String userId , Long agentId) {
+        List<BlockedUrlEntity> blockedUrls = getApplicableBlockedUrls(deviceId, userId , agentId);
         return blockedUrls.stream()
                 .map(BlockedUrlEntity::getUrlPattern)
                 .collect(Collectors.toList());
@@ -127,6 +167,7 @@ public List<BlockedUrlEntity> addBlockedUrls(List<BlockedUrlRequest> requests, S
                 entity.setGlobal(request.getDeviceId() == null && request.getUserId() == null);
                 entity.setDeviceId(request.getDeviceId());
                 entity.setUserId(request.getUserId());
+                entity.setAgentId(request.getAgentId());
                 entity.setAddedBy(addedBy);
                 entity.setUpdatedAt(now); // IMPORTANT: Set update time
                 logger.info("🔄 Updating existing blocked URL: {}", request.getUrlPattern());
@@ -141,6 +182,7 @@ public List<BlockedUrlEntity> addBlockedUrls(List<BlockedUrlRequest> requests, S
                 entity.setGlobal(request.getDeviceId() == null && request.getUserId() == null);
                 entity.setDeviceId(request.getDeviceId());
                 entity.setUserId(request.getUserId());
+                entity.setAgentId(request.getAgentId());
                 entity.setAddedBy(addedBy);
                 entity.setCreatedAt(now); // IMPORTANT: Set create time
                 entity.setUpdatedAt(now); // IMPORTANT: Set update time

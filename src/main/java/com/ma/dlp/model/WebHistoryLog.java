@@ -1,7 +1,6 @@
 package com.ma.dlp.model;
 
 import jakarta.persistence.*;
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity

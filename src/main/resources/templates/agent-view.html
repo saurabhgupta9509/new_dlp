@@ -2337,427 +2337,703 @@
         text-decoration: underline;
       }
       /* ================ URL HISTORY IMPROVED STYLES ================ */
-.url-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    gap: 15px;
-}
+      .url-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
 
-.url-header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
+      .url-header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
 
-.url-header-left h3 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #1e293b;
-    margin: 0;
-    display: flex;
-    align-items: center;
-}
+      .url-header-left h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+        display: flex;
+        align-items: center;
+      }
 
-.url-badge {
-    background: #e2e8f0;
-    color: #475569;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 500;
-}
+      .url-badge {
+        background: #e2e8f0;
+        color: #475569;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
 
-.url-header-right {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
+      .url-header-right {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
 
-.url-search-wrapper {
-    position: relative;
-    width: 280px;
-}
+      .url-search-wrapper {
+        position: relative;
+        width: 280px;
+      }
 
-.search-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #94a3b8;
-    font-size: 0.9rem;
-}
+      .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 0.9rem;
+      }
 
-.url-search-input {
-    width: 100%;
-    padding: 10px 10px 10px 38px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    background: white;
-    transition: all 0.2s;
-}
-
-.url-search-input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.url-refresh-btn {
-    width: 38px;
-    height: 38px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background: white;
-    color: #64748b;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.url-refresh-btn:hover {
-    background: #f8fafc;
-    color: #2563eb;
-    border-color: #3b82f6;
-}
-
-.url-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-}
-
-.url-stat-card {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 18px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    transition: all 0.2s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-}
-
-.url-stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    border-color: #cbd5e1;
-}
-
-.url-stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-}
-
-.url-stat-icon.blue {
-    background: #dbeafe;
-    color: #2563eb;
-}
-
-.url-stat-icon.purple {
-    background: #f3e8ff;
-    color: #9333ea;
-}
-
-.url-stat-icon.orange {
-    background: #fff3cd;
-    color: #f59e0b;
-}
-
-.url-stat-icon.red {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-.url-stat-content {
-    flex: 1;
-}
-
-.url-stat-label {
-    font-size: 0.8rem;
-    color: #64748b;
-    margin-bottom: 4px;
-    font-weight: 500;
-}
-
-.url-stat-value {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #1e293b;
-    line-height: 1.2;
-}
-
-.url-stat-trend {
-    font-size: 0.7rem;
-    color: #94a3b8;
-    margin-top: 4px;
-}
-
-.url-filter-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 15px;
-    background: white;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-}
-
-.url-filter-tabs {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.url-filter-tab {
-    padding: 6px 14px;
-    border: none;
-    border-radius: 20px;
-    background: #f1f5f9;
-    color: #475569;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.url-filter-tab:hover {
-    background: #e2e8f0;
-}
-
-.url-filter-tab.active {
-    background: #2563eb;
-    color: white;
-}
-
-.url-filter-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.url-filter-select {
-    padding: 6px 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    color: #1e293b;
-    background: white;
-    cursor: pointer;
-    min-width: 130px;
-}
-
-.url-filter-select:focus {
-    outline: none;
-    border-color: #3b82f6;
-}
-
-.url-table-container {
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    overflow: hidden;
-    margin-bottom: 20px;
-}
-
-.url-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.url-table thead {
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.url-table th {
-    padding: 14px 16px;
-    text-align: left;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #475569;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.url-table td {
-    padding: 14px 16px;
-    font-size: 0.9rem;
-    border-bottom: 1px solid #f1f5f9;
-    color: #334155;
-}
-
-.url-table tbody tr:hover {
-    background: #f8fafc;
-}
-
-.url-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.url-favicon {
-    width: 16px;
-    height: 16px;
-    margin-right: 8px;
-    vertical-align: middle;
-}
-
-.url-link {
-    color: #2563eb;
-    text-decoration: none;
-    font-weight: 500;
-    word-break: break-all;
-}
-
-.url-link:hover {
-    text-decoration: underline;
-}
-
-.url-domain-badge {
-    background: #f1f5f9;
-    color: #475569;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    margin-left: 6px;
-}
-
-.status-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-
-.status-badge.allowed {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.status-badge.blocked {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.browser-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #f1f5f9;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    color: #475569;
-}
-
-.browser-badge i {
-    font-size: 0.7rem;
-}
-
-.time-cell {
-    font-size: 0.85rem;
-    color: #64748b;
-    white-space: nowrap;
-}
-
-.url-loading {
-    text-align: center;
-    padding: 40px;
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-}
-
-.url-loading .spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #f1f5f9;
-    border-top-color: #3b82f6;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 15px;
-}
-
-.url-no-data {
-    text-align: center;
-    padding: 60px;
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-}
-
-.url-no-data i {
-    font-size: 48px;
-    color: #94a3b8;
-    margin-bottom: 16px;
-}
-
-.url-no-data h4 {
-    font-size: 1.2rem;
-    color: #1e293b;
-    margin-bottom: 8px;
-}
-
-.url-no-data p {
-    color: #64748b;
-    font-size: 0.9rem;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* Responsive */
-@media (max-width: 1200px) {
-    .url-stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .url-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .url-search-wrapper {
+      .url-search-input {
         width: 100%;
-    }
-    
-    .url-filter-bar {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .url-filter-actions {
-        width: 100%;
-    }
-    
-    .url-filter-select {
+        padding: 10px 10px 10px 38px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        background: white;
+        transition: all 0.2s;
+      }
+
+      .url-search-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .url-refresh-btn {
+        width: 38px;
+        height: 38px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: white;
+        color: #64748b;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+
+      .url-refresh-btn:hover {
+        background: #f8fafc;
+        color: #2563eb;
+        border-color: #3b82f6;
+      }
+
+      .url-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .url-stat-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 18px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      }
+
+      .url-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border-color: #cbd5e1;
+      }
+
+      .url-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+      }
+
+      .url-stat-icon.blue {
+        background: #dbeafe;
+        color: #2563eb;
+      }
+
+      .url-stat-icon.purple {
+        background: #f3e8ff;
+        color: #9333ea;
+      }
+
+      .url-stat-icon.orange {
+        background: #fff3cd;
+        color: #f59e0b;
+      }
+
+      .url-stat-icon.red {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      .url-stat-content {
         flex: 1;
-    }
-    
-    .url-table {
-        display: block;
-        overflow-x: auto;
-    }
-}
+      }
+
+      .url-stat-label {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 4px;
+        font-weight: 500;
+      }
+
+      .url-stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1e293b;
+        line-height: 1.2;
+      }
+
+      .url-stat-trend {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin-top: 4px;
+      }
+
+      .url-filter-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+        background: white;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .url-filter-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .url-filter-tab {
+        padding: 6px 14px;
+        border: none;
+        border-radius: 20px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .url-filter-tab:hover {
+        background: #e2e8f0;
+      }
+
+      .url-filter-tab.active {
+        background: #2563eb;
+        color: white;
+      }
+
+      .url-filter-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .url-filter-select {
+        padding: 6px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        color: #1e293b;
+        background: white;
+        cursor: pointer;
+        min-width: 130px;
+      }
+
+      .url-filter-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      .url-table-container {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        margin-bottom: 20px;
+      }
+
+      .url-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .url-table thead {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .url-table th {
+        padding: 14px 16px;
+        text-align: left;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      .url-table td {
+        padding: 14px 16px;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+      }
+
+      .url-table tbody tr:hover {
+        background: #f8fafc;
+      }
+
+      .url-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .url-favicon {
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+
+      .url-link {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 500;
+        word-break: break-all;
+      }
+
+      .url-link:hover {
+        text-decoration: underline;
+      }
+
+      .url-domain-badge {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        margin-left: 6px;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+
+      .status-badge.allowed {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .status-badge.blocked {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .browser-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #f1f5f9;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        color: #475569;
+      }
+
+      .browser-badge i {
+        font-size: 0.7rem;
+      }
+
+      .time-cell {
+        font-size: 0.85rem;
+        color: #64748b;
+        white-space: nowrap;
+      }
+
+      .url-loading {
+        text-align: center;
+        padding: 40px;
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .url-loading .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #f1f5f9;
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 15px;
+      }
+
+      .url-no-data {
+        text-align: center;
+        padding: 60px;
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .url-no-data i {
+        font-size: 48px;
+        color: #94a3b8;
+        margin-bottom: 16px;
+      }
+
+      .url-no-data h4 {
+        font-size: 1.2rem;
+        color: #1e293b;
+        margin-bottom: 8px;
+      }
+
+      .url-no-data p {
+        color: #64748b;
+        font-size: 0.9rem;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 1200px) {
+        .url-stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .url-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .url-search-wrapper {
+          width: 100%;
+        }
+
+        .url-filter-bar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .url-filter-actions {
+          width: 100%;
+        }
+
+        .url-filter-select {
+          flex: 1;
+        }
+
+        .url-table {
+          display: block;
+          overflow-x: auto;
+        }
+      }
+
+      .policy-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 16px;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .policy-card:hover {
+        border-color: #d1d5db;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transform: translateY(-2px);
+      }
+
+      .policy-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+        border-radius: 4px 0 0 4px;
+      }
+
+      .policy-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+        padding-left: 4px;
+      }
+
+      .policy-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+      }
+
+      .policy-status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      .policy-status.active {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .policy-desc {
+        font-size: 0.9rem;
+        color: #4b5563;
+        margin-bottom: 16px;
+        line-height: 1.5;
+        padding-left: 4px;
+      }
+
+      .policy-rules {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding-left: 4px;
+      }
+
+      .rule-tag {
+        padding: 6px 14px;
+        background: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        color: #374151;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .rule-tag:hover {
+        background: #e5e7eb;
+        border-color: #9ca3af;
+      }
+
+      .rule-tag i {
+        font-size: 0.7rem;
+        color: #6b7280;
+      }
+
+      .policy-delete-btn {
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #b91c1c;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .policy-delete-btn:hover {
+        background: #dc2626;
+        color: white;
+        border-color: #b91c1c;
+      }
+
+      .policy-meta {
+        display: flex;
+        gap: 16px;
+        margin-top: 8px;
+        font-size: 0.75rem;
+        color: #6b7280;
+      }
+
+      .policy-meta i {
+        margin-right: 4px;
+        color: #9ca3af;
+      }
+
+      .policy-stats {
+        display: flex;
+        gap: 20px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #f3f4f6;
+        font-size: 0.8rem;
+      }
+
+      .policy-stat {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #4b5563;
+      }
+
+      .policy-stat i {
+        color: #2563eb;
+        font-size: 0.9rem;
+      }
+
+      .policy-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 500;
+      }
+
+      .policy-badge.web {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .policy-badge.file {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .policy-badge.usb {
+        background: #fff3cd;
+        color: #854d0e;
+      }
+
+      /* Add these styles for better policy display */
+      .policy-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 16px;
+        transition: all 0.2s ease;
+        position: relative;
+      }
+
+      .policy-card:hover {
+        border-color: #d1d5db;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .policy-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+      }
+
+      .policy-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+      }
+
+      .policy-status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .policy-status.active {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .policy-status.inactive {
+        background: #f3f4f6;
+        color: #6b7280;
+      }
+
+      .policy-desc {
+        font-size: 0.9rem;
+        color: #4b5563;
+        line-height: 1.5;
+      }
+
+      .policy-rules {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .rule-tag {
+        padding: 6px 12px;
+        background: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        color: #374151;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        max-width: 100%;
+        word-break: break-all;
+      }
+
+      .rule-tag i {
+        font-size: 0.7rem;
+        color: #ef4444;
+      }
+
+      .policy-delete-btn {
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #b91c1c;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .policy-delete-btn:hover {
+        background: #dc2626;
+        color: white;
+        border-color: #b91c1c;
+      }
     </style>
   </head>
 
@@ -3112,7 +3388,7 @@
                   </div>
                 </div>
               </div>
-              <
+
               <div class="profile-actions">
                 <button class="btn btn-secondary" onclick="editAgent()">
                   <i class="fas fa-edit"></i> Edit
@@ -3698,94 +3974,140 @@
 
             <!-- ======== BLOCKED URLs TAB ======== -->
             <!-- ======== BLOCKED URLs TAB (READ-ONLY) ======== -->
-<div id="blockedUrls" class="tab-content">
-    <!-- Stats Cards -->
-    <div class="burl-stats-row">
-        <div class="burl-stat-card">
-            <div class="burl-stat-icon"><i class="fas fa-globe"></i></div>
-            <div>
-                <div class="burl-stat-label">Total Blocked URLs</div>
-                <div class="burl-stat-value" id="totalBlockedUrlsCount">0</div>
-                <div class="burl-stat-sub">Active policies</div>
-            </div>
-        </div>
-        <div class="burl-stat-card">
-            <div class="burl-stat-icon"><i class="fas fa-tags"></i></div>
-            <div>
-                <div class="burl-stat-label">Categories</div>
-                <div class="burl-stat-value" id="blockedUrlCategories">0</div>
-                <div class="burl-stat-sub">Different types</div>
-            </div>
-        </div>
-        <div class="burl-stat-card">
-            <div class="burl-stat-icon"><i class="fas fa-calendar"></i></div>
-            <div>
-                <div class="burl-stat-label">Last Updated</div>
-                <div class="burl-stat-value" id="blockedUrlLastUpdated">-</div>
-                <div class="burl-stat-sub">From policy</div>
-            </div>
-        </div>
-    </div>
+            <div id="blockedUrls" class="tab-content">
+              <!-- Stats Cards -->
+              <div class="burl-stats-row">
+                <div class="burl-stat-card">
+                  <div class="burl-stat-icon"><i class="fas fa-globe"></i></div>
+                  <div>
+                    <div class="burl-stat-label">Total Blocked URLs</div>
+                    <div class="burl-stat-value" id="totalBlockedUrlsCount">
+                      0
+                    </div>
+                    <div class="burl-stat-sub">Active policies</div>
+                  </div>
+                </div>
+                <div class="burl-stat-card">
+                  <div class="burl-stat-icon"><i class="fas fa-tags"></i></div>
+                  <div>
+                    <div class="burl-stat-label">Categories</div>
+                    <div class="burl-stat-value" id="blockedUrlCategories">
+                      0
+                    </div>
+                    <div class="burl-stat-sub">Different types</div>
+                  </div>
+                </div>
+                <div class="burl-stat-card">
+                  <div class="burl-stat-icon">
+                    <i class="fas fa-calendar"></i>
+                  </div>
+                  <div>
+                    <div class="burl-stat-label">Last Updated</div>
+                    <div class="burl-stat-value" id="blockedUrlLastUpdated">
+                      -
+                    </div>
+                    <div class="burl-stat-sub">From policy</div>
+                  </div>
+                </div>
+              </div>
 
-    <!-- Toolbar (READ-ONLY - Search only) -->
-    <div class="burl-toolbar">
-        <div class="burl-search-wrap" style="max-width: 300px;">
-            <input type="text" class="burl-search" id="burlSearch" 
-                   placeholder="Search URLs..." onkeyup="filterBurlTable()">
-            <i class="fas fa-search burl-search-icon"></i>
-        </div>
-        <select class="burl-select" id="burlCategoryFilter" onchange="filterBurlTable()">
-            <option value="">All Categories</option>
-            <option value="Social Media">Social Media</option>
-            <option value="Gaming">Gaming</option>
-            <option value="Shopping">Shopping</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Malware/Phishing">Malware/Phishing</option>
-            <option value="Productivity">Productivity</option>
-            <option value="Custom">Custom</option>
-        </select>
-        <button class="burl-btn-refresh" onclick="loadBlockedUrls(getAgentIdFromUrl())" 
-                title="Refresh">
-            <i class="fas fa-rotate-right"></i>
-        </button>
-        <div style="margin-left: auto;">
-            <span class="badge" style="background: #e2e8f0; color: #475569; padding: 6px 12px; border-radius: 20px;">
-                <i class="fas fa-info-circle"></i> Read-only view (manage in Assign Policy)
-            </span>
-        </div>
-    </div>
+              <!-- Toolbar (READ-ONLY - Search only) -->
+              <div class="burl-toolbar">
+                <div class="burl-search-wrap" style="max-width: 300px">
+                  <input
+                    type="text"
+                    class="burl-search"
+                    id="burlSearch"
+                    placeholder="Search URLs..."
+                    onkeyup="filterBurlTable()"
+                  />
+                  <i class="fas fa-search burl-search-icon"></i>
+                </div>
+                <select
+                  class="burl-select"
+                  id="burlCategoryFilter"
+                  onchange="filterBurlTable()"
+                >
+                  <option value="">All Categories</option>
+                  <option value="Social Media">Social Media</option>
+                  <option value="Gaming">Gaming</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Malware/Phishing">Malware/Phishing</option>
+                  <option value="Productivity">Productivity</option>
+                  <option value="Custom">Custom</option>
+                </select>
+                <button
+                  class="burl-btn-refresh"
+                  onclick="loadBlockedUrls(getAgentIdFromUrl())"
+                  title="Refresh"
+                >
+                  <i class="fas fa-rotate-right"></i>
+                </button>
+                <div style="margin-left: auto">
+                  <span
+                    class="badge"
+                    style="
+                      background: #e2e8f0;
+                      color: #475569;
+                      padding: 6px 12px;
+                      border-radius: 20px;
+                    "
+                  >
+                    <i class="fas fa-info-circle"></i> Read-only view (manage in
+                    Assign Policy)
+                  </span>
+                </div>
+              </div>
 
-    <!-- Blocked URLs Table (READ-ONLY - No action buttons) -->
-    <div class="burl-table-wrap">
-        <table class="burl-table" id="burlTable">
-            <thead>
-                <tr>
-                    <th>URL Pattern</th>
-                    <th>Domain</th>
-                    <th>Category</th>
-                    <th>Scope</th>
-                    <th>Status</th>
-                    <th>Added By</th>
-                    <!-- <th>Date Added</th>
+              <!-- Blocked URLs Table (READ-ONLY - No action buttons) -->
+              <div class="burl-table-wrap">
+                <table class="burl-table" id="burlTable">
+                  <thead>
+                    <tr>
+                      <th>URL Pattern</th>
+                      <th>Domain</th>
+                      <th>Category</th>
+                      <th>Scope</th>
+                      <th>Status</th>
+                      <th>Added By</th>
+                      <!-- <th>Date Added</th>
                     <th>Hit Count</th> -->
-                </tr>
-            </thead>
-            <tbody id="burlTbody">
-                <!-- Populated by JavaScript -->
-            </tbody>
-        </table>
-    </div>
+                    </tr>
+                  </thead>
+                  <tbody id="burlTbody">
+                    <!-- Populated by JavaScript -->
+                  </tbody>
+                </table>
+              </div>
 
-    <!-- No Data Message -->
-    <div id="noBlockedUrlsMessage" style="display: none; text-align: center; padding: 40px; background: white; border-radius: 12px;">
-        <i class="fas fa-ban" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
-        <h4 style="color: #374151; margin-bottom: 8px;">No Blocked URLs</h4>
-        <p style="color: #6b7280;">No URL blocking policies have been assigned to this agent.</p>
-        <p style="color: #6b7280; font-size: 0.9em; margin-top: 8px;">
-            <i class="fas fa-arrow-right"></i> Go to <strong>Assign Policy</strong> to create blocked URL rules.
-        </p>
-    </div>
-</div>
+              <!-- No Data Message -->
+              <div
+                id="noBlockedUrlsMessage"
+                style="
+                  display: none;
+                  text-align: center;
+                  padding: 40px;
+                  background: white;
+                  border-radius: 12px;
+                "
+              >
+                <i
+                  class="fas fa-ban"
+                  style="font-size: 48px; color: #9ca3af; margin-bottom: 16px"
+                ></i>
+                <h4 style="color: #374151; margin-bottom: 8px">
+                  No Blocked URLs
+                </h4>
+                <p style="color: #6b7280">
+                  No URL blocking policies have been assigned to this agent.
+                </p>
+                <p style="color: #6b7280; font-size: 0.9em; margin-top: 8px">
+                  <i class="fas fa-arrow-right"></i> Go to
+                  <strong>Assign Policy</strong> to create blocked URL rules.
+                </p>
+              </div>
+            </div>
 
             <!-- ======== PARTIAL ACCESS TAB ======== -->
             <div id="partialAccess" class="tab-content">
@@ -4462,67 +4784,119 @@
         }
       }
 
+      // function loadAgentPolicies(agentId) {
+      //   fetch(`/api/admin/agents/${agentId}/policies`)
+      //     .then((response) => response.json())
+      //     .then((data) => {
+      //       if (data.success) {
+      //         displayAgentPolicies(data.data);
+      //       } else {
+      //         console.error("Failed to load policies:", data.message);
+      //         showPoliciesError();
+      //       }
+      //     })
+      //     .catch((error) => {
+      //       console.error("Error loading policies:", error);
+      //       showPoliciesError();
+      //     });
+      // }
       function loadAgentPolicies(agentId) {
-        fetch(`/api/admin/agents/${agentId}/policies`)
-          .then((response) => response.json())
+        if (!agentId) {
+          console.warn("No agent ID provided for loading policies");
+          return;
+        }
+
+        // Show loading state
+        const policyContainer = document.querySelector(
+          "#policies .policy-list",
+        );
+        if (policyContainer) {
+          policyContainer.innerHTML = `
+      <div style="text-align: center; padding: 40px;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #3b82f6;"></i>
+        <p style="color: #6b7280; margin-top: 16px;">Loading policies...</p>
+      </div>
+    `;
+        }
+
+        fetch(`/api/admin/agents/${agentId}/policies`, {
+          credentials: "include",
+          headers: {
+            Accept: "application/json",
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
           .then((data) => {
-            if (data.success) {
-              displayAgentPolicies(data.data);
+            console.log("Policies loaded:", data);
+            if (data.success && data.data) {
+              // Ensure data.data is an array
+              const policies = Array.isArray(data.data)
+                ? data.data
+                : [data.data].filter(Boolean);
+              displayAgentPolicies(policies);
             } else {
               console.error("Failed to load policies:", data.message);
-              showPoliciesError();
+              showPoliciesError(data.message || "Failed to load policies");
             }
           })
           .catch((error) => {
             console.error("Error loading policies:", error);
-            showPoliciesError();
+            showPoliciesError(error.message);
           });
       }
 
       async function loadBlockedUrls(agentId) {
-    try {
-        const response = await fetch(`/api/admin/agents/${agentId}/blocked-urls`, {
-            credentials: "include",
-        });
-        const result = await response.json();
+        try {
+          const response = await fetch(
+            `/api/admin/agents/${agentId}/blocked-urls`,
+            {
+              credentials: "include",
+            },
+          );
+          const result = await response.json();
 
-        const tbody = document.getElementById("burlTbody");
-        const noDataMsg = document.getElementById("noBlockedUrlsMessage");
-        const table = document.getElementById("burlTable");
+          const tbody = document.getElementById("burlTbody");
+          const noDataMsg = document.getElementById("noBlockedUrlsMessage");
+          const table = document.getElementById("burlTable");
 
-        if (!tbody) return;
+          if (!tbody) return;
 
-        if (result.success && result.data && result.data.length > 0) {
+          if (result.success && result.data && result.data.length > 0) {
             // Show table, hide no-data message
             if (table) table.style.display = "table";
             if (noDataMsg) noDataMsg.style.display = "none";
-            
+
             renderBlockedUrlsTable(result.data);
             updateBlockedUrlStats(result.data);
-        } else {
+          } else {
             // Hide table, show no-data message
             if (table) table.style.display = "none";
             if (noDataMsg) {
-                noDataMsg.style.display = "block";
-                // Update agent ID in message
-                const link = noDataMsg.querySelector('a');
-                if (link) {
-                    link.href = `assign-policy?agent=${agentId}`;
-                }
+              noDataMsg.style.display = "block";
+              // Update agent ID in message
+              const link = noDataMsg.querySelector("a");
+              if (link) {
+                link.href = `assign-policy?agent=${agentId}`;
+              }
             }
-            
+
             // Clear table
             tbody.innerHTML = "";
-            
+
             // Reset stats
             document.getElementById("totalBlockedUrlsCount").textContent = "0";
             document.getElementById("blockedUrlCategories").textContent = "0";
             document.getElementById("blockedUrlLastUpdated").textContent = "-";
-        }
-    } catch (error) {
-        console.error("Failed to load blocked URLs:", error);
-        const tbody = document.getElementById("burlTbody");
-        if (tbody) {
+          }
+        } catch (error) {
+          console.error("Failed to load blocked URLs:", error);
+          const tbody = document.getElementById("burlTbody");
+          if (tbody) {
             tbody.innerHTML = `
                 <tr>
                     <td colspan="8" class="text-center" style="padding: 40px; color: #ef4444;">
@@ -4531,58 +4905,68 @@
                     </td>
                 </tr>
             `;
+          }
         }
-    }
       }
-function renderBlockedUrlsTable(urls) {
-    const tbody = document.getElementById("burlTbody");
-    if (!tbody) return;
+      function renderBlockedUrlsTable(urls) {
+        const tbody = document.getElementById("burlTbody");
+        if (!tbody) return;
 
-    tbody.innerHTML = "";
+        tbody.innerHTML = "";
 
-    urls.forEach((url) => {
-        const row = document.createElement("tr");
-        
-        // Format date with fallback
-        let addedDate = "N/A";
-        if (url.createdAt) {
+        urls.forEach((url) => {
+          const row = document.createElement("tr");
+
+          // Format date with fallback
+          let addedDate = "N/A";
+          if (url.createdAt) {
             try {
-                const date = new Date(url.createdAt);
-                // Check if date is valid
-                if (!isNaN(date.getTime())) {
-                    addedDate = date.toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                }
+              const date = new Date(url.createdAt);
+              // Check if date is valid
+              if (!isNaN(date.getTime())) {
+                addedDate = date.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
+              }
             } catch (e) {
-                console.warn("Invalid date:", url.createdAt);
+              console.warn("Invalid date:", url.createdAt);
             }
-        }
+          }
 
-        // Determine category class
-        let categoryClass = "entertainment";
-        const category = (url.category || "Other").toLowerCase();
-        
-        if (category.includes("social")) {
+          // Determine category class
+          let categoryClass = "entertainment";
+          const category = (url.category || "Other").toLowerCase();
+
+          if (category.includes("social")) {
             categoryClass = "social";
-        } else if (category.includes("work") || category.includes("productivity")) {
+          } else if (
+            category.includes("work") ||
+            category.includes("productivity")
+          ) {
             categoryClass = "work";
-        } else if (category.includes("malware") || category.includes("phishing")) {
+          } else if (
+            category.includes("malware") ||
+            category.includes("phishing")
+          ) {
             categoryClass = "danger";
-        }
+          }
 
-        // Determine scope
-        const scope = url.global ? "Global" : (url.deviceId ? "Device" : "User");
-        const scopeClass = url.global ? "global" : "device";
+          // Determine scope
+          const scope = url.global
+            ? "Global"
+            : url.deviceId
+              ? "Device"
+              : "User";
+          const scopeClass = url.global ? "global" : "device";
 
-        row.innerHTML = `
+          row.innerHTML = `
             <td>
                 <div class="burl-url-name">${escapeHtml(url.urlPattern)}</div>
-                ${url.reason ? `<div class="burl-url-reason">${escapeHtml(url.reason)}</div>` : ''}
+                ${url.reason ? `<div class="burl-url-reason">${escapeHtml(url.reason)}</div>` : ""}
             </td>
             <td class="burl-domain">${escapeHtml(url.domain || url.urlPattern)}</td>
             <td><span class="burl-tag ${categoryClass}">${escapeHtml(url.category || "Other")}</span></td>
@@ -4596,80 +4980,81 @@ function renderBlockedUrlsTable(urls) {
             <td class="burl-date">${addedDate}</td>
             <td class="text-center"><span class="badge">${url.hitCount || 0}</span></td>
         `;
-        
-        tbody.appendChild(row);
-    });
 
-    // Update last updated stat
-    updateLastUpdatedStat(urls);
-    
-    // Initialize filter
-    filterBurlTable();
-}
+          tbody.appendChild(row);
+        });
 
-function updateLastUpdatedStat(urls) {
-    if (urls.length > 0) {
-        // Find the most recent date from either updatedAt or createdAt
-        const dates = urls
-            .map(u => {
-                if (u.updatedAt) return new Date(u.updatedAt);
-                if (u.createdAt) return new Date(u.createdAt);
-                return null;
+        // Update last updated stat
+        updateLastUpdatedStat(urls);
+
+        // Initialize filter
+        filterBurlTable();
+      }
+
+      function updateLastUpdatedStat(urls) {
+        if (urls.length > 0) {
+          // Find the most recent date from either updatedAt or createdAt
+          const dates = urls
+            .map((u) => {
+              if (u.updatedAt) return new Date(u.updatedAt);
+              if (u.createdAt) return new Date(u.createdAt);
+              return null;
             })
-            .filter(d => d && !isNaN(d.getTime()))
+            .filter((d) => d && !isNaN(d.getTime()))
             .sort((a, b) => b - a);
-        
-        if (dates.length > 0) {
-            const lastUpdated = dates[0].toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
+
+          if (dates.length > 0) {
+            const lastUpdated = dates[0].toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
             });
-            document.getElementById("blockedUrlLastUpdated").textContent = lastUpdated;
-        } else {
+            document.getElementById("blockedUrlLastUpdated").textContent =
+              lastUpdated;
+          } else {
             document.getElementById("blockedUrlLastUpdated").textContent = "-";
+          }
+        } else {
+          document.getElementById("blockedUrlLastUpdated").textContent = "-";
         }
-    } else {
-        document.getElementById("blockedUrlLastUpdated").textContent = "-";
-    }
-}
+      }
 
-
-  function escapeHtml(unsafe) {
-    if (!unsafe) return "";
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
+      function escapeHtml(unsafe) {
+        if (!unsafe) return "";
+        return unsafe
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
       function updateBlockedUrlStats(urls) {
-    const totalUrls = urls.length;
-    const activeUrls = urls.filter(u => u.active).length;
-    
-    // Update total count
-    const totalEl = document.getElementById("totalBlockedUrlsCount");
-    if (totalEl) totalEl.textContent = totalUrls;
+        const totalUrls = urls.length;
+        const activeUrls = urls.filter((u) => u.active).length;
 
-    // Update categories count
-    const categories = new Set(urls.map(u => u.category || "Other")).size;
-    const categoriesEl = document.getElementById("blockedUrlCategories");
-    if (categoriesEl) categoriesEl.textContent = categories;
+        // Update total count
+        const totalEl = document.getElementById("totalBlockedUrlsCount");
+        if (totalEl) totalEl.textContent = totalUrls;
 
-    // Update last updated
-    if (urls.length > 0) {
-        const latestDate = urls
-            .map(u => u.updatedAt || u.createdAt)
-            .filter(d => d)
+        // Update categories count
+        const categories = new Set(urls.map((u) => u.category || "Other")).size;
+        const categoriesEl = document.getElementById("blockedUrlCategories");
+        if (categoriesEl) categoriesEl.textContent = categories;
+
+        // Update last updated
+        if (urls.length > 0) {
+          const latestDate = urls
+            .map((u) => u.updatedAt || u.createdAt)
+            .filter((d) => d)
             .sort((a, b) => new Date(b) - new Date(a))[0];
-        
-        if (latestDate) {
+
+          if (latestDate) {
             const lastUpdated = new Date(latestDate).toLocaleDateString();
-            document.getElementById("blockedUrlLastUpdated").textContent = lastUpdated;
+            document.getElementById("blockedUrlLastUpdated").textContent =
+              lastUpdated;
+          }
         }
-    }
-}
+      }
 
       function editBlockedUrl(urlId) {
         fetch(`/api/admin/blocked-urls/${urlId}`)
@@ -4738,128 +5123,137 @@ function updateLastUpdatedStat(urls) {
           });
       }
 
-     async function loadWebHistory(agentId) {
-    const urlsContainer = document.getElementById("urlsContainer");
-    const urlsLoading = document.getElementById("urlsLoading");
-    const noDataDiv = document.getElementById("noUrlData");
-    
-    if (!urlsContainer || !urlsLoading) return;
+      async function loadWebHistory(agentId) {
+        const urlsContainer = document.getElementById("urlsContainer");
+        const urlsLoading = document.getElementById("urlsLoading");
+        const noDataDiv = document.getElementById("noUrlData");
 
-    urlsLoading.style.display = "block";
-    urlsContainer.innerHTML = "";
-    if (noDataDiv) noDataDiv.style.display = "none";
+        if (!urlsContainer || !urlsLoading) return;
 
-    try {
-        const resp = await fetch(`/api/admin/web-history-detailed/${agentId}`, {
-            credentials: "include",
-        });
-        const result = await resp.json();
-        urlsLoading.style.display = "none";
+        urlsLoading.style.display = "block";
+        urlsContainer.innerHTML = "";
+        if (noDataDiv) noDataDiv.style.display = "none";
 
-        if (!result.success || !result.data || result.data.length === 0) {
+        try {
+          const resp = await fetch(
+            `/api/admin/web-history-detailed/${agentId}`,
+            {
+              credentials: "include",
+            },
+          );
+          const result = await resp.json();
+          urlsLoading.style.display = "none";
+
+          if (!result.success || !result.data || result.data.length === 0) {
             if (noDataDiv) noDataDiv.style.display = "block";
-            
+
             // Update stats with zeros
             updateUrlStats([]);
             return;
+          }
+
+          const history = result.data;
+
+          // Update stats
+          updateUrlStats(history);
+
+          // Store in global variable for filtering
+          window.urlHistoryData = history;
+
+          // Render table
+          renderUrlTable(history);
+        } catch (e) {
+          console.error("Failed to load web history", e);
+          urlsLoading.style.display = "none";
+          urlsContainer.innerHTML =
+            '<div class="url-no-data"><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i><h4>Error Loading Data</h4><p>Failed to load URL history. Please try again.</p><button onclick="loadWebHistory(getAgentIdFromUrl())" class="btn btn-primary" style="margin-top: 16px;"><i class="fas fa-sync-alt"></i> Retry</button></div>';
         }
+      }
 
-        const history = result.data;
-        
-        // Update stats
-        updateUrlStats(history);
-        
-        // Store in global variable for filtering
-        window.urlHistoryData = history;
-        
-        // Render table
-        renderUrlTable(history);
+      function updateUrlStats(history) {
+        // Total visits
+        const totalVisitsEl = document.getElementById("totalUrlVisits");
+        if (totalVisitsEl) totalVisitsEl.textContent = history.length;
 
-    } catch (e) {
-        console.error("Failed to load web history", e);
-        urlsLoading.style.display = "none";
-        urlsContainer.innerHTML = '<div class="url-no-data"><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i><h4>Error Loading Data</h4><p>Failed to load URL history. Please try again.</p><button onclick="loadWebHistory(getAgentIdFromUrl())" class="btn btn-primary" style="margin-top: 16px;"><i class="fas fa-sync-alt"></i> Retry</button></div>';
-    }
-}
-
-  function updateUrlStats(history) {
-    // Total visits
-    const totalVisitsEl = document.getElementById("totalUrlVisits");
-    if (totalVisitsEl) totalVisitsEl.textContent = history.length;
-
-    // Unique domains
-    const domains = new Set();
-    history.forEach(item => {
-        try {
+        // Unique domains
+        const domains = new Set();
+        history.forEach((item) => {
+          try {
             const url = new URL(item.url);
             domains.add(url.hostname);
-        } catch {
+          } catch {
             // Simple extraction if URL parsing fails
-            const match = item.url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i);
+            const match = item.url.match(
+              /^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i,
+            );
             const domain = match ? match[1] : item.url;
             domains.add(domain);
+          }
+        });
+        const uniqueDomainsEl = document.getElementById("uniqueDomains");
+        if (uniqueDomainsEl) uniqueDomainsEl.textContent = domains.size;
+
+        // Blocked count
+        const blocked = history.filter((h) => h.blocked === true).length;
+        const totalBlockedEl = document.getElementById("totalBlockedUrls");
+        if (totalBlockedEl) totalBlockedEl.textContent = blocked;
+
+        // Suspicious count - customize this logic as needed
+        const suspicious = history.filter((h) => {
+          const url = h.url || "";
+          const lowerUrl = url.toLowerCase();
+          return (
+            lowerUrl.includes("login") ||
+            lowerUrl.includes("signin") ||
+            lowerUrl.includes("bank") ||
+            lowerUrl.includes("pay") ||
+            lowerUrl.includes("password") ||
+            lowerUrl.includes("secure") ||
+            lowerUrl.includes("auth")
+          );
+        }).length;
+        const totalSuspiciousEl = document.getElementById(
+          "totalSuspiciousUrls",
+        );
+        if (totalSuspiciousEl) totalSuspiciousEl.textContent = suspicious;
+
+        // Update overview stat
+        const overviewUrls = document.getElementById("overviewUrlsVisited");
+        if (overviewUrls)
+          overviewUrls.textContent = history.length.toLocaleString();
+      }
+
+      function detectBrowser(userAgent, url) {
+        if (!userAgent) return "Unknown";
+
+        const ua = userAgent.toLowerCase();
+        if (ua.includes("chrome")) return "Chrome";
+        if (ua.includes("firefox")) return "Firefox";
+        if (ua.includes("edge")) return "Edge";
+        if (ua.includes("safari")) return "Safari";
+        if (ua.includes("opera")) return "Opera";
+        return "Unknown";
+      }
+
+      function extractDomain(url) {
+        try {
+          const urlObj = new URL(url);
+          return urlObj.hostname;
+        } catch {
+          // Simple extraction
+          const match = url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i);
+          return match ? match[1] : url;
         }
-    });
-    const uniqueDomainsEl = document.getElementById("uniqueDomains");
-    if (uniqueDomainsEl) uniqueDomainsEl.textContent = domains.size;
+      }
 
-    // Blocked count
-    const blocked = history.filter(h => h.blocked === true).length;
-    const totalBlockedEl = document.getElementById("totalBlockedUrls");
-    if (totalBlockedEl) totalBlockedEl.textContent = blocked;
+      function getFaviconUrl(domain) {
+        return `https://www.google.com/s2/favicons?domain=${domain}&sz=16`;
+      }
 
-    // Suspicious count - customize this logic as needed
-    const suspicious = history.filter(h => {
-        const url = h.url || '';
-        const lowerUrl = url.toLowerCase();
-        return lowerUrl.includes('login') || 
-               lowerUrl.includes('signin') || 
-               lowerUrl.includes('bank') || 
-               lowerUrl.includes('pay') ||
-               lowerUrl.includes('password') ||
-               lowerUrl.includes('secure') ||
-               lowerUrl.includes('auth');
-    }).length;
-    const totalSuspiciousEl = document.getElementById("totalSuspiciousUrls");
-    if (totalSuspiciousEl) totalSuspiciousEl.textContent = suspicious;
+      function renderUrlTable(history) {
+        const urlsContainer = document.getElementById("urlsContainer");
 
-    // Update overview stat
-    const overviewUrls = document.getElementById("overviewUrlsVisited");
-    if (overviewUrls) overviewUrls.textContent = history.length.toLocaleString();
-}
-
-  function detectBrowser(userAgent, url) {
-    if (!userAgent) return "Unknown";
-    
-    const ua = userAgent.toLowerCase();
-    if (ua.includes('chrome')) return 'Chrome';
-    if (ua.includes('firefox')) return 'Firefox';
-    if (ua.includes('edge')) return 'Edge';
-    if (ua.includes('safari')) return 'Safari';
-    if (ua.includes('opera')) return 'Opera';
-    return 'Unknown';
-}
-
-
-function extractDomain(url) {
-    try {
-        const urlObj = new URL(url);
-        return urlObj.hostname;
-    } catch {
-        // Simple extraction
-        const match = url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i);
-        return match ? match[1] : url;
-    }
-}
-
-function getFaviconUrl(domain) {
-    return `https://www.google.com/s2/favicons?domain=${domain}&sz=16`;
-}
-
-function renderUrlTable(history) {
-    const urlsContainer = document.getElementById("urlsContainer");
-    
-    let html = `
+        let html = `
         <table class="url-table">
             <thead>
                 <tr>
@@ -4872,52 +5266,58 @@ function renderUrlTable(history) {
             <tbody>
     `;
 
-    history.forEach((entry) => {
-        // Format timestamp
-        let timeStr = '';
-        let dateObj = null;
-        
-        if (Array.isArray(entry.visitTimestamp)) {
-            const [year, month, day, hour, minute, second] = entry.visitTimestamp;
+        history.forEach((entry) => {
+          // Format timestamp
+          let timeStr = "";
+          let dateObj = null;
+
+          if (Array.isArray(entry.visitTimestamp)) {
+            const [year, month, day, hour, minute, second] =
+              entry.visitTimestamp;
             dateObj = new Date(year, month - 1, day, hour, minute, second);
-            timeStr = dateObj.toLocaleString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric',
-                hour: '2-digit', 
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true 
+            timeStr = dateObj.toLocaleString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true,
             });
-        } else {
+          } else {
             dateObj = new Date(entry.visitTimestamp || entry.timestamp);
             timeStr = dateObj.toLocaleString();
-        }
-        
-        // Get relative time
-        const now = new Date();
-        const diffMs = now - dateObj;
-        const diffMins = Math.floor(diffMs / 60000);
-        let relativeTime = '';
-        if (diffMins < 1) relativeTime = 'Just now';
-        else if (diffMins < 60) relativeTime = `${diffMins}m ago`;
-        else if (diffMins < 1440) relativeTime = `${Math.floor(diffMins / 60)}h ago`;
-        else relativeTime = `${Math.floor(diffMins / 1440)}d ago`;
+          }
 
-        const url = entry.url || '';
-        const domain = extractDomain(url);
-        const browser = entry.browser || 'Unknown';
-        const blockedFlag = entry.blocked === true;
-        
-        // Detect browser icon
-        let browserIcon = 'fa-globe';
-        if (browser.toLowerCase().includes('chrome')) browserIcon = 'fa-chrome';
-        else if (browser.toLowerCase().includes('firefox')) browserIcon = 'fa-firefox';
-        else if (browser.toLowerCase().includes('edge')) browserIcon = 'fa-edge';
-        else if (browser.toLowerCase().includes('safari')) browserIcon = 'fa-safari';
-        
-        html += `
-            <tr class="url-row" data-url="${url.toLowerCase()}" data-browser="${browser.toLowerCase()}" data-status="${blockedFlag ? 'blocked' : 'allowed'}">
+          // Get relative time
+          const now = new Date();
+          const diffMs = now - dateObj;
+          const diffMins = Math.floor(diffMs / 60000);
+          let relativeTime = "";
+          if (diffMins < 1) relativeTime = "Just now";
+          else if (diffMins < 60) relativeTime = `${diffMins}m ago`;
+          else if (diffMins < 1440)
+            relativeTime = `${Math.floor(diffMins / 60)}h ago`;
+          else relativeTime = `${Math.floor(diffMins / 1440)}d ago`;
+
+          const url = entry.url || "";
+          const domain = extractDomain(url);
+          const browser = entry.browser || "Unknown";
+          const blockedFlag = entry.blocked === true;
+
+          // Detect browser icon
+          let browserIcon = "fa-globe";
+          if (browser.toLowerCase().includes("chrome"))
+            browserIcon = "fa-chrome";
+          else if (browser.toLowerCase().includes("firefox"))
+            browserIcon = "fa-firefox";
+          else if (browser.toLowerCase().includes("edge"))
+            browserIcon = "fa-edge";
+          else if (browser.toLowerCase().includes("safari"))
+            browserIcon = "fa-safari";
+
+          html += `
+            <tr class="url-row" data-url="${url.toLowerCase()}" data-browser="${browser.toLowerCase()}" data-status="${blockedFlag ? "blocked" : "allowed"}">
                 <td class="time-cell">
                     <div>${timeStr}</div>
                     <small style="color: #94a3b8;">${relativeTime}</small>
@@ -4940,75 +5340,83 @@ function renderUrlTable(history) {
                     </span>
                 </td>
                 <td>
-                    <span class="status-badge ${blockedFlag ? 'blocked' : 'allowed'}">
-                        ${blockedFlag ? 'Blocked' : 'Allowed'}
+                    <span class="status-badge ${blockedFlag ? "blocked" : "allowed"}">
+                        ${blockedFlag ? "Blocked" : "Allowed"}
                     </span>
                 </td>
             </tr>
         `;
-    });
+        });
 
-    html += "</tbody></table>";
-    urlsContainer.innerHTML = html;
-}
+        html += "</tbody></table>";
+        urlsContainer.innerHTML = html;
+      }
 
-// Filter functions
-function filterUrlTable() {
-    const searchTerm = document.getElementById('searchUrls').value.toLowerCase();
-    const browserFilter = document.getElementById('urlBrowserFilter').value.toLowerCase();
-    const statusFilter = document.getElementById('urlStatusFilter').value.toLowerCase();
-    
-    const rows = document.querySelectorAll('.url-row');
-    
-    rows.forEach(row => {
-        const url = row.dataset.url;
-        const browser = row.dataset.browser;
-        const status = row.dataset.status;
-        
-        const matchesSearch = url.includes(searchTerm);
-        const matchesBrowser = !browserFilter || browser.includes(browserFilter);
-        const matchesStatus = !statusFilter || status === statusFilter;
-        
-        row.style.display = matchesSearch && matchesBrowser && matchesStatus ? '' : 'none';
-    });
-}
+      // Filter functions
+      function filterUrlTable() {
+        const searchTerm = document
+          .getElementById("searchUrls")
+          .value.toLowerCase();
+        const browserFilter = document
+          .getElementById("urlBrowserFilter")
+          .value.toLowerCase();
+        const statusFilter = document
+          .getElementById("urlStatusFilter")
+          .value.toLowerCase();
 
-function filterUrlByType(type) {
-    // Update active tab
-    document.querySelectorAll('.url-filter-tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    const now = new Date();
-    const rows = document.querySelectorAll('.url-row');
-    
-    rows.forEach(row => {
-        const timeCell = row.querySelector('.time-cell');
-        if (!timeCell) return;
-        
-        // Get the timestamp from the first div (not the relative time)
-        const timeText = timeCell.childNodes[0]?.textContent?.trim();
-        if (!timeText) return;
-        
-        const rowDate = new Date(timeText);
-        
-        let show = true;
-        if (type === 'today') {
+        const rows = document.querySelectorAll(".url-row");
+
+        rows.forEach((row) => {
+          const url = row.dataset.url;
+          const browser = row.dataset.browser;
+          const status = row.dataset.status;
+
+          const matchesSearch = url.includes(searchTerm);
+          const matchesBrowser =
+            !browserFilter || browser.includes(browserFilter);
+          const matchesStatus = !statusFilter || status === statusFilter;
+
+          row.style.display =
+            matchesSearch && matchesBrowser && matchesStatus ? "" : "none";
+        });
+      }
+
+      function filterUrlByType(type) {
+        // Update active tab
+        document.querySelectorAll(".url-filter-tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+        event.target.classList.add("active");
+
+        const now = new Date();
+        const rows = document.querySelectorAll(".url-row");
+
+        rows.forEach((row) => {
+          const timeCell = row.querySelector(".time-cell");
+          if (!timeCell) return;
+
+          // Get the timestamp from the first div (not the relative time)
+          const timeText = timeCell.childNodes[0]?.textContent?.trim();
+          if (!timeText) return;
+
+          const rowDate = new Date(timeText);
+
+          let show = true;
+          if (type === "today") {
             show = rowDate.toDateString() === now.toDateString();
-        } else if (type === 'week') {
+          } else if (type === "week") {
             const weekAgo = new Date(now);
             weekAgo.setDate(now.getDate() - 7);
             show = rowDate >= weekAgo;
-        } else if (type === 'month') {
+          } else if (type === "month") {
             const monthAgo = new Date(now);
             monthAgo.setMonth(now.getMonth() - 1);
             show = rowDate >= monthAgo;
-        }
-        
-        row.style.display = show ? '' : 'none';
-    });
-}
+          }
+
+          row.style.display = show ? "" : "none";
+        });
+      }
       async function loadAppUsage(agentId) {
         const pieCtx = document.getElementById("appPieChart");
         const lineCtx = document.getElementById("appLineChart");
@@ -5864,71 +6272,228 @@ function filterUrlByType(type) {
       }
 
       // Function to display policies in the Policies tab
-      function displayAgentPolicies(policies) {
-        const policyContainer = document.querySelector(
-          "#policies .policy-list",
-        );
-        if (!policyContainer) return;
+      // function displayAgentPolicies(policies) {
+      //   const policyContainer = document.querySelector(
+      //     "#policies .policy-list",
+      //   );
+      //   if (!policyContainer) return;
 
-        if (!policies || policies.length === 0) {
-          policyContainer.innerHTML = `
-            <div style="text-align: center; padding: 40px; background: #f9fafb; border-radius: 8px;">
-                <i class="fas fa-shield-alt" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
-                <h4 style="color: #374151; margin-bottom: 8px;">No Active Policies</h4>
-                <p style="color: #6b7280;">This agent doesn't have any active policies yet.</p>
-            </div>
-        `;
-          return;
+      //   if (!policies || policies.length === 0) {
+      //     policyContainer.innerHTML = `
+      //       <div style="text-align: center; padding: 40px; background: #f9fafb; border-radius: 8px;">
+      //           <i class="fas fa-shield-alt" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
+      //           <h4 style="color: #374151; margin-bottom: 8px;">No Active Policies</h4>
+      //           <p style="color: #6b7280;">This agent doesn't have any active policies yet.</p>
+      //       </div>
+      //   `;
+      //     return;
+      //   }
+
+      //   let html = "";
+      //   policies.forEach((policy) => {
+      //     // Parse policy data if it's JSON
+      //     let rules = [];
+      //     try {
+      //       if (policy.policyData) {
+      //         const data = JSON.parse(policy.policyData);
+      //         if (Array.isArray(data)) {
+      //           rules = data;
+      //         } else if (typeof data === "object") {
+      //           rules = Object.values(data);
+      //         }
+      //       }
+      //     } catch (e) {
+      //       // If not JSON, use as string
+      //       if (policy.policyData) {
+      //         rules = [policy.policyData];
+      //       }
+      //     }
+
+      //     // Generate rule tags
+      //     const ruleTags =
+      //       rules.length > 0
+      //         ? rules
+      //             .map((rule) => `<span class="rule-tag">${rule}</span>`)
+      //             .join("")
+      //         : '<span class="rule-tag">No specific rules</span>';
+
+      //     html += `
+      //       <div class="policy-card" data-policy-id="${policy.id}" data-policy-code="${policy.policyCode}">
+      //           <div class="policy-header">
+      //               <h4 class="policy-title">${policy.name || policy.policyCode}</h4>
+      //               <div style="display:flex; align-items:center; gap:10px;">
+      //                   <span class="policy-status active">Active</span>
+      //                   <button class="policy-delete-btn" onclick="removePolicyFromAgent(this)" title="Remove">
+      //                       <i class="fas fa-trash"></i>
+      //                   </button>
+      //               </div>
+      //           </div>
+      //           <p class="policy-desc">${policy.description || "No description available"}</p>
+      //           <div class="policy-rules">
+      //               ${ruleTags}
+      //           </div>
+      //       </div>
+      //   `;
+      //   });
+
+      //   policyContainer.innerHTML = html;
+      // }
+
+      // Function to display policies in the Policies tab
+     // Function to display policies in the Policies tab
+function displayAgentPolicies(policies) {
+  const policyContainer = document.querySelector("#policies .policy-list");
+  if (!policyContainer) return;
+
+  if (!policies || policies.length === 0) {
+    policyContainer.innerHTML = `
+      <div style="text-align: center; padding: 60px 40px; background: #f9fafb; border-radius: 12px; border: 1px dashed #e5e7eb;">
+        <i class="fas fa-shield-alt" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
+        <h4 style="color: #374151; margin-bottom: 8px; font-size: 1.1rem;">No Active Policies</h4>
+        <p style="color: #6b7280; margin-bottom: 20px;">This agent doesn't have any active policies yet.</p>
+        <a href="assign-policy?agent=${getAgentIdFromUrl()}" class="btn btn-primary">
+          <i class="fas fa-plus-circle"></i> Assign Policy
+        </a>
+      </div>
+    `;
+    return;
+  }
+
+  let html = "";
+  
+  policies.forEach((policy) => {
+    // Parse policy data if it's a JSON string
+    let policyDetails = {};
+    let rules = [];
+    
+    try {
+      if (policy.policyData) {
+        // Parse the JSON string
+        if (typeof policy.policyData === 'string') {
+          policyDetails = JSON.parse(policy.policyData);
+        } else {
+          policyDetails = policy.policyData;
         }
-
-        let html = "";
-        policies.forEach((policy) => {
-          // Parse policy data if it's JSON
-          let rules = [];
-          try {
-            if (policy.policyData) {
-              const data = JSON.parse(policy.policyData);
-              if (Array.isArray(data)) {
-                rules = data;
-              } else if (typeof data === "object") {
-                rules = Object.values(data);
-              }
-            }
-          } catch (e) {
-            // If not JSON, use as string
-            if (policy.policyData) {
-              rules = [policy.policyData];
-            }
+        
+        // Extract rules based on policy type
+        if (policy.policyCode === 'NETWORK_DNS_BLOCK') {
+          // For DNS Block policy, show domains and IPs
+          if (policyDetails.domains && policyDetails.domains.length > 0) {
+            rules = rules.concat(policyDetails.domains.map(d => `🌐 ${d}`));
           }
+          if (policyDetails.ips && policyDetails.ips.length > 0) {
+            rules = rules.concat(policyDetails.ips.map(ip => `🔌 ${ip}`));
+          }
+        } else if (policy.policyCode === 'WEB_BLOCK') {
+          // For Web Block policy
+          rules = policyDetails.urls || policyDetails.patterns || [];
+        } else if (policy.policyCode === 'WEB_PARTIAL_ACCESS') {
+          // For Partial Access policy
+          rules = policyDetails.sites || policyDetails.partialAccessSites || [];
+        } else if (policy.policyCode === 'FILE_PROTECTION') {
+          // For File Protection policy
+          rules = policyDetails.rules || policyDetails.fileTypes || [];
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to parse policy data:", e);
+      // If parsing fails, show the raw data
+      if (policy.policyData) {
+        rules = [policy.policyData];
+      }
+    }
 
-          // Generate rule tags
-          const ruleTags =
-            rules.length > 0
-              ? rules
-                  .map((rule) => `<span class="rule-tag">${rule}</span>`)
-                  .join("")
-              : '<span class="rule-tag">No specific rules</span>';
+    // Get policy icon based on type
+    let policyIcon = 'fa-shield-alt';
+    let iconColor = '#3b82f6';
+    let bgColor = '#eff6ff';
+    
+    if (policy.policyCode?.includes('NETWORK')) {
+      policyIcon = 'fa-network-wired';
+      iconColor = '#8b5cf6';
+      bgColor = '#f3e8ff';
+    } else if (policy.policyCode?.includes('DNS')) {
+      policyIcon = 'fa-server';
+      iconColor = '#8b5cf6';
+      bgColor = '#f3e8ff';
+    } else if (policy.policyCode?.includes('WEB')) {
+      policyIcon = 'fa-globe';
+      iconColor = '#3b82f6';
+      bgColor = '#eff6ff';
+    } else if (policy.policyCode?.includes('FILE')) {
+      policyIcon = 'fa-file';
+      iconColor = '#f59e0b';
+      bgColor = '#fef3c7';
+    } else if (policy.policyCode?.includes('USB')) {
+      policyIcon = 'fa-usb';
+      iconColor = '#10b981';
+      bgColor = '#d1fae5';
+    } else if (policy.policyCode?.includes('APP')) {
+      policyIcon = 'fa-window-maximize';
+      iconColor = '#ec4899';
+      bgColor = '#fce7f3';
+    }
 
-          html += `
-            <div class="policy-card" data-policy-id="${policy.id}" data-policy-code="${policy.policyCode}">
-                <div class="policy-header">
-                    <h4 class="policy-title">${policy.name || policy.policyCode}</h4>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <span class="policy-status active">Active</span>
-                        <button class="policy-delete-btn" onclick="removePolicyFromAgent(this)" title="Remove">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                <p class="policy-desc">${policy.description || "No description available"}</p>
-                <div class="policy-rules">
-                    ${ruleTags}
-                </div>
+    // Format dates
+    const createdDate = policy.createdAt ? new Date(policy.createdAt).toLocaleDateString() : 'N/A';
+    const updatedDate = policy.updatedAt ? new Date(policy.updatedAt).toLocaleDateString() : 'N/A';
+
+    // Count total rules
+    const totalRules = rules.length;
+
+    html += `
+      <div class="policy-card" data-policy-id="${policy.id}" data-policy-code="${policy.policyCode}">
+        <div class="policy-header">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; background: ${bgColor}; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: ${iconColor};">
+              <i class="fas ${policyIcon}"></i>
             </div>
-        `;
-        });
+            <div>
+              <h4 class="policy-title">${policy.name || policy.policyCode || 'Unnamed Policy'}</h4>
+              <div class="policy-meta" style="display: flex; gap: 12px; margin-top: 4px; font-size: 0.7rem; color: #6b7280;">
+                <span><i class="far fa-calendar-alt"></i> Created: ${createdDate}</span>
+                <span><i class="far fa-clock"></i> Updated: ${updatedDate}</span>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="policy-status ${policy.isActive ? 'active' : 'inactive'}">${policy.isActive ? 'Active' : 'Inactive'}</span>
+            <button class="policy-delete-btn" onclick="removePolicyFromAgent(this)" title="Remove Policy">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        
+        <p class="policy-desc" style="margin: 12px 0 12px 56px; color: #4b5563;">${policy.description || 'No description available'}</p>
+        
+        <div style="margin-left: 56px;">
+          <div style="display: flex; gap: 16px; margin-bottom: 12px; font-size: 0.8rem; color: #374151;">
+            <span><i class="fas fa-tag" style="color: #9ca3af;"></i> ${policy.category || 'General'}</span>
+            <span><i class="fas fa-exclamation-triangle" style="color: #9ca3af;"></i> ${policy.severity || 'MEDIUM'}</span>
+            <span><i class="fas fa-bullseye" style="color: #9ca3af;"></i> ${policy.target || policy.policyType || 'N/A'}</span>
+          </div>
+          
+          <div class="policy-rules" style="margin-top: 12px;">
+            ${totalRules > 0 ? rules.map(rule => `<span class="rule-tag"><i class="fas fa-ban" style="color: #ef4444; font-size: 0.7rem;"></i> ${rule}</span>`).join('') : '<span class="rule-tag">No specific rules configured</span>'}
+          </div>
+          
+          <div style="margin-top: 12px; font-size: 0.75rem; color: #6b7280; border-top: 1px dashed #e5e7eb; padding-top: 10px;">
+            <i class="fas fa-info-circle" style="color: #3b82f6;"></i> 
+            Agent: <strong>${policy.agentHostname || 'Unknown'}</strong> (ID: ${policy.agentId})
+          </div>
+        </div>
+      </div>
+    `;
+  });
 
-        policyContainer.innerHTML = html;
+  policyContainer.innerHTML = html;
+}
+      // Helper function to truncate text
+      function truncateText(text, maxLength) {
+        if (!text) return "";
+        const str = String(text);
+        if (str.length <= maxLength) return str;
+        return str.substring(0, maxLength) + "...";
       }
 
       // Function to show error state
@@ -6713,22 +7278,26 @@ function filterUrlByType(type) {
 
       /* ---- Filter helpers ---- */
       function filterBurlTable() {
-    const searchTerm = document.getElementById("burlSearch")?.value.toLowerCase() || "";
-    const categoryFilter = document.getElementById("burlCategoryFilter")?.value.toLowerCase() || "";
-    
-    const rows = document.querySelectorAll("#burlTbody tr");
-    
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        const category = row.querySelector(".burl-tag")?.textContent.toLowerCase() || "";
-        
-        const matchesSearch = text.includes(searchTerm);
-        const matchesCategory = !categoryFilter || category.includes(categoryFilter);
-        
-        row.style.display = matchesSearch && matchesCategory ? "" : "none";
-    });
-}
+        const searchTerm =
+          document.getElementById("burlSearch")?.value.toLowerCase() || "";
+        const categoryFilter =
+          document.getElementById("burlCategoryFilter")?.value.toLowerCase() ||
+          "";
 
+        const rows = document.querySelectorAll("#burlTbody tr");
+
+        rows.forEach((row) => {
+          const text = row.textContent.toLowerCase();
+          const category =
+            row.querySelector(".burl-tag")?.textContent.toLowerCase() || "";
+
+          const matchesSearch = text.includes(searchTerm);
+          const matchesCategory =
+            !categoryFilter || category.includes(categoryFilter);
+
+          row.style.display = matchesSearch && matchesCategory ? "" : "none";
+        });
+      }
 
       function filterPaTable() {
         var q = document.getElementById("paSearch").value.toLowerCase();
@@ -6749,7 +7318,7 @@ function filterUrlByType(type) {
       // Initialize on DOM ready
       document.addEventListener("DOMContentLoaded", function () {
         setActiveMenuItem();
-        <!--            loadAdminInfo();-->
+        // <!--            loadAdminInfo();-->
 
         setTimeout(() => {
           const agentId = getAgentIdFromUrl();

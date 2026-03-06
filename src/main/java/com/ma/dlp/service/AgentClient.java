@@ -32,7 +32,7 @@ public class AgentClient {
     @Autowired
     private UserRepository userRepository;
 
-    @Value("${agent.base-url:http://127.0.0.1:8081}")
+    @Value("${agent.base-url:http://0.0.0.0:8081}")
     private String fallbackBaseUrl;
 
     @Value("${agent.timeout.read:10000}")

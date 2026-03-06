@@ -37,7 +37,7 @@ public class ManageAgentStatsService {
 
         long onlineAgents = tAgents.stream()
                 .filter(agent -> agent.getLastHeartbeat() != null &&
-                        (System.currentTimeMillis() - agent.getLastHeartbeat().getTime()) <= 5000)
+                        (System.currentTimeMillis() - agent.getLastHeartbeat().getTime()) <= 10000)
                 .count();
 
         // Calculate offline agents (total agents - online agents)

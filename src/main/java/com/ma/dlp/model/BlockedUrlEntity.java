@@ -43,6 +43,9 @@ public class BlockedUrlEntity {
     @Column(name = "user_id")
     private String userId;
     
+    @Column(name = "agent_id")
+    private Long agentId;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     
@@ -93,6 +96,7 @@ public class BlockedUrlEntity {
     
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
+
     
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
@@ -106,4 +110,12 @@ public class BlockedUrlEntity {
     public int getHitCount() { return hitCount; }
     public void setHitCount(int hitCount) { this.hitCount = hitCount; }
     public void incrementHitCount() { this.hitCount++; }
+
+    public Long getAgentId() {
+        return agentId;
+    }
+
+    public void setAgentId(Long agentId) {
+        this.agentId = agentId;
+    }
 }

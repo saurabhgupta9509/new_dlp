@@ -37,7 +37,7 @@ public class User implements UserDetails {
     private Date lastLogin;
     private Date createdAt;
 
-    @Column(name = "token", length = 500)
+    @Column(name = "token   ", length = 500)
     private String token;
 
     // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch =
@@ -66,7 +66,7 @@ public class User implements UserDetails {
     private Boolean ocrActive;
 
     @Transient
-    private String agentRuntimeState;
+    private String agentRuntimeState; //
 
     @OneToMany(mappedBy = "agent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OcrStatus> ocrStatuses = new ArrayList<>();

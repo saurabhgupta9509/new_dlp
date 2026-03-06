@@ -39,48 +39,48 @@ public class WebSocketController extends TextWebSocketHandler {
         this.messagingTemplate = messagingTemplate;
     }
 
-    @PostConstruct
-    public void connectToAgent() {
-        log.info("Connecting to Agent WebSocket: {}", agentWsUrl);
+    // @PostConstruct
+    // public void connectToAgent() {
+    //     log.info("Connecting to Agent WebSocket: {}", agentWsUrl);
 
-        WebSocketClient client = new StandardWebSocketClient();
+    //     WebSocketClient client = new StandardWebSocketClient();
 
-        client.execute(new TextWebSocketHandler() {
-            @Override
-            public void afterConnectionEstablished(WebSocketSession session) {
-                agentSession = session;
-                log.info("Connected to Agent WebSocket");
-            }
+    //     client.execute(new TextWebSocketHandler() {
+    //         @Override
+    //         public void afterConnectionEstablished(WebSocketSession session) {
+    //             agentSession = session;
+    //             log.info("Connected to Agent WebSocket");
+    //         }
 
-            @Override
-            protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-                // Forward Agent messages to all connected clients
-                String payload = message.getPayload();
-                log.debug("Received from Agent: {}", payload);
+    //         @Override
+    //         protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+    //             // Forward Agent messages to all connected clients
+    //             String payload = message.getPayload();
+    //             log.debug("Received from Agent: {}", payload);
 
-                // Forward to all browser clients via STOMP
-                messagingTemplate.convertAndSend("/topic/kernel-events", payload);
-            }
+    //             // Forward to all browser clients via STOMP
+    //             messagingTemplate.convertAndSend("/topic/kernel-events", payload);
+    //         }
 
-            @Override
-            public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-                log.error("Agent WebSocket disconnected: {}", status);
-                agentSession = null;
-                // Try to reconnect after delay
-                try {
-                    Thread.sleep(5000);
-                    connectToAgent();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
+    //         @Override
+    //         public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+    //             log.error("Agent WebSocket disconnected: {}", status);
+    //             agentSession = null;
+    //             // Try to reconnect after delay
+    //             try {
+    //                 Thread.sleep(5000);
+    //                 connectToAgent();
+    //             } catch (InterruptedException e) {
+    //                 Thread.currentThread().interrupt();
+    //             }
+    //         }
 
-            @Override
-            public void handleTransportError(WebSocketSession session, Throwable exception) {
-                log.error("Agent WebSocket error", exception);
-            }
-        }, agentWsUrl);
-    }
+    //         @Override
+    //         public void handleTransportError(WebSocketSession session, Throwable exception) {
+    //             log.error("Agent WebSocket error", exception);
+    //         }
+    //     }, agentWsUrl);
+    // }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {

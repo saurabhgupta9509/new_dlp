@@ -26,6 +26,8 @@ public interface BlockedUrlRepository extends JpaRepository<BlockedUrlEntity, Lo
     List<BlockedUrlEntity> findByUserId(String userId);
     
     List<BlockedUrlEntity> findByUserIdAndActiveTrue(String userId);
+     // ✅ Add this method to get by agentId
+    List<BlockedUrlEntity> findByAgentIdAndActiveTrue(Long agentId);
     
     List<BlockedUrlEntity> findByCategory(String category);
     
@@ -35,11 +37,13 @@ public interface BlockedUrlRepository extends JpaRepository<BlockedUrlEntity, Lo
     
     boolean existsByUrlPattern(String urlPattern);
     
-    @Query("SELECT b FROM BlockedUrlEntity b WHERE b.active = true AND " +
-           "(b.global = true OR b.deviceId = :deviceId OR b.userId = :userId)")
-    List<BlockedUrlEntity> findApplicableForDevice(
-            @Param("deviceId") String deviceId,
-            @Param("userId") String userId);
+   // Custom method to get all applicable URLs
+   @Query("SELECT b FROM BlockedUrlEntity b WHERE b.active = true AND " +
+           "(b.global = true OR b.deviceId = :deviceId OR b.userId = :userId OR b.agentId = :agentId)")
+    List<BlockedUrlEntity> findApplicableForAgent(
+        @Param("deviceId") String deviceId, 
+        @Param("userId") String userId,
+        @Param("agentId") Long agentId);
     
     @Modifying
     @Transactional

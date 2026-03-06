@@ -3724,7 +3724,7 @@
               <span><i class="fas fa-id-badge"></i> ${agent.id}</span>
             </div>
             <div class="agent-info">
-              <span><i class="fab fa-${getOSIcon(agent.osType)}"></i> ${agent.osType || "Unknown OS"}</span>
+              <span><i class="fab fa-${getOSIcon(agent.osType)}"></i> ${agent.osType || "Window OS"}</span>
               <span><i class="fas fa-network-wired"></i> ${agent.ipAddress || "N/A"}</span>
             </div>
           `;
@@ -4678,7 +4678,7 @@
             throw new Error("Could not find policy details");
           }
 
-          // ✅ FIXED: Define requestBody here!
+          // ✅ Define requestBody here!
           let requestBody = {
             agentIds: agentIds,
             policyCode: selectedPolicy,
@@ -4694,7 +4694,8 @@
               domains: blockedDomains,
               ips: [],
             });
-          } else if (selectedPolicy === "WEB_URL_BLOCK" && !isRemoving) {
+          } // In applyPolicy function
+          else if (selectedPolicy === "WEB_URL_BLOCK" && !isRemoving) {
             const textarea = document.getElementById("webUrlBlockPatterns");
             const patterns = (textarea?.value || "")
               .split(/\r?\n|,/g)
@@ -4705,24 +4706,32 @@
               alert("Please add at least one URL/domain pattern to block");
               return;
             }
-            const now = new Date().toISOString();
-            // Create blocked URLs with proper data
-            const blockedUrls = patterns.map((pattern) => ({
-              urlPattern: pattern,
-              reason: "Blocked by URL Blocking Policy",
-              category: "Custom",
-              active: true,
-              global: true, // Applied to all devices
-              agentId: agentIds[0], // Pass agent ID for context
-              // Send dates explicitly if backend isn't setting them
-              createdAt: now,
-              updatedAt: now
-            }));
 
-            console.log(
-              "Saving to blocked_urls with server timestamps:",
-              blockedUrls,
-            );
+            const blockedUrls = [];
+
+            for (const agentId of agentIds) {
+              const agent = agentsBasicData[agentId];
+
+              // You can still get deviceId if needed, but focus on agentId
+              const deviceId = agent?.macAddress || agent?.hostname || null;
+
+              patterns.forEach((pattern) => {
+                blockedUrls.push({
+                  urlPattern: pattern,
+                  domain: extractDomainFromPattern(pattern),
+                  reason: "Blocked by URL Blocking Policy",
+                  category: "Custom",
+                  active: true,
+                  global: true, // ✅ IMPORTANT: Set to false for agent-specific
+                  agentId: agentId, // ✅ This should be set (as number, not string)
+                  deviceId: deviceId, // Optional
+                  userId: null, // Set to null if not needed
+                  addedBy: "admin",
+                });
+              });
+            }
+
+            console.log("Saving agent-specific blocked URLs:", blockedUrls);
 
             const saveResponse = await fetch("/api/admin/blocked-urls/bulk", {
               method: "POST",
@@ -4741,23 +4750,19 @@
               );
             }
 
-            console.log("Save result with timestamps:", saveResult.data);
-
-            // STEP 2: Save policy data for agent
+            // Save policy data for agent
             requestBody.policyData = JSON.stringify({
               patterns: patterns,
               enabled: true,
             });
           } else if (selectedPolicy === "WEB_MONITOR_HISTORY" && !isRemoving) {
-            // STEP 1: Save to agent_capabilities (for the agent to start monitoring)
             requestBody.policyData = JSON.stringify({
               enabled: true,
-              monitoringLevel: "full", // or whatever config you need
+              monitoringLevel: "full",
             });
 
-            // STEP 2: Initialize URL history tracking in the database
+            // Initialize URL history tracking
             for (const agentId of agentIds) {
-              // Create an initial entry or enable history tracking for this agent
               await fetch(`/api/admin/agents/${agentId}/web-history/enable`, {
                 method: "POST",
                 headers: {
@@ -4880,17 +4885,13 @@
             }
           } else {
             alert(
-              `❌ Failed to ${isRemoving ? "remove" : "apply"} policy: ${
-                result.message
-              }`,
+              `❌ Failed to ${isRemoving ? "remove" : "apply"} policy: ${result.message}`,
             );
           }
         } catch (error) {
           console.error("Error applying policy:", error);
           alert(
-            `❌ Error ${isRemoving ? "removing" : "applying"} policy: ${
-              error.message
-            }`,
+            `❌ Error ${isRemoving ? "removing" : "applying"} policy: ${error.message}`,
           );
         }
       }
@@ -4914,7 +4915,7 @@
         domain = domain.replace("https://", "");
         domain = domain.replace("www.", "");
 
-        // Get main domain (first part)
+        // Get main domain (for display)
         const parts = domain.split(".");
         if (parts.length >= 2) {
           return parts.slice(-2).join(".");

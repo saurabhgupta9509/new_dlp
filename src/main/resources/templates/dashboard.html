@@ -3887,37 +3887,6 @@
         let alertTrendsChart = null;
         let threatsByTypeChart = null;
 
-        //  // User data from server
-        // const userData = {
-        //     username: [[${username}]],
-        //     userName: [[${userName}]],
-        //     userInitials: [[${userInitials}]],
-        //     userRole: [[${userRole}]],
-        //     userEmail: [[${userEmail}]],
-        //     userId: [[${userId}]]
-        // };
-
-        /* ==================== AUTHENTICATION & USER DATA ==================== */
-       
-
-    //      function loadAdminInfo() {
-    //     const userName = document.querySelector(".user-name");
-    //     const userAvatar = document.querySelector(".user-avatar");
-    //     const userRole = document.querySelector(".user-role");
-
-    //     if (userName && userData.userName) {
-    //         userName.textContent = userData.userName;
-    //     }
-
-    //     if (userAvatar && userData.userInitials) {
-    //         userAvatar.textContent = userData.userInitials;
-    //     }
-
-    //     if (userRole && userData.userRole) {
-    //         userRole.textContent = userData.userRole;
-    //     }
-    // }
-
         /* ==================== SIDEBAR FUNCTIONS ==================== */
         function toggleSubMenu(element) {
             var sidebar = document.getElementById('sidebar');
@@ -4109,59 +4078,6 @@
                 throw error;
             }
         }
-
-       /* async function loadOverviewStats() {
-            try {
-                let agents = agentsCache;
-                if (agents.length === 0) {
-                    const agentsResult = await callApi("/api/admin/agents");
-                    if (agentsResult && agentsResult.success) {
-                        agents = agentsResult.data || [];
-                        agentsCache = agents;
-                    }
-                }
-
-                const alertsResult = await callApi("/api/admin/alerts/pending");
-                const alerts = alertsResult && alertsResult.success ? alertsResult.data || [] : [];
-
-                const totalAgents = agents.length;
-                const onlineAgents = agents.filter((agent) => {
-                    if (!agent.lastHeartbeat) return false;
-                    const lastHeartbeatTime = new Date(agent.lastHeartbeat).getTime();
-                    const currentTime = Date.now();
-                    const secondsSinceLastHeartbeat = (currentTime - lastHeartbeatTime) / 1000;
-                    return secondsSinceLastHeartbeat <= 30;
-                }).length;
-                
-                const totalActivePolicies = agents.reduce((sum, a) => sum + (a.activePolicyCount || 0), 0);
-
-                document.getElementById("totalAgents").textContent = totalAgents;
-                document.getElementById("onlineAgents").textContent = onlineAgents;
-                document.getElementById("pendingAlerts").textContent = alerts.length;
-                document.getElementById("totalPolicies").textContent = totalActivePolicies;
-            } catch (err) {
-                console.error("Error loading stats:", err);
-            }
-        }
-*/
-
-            // async function loadOverviewStats() {
-            //     try {
-            //         const result = await callApi("/api/admin/dashboard/stats");
-
-            //         if (result && result.success) {
-            //             const data = result.data;
-
-            //             document.getElementById("totalAgents").textContent = data.totalAgents;
-            //             document.getElementById("onlineAgents").textContent = data.onlineAgents;
-            //             document.getElementById("pendingAlerts").textContent = data.pendingAlerts;
-            //             document.getElementById("totalPolicies").textContent = data.totalActivePolicies;
-            //         }
-
-            //     } catch (err) {
-            //         console.error("Error loading stats:", err);
-            //     }
-            // }
 
         async function loadChartData() {
             try {
