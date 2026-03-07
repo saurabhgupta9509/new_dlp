@@ -4071,8 +4071,9 @@
                       <th>Scope</th>
                       <th>Status</th>
                       <th>Added By</th>
-                      <!-- <th>Date Added</th>
-                    <th>Hit Count</th> -->
+                      <th>Date Added</th>
+                      <th>Hit Count</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody id="burlTbody">
@@ -4312,6 +4313,95 @@
             Cancel
           </button>
           <button class="modal-btn-save" onclick="saveBurl()">Save URL</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Blocked URL Modal -->
+    <div class="modal-overlay" id="editBlockedUrlModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>Edit Blocked URL</h3>
+          <button
+            class="modal-close"
+            onclick="closeModal('editBlockedUrlModal')"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-field">
+            <label>URL Pattern <span style="color: #ef4444">*</span></label>
+            <input
+              type="text"
+              id="edit_url_pattern"
+              class="domain-input"
+              placeholder="e.g., facebook.com or *.youtube.com"
+            />
+            <div class="hint">
+              Use wildcards (*) for patterns. Example: *.facebook.com blocks all
+              Facebook subdomains
+            </div>
+          </div>
+
+          <div class="modal-field">
+            <label>Domain (Optional)</label>
+            <input
+              type="text"
+              id="edit_url_domain"
+              class="domain-input"
+              placeholder="e.g., facebook.com"
+            />
+          </div>
+
+          <div class="modal-field">
+            <label>Reason</label>
+            <textarea
+              id="edit_url_reason"
+              class="domain-input"
+              placeholder="Why is this URL blocked?"
+              rows="2"
+            ></textarea>
+          </div>
+
+          <div class="modal-row">
+            <div class="modal-field">
+              <label>Category</label>
+              <select id="edit_url_category" class="domain-input">
+                <option value="Social Media">Social Media</option>
+                <option value="Gaming">Gaming</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Malware/Phishing">Malware/Phishing</option>
+                <option value="Productivity">Productivity</option>
+                <option value="Custom" selected>Custom</option>
+              </select>
+            </div>
+
+            <div class="modal-field">
+              <label>Scope</label>
+              <select id="edit_url_scope" class="domain-input">
+                <option value="agent">This Agent Only</option>
+                <option value="device">This Device</option>
+                <option value="global">Global (All Agents)</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="modal-check">
+            <input type="checkbox" id="edit_url_active" checked /> Active
+          </label>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="modal-btn-cancel"
+            onclick="closeModal('editBlockedUrlModal')"
+          >
+            Cancel
+          </button>
+          <button class="modal-btn-save" onclick="saveEditedBlockedUrl()">
+            Save Changes
+          </button>
         </div>
       </div>
     </div>
@@ -4587,6 +4677,444 @@
     <script th:inline="javascript">
       let appPieChartInstance = null;
       let appLineChartInstance = null;
+      let editingBlockedUrlId = null;
+      let editingBlockedUrlData = null;
+      let webUrlBlockPolicyId = null;
+      let webUrlBlockPolicyData = null;
+
+      // ===== BLOCKED URL ACTIONS =====
+      // Toggle active status
+   async function toggleBlockedUrlStatus(urlId, currentStatus, buttonElement) {
+    // Check if this is a policy-managed URL
+    const row = buttonElement ? buttonElement.closest('tr') : null;
+    const isFromPolicy = row && row.querySelector('.badge')?.textContent.includes('Policy');
+
+    if (isFromPolicy) {
+        // For policy-managed URLs, we need to enable/disable the entire policy
+        // or handle this differently based on your requirements
+        showNotification('Policy-managed URLs cannot be toggled individually. Please manage the policy directly.', 'info');
+        return;
+    }
+
+    const action = currentStatus ? 'deactivate' : 'activate';
+
+    if (!confirm(`Are you sure you want to ${action} this blocked URL?`)) {
+        return;
+    }
+
+    // Disable the button and show spinner
+    if (buttonElement) {
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    }
+
+    try {
+        const newStatus = !currentStatus;
+        const response = await fetch(`/api/admin/blocked-urls/${urlId}/toggle?active=${newStatus}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            if (row) {
+                // Update the status cell
+                const statusCell = row.querySelector('td:nth-child(5)');
+                if (statusCell) {
+                    statusCell.innerHTML = `
+                        <span class="burl-status ${newStatus ? 'active' : 'inactive'}">
+                            ${newStatus ? 'Active' : 'Inactive'}
+                        </span>
+                    `;
+                }
+
+                // Update the toggle button
+                const toggleBtn = row.querySelector('.burl-action-btn.toggle');
+                if (toggleBtn) {
+                    toggleBtn.innerHTML = `<i class="fas fa-${newStatus ? 'pause' : 'play'}"></i>`;
+                    toggleBtn.title = newStatus ? 'Deactivate' : 'Activate';
+                    toggleBtn.setAttribute('onclick', `toggleBlockedUrlStatus(${urlId}, ${newStatus}, this)`);
+                    toggleBtn.disabled = false;
+                }
+            }
+
+            showNotification(`URL ${newStatus ? 'activated' : 'deactivated'} successfully`, 'success');
+        } else {
+            throw new Error(result.message || `Failed to ${action} URL`);
+        }
+    } catch (error) {
+        console.error('Error toggling URL status:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+
+        if (buttonElement) {
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = `<i class="fas fa-${currentStatus ? 'pause' : 'play'}"></i>`;
+        }
+    }
+}
+
+      // Delete blocked URL
+      async function deleteBlockedUrl(urlId, urlPattern) {
+        if (
+          !confirm(
+            `Are you sure you want to delete blocked URL: ${urlPattern}?`,
+          )
+        ) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/admin/blocked-urls/${urlId}`, {
+            method: "DELETE",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            showNotification("URL deleted successfully", "success");
+            // Refresh the blocked URLs list
+            loadBlockedUrls(getAgentIdFromUrl());
+          } else {
+            throw new Error(result.message || "Failed to delete URL");
+          }
+        } catch (error) {
+          console.error("Error deleting URL:", error);
+          showNotification(`Error: ${error.message}`, "error");
+        }
+      }
+
+      // Open edit modal for blocked URL
+      function openEditBlockedUrlModal(url) {
+        editingBlockedUrlId = url.id;
+        editingBlockedUrlData = url;
+
+        // Populate the edit modal
+        document.getElementById("edit_url_pattern").value = url.urlPattern;
+        document.getElementById("edit_url_domain").value = url.domain || "";
+        document.getElementById("edit_url_reason").value = url.reason || "";
+        document.getElementById("edit_url_category").value =
+          url.category || "Custom";
+        document.getElementById("edit_url_active").checked = url.active;
+
+        // Set scope based on what's available
+        if (url.global) {
+          document.getElementById("edit_url_scope").value = "global";
+        } else if (url.deviceId) {
+          document.getElementById("edit_url_scope").value = "device";
+        } else {
+          document.getElementById("edit_url_scope").value = "agent";
+        }
+
+        // Show the modal
+        openModal("editBlockedUrlModal");
+      }
+
+      // Save edited blocked URL
+    async function saveEditedBlockedUrl() {
+    if (!editingBlockedUrlId) {
+        showNotification('No URL selected for editing', 'error');
+        return;
+    }
+
+    const urlPattern = document.getElementById('edit_url_pattern').value.trim();
+    if (!urlPattern) {
+        alert('URL Pattern is required');
+        return;
+    }
+
+    // Check if editing a policy-managed URL
+    const isFromPolicy = editingBlockedUrlData?.fromPolicy;
+    const oldPattern = editingBlockedUrlData?.urlPattern;
+
+    if (isFromPolicy) {
+        // Handle policy-based URL edit
+        if (!webUrlBlockPolicyData || !webUrlBlockPolicyData.patterns) {
+            showNotification('Cannot find policy data', 'error');
+            return;
+        }
+
+        // Update the pattern in the array
+        const patternIndex = webUrlBlockPolicyData.patterns.indexOf(oldPattern);
+        if (patternIndex === -1) {
+            showNotification('Pattern not found in policy', 'error');
+            return;
+        }
+
+        const updatedPatterns = [...webUrlBlockPolicyData.patterns];
+        updatedPatterns[patternIndex] = urlPattern;
+
+        const agentId = getAgentIdFromUrl();
+        const success = await updateWebUrlBlockPolicy(agentId, updatedPatterns);
+
+        if (success) {
+            // Update the row in UI
+            const row = document.querySelector(`tr:has(td .burl-url-name:contains('${oldPattern}'))`);
+            if (row) {
+                const urlNameDiv = row.querySelector('.burl-url-name');
+                if (urlNameDiv) {
+                    // Update the text content but keep the Policy badge
+                    const badge = urlNameDiv.querySelector('.badge');
+                    urlNameDiv.innerHTML = `${escapeHtml(urlPattern)}`;
+                    if (badge) urlNameDiv.appendChild(badge);
+                }
+
+                // Update domain cell
+                const domainCell = row.querySelector('td:nth-child(2)');
+                if (domainCell) domainCell.textContent = urlPattern;
+            }
+
+            closeModal('editBlockedUrlModal');
+            editingBlockedUrlId = null;
+            editingBlockedUrlData = null;
+
+            // Update webUrlBlockPolicyData
+            webUrlBlockPolicyData.patterns = updatedPatterns;
+        }
+    } else {
+        // Handle regular blocked URL edit via API
+        const requestData = {
+            urlPattern: urlPattern,
+            domain: document.getElementById('edit_url_domain').value.trim() || extractDomainFromPattern(urlPattern),
+            reason: document.getElementById('edit_url_reason').value.trim(),
+            category: document.getElementById('edit_url_category').value,
+            active: document.getElementById('edit_url_active').checked,
+            global: document.getElementById('edit_url_scope').value === 'global',
+            deviceId: document.getElementById('edit_url_scope').value === 'device' ?
+                (editingBlockedUrlData?.deviceId || null) : null,
+            userId: null,
+            agentId: parseInt(getAgentIdFromUrl())
+        };
+
+        try {
+            const response = await fetch(`/api/admin/blocked-urls/${editingBlockedUrlId}`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showNotification('URL updated successfully', 'success');
+                closeModal('editBlockedUrlModal');
+
+                // Update the row in UI
+                const row = document.querySelector(`tr:has(td .burl-url-name:contains('${oldPattern}'))`);
+                if (row) {
+                    const urlNameDiv = row.querySelector('.burl-url-name');
+                    if (urlNameDiv) urlNameDiv.textContent = urlPattern;
+
+                    const domainCell = row.querySelector('td:nth-child(2)');
+                    if (domainCell) domainCell.textContent = requestData.domain;
+
+                    const reasonDiv = row.querySelector('.burl-url-reason');
+                    if (reasonDiv) reasonDiv.textContent = requestData.reason;
+
+                    const categorySpan = row.querySelector('.burl-tag');
+                    if (categorySpan) {
+                        categorySpan.textContent = requestData.category;
+                        categorySpan.className = `burl-tag ${getCategoryClass(requestData.category)}`;
+                    }
+
+                    const statusSpan = row.querySelector('.burl-status');
+                    if (statusSpan) {
+                        statusSpan.className = `burl-status ${requestData.active ? 'active' : 'inactive'}`;
+                        statusSpan.textContent = requestData.active ? 'Active' : 'Inactive';
+                    }
+                }
+
+                editingBlockedUrlId = null;
+                editingBlockedUrlData = null;
+            } else {
+                throw new Error(result.message || 'Failed to update URL');
+            }
+        } catch (error) {
+            console.error('Error updating URL:', error);
+            showNotification(`Error: ${error.message}`, 'error');
+        }
+    }
+}
+
+      function renderBlockedUrlsTable(urls) {
+        const tbody = document.getElementById("burlTbody");
+        if (!tbody) return;
+
+        tbody.innerHTML = "";
+
+        urls.forEach((url) => {
+          const row = document.createElement("tr");
+
+          // Format date
+          let addedDate = "N/A";
+          if (url.createdAt) {
+            try {
+              const date = new Date(url.createdAt);
+              if (!isNaN(date.getTime())) {
+                addedDate = date.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
+              }
+            } catch (e) {
+              console.warn("Invalid date:", url.createdAt);
+            }
+          }
+
+          // Determine category class
+          let categoryClass = "entertainment";
+          const category = (url.category || "Other").toLowerCase();
+
+          if (category.includes("social")) {
+            categoryClass = "social";
+          } else if (
+            category.includes("work") ||
+            category.includes("productivity")
+          ) {
+            categoryClass = "work";
+          } else if (
+            category.includes("malware") ||
+            category.includes("phishing") ||
+            category.includes("blocked")
+          ) {
+            categoryClass = "danger";
+          }
+
+          // Determine scope display
+          let scopeText = "Agent";
+          let scopeClass = "device";
+
+          if (url.global) {
+            scopeText = "Global";
+            scopeClass = "global";
+          } else if (url.deviceId) {
+            scopeText = "Device";
+            scopeClass = "device";
+          } else if (url.userId) {
+            scopeText = "User";
+            scopeClass = "user";
+          }
+
+          // Add a badge for policy-based URLs
+          const addedByDisplay = url.fromPolicy
+            ? `<span title="From Policy"><i class="fas fa-shield-alt" style="color: #3b82f6; margin-right: 4px;"></i>Policy</span>`
+            : escapeHtml(url.addedBy || "System");
+
+          row.innerHTML = `
+            <td>
+                <div class="burl-url-name">
+                    ${escapeHtml(url.urlPattern)}
+                    ${url.fromPolicy ? '<span class="badge" style="background: #dbeafe; color: #1e40af; margin-left: 8px; font-size: 0.7rem;">Policy</span>' : ""}
+                </div>
+                ${url.reason ? `<div class="burl-url-reason">${escapeHtml(url.reason)}</div>` : ""}
+            </td>
+            <td class="burl-domain">${escapeHtml(url.domain || url.urlPattern)}</td>
+            <td><span class="burl-tag ${categoryClass}">${escapeHtml(url.category || "Other")}</span></td>
+            <td><span class="burl-scope ${scopeClass}">${scopeText}</span></td>
+            <td>
+                <span class="burl-status ${url.active ? "active" : "inactive"}">
+                    ${url.active ? "Active" : "Inactive"}
+                </span>
+            </td>
+            <td>${addedByDisplay}</td>
+            <td class="burl-date">${addedDate}</td>
+            <td class="text-center"><span class="badge">${url.hitCount || 0}</span></td>
+            <td>
+                <div class="burl-actions">
+                    ${
+                      !url.fromPolicy
+                        ? `
+                        <button class="burl-action-btn toggle" 
+                                onclick="toggleBlockedUrlStatus(${url.id}, ${url.active}, this)"
+                                title="${url.active ? "Deactivate" : "Activate"}">
+                            <i class="fas fa-${url.active ? "pause" : "play"}"></i>
+                        </button>
+                        <button class="burl-action-btn edit" 
+                                onclick='openEditBlockedUrlModal(${JSON.stringify(url).replace(/'/g, "\\'")})'
+                                title="Edit">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button class="burl-action-btn delete" 
+                                onclick="deleteBlockedUrl(${url.id}, '${url.urlPattern.replace(/'/g, "\\'")}')"
+                                title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `
+                        : `
+                        <span class="badge" style="background: #e2e8f0; color: #475569; padding: 4px 8px;">
+                            <i class="fas fa-lock"></i> Policy Managed
+                        </span>
+                    `
+                    }
+                </div>
+            </td>
+        `;
+
+          tbody.appendChild(row);
+        });
+
+        // Update stats
+        updateBlockedUrlStats(urls);
+
+        // Initialize filter
+        filterBurlTable();
+      }
+
+      // Helper functions
+      function getCategoryClass(category) {
+        const cat = (category || "Other").toLowerCase();
+        if (cat.includes("social")) return "social";
+        if (cat.includes("work") || cat.includes("productivity")) return "work";
+        if (cat.includes("malware") || cat.includes("phishing"))
+          return "danger";
+        return "entertainment";
+      }
+
+      function getScopeClass(url) {
+        if (url.global) return "global";
+        if (url.deviceId) return "device";
+        return "user";
+      }
+
+      function getScopeText(url) {
+        if (url.global) return "Global";
+        if (url.deviceId) return "Device";
+        return "User";
+      }
+
+      function formatDate(dateString) {
+        if (!dateString) return "N/A";
+        try {
+          const date = new Date(dateString);
+          if (isNaN(date.getTime())) return "N/A";
+          return date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        } catch {
+          return "N/A";
+        }
+      }
 
       async function loadAgentDetails(agentId) {
         try {
@@ -4812,11 +5340,11 @@
         );
         if (policyContainer) {
           policyContainer.innerHTML = `
-      <div style="text-align: center; padding: 40px;">
-        <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #3b82f6;"></i>
-        <p style="color: #6b7280; margin-top: 16px;">Loading policies...</p>
-      </div>
-    `;
+            <div style="text-align: center; padding: 40px;">
+              <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #3b82f6;"></i>
+              <p style="color: #6b7280; margin-top: 16px;">Loading policies...</p>
+            </div>
+          `;
         }
 
         fetch(`/api/admin/agents/${agentId}/policies`, {
@@ -4850,146 +5378,146 @@
           });
       }
 
-      async function loadBlockedUrls(agentId) {
-        try {
-          const response = await fetch(
-            `/api/admin/agents/${agentId}/blocked-urls`,
-            {
-              credentials: "include",
-            },
-          );
-          const result = await response.json();
+  async function loadBlockedUrls(agentId) {
+    try {
+        // Get blocked URLs from dedicated endpoint
+        const response = await fetch(`/api/admin/agents/${agentId}/blocked-urls`, {
+            credentials: "include",
+        });
+        const result = await response.json();
 
-          const tbody = document.getElementById("burlTbody");
-          const noDataMsg = document.getElementById("noBlockedUrlsMessage");
-          const table = document.getElementById("burlTable");
+        const tbody = document.getElementById("burlTbody");
+        const noDataMsg = document.getElementById("noBlockedUrlsMessage");
+        const table = document.getElementById("burlTable");
 
-          if (!tbody) return;
+        if (!tbody) return;
 
-          if (result.success && result.data && result.data.length > 0) {
-            // Show table, hide no-data message
+        // Reset policy data
+        webUrlBlockPolicyId = null;
+        webUrlBlockPolicyData = null;
+
+        // Fetch policies to get WEB_URL_BLOCK policy data
+        const policiesResponse = await fetch(`/api/admin/agents/${agentId}/policies`, {
+            credentials: "include"
+        });
+        const policiesResult = await policiesResponse.json();
+
+        let allBlockedUrls = [];
+
+        // Extract URL patterns from WEB_URL_BLOCK policy if it exists and is active
+        if (policiesResult.success && policiesResult.data) {
+            const webUrlBlockPolicy = policiesResult.data.find(
+                p => p.policyCode === 'WEB_URL_BLOCK' && p.isActive === true
+            );
+
+            if (webUrlBlockPolicy && webUrlBlockPolicy.policyData) {
+                // Store the policy ID and data globally
+                webUrlBlockPolicyId = webUrlBlockPolicy.id;
+
+                try {
+                    webUrlBlockPolicyData = typeof webUrlBlockPolicy.policyData === 'string'
+                        ? JSON.parse(webUrlBlockPolicy.policyData)
+                        : webUrlBlockPolicy.policyData;
+
+                    if (webUrlBlockPolicyData.patterns && webUrlBlockPolicyData.patterns.length > 0) {
+                        // POLICY IS ACTIVE - ONLY show policy-managed URLs, not the individual ones
+                        allBlockedUrls = webUrlBlockPolicyData.patterns.map((pattern, index) => ({
+                            id: `policy-${index}`, // Temporary ID
+                            urlPattern: pattern,
+                            domain: pattern,
+                            reason: webUrlBlockPolicy.description || 'Blocked by WEB_URL_BLOCK policy',
+                            category: 'Blocked',
+                            global: false,
+                            active: true,
+                            addedBy: 'Policy',
+                            createdAt: webUrlBlockPolicy.createdAt || new Date().toISOString(),
+                            hitCount: 0,
+                            fromPolicy: true,
+                            policyId: webUrlBlockPolicy.id,
+                            patternIndex: index
+                        }));
+
+                        console.log(`Policy active: showing ${allBlockedUrls.length} policy-managed URLs`);
+                    }
+                } catch (e) {
+                    console.error('Error parsing WEB_URL_BLOCK policy data:', e);
+                }
+            }
+        }
+
+        // If no policy is active, then show the regular blocked URLs from database
+        if (allBlockedUrls.length === 0 && result.success && result.data && result.data.length > 0) {
+            allBlockedUrls = [...result.data];
+            console.log(`No active policy: showing ${allBlockedUrls.length} database URLs`);
+        }
+
+        if (allBlockedUrls.length > 0) {
             if (table) table.style.display = "table";
             if (noDataMsg) noDataMsg.style.display = "none";
-
-            renderBlockedUrlsTable(result.data);
-            updateBlockedUrlStats(result.data);
-          } else {
-            // Hide table, show no-data message
+            renderBlockedUrlsTable(allBlockedUrls);
+            updateBlockedUrlStats(allBlockedUrls);
+        } else {
             if (table) table.style.display = "none";
             if (noDataMsg) {
-              noDataMsg.style.display = "block";
-              // Update agent ID in message
-              const link = noDataMsg.querySelector("a");
-              if (link) {
-                link.href = `assign-policy?agent=${agentId}`;
-              }
+                noDataMsg.style.display = "block";
+                const link = noDataMsg.querySelector("a");
+                if (link) link.href = `assign-policy?agent=${agentId}`;
             }
-
-            // Clear table
             tbody.innerHTML = "";
-
-            // Reset stats
             document.getElementById("totalBlockedUrlsCount").textContent = "0";
             document.getElementById("blockedUrlCategories").textContent = "0";
             document.getElementById("blockedUrlLastUpdated").textContent = "-";
-          }
-        } catch (error) {
-          console.error("Failed to load blocked URLs:", error);
-          const tbody = document.getElementById("burlTbody");
-          if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="8" class="text-center" style="padding: 40px; color: #ef4444;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px;"></i>
-                        <p>Error loading blocked URLs: ${error.message}</p>
-                    </td>
-                </tr>
-            `;
-          }
         }
-      }
-      function renderBlockedUrlsTable(urls) {
-        const tbody = document.getElementById("burlTbody");
-        if (!tbody) return;
+    } catch (error) {
+        console.error("Failed to load blocked URLs:", error);
+    }
+}
 
-        tbody.innerHTML = "";
+  async function updateWebUrlBlockPolicy(agentId, patterns) {
+    if (!webUrlBlockPolicyId) {
+        showNotification('No active WEB_URL_BLOCK policy found', 'error');
+        return false;
+    }
 
-        urls.forEach((url) => {
-          const row = document.createElement("tr");
+    try {
+        // Create updated policy data
+        const updatedPolicyData = {
+            patterns: patterns,
+            enabled: true
+        };
 
-          // Format date with fallback
-          let addedDate = "N/A";
-          if (url.createdAt) {
-            try {
-              const date = new Date(url.createdAt);
-              // Check if date is valid
-              if (!isNaN(date.getTime())) {
-                addedDate = date.toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                });
-              }
-            } catch (e) {
-              console.warn("Invalid date:", url.createdAt);
-            }
-          }
-
-          // Determine category class
-          let categoryClass = "entertainment";
-          const category = (url.category || "Other").toLowerCase();
-
-          if (category.includes("social")) {
-            categoryClass = "social";
-          } else if (
-            category.includes("work") ||
-            category.includes("productivity")
-          ) {
-            categoryClass = "work";
-          } else if (
-            category.includes("malware") ||
-            category.includes("phishing")
-          ) {
-            categoryClass = "danger";
-          }
-
-          // Determine scope
-          const scope = url.global
-            ? "Global"
-            : url.deviceId
-              ? "Device"
-              : "User";
-          const scopeClass = url.global ? "global" : "device";
-
-          row.innerHTML = `
-            <td>
-                <div class="burl-url-name">${escapeHtml(url.urlPattern)}</div>
-                ${url.reason ? `<div class="burl-url-reason">${escapeHtml(url.reason)}</div>` : ""}
-            </td>
-            <td class="burl-domain">${escapeHtml(url.domain || url.urlPattern)}</td>
-            <td><span class="burl-tag ${categoryClass}">${escapeHtml(url.category || "Other")}</span></td>
-            <td><span class="burl-scope ${scopeClass}">${scope}</span></td>
-            <td>
-                <span class="burl-status ${url.active ? "active" : "inactive"}">
-                    ${url.active ? "Active" : "Inactive"}
-                </span>
-            </td>
-            <td>${escapeHtml(url.addedBy || "System")}</td>
-            <td class="burl-date">${addedDate}</td>
-            <td class="text-center"><span class="badge">${url.hitCount || 0}</span></td>
-        `;
-
-          tbody.appendChild(row);
+        const response = await fetch(`/api/admin/policies/${webUrlBlockPolicyId}`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                policyData: JSON.stringify(updatedPolicyData)
+                // You might need to include other policy fields here
+            })
         });
 
-        // Update last updated stat
-        updateLastUpdatedStat(urls);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-        // Initialize filter
-        filterBurlTable();
-      }
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification('Policy updated successfully', 'success');
+            // Refresh policies tab
+            loadAgentPolicies(agentId);
+            return true;
+        } else {
+            throw new Error(result.message || 'Failed to update policy');
+        }
+    } catch (error) {
+        console.error('Error updating policy:', error);
+        showNotification(`Error updating policy: ${error.message}`, 'error');
+        return false;
+    }
+}
 
       function updateLastUpdatedStat(urls) {
         if (urls.length > 0) {
@@ -5019,15 +5547,21 @@
         }
       }
 
-      function escapeHtml(unsafe) {
-        if (!unsafe) return "";
-        return unsafe
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
-      }
+function escapeHtml(unsafe) {
+  if (unsafe === null || unsafe === undefined) return "";
+
+  // Convert to string if it's not already a string
+  const str = String(unsafe);
+
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
       function updateBlockedUrlStats(urls) {
         const totalUrls = urls.length;
         const activeUrls = urls.filter((u) => u.active).length;
@@ -5098,31 +5632,115 @@
           });
       }
 
-      function deleteBlockedUrl(urlId) {
-        if (!confirm("Are you sure you want to delete this blocked URL?")) {
-          return;
+      async function deleteBlockedUrl(urlId, urlPattern, buttonElement) {
+    if (!confirm(`Are you sure you want to delete blocked URL: ${urlPattern}?`)) {
+        return;
+    }
+
+    // Check if this is a policy-managed URL
+    const row = buttonElement ? buttonElement.closest('tr') : null;
+    const isFromPolicy = row && row.querySelector('.badge')?.textContent.includes('Policy');
+
+    if (isFromPolicy) {
+        // Handle policy-based URL deletion
+        if (!webUrlBlockPolicyData || !webUrlBlockPolicyData.patterns) {
+            showNotification('Cannot find policy data', 'error');
+            return;
+        }
+
+        // Remove the pattern from the array
+        const updatedPatterns = webUrlBlockPolicyData.patterns.filter(p => p !== urlPattern);
+
+        if (updatedPatterns.length === webUrlBlockPolicyData.patterns.length) {
+            showNotification('Pattern not found in policy', 'error');
+            return;
         }
 
         const agentId = getAgentIdFromUrl();
+        const success = await updateWebUrlBlockPolicy(agentId, updatedPatterns);
 
-        fetch(`/api/admin/blocked-urls/${urlId}`, {
-          method: "DELETE",
-        })
-          .then((res) => res.json())
-          .then((result) => {
-            if (result.success) {
-              showNotification("URL deleted successfully", "success");
-              loadBlockedUrls(agentId);
-            } else {
-              showNotification("Failed to delete URL", "error");
+        if (success) {
+            // Remove the row from UI
+            if (row) {
+                row.style.transition = 'all 0.3s ease';
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(20px)';
+
+                setTimeout(() => {
+                    row.remove();
+                    // Check if table is empty
+                    const tbody = document.getElementById('burlTbody');
+                    if (tbody && tbody.children.length === 0) {
+                        document.getElementById('burlTable').style.display = 'none';
+                        document.getElementById('noBlockedUrlsMessage').style.display = 'block';
+                    }
+                    // Update stats
+                    updateBlockedUrlStats(Array.from(tbody.children).map(r => {
+                        // Reconstruct URL objects from rows if needed
+                        return { active: r.querySelector('.burl-status')?.textContent.includes('Active') };
+                    }));
+                }, 300);
             }
-          })
-          .catch((error) => {
-            console.error("Error deleting URL:", error);
-            showNotification("Error deleting URL", "error");
-          });
-      }
 
+            // Update webUrlBlockPolicyData
+            webUrlBlockPolicyData.patterns = updatedPatterns;
+        }
+    } else {
+        // Handle regular blocked URL deletion via API
+        try {
+            if (buttonElement) {
+                buttonElement.disabled = true;
+                buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            }
+
+            const response = await fetch(`/api/admin/blocked-urls/${urlId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showNotification('URL deleted successfully', 'success');
+
+                // Remove the row from UI
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(20px)';
+
+                    setTimeout(() => {
+                        row.remove();
+                        // Check if table is empty
+                        const tbody = document.getElementById('burlTbody');
+                        if (tbody && tbody.children.length === 0) {
+                            document.getElementById('burlTable').style.display = 'none';
+                            document.getElementById('noBlockedUrlsMessage').style.display = 'block';
+                        }
+                        // Update stats
+                        updateBlockedUrlStats(Array.from(tbody.children).map(r => {
+                            // Reconstruct URL objects from rows if needed
+                            return { active: r.querySelector('.burl-status')?.textContent.includes('Active') };
+                        }));
+                    }, 300);
+                }
+            } else {
+                throw new Error(result.message || 'Failed to delete URL');
+            }
+        } catch (error) {
+            console.error('Error deleting URL:', error);
+            showNotification(`Error: ${error.message}`, 'error');
+
+            if (buttonElement) {
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = '<i class="fas fa-trash"></i>';
+            }
+        }
+    }
+}
       async function loadWebHistory(agentId) {
         const urlsContainer = document.getElementById("urlsContainer");
         const urlsLoading = document.getElementById("urlsLoading");
@@ -5254,17 +5872,17 @@
         const urlsContainer = document.getElementById("urlsContainer");
 
         let html = `
-        <table class="url-table">
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>URL</th>
-                    <th>Browser</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+              <table class="url-table">
+                  <thead>
+                      <tr>
+                          <th>Time</th>
+                          <th>URL</th>
+                          <th>Browser</th>
+                          <th>Status</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+          `;
 
         history.forEach((entry) => {
           // Format timestamp
@@ -5317,35 +5935,35 @@
             browserIcon = "fa-safari";
 
           html += `
-            <tr class="url-row" data-url="${url.toLowerCase()}" data-browser="${browser.toLowerCase()}" data-status="${blockedFlag ? "blocked" : "allowed"}">
-                <td class="time-cell">
-                    <div>${timeStr}</div>
-                    <small style="color: #94a3b8;">${relativeTime}</small>
-                </td>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <img src="${getFaviconUrl(domain)}" alt="" class="url-favicon" onerror="this.style.display='none'">
-                        <div>
-                            <a href="${url}" class="url-link" target="_blank" rel="noreferrer">${url}</a>
-                            <div>
-                                <span class="url-domain-badge">${domain}</span>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <span class="browser-badge">
-                        <i class="fab ${browserIcon}"></i>
-                        ${browser}
-                    </span>
-                </td>
-                <td>
-                    <span class="status-badge ${blockedFlag ? "blocked" : "allowed"}">
-                        ${blockedFlag ? "Blocked" : "Allowed"}
-                    </span>
-                </td>
-            </tr>
-        `;
+                  <tr class="url-row" data-url="${url.toLowerCase()}" data-browser="${browser.toLowerCase()}" data-status="${blockedFlag ? "blocked" : "allowed"}">
+                      <td class="time-cell">
+                          <div>${timeStr}</div>
+                          <small style="color: #94a3b8;">${relativeTime}</small>
+                      </td>
+                      <td>
+                          <div style="display: flex; align-items: center; gap: 8px;">
+                              <img src="${getFaviconUrl(domain)}" alt="" class="url-favicon" onerror="this.style.display='none'">
+                              <div>
+                                  <a href="${url}" class="url-link" target="_blank" rel="noreferrer">${url}</a>
+                                  <div>
+                                      <span class="url-domain-badge">${domain}</span>
+                                  </div>
+                              </div>
+                          </div>
+                      </td>
+                      <td>
+                          <span class="browser-badge">
+                              <i class="fab ${browserIcon}"></i>
+                              ${browser}
+                          </span>
+                      </td>
+                      <td>
+                          <span class="status-badge ${blockedFlag ? "blocked" : "allowed"}">
+                              ${blockedFlag ? "Blocked" : "Allowed"}
+                          </span>
+                      </td>
+                  </tr>
+              `;
         });
 
         html += "</tbody></table>";
@@ -5429,11 +6047,11 @@
         try {
           // Show loading state
           topAppsList.innerHTML = `
-            <div class="text-center" style="padding: 40px; color: #6b7280;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
-                <p>Loading app usage data...</p>
-            </div>
-        `;
+                  <div class="text-center" style="padding: 40px; color: #6b7280;">
+                      <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                      <p>Loading app usage data...</p>
+                  </div>
+              `;
 
           const resp = await fetch(`/api/admin/app-usage/${agentId}?limit=50`, {
             credentials: "include",
@@ -5442,12 +6060,12 @@
 
           if (!result.success || !result.data || result.data.length === 0) {
             topAppsList.innerHTML = `
-                <div class="text-center" style="padding: 60px; background: #f9fafb; border-radius: 12px;">
-                    <i class="fas fa-chart-pie" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
-                    <h4 style="color: #374151; margin-bottom: 8px;">No App Usage Data</h4>
-                    <p style="color: #6b7280;">This agent hasn't reported any app usage yet.</p>
-                </div>
-            `;
+                      <div class="text-center" style="padding: 60px; background: #f9fafb; border-radius: 12px;">
+                          <i class="fas fa-chart-pie" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
+                          <h4 style="color: #374151; margin-bottom: 8px;">No App Usage Data</h4>
+                          <p style="color: #6b7280;">This agent hasn't reported any app usage yet.</p>
+                      </div>
+                  `;
 
             // Clear charts
             if (pieCtx) {
@@ -5464,16 +6082,16 @@
             if (totalCategoriesEl) totalCategoriesEl.textContent = "0";
             if (categoryLegend) {
               categoryLegend.innerHTML = `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #9ca3af;">
-                            <i class="fas fa-question"></i>
-                        </div>
-                        <div class="legend-details">
-                            <span class="legend-label">No Data</span>
-                            <span class="legend-value">0%</span>
-                        </div>
-                    </div>
-                `;
+                          <div class="legend-item">
+                              <div class="legend-color" style="background: #9ca3af;">
+                                  <i class="fas fa-question"></i>
+                              </div>
+                              <div class="legend-details">
+                                  <span class="legend-label">No Data</span>
+                                  <span class="legend-value">0%</span>
+                              </div>
+                          </div>
+                      `;
             }
 
             // Update overview stat
@@ -5534,30 +6152,30 @@
                     : 0;
                 const color = colors[index % colors.length];
                 legendHtml += `
-                        <div class="legend-item">
-                            <div class="legend-color" style="background: ${color};">
-                                <i class="fas fa-${getCategoryIcon(category)}"></i>
-                            </div>
-                            <div class="legend-details">
-                                <span class="legend-label">${category}</span>
-                                <span class="legend-value">${percentage}%</span>
-                            </div>
-                        </div>
-                    `;
+                              <div class="legend-item">
+                                  <div class="legend-color" style="background: ${color};">
+                                      <i class="fas fa-${getCategoryIcon(category)}"></i>
+                                  </div>
+                                  <div class="legend-details">
+                                      <span class="legend-label">${category}</span>
+                                      <span class="legend-value">${percentage}%</span>
+                                  </div>
+                              </div>
+                          `;
               });
               categoryLegend.innerHTML = legendHtml;
             } else {
               categoryLegend.innerHTML = `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #9ca3af;">
-                            <i class="fas fa-question"></i>
-                        </div>
-                        <div class="legend-details">
-                            <span class="legend-label">No Data</span>
-                            <span class="legend-value">0%</span>
-                        </div>
-                    </div>
-                `;
+                          <div class="legend-item">
+                              <div class="legend-color" style="background: #9ca3af;">
+                                  <i class="fas fa-question"></i>
+                              </div>
+                              <div class="legend-details">
+                                  <span class="legend-label">No Data</span>
+                                  <span class="legend-value">0%</span>
+                              </div>
+                          </div>
+                      `;
             }
           }
 
@@ -5617,28 +6235,28 @@
               const sessions = app.sessions || 0;
 
               appsHtml += `
-                    <div class="app-item">
-                        <div class="app-info">
-                            <div class="app-icon">
-                                <i class="fas fa-${getAppIcon(appName)}" style="font-size: 1.3em; color: ${getAppColor(appName)};"></i>
-                            </div>
-                            <div class="app-details">
-                                <h4>${appName}</h4>
-                                <p>${category} · ${sessions} session${sessions !== 1 ? "s" : ""}</p>
-                            </div>
-                        </div>
-                        <div class="app-time">${formatTime(timeInSeconds)}</div>
-                    </div>
-                `;
+                          <div class="app-item">
+                              <div class="app-info">
+                                  <div class="app-icon">
+                                      <i class="fas fa-${getAppIcon(appName)}" style="font-size: 1.3em; color: ${getAppColor(appName)};"></i>
+                                  </div>
+                                  <div class="app-details">
+                                      <h4>${appName}</h4>
+                                      <p>${category} · ${sessions} session${sessions !== 1 ? "s" : ""}</p>
+                                  </div>
+                              </div>
+                              <div class="app-time">${formatTime(timeInSeconds)}</div>
+                          </div>
+                      `;
             });
             topAppsList.innerHTML = appsHtml;
           } else {
             topAppsList.innerHTML = `
-                <div class="text-center" style="padding: 40px; background: #f9fafb; border-radius: 12px;">
-                    <i class="fas fa-info-circle" style="font-size: 32px; color: #9ca3af; margin-bottom: 12px;"></i>
-                    <p style="color: #6b7280;">No top applications data available yet.</p>
-                </div>
-            `;
+                      <div class="text-center" style="padding: 40px; background: #f9fafb; border-radius: 12px;">
+                          <i class="fas fa-info-circle" style="font-size: 32px; color: #9ca3af; margin-bottom: 12px;"></i>
+                          <p style="color: #6b7280;">No top applications data available yet.</p>
+                      </div>
+                  `;
           }
 
           // Process timeline data for line chart
@@ -5801,15 +6419,15 @@
         } catch (e) {
           console.error("Failed to load app usage", e);
           topAppsList.innerHTML = `
-            <div class="text-center" style="padding: 40px; background: #fef2f2; border-radius: 12px;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 32px; color: #ef4444; margin-bottom: 12px;"></i>
-                <h4 style="color: #991b1b; margin-bottom: 8px;">Error Loading Data</h4>
-                <p style="color: #b91c1c;">Failed to load app usage data. Please try again.</p>
-                <button onclick="loadAppUsage('${agentId}')" class="btn btn-primary" style="margin-top: 16px;">
-                    <i class="fas fa-sync-alt"></i> Retry
-                </button>
-            </div>
-        `;
+                  <div class="text-center" style="padding: 40px; background: #fef2f2; border-radius: 12px;">
+                      <i class="fas fa-exclamation-triangle" style="font-size: 32px; color: #ef4444; margin-bottom: 12px;"></i>
+                      <h4 style="color: #991b1b; margin-bottom: 8px;">Error Loading Data</h4>
+                      <p style="color: #b91c1c;">Failed to load app usage data. Please try again.</p>
+                      <button onclick="loadAppUsage('${agentId}')" class="btn btn-primary" style="margin-top: 16px;">
+                          <i class="fas fa-sync-alt"></i> Retry
+                      </button>
+                  </div>
+              `;
         }
       }
       // Helper function to format time
@@ -5886,25 +6504,25 @@
             updatePartialAccessStats(result.data);
           } else {
             document.getElementById("paTbody").innerHTML = `
-                <tr>
-                    <td colspan="8" class="text-center" style="padding: 40px; color: #6b7280;">
-                        <i class="fas fa-info-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
-                        <p>No partial access sites configured</p>
-                    </td>
-                </tr>
-            `;
+                      <tr>
+                          <td colspan="8" class="text-center" style="padding: 40px; color: #6b7280;">
+                              <i class="fas fa-info-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                              <p>No partial access sites configured</p>
+                          </td>
+                      </tr>
+                  `;
             updatePartialAccessStats([]);
           }
         } catch (error) {
           console.error("Failed to load partial access sites:", error);
           document.getElementById("paTbody").innerHTML = `
-            <tr>
-                <td colspan="8" class="text-center" style="padding: 40px; color: #ef4444;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px;"></i>
-                    <p>Error loading partial access sites</p>
-                </td>
-            </tr>
-        `;
+                  <tr>
+                      <td colspan="8" class="text-center" style="padding: 40px; color: #ef4444;">
+                          <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                          <p>Error loading partial access sites</p>
+                      </td>
+                  </tr>
+              `;
         }
       }
 
@@ -5934,27 +6552,27 @@
             : "N/A";
 
           row.innerHTML = `
-            <td>
-                <div class="burl-url-name">${site.urlPattern}</div>
-                <div class="burl-url-reason">${site.reason || ""}</div>
-            </td>
-            <td class="burl-domain">${site.urlPattern}</td>
-            <td><span class="burl-tag ${permissionClass}">${permissionText}</span></td>
-            <td><span class="burl-tag work">${site.category || "Other"}</span></td>
-            <td><span class="burl-scope ${site.scope || "device"}">${formatScope(site.scope)}</span></td>
-            <td><span class="burl-status ${site.active ? "active" : "inactive"}">${site.active ? "Active" : "Inactive"}</span></td>
-            <td class="burl-date">${updatedDate}</td>
-            <td>
-                <div class="burl-actions">
-                    <button class="burl-action-btn edit" title="Edit" onclick="openEditPaModal(this)">
-                        <i class="fas fa-pen"></i>
-                    </button>
-                    <button class="burl-action-btn delete" title="Delete" onclick="deletePartialAccessSite(${site.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-        `;
+                  <td>
+                      <div class="burl-url-name">${site.urlPattern}</div>
+                      <div class="burl-url-reason">${site.reason || ""}</div>
+                  </td>
+                  <td class="burl-domain">${site.urlPattern}</td>
+                  <td><span class="burl-tag ${permissionClass}">${permissionText}</span></td>
+                  <td><span class="burl-tag work">${site.category || "Other"}</span></td>
+                  <td><span class="burl-scope ${site.scope || "device"}">${formatScope(site.scope)}</span></td>
+                  <td><span class="burl-status ${site.active ? "active" : "inactive"}">${site.active ? "Active" : "Inactive"}</span></td>
+                  <td class="burl-date">${updatedDate}</td>
+                  <td>
+                      <div class="burl-actions">
+                          <button class="burl-action-btn edit" title="Edit" onclick="openEditPaModal(this)">
+                              <i class="fas fa-pen"></i>
+                          </button>
+                          <button class="burl-action-btn delete" title="Delete" onclick="deletePartialAccessSite(${site.id})">
+                              <i class="fas fa-trash"></i>
+                          </button>
+                      </div>
+                  </td>
+              `;
           tbody.appendChild(row);
         });
       }
@@ -6340,155 +6958,173 @@
       // }
 
       // Function to display policies in the Policies tab
-     // Function to display policies in the Policies tab
-function displayAgentPolicies(policies) {
-  const policyContainer = document.querySelector("#policies .policy-list");
-  if (!policyContainer) return;
+      // Function to display policies in the Policies tab
+      function displayAgentPolicies(policies) {
+        const policyContainer = document.querySelector(
+          "#policies .policy-list",
+        );
+        if (!policyContainer) return;
 
-  if (!policies || policies.length === 0) {
-    policyContainer.innerHTML = `
-      <div style="text-align: center; padding: 60px 40px; background: #f9fafb; border-radius: 12px; border: 1px dashed #e5e7eb;">
-        <i class="fas fa-shield-alt" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
-        <h4 style="color: #374151; margin-bottom: 8px; font-size: 1.1rem;">No Active Policies</h4>
-        <p style="color: #6b7280; margin-bottom: 20px;">This agent doesn't have any active policies yet.</p>
-        <a href="assign-policy?agent=${getAgentIdFromUrl()}" class="btn btn-primary">
-          <i class="fas fa-plus-circle"></i> Assign Policy
-        </a>
-      </div>
-    `;
-    return;
-  }
-
-  let html = "";
-  
-  policies.forEach((policy) => {
-    // Parse policy data if it's a JSON string
-    let policyDetails = {};
-    let rules = [];
-    
-    try {
-      if (policy.policyData) {
-        // Parse the JSON string
-        if (typeof policy.policyData === 'string') {
-          policyDetails = JSON.parse(policy.policyData);
-        } else {
-          policyDetails = policy.policyData;
-        }
-        
-        // Extract rules based on policy type
-        if (policy.policyCode === 'NETWORK_DNS_BLOCK') {
-          // For DNS Block policy, show domains and IPs
-          if (policyDetails.domains && policyDetails.domains.length > 0) {
-            rules = rules.concat(policyDetails.domains.map(d => `🌐 ${d}`));
-          }
-          if (policyDetails.ips && policyDetails.ips.length > 0) {
-            rules = rules.concat(policyDetails.ips.map(ip => `🔌 ${ip}`));
-          }
-        } else if (policy.policyCode === 'WEB_BLOCK') {
-          // For Web Block policy
-          rules = policyDetails.urls || policyDetails.patterns || [];
-        } else if (policy.policyCode === 'WEB_PARTIAL_ACCESS') {
-          // For Partial Access policy
-          rules = policyDetails.sites || policyDetails.partialAccessSites || [];
-        } else if (policy.policyCode === 'FILE_PROTECTION') {
-          // For File Protection policy
-          rules = policyDetails.rules || policyDetails.fileTypes || [];
-        }
-      }
-    } catch (e) {
-      console.warn("Failed to parse policy data:", e);
-      // If parsing fails, show the raw data
-      if (policy.policyData) {
-        rules = [policy.policyData];
-      }
-    }
-
-    // Get policy icon based on type
-    let policyIcon = 'fa-shield-alt';
-    let iconColor = '#3b82f6';
-    let bgColor = '#eff6ff';
-    
-    if (policy.policyCode?.includes('NETWORK')) {
-      policyIcon = 'fa-network-wired';
-      iconColor = '#8b5cf6';
-      bgColor = '#f3e8ff';
-    } else if (policy.policyCode?.includes('DNS')) {
-      policyIcon = 'fa-server';
-      iconColor = '#8b5cf6';
-      bgColor = '#f3e8ff';
-    } else if (policy.policyCode?.includes('WEB')) {
-      policyIcon = 'fa-globe';
-      iconColor = '#3b82f6';
-      bgColor = '#eff6ff';
-    } else if (policy.policyCode?.includes('FILE')) {
-      policyIcon = 'fa-file';
-      iconColor = '#f59e0b';
-      bgColor = '#fef3c7';
-    } else if (policy.policyCode?.includes('USB')) {
-      policyIcon = 'fa-usb';
-      iconColor = '#10b981';
-      bgColor = '#d1fae5';
-    } else if (policy.policyCode?.includes('APP')) {
-      policyIcon = 'fa-window-maximize';
-      iconColor = '#ec4899';
-      bgColor = '#fce7f3';
-    }
-
-    // Format dates
-    const createdDate = policy.createdAt ? new Date(policy.createdAt).toLocaleDateString() : 'N/A';
-    const updatedDate = policy.updatedAt ? new Date(policy.updatedAt).toLocaleDateString() : 'N/A';
-
-    // Count total rules
-    const totalRules = rules.length;
-
-    html += `
-      <div class="policy-card" data-policy-id="${policy.id}" data-policy-code="${policy.policyCode}">
-        <div class="policy-header">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 44px; height: 44px; background: ${bgColor}; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: ${iconColor};">
-              <i class="fas ${policyIcon}"></i>
+        if (!policies || policies.length === 0) {
+          policyContainer.innerHTML = `
+            <div style="text-align: center; padding: 60px 40px; background: #f9fafb; border-radius: 12px; border: 1px dashed #e5e7eb;">
+                <i class="fas fa-shield-alt" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
+                <h4 style="color: #374151; margin-bottom: 8px; font-size: 1.1rem;">No Active Policies</h4>
+                <p style="color: #6b7280; margin-bottom: 20px;">This agent doesn't have any active policies yet.</p>
+                <a href="assign-policy?agent=${getAgentIdFromUrl()}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i> Assign Policy
+                </a>
             </div>
-            <div>
-              <h4 class="policy-title">${policy.name || policy.policyCode || 'Unnamed Policy'}</h4>
-              <div class="policy-meta" style="display: flex; gap: 12px; margin-top: 4px; font-size: 0.7rem; color: #6b7280;">
-                <span><i class="far fa-calendar-alt"></i> Created: ${createdDate}</span>
-                <span><i class="far fa-clock"></i> Updated: ${updatedDate}</span>
-              </div>
-            </div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span class="policy-status ${policy.isActive ? 'active' : 'inactive'}">${policy.isActive ? 'Active' : 'Inactive'}</span>
-            <button class="policy-delete-btn" onclick="removePolicyFromAgent(this)" title="Remove Policy">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-        
-        <p class="policy-desc" style="margin: 12px 0 12px 56px; color: #4b5563;">${policy.description || 'No description available'}</p>
-        
-        <div style="margin-left: 56px;">
-          <div style="display: flex; gap: 16px; margin-bottom: 12px; font-size: 0.8rem; color: #374151;">
-            <span><i class="fas fa-tag" style="color: #9ca3af;"></i> ${policy.category || 'General'}</span>
-            <span><i class="fas fa-exclamation-triangle" style="color: #9ca3af;"></i> ${policy.severity || 'MEDIUM'}</span>
-            <span><i class="fas fa-bullseye" style="color: #9ca3af;"></i> ${policy.target || policy.policyType || 'N/A'}</span>
-          </div>
-          
-          <div class="policy-rules" style="margin-top: 12px;">
-            ${totalRules > 0 ? rules.map(rule => `<span class="rule-tag"><i class="fas fa-ban" style="color: #ef4444; font-size: 0.7rem;"></i> ${rule}</span>`).join('') : '<span class="rule-tag">No specific rules configured</span>'}
-          </div>
-          
-          <div style="margin-top: 12px; font-size: 0.75rem; color: #6b7280; border-top: 1px dashed #e5e7eb; padding-top: 10px;">
-            <i class="fas fa-info-circle" style="color: #3b82f6;"></i> 
-            Agent: <strong>${policy.agentHostname || 'Unknown'}</strong> (ID: ${policy.agentId})
-          </div>
-        </div>
-      </div>
-    `;
-  });
+        `;
+          return;
+        }
 
-  policyContainer.innerHTML = html;
-}
-      // Helper function to truncate text
+        let html = "";
+
+        policies.forEach((policy) => {
+          // Parse policy data
+          let policyDetails = {};
+          let rules = [];
+          let patterns = [];
+
+          try {
+            if (policy.policyData) {
+              // Parse the JSON string
+              if (typeof policy.policyData === "string") {
+                policyDetails = JSON.parse(policy.policyData);
+              } else {
+                policyDetails = policy.policyData;
+              }
+
+              // Extract patterns/URLs from policyData
+              if (
+                policy.policyCode === "WEB_URL_BLOCK" &&
+                policyDetails.patterns
+              ) {
+                patterns = policyDetails.patterns;
+                // Create rule tags from patterns
+                rules = patterns.map((pattern) => `🔒 ${pattern}`);
+              } else if (policy.policyCode === "NETWORK_DNS_BLOCK") {
+                // For DNS Block policy, show domains and IPs
+                if (policyDetails.domains && policyDetails.domains.length > 0) {
+                  rules = rules.concat(
+                    policyDetails.domains.map((d) => `🌐 ${d}`),
+                  );
+                }
+                if (policyDetails.ips && policyDetails.ips.length > 0) {
+                  rules = rules.concat(
+                    policyDetails.ips.map((ip) => `🔌 ${ip}`),
+                  );
+                }
+              } else if (policy.policyCode === "WEB_PARTIAL_ACCESS") {
+                // For Partial Access policy
+                rules =
+                  policyDetails.sites || policyDetails.partialAccessSites || [];
+              } else if (policy.policyCode === "FILE_PROTECTION") {
+                // For File Protection policy
+                rules = policyDetails.rules || policyDetails.fileTypes || [];
+              }
+            }
+          } catch (e) {
+            console.warn("Failed to parse policy data:", e);
+          }
+
+          // Get policy icon based on type
+          let policyIcon = "fa-shield-alt";
+          let iconColor = "#3b82f6";
+          let bgColor = "#eff6ff";
+
+          if (policy.policyCode?.includes("WEB_URL_BLOCK")) {
+            policyIcon = "fa-globe";
+            iconColor = "#3b82f6";
+            bgColor = "#eff6ff";
+          } else if (policy.policyCode?.includes("NETWORK")) {
+            policyIcon = "fa-network-wired";
+            iconColor = "#8b5cf6";
+            bgColor = "#f3e8ff";
+          } else if (policy.policyCode?.includes("DNS")) {
+            policyIcon = "fa-server";
+            iconColor = "#8b5cf6";
+            bgColor = "#f3e8ff";
+          } else if (policy.policyCode?.includes("FILE")) {
+            policyIcon = "fa-file";
+            iconColor = "#f59e0b";
+            bgColor = "#fef3c7";
+          } else if (policy.policyCode?.includes("USB")) {
+            policyIcon = "fa-usb";
+            iconColor = "#10b981";
+            bgColor = "#d1fae5";
+          } else if (policy.policyCode?.includes("APP")) {
+            policyIcon = "fa-window-maximize";
+            iconColor = "#ec4899";
+            bgColor = "#fce7f3";
+          }
+
+          // Format dates
+          const createdDate = policy.createdAt
+            ? new Date(policy.createdAt).toLocaleDateString()
+            : "N/A";
+          const updatedDate = policy.updatedAt
+            ? new Date(policy.updatedAt).toLocaleDateString()
+            : "N/A";
+
+          html += `
+            <div class="policy-card" data-policy-id="${policy.id}" data-policy-code="${policy.policyCode}" data-policy-data='${JSON.stringify(policyDetails)}'>
+                <div class="policy-header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 44px; height: 44px; background: ${bgColor}; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: ${iconColor};">
+                            <i class="fas ${policyIcon}"></i>
+                        </div>
+                        <div>
+                            <h4 class="policy-title">${policy.name || policy.policyCode || "Unnamed Policy"}</h4>
+                            <div class="policy-meta" style="display: flex; gap: 12px; margin-top: 4px; font-size: 0.7rem; color: #6b7280;">
+                                <span><i class="far fa-calendar-alt"></i> Created: ${createdDate}</span>
+                                <span><i class="far fa-clock"></i> Updated: ${updatedDate}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="policy-status ${policy.isActive ? "active" : "inactive"}">${policy.isActive ? "Active" : "Inactive"}</span>
+                        <button class="policy-delete-btn" onclick="removePolicyFromAgent(this)" title="Remove Policy">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <p class="policy-desc" style="margin: 12px 0 12px 56px; color: #4b5563;">${policy.description || "No description available"}</p>
+
+                <div style="margin-left: 56px;">
+                    <div style="display: flex; gap: 16px; margin-bottom: 12px; font-size: 0.8rem; color: #374151;">
+                        <span><i class="fas fa-tag" style="color: #9ca3af;"></i> ${policy.category || "General"}</span>
+                        <span><i class="fas fa-exclamation-triangle" style="color: #9ca3af;"></i> ${policy.severity || "MEDIUM"}</span>
+                        <span><i class="fas fa-bullseye" style="color: #9ca3af;"></i> ${policy.target || policy.policyType || "N/A"}</span>
+                    </div>
+
+                    <div class="policy-rules" style="margin-top: 12px;">
+                        ${
+                          rules.length > 0
+                            ? rules
+                                .map(
+                                  (rule) =>
+                                    `<span class="rule-tag"><i class="fas fa-ban" style="color: #ef4444; font-size: 0.7rem;"></i> ${escapeHtml(rule)}</span>`,
+                                )
+                                .join("")
+                            : '<span class="rule-tag">No specific rules configured</span>'
+                        }
+                    </div>
+
+                    <div style="margin-top: 12px; font-size: 0.75rem; color: #6b7280; border-top: 1px dashed #e5e7eb; padding-top: 10px;">
+                        <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
+                        Agent: <strong>${policy.agentHostname || "Unknown"}</strong> (ID: ${policy.agentId})
+                    </div>
+                </div>
+            </div>
+        `;
+        });
+
+        policyContainer.innerHTML = html;
+      }
+
       function truncateText(text, maxLength) {
         if (!text) return "";
         const str = String(text);
@@ -6503,15 +7139,15 @@ function displayAgentPolicies(policies) {
         );
         if (policyContainer) {
           policyContainer.innerHTML = `
-            <div style="text-align: center; padding: 40px; background: #f9fafb; border-radius: 8px;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ef4444; margin-bottom: 16px;"></i>
-                <h4 style="color: #374151; margin-bottom: 8px;">Error Loading Policies</h4>
-                <p style="color: #6b7280;">Failed to load policies. Please try again.</p>
-                <button onclick="loadAgentPolicies(getAgentIdFromUrl())" class="btn btn-primary" style="margin-top: 16px;">
-                    <i class="fas fa-sync-alt"></i> Retry
-                </button>
-            </div>
-        `;
+                  <div style="text-align: center; padding: 40px; background: #f9fafb; border-radius: 8px;">
+                      <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ef4444; margin-bottom: 16px;"></i>
+                      <h4 style="color: #374151; margin-bottom: 8px;">Error Loading Policies</h4>
+                      <p style="color: #6b7280;">Failed to load policies. Please try again.</p>
+                      <button onclick="loadAgentPolicies(getAgentIdFromUrl())" class="btn btn-primary" style="margin-top: 16px;">
+                          <i class="fas fa-sync-alt"></i> Retry
+                      </button>
+                  </div>
+              `;
         }
       }
 
@@ -6535,100 +7171,101 @@ function displayAgentPolicies(policies) {
       }
 
       // Function to remove policy from agent
-      function removePolicyFromAgent(buttonElement) {
-        if (
-          !confirm(
-            "Are you sure you want to remove this policy from the agent?",
-          )
-        ) {
-          return;
-        }
+     function removePolicyFromAgent(buttonElement) {
+    if (!confirm("Are you sure you want to remove this policy from the agent?")) {
+        return;
+    }
 
-        // Get the policy card
-        const policyCard = buttonElement.closest(".policy-card");
-        if (!policyCard) return;
+    const policyCard = buttonElement.closest(".policy-card");
+    if (!policyCard) return;
 
-        // Get policy details from data attributes
-        const policyCode = policyCard.dataset.policyCode;
-        const policyId = policyCard.dataset.policyId;
-        const agentId = getAgentIdFromUrl();
+    const policyCode = policyCard.dataset.policyCode;
+    const policyId = policyCard.dataset.policyId;
+    const agentId = getAgentIdFromUrl();
 
-        if (!agentId) {
-          alert("Could not determine agent ID");
-          return;
-        }
+    if (!agentId || !policyCode) {
+        alert("Could not determine agent ID or policy code");
+        return;
+    }
 
-        if (!policyCode) {
-          alert("Could not determine policy code");
-          return;
-        }
+    buttonElement.disabled = true;
+    buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-        console.log("Removing policy:", { policyId, policyCode, agentId });
+    // First, deactivate the policy
+    fetch("/api/admin/deactivate-protection", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ agentIds: [parseInt(agentId)], policyCode: policyCode }),
+    })
+    .then(response => response.json())
+    .then(async (data) => {
+        if (data.success) {
+            // If this was the WEB_URL_BLOCK policy, also delete all individual URL records
+            if (policyCode === 'WEB_URL_BLOCK') {
+                try {
+                    // Get all blocked URLs for this agent
+                    const urlsResponse = await fetch(`/api/admin/agents/${agentId}/blocked-urls`, {
+                        credentials: "include"
+                    });
+                    const urlsResult = await urlsResponse.json();
 
-        // Disable the button to prevent double submission
-        buttonElement.disabled = true;
-        buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    if (urlsResult.success && urlsResult.data && urlsResult.data.length > 0) {
+                        // Delete each URL one by one
+                        const deletePromises = urlsResult.data.map(url =>
+                            fetch(`/api/admin/blocked-urls/${url.id}`, {
+                                method: 'DELETE',
+                                credentials: 'include',
+                                headers: { 'Content-Type': 'application/json' }
+                            })
+                        );
 
-        // Call the deactivate-protection endpoint
-        fetch("/api/admin/deactivate-protection", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            agentIds: [parseInt(agentId)],
-            policyCode: policyCode,
-          }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.success) {
-              // Remove the policy card from UI with animation
-              policyCard.style.transition = "all 0.3s ease";
-              policyCard.style.opacity = "0";
-              policyCard.style.transform = "translateX(20px)";
+                        await Promise.all(deletePromises);
+                        console.log(`Deleted ${urlsResult.data.length} individual URL records`);
+                    }
+                } catch (error) {
+                    console.error("Error deleting individual URLs:", error);
+                }
+            }
 
-              setTimeout(() => {
+            // Remove the policy card from UI
+            policyCard.style.transition = "all 0.3s ease";
+            policyCard.style.opacity = "0";
+            policyCard.style.transform = "translateX(20px)";
+
+            setTimeout(() => {
                 policyCard.remove();
 
                 // Check if there are no more policies
-                const policyContainer = document.querySelector(
-                  "#policies .policy-list",
-                );
+                const policyContainer = document.querySelector("#policies .policy-list");
                 if (policyContainer.children.length === 0) {
-                  displayAgentPolicies([]);
+                    displayAgentPolicies([]);
                 }
 
-                // Show success message
-                showNotification("Policy removed successfully", "success");
-              }, 300);
-            } else {
-              // Re-enable the button
-              buttonElement.disabled = false;
-              buttonElement.innerHTML = '<i class="fas fa-trash"></i>';
+                // Reset the policy data
+                webUrlBlockPolicyId = null;
+                webUrlBlockPolicyData = null;
 
-              // Show error message
-              showNotification(
-                "Failed to remove policy: " + (data.message || "Unknown error"),
-                "error",
-              );
-            }
-          })
-          .catch((error) => {
-            console.error("Error removing policy:", error);
+                // Refresh blocked URLs tab (should now show empty state)
+                loadBlockedUrls(agentId);
 
-            // Re-enable the button
+                // Also refresh policies to get updated list
+                loadAgentPolicies(agentId);
+
+                showNotification("Policy and associated URLs removed successfully", "success");
+            }, 300);
+        } else {
             buttonElement.disabled = false;
             buttonElement.innerHTML = '<i class="fas fa-trash"></i>';
-
-            // Show error message
-            showNotification(
-              "Error removing policy: " + error.message,
-              "error",
-            );
-          });
-      }
-
+            showNotification("Failed to remove policy: " + (data.message || "Unknown error"), "error");
+        }
+    })
+    .catch(error => {
+        console.error("Error removing policy:", error);
+        buttonElement.disabled = false;
+        buttonElement.innerHTML = '<i class="fas fa-trash"></i>';
+        showNotification("Error removing policy: " + error.message, "error");
+    });
+}
       function showNotification(message, type = "info") {
         // Check if notification container exists, if not create it
         let notificationContainer = document.getElementById(
@@ -6638,29 +7275,29 @@ function displayAgentPolicies(policies) {
           notificationContainer = document.createElement("div");
           notificationContainer.id = "notification-container";
           notificationContainer.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-        `;
+                  position: fixed;
+                  top: 20px;
+                  right: 20px;
+                  z-index: 9999;
+              `;
           document.body.appendChild(notificationContainer);
         }
 
         // Create notification element
         const notification = document.createElement("div");
         notification.style.cssText = `
-        background: ${type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#3b82f6"};
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        animation: slideIn 0.3s ease;
-        font-size: 0.9em;
-    `;
+              background: ${type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#3b82f6"};
+              color: white;
+              padding: 12px 20px;
+              border-radius: 8px;
+              margin-bottom: 10px;
+              box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              animation: slideIn 0.3s ease;
+              font-size: 0.9em;
+          `;
 
         // Add icon based on type
         const icon =
@@ -6671,9 +7308,9 @@ function displayAgentPolicies(policies) {
               : "fa-info-circle";
 
         notification.innerHTML = `
-        <i class="fas ${icon}"></i>
-        <span>${message}</span>
-    `;
+              <i class="fas ${icon}"></i>
+              <span>${message}</span>
+          `;
 
         // Add to container
         notificationContainer.appendChild(notification);
@@ -6690,28 +7327,28 @@ function displayAgentPolicies(policies) {
       // Add CSS animations
       const style = document.createElement("style");
       style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-`;
+          @keyframes slideIn {
+              from {
+                  transform: translateX(100%);
+                  opacity: 0;
+              }
+              to {
+                  transform: translateX(0);
+                  opacity: 1;
+              }
+          }
+
+          @keyframes slideOut {
+              from {
+                  transform: translateX(0);
+                  opacity: 1;
+              }
+              to {
+                  transform: translateX(100%);
+                  opacity: 0;
+              }
+          }
+      `;
       document.head.appendChild(style);
       /* ==================== SIDEBAR & HEADER FUNCTIONS ==================== */
 

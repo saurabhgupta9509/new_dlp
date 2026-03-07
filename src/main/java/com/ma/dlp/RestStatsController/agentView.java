@@ -65,6 +65,8 @@ public class agentView {
                         dto.setSeverity(cap.getSeverity());
                         dto.setIsActive(cap.getIsActive());
                         dto.setPolicyData(cap.getPolicyData());
+                        dto.setCreatedAt(cap.getCreatedAt());
+                        dto.setUpdatedAt(cap.getReportedAt());
                         dto.setAgentId(agentId);
                         dto.setAgentHostname(agent.getHostname());
                         return dto;

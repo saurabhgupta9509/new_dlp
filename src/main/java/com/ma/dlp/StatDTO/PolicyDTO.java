@@ -2,6 +2,7 @@ package com.ma.dlp.StatDTO;
 
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 public class PolicyDTO {
@@ -18,8 +19,8 @@ public class PolicyDTO {
     private String policyData;
     private Long agentId;
     private String agentHostname;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
     
     // Getters and setters
     public Long getId() { return id; }
@@ -60,4 +61,14 @@ public class PolicyDTO {
     
     public String getAgentHostname() { return agentHostname; }
     public void setAgentHostname(String agentHostname) { this.agentHostname = agentHostname; }
+
+    public Date getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Date updatedAt) { this.updatedAt = updatedAt; }
+
+
+
 }
