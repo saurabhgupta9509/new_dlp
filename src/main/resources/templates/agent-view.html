@@ -3576,7 +3576,34 @@
                             </h3>
                             <span class="url-badge">Real-time browsing activity</span>
                         </div>
-                        <div class="url-header-right">
+                        <div class="url-header-right" style="flex-wrap: wrap; gap: 10px;">
+                            <!-- Date Range Picker -->
+                            <div class="date-range-picker" style="display: flex; gap: 5px; align-items: center; background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 4px;">
+                                <input type="date" id="urlStartDate" class="date-input"
+                                       style="padding: 6px 10px; border: none; border-radius: 6px; background: transparent;"
+                                       onchange="applyDateRange()">
+                                <span style="color: #94a3b8;">to</span>
+                                <input type="date" id="urlEndDate" class="date-input"
+                                       style="padding: 6px 10px; border: none; border-radius: 6px; background: transparent;"
+                                       onchange="applyDateRange()">
+                                <button class="date-range-btn" onclick="clearDateRange()"
+                                        style="padding: 6px 10px; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer; margin-left: 4px;"
+                                        title="Clear date range">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+
+                            <!-- Quick Range Selector -->
+                            <select id="quickRangeSelect" class="url-filter-select" style="width: 120px;" onchange="applyQuickRange()">
+                                <option value="today">Today</option>
+                                <option value="yesterday">Yesterday</option>
+                                <option value="last7days" selected>Last 7 Days</option>
+                                <option value="last30days">Last 30 Days</option>
+                                <option value="thisMonth">This Month</option>
+                                <option value="lastMonth">Last Month</option>
+                                <option value="custom">Custom</option>
+                            </select>
+
                             <div class="url-search-wrapper">
                                 <i class="fas fa-search search-icon"></i>
                                 <input type="text" class="url-search-input" placeholder="Search URLs, domains..."
@@ -3599,7 +3626,7 @@
                             <div class="url-stat-content">
                                 <div class="url-stat-label">Total Visits</div>
                                 <div class="url-stat-value" id="totalUrlVisits">0</div>
-                                <div class="url-stat-trend">Last 30 days</div>
+                                <div class="url-stat-trend" id="totalVisitsDateRange">All Time</div>
                             </div>
                         </div>
                         <div class="url-stat-card">
@@ -4586,6 +4613,9 @@
                 let editingBlockedUrlData = null;
                 let webUrlBlockPolicyId = null;
                 let webUrlBlockPolicyData = null;
+                let urlHistoryFullData = []; // Store all data for filtering
+                let currentStartDate = null;
+                let currentEndDate = null;
 
                 // ===== BLOCKED URL ACTIONS =====
                 // Toggle active status
@@ -6066,6 +6096,7 @@
                     }
                   }
                 }
+
                 async function loadWebHistory(agentId) {
                   const urlsContainer = document.getElementById("urlsContainer");
                   const urlsLoading = document.getElementById("urlsLoading");
@@ -6096,22 +6127,204 @@
                     }
 
                     const history = result.data;
+                    urlHistoryFullData = history;
 
-                    // Update stats
-                    updateUrlStats(history);
-
-                    // Store in global variable for filtering
-                    window.urlHistoryData = history;
-
-                    // Render table
+                      // Render table
                     renderUrlTable(history);
-                  } catch (e) {
+
+                     // Set default to last 7 days
+                    setTimeout(() => {
+                        document.getElementById('quickRangeSelect').value = 'last7days';
+                        applyQuickRange();
+                    }, 100);
+                 } catch (e) {
                     console.error("Failed to load web history", e);
                     urlsLoading.style.display = "none";
-                    urlsContainer.innerHTML =
-                      '<div class="url-no-data"><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i><h4>Error Loading Data</h4><p>Failed to load URL history. Please try again.</p><button onclick="loadWebHistory(getAgentIdFromUrl())" class="btn btn-primary" style="margin-top: 16px;"><i class="fas fa-sync-alt"></i> Retry</button></div>';
-                  }
+                    urlsContainer.innerHTML = `
+                        <div class="url-no-data">
+                            <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
+                            <h4>Error Loading Data</h4>
+                            <p>Failed to load URL history. Please try again.</p>
+                            <button onclick="loadWebHistory(getAgentIdFromUrl())" class="btn btn-primary" style="margin-top: 16px;">
+                                <i class="fas fa-sync-alt"></i> Retry
+                            </button>
+                        </div>`;
+                        }
+        }
+
+
+
+                function updateUrlStatsFromVisibleRows(visibleRows) {
+                // Total visits
+                const totalVisits = visibleRows.length;
+                document.getElementById('totalUrlVisits').textContent = totalVisits;
+
+                // Unique domains
+                const domains = new Set();
+                let blocked = 0;
+                let suspicious = 0;
+
+                visibleRows.forEach(row => {
+                    // Extract domain from data attribute or URL
+                    const urlData = row.dataset.url;
+                    if (urlData) {
+                        try {
+                            const urlObj = new URL(urlData.startsWith('http') ? urlData : 'http://' + urlData);
+                            domains.add(urlObj.hostname.replace('www.', ''));
+                        } catch {
+                            // If URL parsing fails, try to extract domain from the URL string
+                            const domainMatch = urlData.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i);
+                            if (domainMatch) {
+                                domains.add(domainMatch[1]);
+                            }
+                        }
+                    }
+
+                    // Check status
+                    const statusData = row.dataset.status;
+                    if (statusData === 'blocked') {
+                        blocked++;
+                    }
+
+                    // Check for suspicious URLs
+                    if (urlData) {
+                        const url = urlData.toLowerCase();
+                        if (url.includes('login') || url.includes('signin') ||
+                            url.includes('bank') || url.includes('pay') ||
+                            url.includes('password') || url.includes('secure') ||
+                            url.includes('auth')) {
+                            suspicious++;
+                        }
+                    }
+                });
+
+                document.getElementById('uniqueDomains').textContent = domains.size;
+                document.getElementById('totalSuspiciousUrls').textContent = suspicious;
+                document.getElementById('totalBlockedUrls').textContent = blocked;
+
+                // Update overview stat
+                const overviewUrls = document.getElementById('overviewUrlsVisited');
+                if (overviewUrls) {
+                    overviewUrls.textContent = totalVisits.toLocaleString();
                 }
+            }
+
+                function applyQuickRange() {
+                const range = document.getElementById('quickRangeSelect').value;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                let startDate = new Date(today);
+                let endDate = new Date(today);
+
+                switch(range) {
+                    case 'today':
+                        // startDate already set to today
+                        endDate = new Date(today);
+                        break;
+                    case 'yesterday':
+                        startDate = new Date(today);
+                        startDate.setDate(today.getDate() - 1);
+                        endDate = new Date(startDate);
+                        break;
+                    case 'last7days':
+                        startDate.setDate(today.getDate() - 6);
+                        endDate = new Date(today);
+                        break;
+                    case 'last30days':
+                        startDate.setDate(today.getDate() - 29);
+                        endDate = new Date(today);
+                        break;
+                    case 'thisMonth':
+                        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                        break;
+                    case 'lastMonth':
+                        startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                        endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+                        break;
+                    case 'custom':
+                        // Show date pickers for custom range
+                        document.getElementById('urlStartDate').style.display = 'inline-block';
+                        document.getElementById('urlEndDate').style.display = 'inline-block';
+                        return;
+                }
+                // Update date inputs
+                document.getElementById('urlStartDate').value = formatDateForInput(startDate);
+                document.getElementById('urlEndDate').value = formatDateForInput(endDate);
+
+                // Apply the range
+                applyDateRange();
+            }
+
+                function formatDateForInput(date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                }
+
+                function applyDateRange() {
+                    const startDateStr = document.getElementById('urlStartDate').value;
+                    const endDateStr = document.getElementById('urlEndDate').value;
+
+                    if (!startDateStr || !endDateStr) {
+                        // If no dates selected, show all rows
+                        showAllRows();
+                        return;
+                    }
+
+                    const startDate = new Date(startDateStr);
+                    startDate.setHours(0, 0, 0, 0);
+
+                    const endDate = new Date(endDateStr);
+                    endDate.setHours(23, 59, 59, 999);
+
+                    currentStartDate = startDate;
+                    currentEndDate = endDate;
+
+                    const rows = document.querySelectorAll('.url-row');
+                    const visibleRows = [];
+
+                    rows.forEach(row => {
+                        const timestamp = row.dataset.timestamp;
+                        if (!timestamp) {
+                            row.style.display = 'none';
+                            return;
+                        }
+
+                        const rowDate = new Date(timestamp);
+                        if (rowDate >= startDate && rowDate <= endDate) {
+                            row.style.display = '';
+                            visibleRows.push(row);
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    // Update stats for visible rows
+                    updateUrlStatsFromVisibleRows(visibleRows);
+
+                    // Update the date range text
+                    const startFormatted = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const endFormatted = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    document.getElementById('totalVisitsDateRange').textContent = `${startFormatted} - ${endFormatted}`;
+                }
+
+                function clearDateRange() {
+                    document.getElementById('urlStartDate').value = '';
+                    document.getElementById('urlEndDate').value = '';
+                    document.getElementById('quickRangeSelect').value = 'last7days';
+                    showAllRows();
+                }
+
+                function showAllRows() {
+                    const rows = document.querySelectorAll('.url-row');
+                    rows.forEach(row => row.style.display = '');
+                    updateUrlStatsFromVisibleRows(rows);
+                    document.getElementById('totalVisitsDateRange').textContent = 'All Time';
+                }
+
 
                 function updateUrlStats(history) {
                   // Total visits
@@ -6212,130 +6425,132 @@
                 }
 
                 function renderUrlTable(history) {
-                  const urlsContainer = document.getElementById("urlsContainer");
+    const urlsContainer = document.getElementById("urlsContainer");
 
-                  let html = `
-                              <table class="url-table">
-                                  <thead>
-                                      <tr>
-                                          <th>Time</th>
-                                          <th>URL</th>
-                                          <th>Browser</th>
-                                          <th>Status</th>
-                                      </tr>
-                                  </thead>
-                                  <tbody>
-                          `;
+    let html = `
+        <table class="url-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>URL</th>
+                    <th>Browser</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
 
-                  history.forEach((entry) => {
-                    const url = entry.url || "";
-                    const domain = extractDomain(url);
-                    const browser = entry.browser || "Unknown";
-                    const blockedFlag = entry.blocked === true;
+    history.forEach((entry) => {
+        const url = entry.url || "";
+        const domain = extractDomain(url);
+        const browser = entry.browser || "Unknown";
+        const blockedFlag = entry.blocked === true;
 
-                    // ✅ ADD THESE MISSING LINES
-                  let timeStr = "";
-                  let dateObj = null;
+        let timeStr = "";
+        let dateObj = null;
+        let timestamp = null;
 
-                      if (Array.isArray(entry.visitTimestamp)) {
-                          const [year, month, day, hour, minute, second] = entry.visitTimestamp;
-                      dateObj = new Date(year, month - 1, day, hour, minute, second);
-                  } else {
-                      dateObj = new Date(entry.visitTimestamp || entry.timestamp);
-                  }
+        if (Array.isArray(entry.visitTimestamp)) {
+            const [year, month, day, hour, minute, second] = entry.visitTimestamp;
+            dateObj = new Date(year, month - 1, day, hour, minute, second);
+        } else {
+            dateObj = new Date(entry.visitTimestamp || entry.timestamp);
+        }
 
-                  if (!dateObj || isNaN(dateObj.getTime())) {
-          timeStr = "Unknown";
-          relativeTime = "";
-      } else {
-          timeStr = dateObj.toLocaleString("en-US", {
-              year: "numeric", month: "short", day: "numeric",
-              hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
-          });
-      }
-                  const now = new Date();
-                  const diffMs = now - dateObj;
-                  const diffMins = Math.floor(diffMs / 60000);
-                  let relativeTime = "";
-                  if (diffMins < 1) relativeTime = "Just now";
-                  else if (diffMins < 60) relativeTime = `${diffMins}m ago`;
-                  else if (diffMins < 1440) relativeTime = `${Math.floor(diffMins / 60)}h ago`;
-                  else relativeTime = `${Math.floor(diffMins / 1440)}d ago`;
+        if (!dateObj || isNaN(dateObj.getTime())) {
+            timeStr = "Unknown";
+        } else {
+            timestamp = dateObj.toISOString();
+            timeStr = dateObj.toLocaleString("en-US", {
+                year: "numeric", month: "short", day: "numeric",
+                hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
+            });
+        }
 
-                    // Build correct href - never append to localhost
-                    const fullUrl = url.startsWith('http') ? url :
-                      (url.startsWith('localhost') || url.match(/^\d{1,3}\.\d{1,3}/)) ?
-                        'http://' + url : 'https://' + url;
+        const now = new Date();
+        const diffMs = now - dateObj;
+        const diffMins = Math.floor(diffMs / 60000);
+        let relativeTime = "";
+        if (diffMins < 1) relativeTime = "Just now";
+        else if (diffMins < 60) relativeTime = `${diffMins}m ago`;
+        else if (diffMins < 1440) relativeTime = `${Math.floor(diffMins / 60)}h ago`;
+        else relativeTime = `${Math.floor(diffMins / 1440)}d ago`;
 
-                    // Icon letter and color
-                    let cleanDomain = domain.replace('www.', '').toLowerCase();
-                    let displayLetter = cleanDomain.startsWith('localhost') ? '⚙' :
-                      cleanDomain.charAt(0).toUpperCase();
+        // Build correct href
+        const fullUrl = url.startsWith('http') ? url :
+            (url.startsWith('localhost') || url.match(/^\d{1,3}\.\d{1,3}/)) ?
+                'http://' + url : 'https://' + url;
 
-                    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#ef4444'];
-                    const color = colors[cleanDomain.charAt(0).charCodeAt(0) % colors.length];
+        // Icon letter and color
+        let cleanDomain = domain.replace('www.', '').toLowerCase();
+        let displayLetter = cleanDomain.startsWith('localhost') ? '⚙' :
+            cleanDomain.charAt(0).toUpperCase();
 
-                    // Browser icon
-                    let browserIcon = "fa-globe";
-                    if (browser.toLowerCase().includes("chrome")) browserIcon = "fa-chrome";
-                    else if (browser.toLowerCase().includes("firefox")) browserIcon = "fa-firefox";
-                    else if (browser.toLowerCase().includes("edge")) browserIcon = "fa-edge";
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#ef4444'];
+        const color = colors[cleanDomain.charAt(0).charCodeAt(0) % colors.length];
 
-                    html += `
-              <tr class="url-row"
-                  data-url="${url.toLowerCase()}"
-                  data-browser="${browser.toLowerCase()}"
-                  data-status="${blockedFlag ? 'blocked' : 'allowed'}">
+        // Browser icon
+        let browserIcon = "fa-globe";
+        if (browser.toLowerCase().includes("chrome")) browserIcon = "fa-chrome";
+        else if (browser.toLowerCase().includes("firefox")) browserIcon = "fa-firefox";
+        else if (browser.toLowerCase().includes("edge")) browserIcon = "fa-edge";
 
-                  <td class="time-cell">
-                      <div>${timeStr}</div>
-                      <small style="color: #94a3b8;">${relativeTime}</small>
-                  </td>
+        html += `
+            <tr class="url-row"
+                data-url="${url.toLowerCase()}"
+                data-browser="${browser.toLowerCase()}"
+                data-status="${blockedFlag ? 'blocked' : 'allowed'}"
+                data-timestamp="${timestamp || ''}">
 
-                  <td>
-                      <div style="display: flex; align-items: center; gap: 10px;">
-                          <div style="width:36px; height:36px; background:${color}; border-radius:8px;
-                                      display:flex; align-items:center; justify-content:center;
-                                      color:white; font-size:14px; font-weight:700; flex-shrink:0;">
-                              ${displayLetter}
-                          </div>
-                          <div>
-                              <a href="${fullUrl}"
-                                 class="url-link"
-                                 target="_blank"
-                                 rel="noreferrer"
-                                 onclick="event.preventDefault(); window.open(this.href, '_blank');">
-                                  ${url}
-                              </a>
-                              <div style="margin-top: 3px;">
-                                  <span style="background:#f1f5f9; color:#475569; padding:2px 8px;
-                                               border-radius:4px; font-size:0.75rem;">
-                                      ${domain}
-                                  </span>
-                              </div>
-                          </div>
-                      </div>
-                  </td>
+                <td class="time-cell" data-timestamp="${timestamp || ''}">
+                    <div>${timeStr}</div>
+                    <small style="color: #94a3b8;">${relativeTime}</small>
+                </td>
 
-                  <td>
-                      <span class="browser-badge">
-                          <i class="fab ${browserIcon}"></i>
-                          ${browser}
-                      </span>
-                  </td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width:36px; height:36px; background:${color}; border-radius:8px;
+                                    display:flex; align-items:center; justify-content:center;
+                                    color:white; font-size:14px; font-weight:700; flex-shrink:0;">
+                            ${displayLetter}
+                        </div>
+                        <div>
+                            <a href="${fullUrl}"
+                               class="url-link"
+                               target="_blank"
+                               rel="noreferrer"
+                               onclick="event.preventDefault(); window.open(this.href, '_blank');">
+                                ${url}
+                            </a>
+                            <div style="margin-top: 3px;">
+                                <span style="background:#f1f5f9; color:#475569; padding:2px 8px;
+                                             border-radius:4px; font-size:0.75rem;">
+                                    ${domain}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </td>
 
-                  <td>
-                      <span class="status-badge ${blockedFlag ? 'blocked' : 'allowed'}">
-                          ${blockedFlag ? 'Blocked' : 'Allowed'}
-                      </span>
-                  </td>
-              </tr>
-          `;
-                  });
+                <td>
+                    <span class="browser-badge">
+                        <i class="fab ${browserIcon}"></i>
+                        ${browser}
+                    </span>
+                </td>
 
-                  html += "</tbody></table>";
-                  urlsContainer.innerHTML = html;
-                }
+                <td>
+                    <span class="status-badge ${blockedFlag ? 'blocked' : 'allowed'}">
+                        ${blockedFlag ? 'Blocked' : 'Allowed'}
+                    </span>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += "</tbody></table>";
+    urlsContainer.innerHTML = html;
+}
 
                 // Filter functions
                 function filterUrlTable() {
@@ -6366,81 +6581,52 @@
                   });
                 }
 
-                function filterUrlByType(type) {
-                  // Update active tab button
-                  document.querySelectorAll('.url-filter-tab').forEach(tab => {
-                    tab.classList.remove('active');
-                  });
-                  event.currentTarget.classList.add('active');
+               // Update the filterUrlByType function to work with the date range
+                    function filterUrlByType(type) {
+                        // Update active tab
+                        document.querySelectorAll('.url-filter-tab').forEach(tab => {
+                            tab.classList.remove('active');
+                        });
+                        event.currentTarget.classList.add('active');
 
-                  const now = new Date();
-                  const rows = document.querySelectorAll('.url-row');
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
 
-                  rows.forEach(row => {
-                    const timeCell = row.querySelector('.time-cell div');
-                    if (!timeCell) { row.style.display = ''; return; }
+                        let startDate = null;
+                        let endDate = new Date(today);
+                        endDate.setHours(23, 59, 59, 999);
 
-                    const timeText = timeCell.textContent.trim();
-                    if (!timeText || timeText === 'Unknown') {
-                      row.style.display = type === 'all' ? '' : 'none';
-                      return;
+                        if (type === 'today') {
+                            startDate = new Date(today);
+                            // Update quick range select
+                            document.getElementById('quickRangeSelect').value = 'today';
+                        } else if (type === 'week') {
+                            startDate = new Date(today);
+                            startDate.setDate(today.getDate() - 6);
+                            document.getElementById('quickRangeSelect').value = 'last7days';
+                        } else if (type === 'month') {
+                            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                            document.getElementById('quickRangeSelect').value = 'thisMonth';
+                        } else if (type === 'all') {
+                            showAllRows();
+                            document.getElementById('quickRangeSelect').value = 'custom';
+                            document.getElementById('urlStartDate').value = '';
+                            document.getElementById('urlEndDate').value = '';
+                            return;
+                        }
+
+                        if (startDate) {
+                            // Update date inputs
+                            document.getElementById('urlStartDate').value = formatDateForInput(startDate);
+                            document.getElementById('urlEndDate').value = formatDateForInput(endDate);
+
+                            // Apply the filter
+                            applyDateRange();
+                        }
                     }
 
-                    const rowDate = new Date(timeText);
-                    if (isNaN(rowDate)) { row.style.display = ''; return; }
 
-                    let show = true;
 
-                    if (type === 'today') {
-                      show = rowDate.toDateString() === now.toDateString();
-                    } else if (type === 'week') {
-                      const weekAgo = new Date(now);
-                      weekAgo.setDate(now.getDate() - 7);
-                      weekAgo.setHours(0, 0, 0, 0);
-                      show = rowDate >= weekAgo;
-                    } else if (type === 'month') {
-                      const monthAgo = new Date(now);
-                      monthAgo.setMonth(now.getMonth() - 1);
-                      monthAgo.setHours(0, 0, 0, 0);
-                      show = rowDate >= monthAgo;
-                    }
-                    // 'all' => show = true (default)
-
-                    row.style.display = show ? '' : 'none';
-                  });
-
-                  // Recount visible rows for stats
-                  const visibleRows = Array.from(document.querySelectorAll('.url-row'))
-                    .filter(r => r.style.display !== 'none');
-
-                  const domains = new Set();
-                  let blocked = 0, suspicious = 0;
-
-                  visibleRows.forEach(row => {
-                    const urlData = row.dataset.url || '';
-                    const statusData = row.dataset.status || '';
-
-                    // Extract domain from url
-                    try {
-                      const urlObj = new URL(urlData.startsWith('http') ? urlData : 'http://' + urlData);
-                      domains.add(urlObj.hostname);
-                    } catch { domains.add(urlData.split('/')[0]); }
-
-                    if (statusData === 'blocked') blocked++;
-
-                    if (urlData.includes('login') || urlData.includes('bank') ||
-                        urlData.includes('pay') || urlData.includes('password') ||
-                        urlData.includes('secure') || urlData.includes('auth')) {
-                      suspicious++;
-                    }
-                  });
-
-                  const el = id => document.getElementById(id);
-                  if (el('totalUrlVisits'))    el('totalUrlVisits').textContent    = visibleRows.length;
-                  if (el('uniqueDomains'))     el('uniqueDomains').textContent     = domains.size;
-                  if (el('totalBlockedUrls'))  el('totalBlockedUrls').textContent  = blocked;
-                  if (el('totalSuspiciousUrls')) el('totalSuspiciousUrls').textContent = suspicious;
-                }
                 async function loadAppUsage(agentId, targetDate = null) {
                   if (!targetDate) {
                     const picker = document.getElementById('appUsageDatePicker');
