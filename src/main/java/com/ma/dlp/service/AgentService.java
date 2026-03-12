@@ -1,10 +1,7 @@
 package com.ma.dlp.service;//package com.ma.dlp.service;
 
 import com.drew.metadata.Age;
-import com.ma.dlp.Repository.AgentCapabilityRepository;
-import com.ma.dlp.Repository.AgentCommandRepository;
-import com.ma.dlp.Repository.PolicyRepository;
-import com.ma.dlp.Repository.UserRepository;
+import com.ma.dlp.Repository.*;
 import com.ma.dlp.component.WebSocketNotifier;
 import com.ma.dlp.controller.AdminController;
 // Make sure this is imported
@@ -50,6 +47,8 @@ public class AgentService {
     @Autowired  
     private AgentCommandRepository agentCommandRepository;
 
+    @Autowired
+    private AgentSessionRepository agentSessionRepository;
     // at top of class
     @Autowired
     private WebSocketNotifier webSocketNotifier;
@@ -753,11 +752,15 @@ public class AgentService {
         agent.setLastHeartbeat(new Date());
 
         userRepository.save(agent);
-
+        AgentSession session = new AgentSession();
+        session.setAgentId(agent.getId());
+        session.setLoginTime(new Date());
+        session.setIpAddress(ipAddress);
+        agentSessionRepository.save(session);
         // Store in cache
         agentTokens.put(token, agent.getId());
         agentTokens.put("Bearer " + token, agent.getId());
-
+        log.info("📝 Session started for agent: {}", agent.getId());
         log.info("✅ Agent logged in: {} (ID: {})", agent.getUsername(), agent.getId(), agent.getIpAddress());
 
         return new AgentAuthResponse(

@@ -294,47 +294,91 @@ public class AgentController {
         }
     }
 
+//    @GetMapping("/active-policies")
+//    public ResponseEntity<ApiResponse<AgentPoliciesResponse>> getActivePolicies(
+//            @RequestHeader(value = "Authorization") String token, @RequestParam(name = "agentId") Long agentId) {
+//
+//        // 1. You check if the token is valid
+//        if (!agentService.validateToken(token, agentId)) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, "Invalid token"));
+//        }
+//
+//        try {
+//            // 2. NEW: You check the agent's status in the database
+//            User agent = userService.findById(agentId).orElseThrow(() -> new RuntimeException("Agent not found"));
+//            if (agent.getStatus() != User.UserStatus.ACTIVE) {
+//                log.warn("Agent {} is not active, rejecting policy request.", agentId);
+//                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//                        .body(new ApiResponse<>(false, "Agent account is not active."));
+//            }
+//
+//            // Get active capabilities and convert to policies
+//            List<AgentCapability> activeCapabilities = agentService.getActiveCapabilities(agentId);
+//            // --- SYNTHETIC OCR POLICY ---
+//            AgentCapability ocrCapability = new AgentCapability();
+//            // Use the correct constant from the Rust agent for the toggle state
+//            ocrCapability.setCapabilityCode("POLICY_OCR_MONITOR");
+//            ocrCapability.setIsActive();
+//            ocrCapability.setCategory("OCR");
+//            ocrCapability.setName("OCR Screen Monitoring");
+//            ocrCapability.setDescription("Dynamically controlled OCR status");
+//            ocrCapability.setAction("MONITOR");
+//            ocrCapability.setTarget("SCREEN_CONTENT");
+//            ocrCapability.setSeverity("MEDIUM");
+//
+//            activeCapabilities.add(ocrCapability);
+//
+//            log.info("📢 OCR Monitoring is OFF for agent {}.", agentId);
+//
+//            List<PolicyCapabilityDTO> policyDTOs = activeCapabilities.stream().map(this::convertCapabilityToPolicyDTO) // Call
+//                                                                                                                       // the
+//                                                                                                                       // correct
+//                                                                                                                       // DTO
+//                                                                                                                       // converter
+//                    .collect(Collectors.toList());
+//
+//            AgentPoliciesResponse response = new AgentPoliciesResponse();
+//            response.setAgentId(agentId);
+//            response.setPolicies(policyDTOs);
+//            response.setTimestamp(System.currentTimeMillis());
+//
+//            log.info("📋 Returning {} active policies to agent {}", policyDTOs.size(), agentId);
+//
+//            return ResponseEntity.ok(new ApiResponse<>(true, "Active policies retrieved", response));
+//        } catch (Exception e) {
+//            log.error("❌ Failed to get active policies for agent {}: {}", agentId, e.getMessage());
+//            return ResponseEntity.badRequest()
+//                    .body(new ApiResponse<>(false, "Failed to get active policies: " + e.getMessage()));
+//        }
+//    }
+
     @GetMapping("/active-policies")
     public ResponseEntity<ApiResponse<AgentPoliciesResponse>> getActivePolicies(
-            @RequestHeader(value = "Authorization") String token, @RequestParam(name = "agentId") Long agentId) {
+            @RequestHeader(value = "Authorization") String token,
+            @RequestParam(name = "agentId") Long agentId) {
 
-        // 1. You check if the token is valid
         if (!agentService.validateToken(token, agentId)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, "Invalid token"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse<>(false, "Invalid token"));
         }
 
         try {
-            // 2. NEW: You check the agent's status in the database
-            User agent = userService.findById(agentId).orElseThrow(() -> new RuntimeException("Agent not found"));
+            User agent = userService.findById(agentId)
+                    .orElseThrow(() -> new RuntimeException("Agent not found"));
+
             if (agent.getStatus() != User.UserStatus.ACTIVE) {
                 log.warn("Agent {} is not active, rejecting policy request.", agentId);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(new ApiResponse<>(false, "Agent account is not active."));
             }
 
-            // Get active capabilities and convert to policies
+            // ✅ JUST USE REAL DATABASE VALUES - no synthetic injection
             List<AgentCapability> activeCapabilities = agentService.getActiveCapabilities(agentId);
-            // --- SYNTHETIC OCR POLICY ---
-            AgentCapability ocrCapability = new AgentCapability();
-            // Use the correct constant from the Rust agent for the toggle state
-            ocrCapability.setCapabilityCode("POLICY_OCR_MONITOR");
-            ocrCapability.setIsActive(true);
-            ocrCapability.setCategory("OCR");
-            ocrCapability.setName("OCR Screen Monitoring");
-            ocrCapability.setDescription("Dynamically controlled OCR status");
-            ocrCapability.setAction("MONITOR");
-            ocrCapability.setTarget("SCREEN_CONTENT");
-            ocrCapability.setSeverity("MEDIUM");
 
-            activeCapabilities.add(ocrCapability);
+            // ❌ DELETE the entire "SYNTHETIC OCR POLICY" block that was here
 
-            log.info("📢 OCR Monitoring is OFF for agent {}.", agentId);
-
-            List<PolicyCapabilityDTO> policyDTOs = activeCapabilities.stream().map(this::convertCapabilityToPolicyDTO) // Call
-                                                                                                                       // the
-                                                                                                                       // correct
-                                                                                                                       // DTO
-                                                                                                                       // converter
+            List<PolicyCapabilityDTO> policyDTOs = activeCapabilities.stream()
+                    .map(this::convertCapabilityToPolicyDTO)
                     .collect(Collectors.toList());
 
             AgentPoliciesResponse response = new AgentPoliciesResponse();
@@ -345,6 +389,7 @@ public class AgentController {
             log.info("📋 Returning {} active policies to agent {}", policyDTOs.size(), agentId);
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Active policies retrieved", response));
+
         } catch (Exception e) {
             log.error("❌ Failed to get active policies for agent {}: {}", agentId, e.getMessage());
             return ResponseEntity.badRequest()
@@ -391,7 +436,7 @@ public class AgentController {
             alert.setDeviceInfo(alertRequest.getDeviceInfo());
             alert.setFileDetails(alertRequest.getFileDetails());
             alert.setSeverity(alertRequest.getSeverity());
-            alert.setStatus("PENDING");
+            alert.setStatus(alert.getStatus());
             alert.setActionTaken(alertRequest.getActionTaken());
 
             alertService.saveAlert(alert);
@@ -589,9 +634,9 @@ public class AgentController {
             WebHistoryLog logEntry = new WebHistoryLog();
             logEntry.setAgentId(agentId);
             logEntry.setUrl(request.getUrl() != null ? request.getUrl() : "");
-            logEntry.setBrowser("Unknown");
+            logEntry.setBrowser(request.getBrowser() != null ? request.getBrowser() : "Unknown");  // Set browser;
             logEntry.setAction("VISIT");
-            logEntry.setBlocked(false);
+            logEntry.setBlocked(request.isBlocked());
 
             // Parse RFC3339 timestamp if provided; fall back to now.
             LocalDateTime ts = LocalDateTime.now();
@@ -607,6 +652,16 @@ public class AgentController {
             logEntry.setVisitTimestamp(ts);
 
             webHistoryLogRepository.save(logEntry);
+
+            // 🔥 NEW: If this URL was blocked, increment the hit count
+            if (request.isBlocked()) {
+                try {
+                    blockedUrlService.incrementHitCount(request.getUrl());
+                    log.info("📊 Incremented hit count for blocked URL: {} (agent {})", request.getUrl(), agentId);
+                } catch (Exception e) {
+                    log.error("Failed to increment hit count for URL {}: {}", request.getUrl(), e.getMessage());
+                }
+            }
 
             // Real-time broadcast
             try {

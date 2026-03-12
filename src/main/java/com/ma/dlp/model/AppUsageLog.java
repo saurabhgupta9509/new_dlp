@@ -26,7 +26,7 @@ public class AppUsageLog {
     private Double activeUsageTime;
 
     @Lob
-    @Column(name = "payload_json")
+    @Column(name = "payload_json" , columnDefinition = "longtext")
     private String payloadJson;
 
     @PrePersist

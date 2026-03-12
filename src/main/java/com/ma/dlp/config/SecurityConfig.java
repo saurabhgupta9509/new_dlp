@@ -391,11 +391,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/agent/**").permitAll()
                         .requestMatchers("/api/python-client/**").permitAll()
                         .requestMatchers("/api/python/**").permitAll()
+                                .requestMatchers("/api/app-icon").permitAll()
 //                                .requestMatchers(HttpMethod.GET, "/api/python/devices").permitAll()
 //                                .requestMatchers(HttpMethod.GET, "/api/python/device/**").permitAll()
 //                                .requestMatchers(HttpMethod.GET, "/api/python/stats").permitAll()
                         // ============= ADMIN PAGES - REQUIRES AUTHENTICATION =============
                         .requestMatchers(
+
                                 "/dashboard",
                                 "/manage-agents",
                                 "/agent-add",
@@ -467,6 +469,17 @@ public class SecurityConfig {
                 )
 
                 .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives(
+                                        "default-src 'self'; " +
+                                                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+                                                "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
+                                                "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " +
+                                                "img-src 'self' data: blob: https://logo.clearbit.com https://www.google.com; " +
+                                                "connect-src 'self'; " +
+                                                "frame-src 'none';"
+                                )
+                        )
                         .frameOptions(frame -> frame.sameOrigin())
                 );
 
