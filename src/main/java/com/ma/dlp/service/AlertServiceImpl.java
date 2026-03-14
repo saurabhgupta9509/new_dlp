@@ -35,7 +35,7 @@ public class AlertServiceImpl implements AlertService {
         }
         // Ensure status is set (controller might have set it)
         if (alert.getStatus() == null) {
-            alert.setStatus("OPEN");  // Default status for new alerts
+            alert.setStatus("PENDING");  // Default status for new alerts
         }
         return alertRepository.save(alert);
     }

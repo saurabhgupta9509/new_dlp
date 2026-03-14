@@ -27,7 +27,7 @@ public class AlertStatsService {
 
         long highAlerts = alertRepository.countBySeverity("HIGH");
 
-        long pendingAlertsCount = alertRepository.countByStatus("PENDING");
+        long pendingAlertsCount = alertRepository.countByStatusIgnoreCase("PENDING");
 
         return new AlertStatsDTO(
                 totalAlerts,

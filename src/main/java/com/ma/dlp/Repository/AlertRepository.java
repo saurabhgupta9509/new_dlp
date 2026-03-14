@@ -38,6 +38,8 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
 
     long countBySeverity(String severity);
 
+    long countByStatusIgnoreCase(String status);
+
     long countByStatus(String status);
 
     // ADD THIS QUERY for the Bar Chart (MySQL compatible)

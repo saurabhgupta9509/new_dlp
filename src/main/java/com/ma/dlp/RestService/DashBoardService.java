@@ -29,13 +29,12 @@ public class DashBoardService {
 
     public DashboardStatsDTO getStats() {
 
-        long totalAgents = userRepository.count();
+        List<User> agents = userRepository.findAllAgents(); // reuse for onlineAgents too
+        long totalAgents = agents.size();
 
-        long pendingAlerts = alertRepository.countByStatus("PENDING");
+        long pendingAlerts = alertRepository.countByStatusIgnoreCase("PENDING");
 
         long totalActivePolicies = agentCapabilityRepository.countByIsActiveTrue();
-
-        List<User> agents = userRepository.findAll();
 
         long onlineAgents = agents.stream()
                 .filter(agent -> agent.getLastHeartbeat() != null &&
