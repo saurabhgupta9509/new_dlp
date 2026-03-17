@@ -3014,128 +3014,132 @@
           color: white;
           border-color: #b91c1c;
         }
+
         /* ===== URL HISTORY RESPONSIVE FIX ===== */
-#urlHistory .url-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 20px;
-}
+        #urlHistory .url-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+          margin-bottom: 20px;
+        }
 
-#urlHistory .url-filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  padding: 12px 16px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
+        #urlHistory .url-filter-bar {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          align-items: center;
+          padding: 12px 16px;
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+          margin-bottom: 20px;
+        }
 
-#urlHistory .url-filter-tabs {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  flex: 1;
-}
+        #urlHistory .url-filter-tabs {
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+          flex: 1;
+        }
 
-#urlHistory .url-filter-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
+        #urlHistory .url-filter-actions {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
 
-#urlHistory .url-table-container {
-  overflow-x: auto;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-}
+        #urlHistory .url-table-container {
+          overflow-x: auto;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+        }
 
-#urlHistory .url-table {
-  min-width: 700px;
-}
+        #urlHistory .url-table {
+          min-width: 700px;
+        }
 
-#urlHistory .url-table td,
-#urlHistory .url-table th {
-  padding: 12px 14px;
-  vertical-align: middle;
-}
+        #urlHistory .url-table td,
+        #urlHistory .url-table th {
+          padding: 12px 14px;
+          vertical-align: middle;
+        }
 
-/* Truncate long URLs */
-#urlHistory .url-link {
-  max-width: 320px;
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: middle;
-}
+        /* Truncate long URLs */
+        #urlHistory .url-link {
+          max-width: 320px;
+          display: inline-block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          vertical-align: middle;
+        }
 
-@media (max-width: 1100px) {
-  #urlHistory .url-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
+        @media (max-width: 1100px) {
+          #urlHistory .url-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
 
-@media (max-width: 640px) {
-  #urlHistory .url-stats-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  #urlHistory .url-filter-bar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  #urlHistory .url-filter-actions {
-    width: 100%;
-  }
-  #urlHistory .url-filter-select {
-    flex: 1;
-  }
-  #urlHistory .url-link {
-    max-width: 180px;
-  }
-}
+        @media (max-width: 640px) {
+          #urlHistory .url-stats-grid {
+            grid-template-columns: 1fr 1fr;
+          }
+
+          #urlHistory .url-filter-bar {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          #urlHistory .url-filter-actions {
+            width: 100%;
+          }
+
+          #urlHistory .url-filter-select {
+            flex: 1;
+          }
+
+          #urlHistory .url-link {
+            max-width: 180px;
+          }
+        }
 
         /* Add to your existing CSS - put this in the <style> section */
-.url-table td:nth-child(2) {
-    max-width: 400px;
-    min-width: 250px;
-    word-break: break-word;
-    white-space: normal;
-}
+        .url-table td:nth-child(2) {
+          max-width: 400px;
+          min-width: 250px;
+          word-break: break-word;
+          white-space: normal;
+        }
 
-.url-link {
-    color: #2563eb;
-    text-decoration: none;
-    word-break: break-word;
-    white-space: normal;
-    display: inline-block;
-    max-width: 100%;
-    line-height: 1.4;
-}
+        .url-link {
+          color: #2563eb;
+          text-decoration: none;
+          word-break: break-word;
+          white-space: normal;
+          display: inline-block;
+          max-width: 100%;
+          line-height: 1.4;
+        }
 
-/* For the URL container */
-#urlHistory .url-table td:nth-child(2) div div:last-child {
-    max-width: 100%;
-}
+        /* For the URL container */
+        #urlHistory .url-table td:nth-child(2) div div:last-child {
+          max-width: 100%;
+        }
 
-/* Adjust the URL cell to wrap properly */
-.url-table td:nth-child(2) > div {
-    max-width: 100%;
-    overflow: hidden;
-}
+        /* Adjust the URL cell to wrap properly */
+        .url-table td:nth-child(2)>div {
+          max-width: 100%;
+          overflow: hidden;
+        }
 
-/* For very long URLs, add ellipsis after a certain point with tooltip on hover */
-.url-link.very-long {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
+        /* For very long URLs, add ellipsis after a certain point with tooltip on hover */
+        .url-link.very-long {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
     </style>
 </head>
 
@@ -3179,11 +3183,11 @@
             </div>
 
             <!-- <div class="nav-item">
-                          <a href="agents.html" class="nav-link" data-page="agents">
-                              <i class="fas fa-desktop"></i>
-                              <span>Agents / Endpoints</span>
-                          </a>
-                      </div> -->
+                              <a href="agents.html" class="nav-link" data-page="agents">
+                                  <i class="fas fa-desktop"></i>
+                                  <span>Agents / Endpoints</span>
+                              </a>
+                          </div> -->
 
             <div class="nav-item">
                 <div class="nav-link nav-dropdown" onclick="toggleSubMenu(this)">
@@ -3578,7 +3582,8 @@
                         </div>
                         <div class="url-header-right" style="flex-wrap: wrap; gap: 10px;">
                             <!-- Date Range Picker -->
-                            <div class="date-range-picker" style="display: flex; gap: 5px; align-items: center; background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 4px;">
+                            <div class="date-range-picker"
+                                 style="display: flex; gap: 5px; align-items: center; background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 4px;">
                                 <input type="date" id="urlStartDate" class="date-input"
                                        style="padding: 6px 10px; border: none; border-radius: 6px; background: transparent;"
                                        onchange="applyDateRange()">
@@ -3594,7 +3599,8 @@
                             </div>
 
                             <!-- Quick Range Selector -->
-                            <select id="quickRangeSelect" class="url-filter-select" style="width: 120px;" onchange="applyQuickRange()">
+                            <select id="quickRangeSelect" class="url-filter-select" style="width: 120px;"
+                                    onchange="applyQuickRange()">
                                 <option value="today">Today</option>
                                 <option value="yesterday">Yesterday</option>
                                 <option value="last7days" selected>Last 7 Days</option>
@@ -4665,10 +4671,10 @@
                         const statusCell = row.querySelector('td:nth-child(5)');
                         if (statusCell) {
                           statusCell.innerHTML = `
-                                        <span class="burl-status ${newStatus ? 'active' : 'inactive'}">
-                                            ${newStatus ? 'Active' : 'Inactive'}
-                                        </span>
-                                    `;
+                                              <span class="burl-status ${newStatus ? 'active' : 'inactive'}">
+                                                  ${newStatus ? 'Active' : 'Inactive'}
+                                              </span>
+                                          `;
                         }
 
                         // Update the toggle button
@@ -4953,53 +4959,53 @@
                       : escapeHtml(url.addedBy || "System");
 
                     row.innerHTML = `
-                            <td>
-                                <div class="burl-url-name">
-                                    ${escapeHtml(url.urlPattern)}
-                                    ${url.fromPolicy ? '<span class="badge" style="background: #dbeafe; color: #1e40af; margin-left: 8px; font-size: 0.7rem;">Policy</span>' : ""}
-                                </div>
-                                ${url.reason ? `<div class="burl-url-reason">${escapeHtml(url.reason)}</div>` : ""}
-                            </td>
-                            <td class="burl-domain">${escapeHtml(url.domain || url.urlPattern)}</td>
-                            <td><span class="burl-tag ${categoryClass}">${escapeHtml(url.category || "Other")}</span></td>
-                            <td><span class="burl-scope ${scopeClass}">${scopeText}</span></td>
-                            <td>
-                                <span class="burl-status ${url.active ? "active" : "inactive"}">
-                                    ${url.active ? "Active" : "Inactive"}
-                                </span>
-                            </td>
-                            <td>${addedByDisplay}</td>
-                            <td class="burl-date">${addedDate}</td>
-                            <td class="text-center"><span class="badge">${url.hitCount || 0}</span></td>
-                            <td>
-                                <div class="burl-actions">
-                                    ${!url.fromPolicy
+                                  <td>
+                                      <div class="burl-url-name">
+                                          ${escapeHtml(url.urlPattern)}
+                                          ${url.fromPolicy ? '<span class="badge" style="background: #dbeafe; color: #1e40af; margin-left: 8px; font-size: 0.7rem;">Policy</span>' : ""}
+                                      </div>
+                                      ${url.reason ? `<div class="burl-url-reason">${escapeHtml(url.reason)}</div>` : ""}
+                                  </td>
+                                  <td class="burl-domain">${escapeHtml(url.domain || url.urlPattern)}</td>
+                                  <td><span class="burl-tag ${categoryClass}">${escapeHtml(url.category || "Other")}</span></td>
+                                  <td><span class="burl-scope ${scopeClass}">${scopeText}</span></td>
+                                  <td>
+                                      <span class="burl-status ${url.active ? "active" : "inactive"}">
+                                          ${url.active ? "Active" : "Inactive"}
+                                      </span>
+                                  </td>
+                                  <td>${addedByDisplay}</td>
+                                  <td class="burl-date">${addedDate}</td>
+                                  <td class="text-center"><span class="badge">${url.hitCount || 0}</span></td>
+                                  <td>
+                                      <div class="burl-actions">
+                                          ${!url.fromPolicy
                         ? `
-                                        <button class="burl-action-btn toggle"
-                                                onclick="toggleBlockedUrlStatus(${url.id}, ${url.active}, this)"
-                                                title="${url.active ? "Deactivate" : "Activate"}">
-                                            <i class="fas fa-${url.active ? "pause" : "play"}"></i>
-                                        </button>
-                                        <button class="burl-action-btn edit"
-                                                onclick='openEditBlockedUrlModal(${JSON.stringify(url).replace(/'/g, "\\'")})'
-                                                title="Edit">
-                                            <i class="fas fa-pen"></i>
-                                        </button>
-                                        <button class="burl-action-btn delete"
-                                                onclick="deleteBlockedUrl(${url.id}, '${url.urlPattern.replace(/'/g, "\\'")}')"
-                                                title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    `
+                                              <button class="burl-action-btn toggle"
+                                                      onclick="toggleBlockedUrlStatus(${url.id}, ${url.active}, this)"
+                                                      title="${url.active ? "Deactivate" : "Activate"}">
+                                                  <i class="fas fa-${url.active ? "pause" : "play"}"></i>
+                                              </button>
+                                              <button class="burl-action-btn edit"
+                                                      onclick='openEditBlockedUrlModal(${JSON.stringify(url).replace(/'/g, "\\'")})'
+                                                      title="Edit">
+                                                  <i class="fas fa-pen"></i>
+                                              </button>
+                                              <button class="burl-action-btn delete"
+                                                      onclick="deleteBlockedUrl(${url.id}, '${url.urlPattern.replace(/'/g, "\\'")}')"
+                                                      title="Delete">
+                                                  <i class="fas fa-trash"></i>
+                                              </button>
+                                          `
                         : `
-                                        <span class="badge" style="background: #e2e8f0; color: #475569; padding: 4px 8px;">
-                                            <i class="fas fa-lock"></i> Policy Managed
-                                        </span>
-                                    `
+                                              <span class="badge" style="background: #e2e8f0; color: #475569; padding: 4px 8px;">
+                                                  <i class="fas fa-lock"></i> Policy Managed
+                                              </span>
+                                          `
                       }
-                                </div>
-                            </td>
-                        `;
+                                      </div>
+                                  </td>
+                              `;
 
                     tbody.appendChild(row);
                   });
@@ -5400,42 +5406,42 @@
                     let html = '';
                     Object.entries(grouped).forEach(([dateLabel, events]) => {
                       html += `
-                                <div class="timeline-day-group" style="margin-bottom: 32px;">
-                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                                        <div style="font-size: 0.85rem; font-weight: 600; color: #374151; background: #f3f4f6; padding: 6px 14px; border-radius: 20px; border: 1px solid #e5e7eb;">
-                                            <i class="fas fa-calendar-day" style="color: #6b7280; margin-right: 6px;"></i>${dateLabel}
-                                        </div>
-                                        <div style="flex: 1; height: 1px; background: #e5e7eb;"></div>
-                                        <span style="font-size: 0.75rem; color: #9ca3af;">${events.length} event${events.length !== 1 ? 's' : ''}</span>
-                                    </div>
-                                    <div style="position: relative; padding-left: 28px;">
-                                        <div style="position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: #e5e7eb; border-radius: 2px;"></div>
-                                        ${events.map(event => `
-                                            <div style="position: relative; margin-bottom: 12px; display: flex; gap: 14px; align-items: flex-start;">
-                                                <div style="position: absolute; left: -22px; top: 10px; width: 10px; height: 10px; border-radius: 50%; background: ${event.color}; border: 2px solid white; box-shadow: 0 0 0 2px ${event.color}40; flex-shrink: 0;"></div>
-                                                <div style="flex: 1; background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px 16px; transition: box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
-                                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                                                        <div style="width: 30px; height: 30px; background: ${event.bg}; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                                            <i class="fas ${event.icon}" style="color: ${event.color}; font-size: 0.8rem;"></i>
-                                                        </div>
-                                                        <div style="flex: 1;">
-                                                            <div style="font-weight: 600; font-size: 0.88rem; color: #111827;">${event.title}</div>
-                                                            <div style="font-size: 0.75rem; color: #9ca3af;">
-                                                                ${event.ts.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                                                            </div>
-                                                        </div>
-                                                        <span style="padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 500; background: ${event.bg}; color: ${event.color};">
-                                                            ${event.type.replace('_', ' ')}
-                                                        </span>
-                                                    </div>
-                                                    <div style="font-size: 0.85rem; color: #374151; margin-left: 40px; word-break: break-all;">${event.detail}</div>
-                                                    ${event.meta ? `<div style="font-size: 0.78rem; color: #9ca3af; margin-left: 40px; margin-top: 3px;">${event.meta}</div>` : ''}
-                                                </div>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            `;
+                                      <div class="timeline-day-group" style="margin-bottom: 32px;">
+                                          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                              <div style="font-size: 0.85rem; font-weight: 600; color: #374151; background: #f3f4f6; padding: 6px 14px; border-radius: 20px; border: 1px solid #e5e7eb;">
+                                                  <i class="fas fa-calendar-day" style="color: #6b7280; margin-right: 6px;"></i>${dateLabel}
+                                              </div>
+                                              <div style="flex: 1; height: 1px; background: #e5e7eb;"></div>
+                                              <span style="font-size: 0.75rem; color: #9ca3af;">${events.length} event${events.length !== 1 ? 's' : ''}</span>
+                                          </div>
+                                          <div style="position: relative; padding-left: 28px;">
+                                              <div style="position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: #e5e7eb; border-radius: 2px;"></div>
+                                              ${events.map(event => `
+                                                  <div style="position: relative; margin-bottom: 12px; display: flex; gap: 14px; align-items: flex-start;">
+                                                      <div style="position: absolute; left: -22px; top: 10px; width: 10px; height: 10px; border-radius: 50%; background: ${event.color}; border: 2px solid white; box-shadow: 0 0 0 2px ${event.color}40; flex-shrink: 0;"></div>
+                                                      <div style="flex: 1; background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px 16px; transition: box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                                                          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                                                              <div style="width: 30px; height: 30px; background: ${event.bg}; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                                                  <i class="fas ${event.icon}" style="color: ${event.color}; font-size: 0.8rem;"></i>
+                                                              </div>
+                                                              <div style="flex: 1;">
+                                                                  <div style="font-weight: 600; font-size: 0.88rem; color: #111827;">${event.title}</div>
+                                                                  <div style="font-size: 0.75rem; color: #9ca3af;">
+                                                                      ${event.ts.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                                                  </div>
+                                                              </div>
+                                                              <span style="padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 500; background: ${event.bg}; color: ${event.color};">
+                                                                  ${event.type.replace('_', ' ')}
+                                                              </span>
+                                                          </div>
+                                                          <div style="font-size: 0.85rem; color: #374151; margin-left: 40px; word-break: break-all;">${event.detail}</div>
+                                                          ${event.meta ? `<div style="font-size: 0.78rem; color: #9ca3af; margin-left: 40px; margin-top: 3px;">${event.meta}</div>` : ''}
+                                                      </div>
+                                                  </div>
+                                              `).join('')}
+                                          </div>
+                                      </div>
+                                  `;
                     });
 
                     timelineGroups.innerHTML = html;
@@ -5444,14 +5450,14 @@
                     console.error('Failed to load activity logs:', err);
                     if (loadingEl) loadingEl.style.display = 'none';
                     timelineGroups.innerHTML = `
-                            <div style="text-align:center; padding: 60px; background: #f9fafb; border-radius: 12px;">
-                                <i class="fas fa-exclamation-triangle" style="font-size: 36px; color: #ef4444; margin-bottom: 16px;"></i>
-                                <h4 style="color: #374151;">Failed to Load Activity</h4>
-                                <p style="color: #6b7280;">Please try again.</p>
-                                <button onclick="loadActivityLogs('${agentId}')" class="btn btn-primary" style="margin-top: 16px;">
-                                    <i class="fas fa-sync-alt"></i> Retry
-                                </button>
-                            </div>`;
+                                  <div style="text-align:center; padding: 60px; background: #f9fafb; border-radius: 12px;">
+                                      <i class="fas fa-exclamation-triangle" style="font-size: 36px; color: #ef4444; margin-bottom: 16px;"></i>
+                                      <h4 style="color: #374151;">Failed to Load Activity</h4>
+                                      <p style="color: #6b7280;">Please try again.</p>
+                                      <button onclick="loadActivityLogs('${agentId}')" class="btn btn-primary" style="margin-top: 16px;">
+                                          <i class="fas fa-sync-alt"></i> Retry
+                                      </button>
+                                  </div>`;
                   }
                 }
 
@@ -5679,11 +5685,11 @@
                   );
                   if (policyContainer) {
                     policyContainer.innerHTML = `
-                            <div style="text-align: center; padding: 40px;">
-                              <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #3b82f6;"></i>
-                              <p style="color: #6b7280; margin-top: 16px;">Loading policies...</p>
-                            </div>
-                          `;
+                                  <div style="text-align: center; padding: 40px;">
+                                    <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #3b82f6;"></i>
+                                    <p style="color: #6b7280; margin-top: 16px;">Loading policies...</p>
+                                  </div>
+                                `;
                   }
 
                   fetch(`/api/admin/agents/${agentId}/policies`, {
@@ -6129,200 +6135,200 @@
                     const history = result.data;
                     urlHistoryFullData = history;
 
-                      // Render table
+                    // Render table
                     renderUrlTable(history);
 
-                     // Set default to last 7 days
+                    // Set default to last 7 days
                     setTimeout(() => {
-                        document.getElementById('quickRangeSelect').value = 'last7days';
-                        applyQuickRange();
+                      document.getElementById('quickRangeSelect').value = 'last7days';
+                      applyQuickRange();
                     }, 100);
-                 } catch (e) {
+                  } catch (e) {
                     console.error("Failed to load web history", e);
                     urlsLoading.style.display = "none";
                     urlsContainer.innerHTML = `
-                        <div class="url-no-data">
-                            <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
-                            <h4>Error Loading Data</h4>
-                            <p>Failed to load URL history. Please try again.</p>
-                            <button onclick="loadWebHistory(getAgentIdFromUrl())" class="btn btn-primary" style="margin-top: 16px;">
-                                <i class="fas fa-sync-alt"></i> Retry
-                            </button>
-                        </div>`;
-                        }
-        }
+                              <div class="url-no-data">
+                                  <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
+                                  <h4>Error Loading Data</h4>
+                                  <p>Failed to load URL history. Please try again.</p>
+                                  <button onclick="loadWebHistory(getAgentIdFromUrl())" class="btn btn-primary" style="margin-top: 16px;">
+                                      <i class="fas fa-sync-alt"></i> Retry
+                                  </button>
+                              </div>`;
+                  }
+                }
 
 
 
                 function updateUrlStatsFromVisibleRows(visibleRows) {
-                // Total visits
-                const totalVisits = visibleRows.length;
-                document.getElementById('totalUrlVisits').textContent = totalVisits;
+                  // Total visits
+                  const totalVisits = visibleRows.length;
+                  document.getElementById('totalUrlVisits').textContent = totalVisits;
 
-                // Unique domains
-                const domains = new Set();
-                let blocked = 0;
-                let suspicious = 0;
+                  // Unique domains
+                  const domains = new Set();
+                  let blocked = 0;
+                  let suspicious = 0;
 
-                visibleRows.forEach(row => {
+                  visibleRows.forEach(row => {
                     // Extract domain from data attribute or URL
                     const urlData = row.dataset.url;
                     if (urlData) {
-                        try {
-                            const urlObj = new URL(urlData.startsWith('http') ? urlData : 'http://' + urlData);
-                            domains.add(urlObj.hostname.replace('www.', ''));
-                        } catch {
-                            // If URL parsing fails, try to extract domain from the URL string
-                            const domainMatch = urlData.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i);
-                            if (domainMatch) {
-                                domains.add(domainMatch[1]);
-                            }
+                      try {
+                        const urlObj = new URL(urlData.startsWith('http') ? urlData : 'http://' + urlData);
+                        domains.add(urlObj.hostname.replace('www.', ''));
+                      } catch {
+                        // If URL parsing fails, try to extract domain from the URL string
+                        const domainMatch = urlData.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i);
+                        if (domainMatch) {
+                          domains.add(domainMatch[1]);
                         }
+                      }
                     }
 
                     // Check status
                     const statusData = row.dataset.status;
                     if (statusData === 'blocked') {
-                        blocked++;
+                      blocked++;
                     }
 
                     // Check for suspicious URLs
                     if (urlData) {
-                        const url = urlData.toLowerCase();
-                        if (url.includes('login') || url.includes('signin') ||
-                            url.includes('bank') || url.includes('pay') ||
-                            url.includes('password') || url.includes('secure') ||
-                            url.includes('auth')) {
-                            suspicious++;
-                        }
+                      const url = urlData.toLowerCase();
+                      if (url.includes('login') || url.includes('signin') ||
+                        url.includes('bank') || url.includes('pay') ||
+                        url.includes('password') || url.includes('secure') ||
+                        url.includes('auth')) {
+                        suspicious++;
+                      }
                     }
-                });
+                  });
 
-                document.getElementById('uniqueDomains').textContent = domains.size;
-                document.getElementById('totalSuspiciousUrls').textContent = suspicious;
-                document.getElementById('totalBlockedUrls').textContent = blocked;
+                  document.getElementById('uniqueDomains').textContent = domains.size;
+                  document.getElementById('totalSuspiciousUrls').textContent = suspicious;
+                  document.getElementById('totalBlockedUrls').textContent = blocked;
 
-                // Update overview stat
-                const overviewUrls = document.getElementById('overviewUrlsVisited');
-                if (overviewUrls) {
+                  // Update overview stat
+                  const overviewUrls = document.getElementById('overviewUrlsVisited');
+                  if (overviewUrls) {
                     overviewUrls.textContent = totalVisits.toLocaleString();
+                  }
                 }
-            }
 
                 function applyQuickRange() {
-                const range = document.getElementById('quickRangeSelect').value;
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
+                  const range = document.getElementById('quickRangeSelect').value;
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
 
-                let startDate = new Date(today);
-                let endDate = new Date(today);
+                  let startDate = new Date(today);
+                  let endDate = new Date(today);
 
-                switch(range) {
+                  switch (range) {
                     case 'today':
-                        // startDate already set to today
-                        endDate = new Date(today);
-                        break;
+                      // startDate already set to today
+                      endDate = new Date(today);
+                      break;
                     case 'yesterday':
-                        startDate = new Date(today);
-                        startDate.setDate(today.getDate() - 1);
-                        endDate = new Date(startDate);
-                        break;
+                      startDate = new Date(today);
+                      startDate.setDate(today.getDate() - 1);
+                      endDate = new Date(startDate);
+                      break;
                     case 'last7days':
-                        startDate.setDate(today.getDate() - 6);
-                        endDate = new Date(today);
-                        break;
+                      startDate.setDate(today.getDate() - 6);
+                      endDate = new Date(today);
+                      break;
                     case 'last30days':
-                        startDate.setDate(today.getDate() - 29);
-                        endDate = new Date(today);
-                        break;
+                      startDate.setDate(today.getDate() - 29);
+                      endDate = new Date(today);
+                      break;
                     case 'thisMonth':
-                        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-                        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                        break;
+                      startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                      endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                      break;
                     case 'lastMonth':
-                        startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                        endDate = new Date(today.getFullYear(), today.getMonth(), 0);
-                        break;
+                      startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                      endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+                      break;
                     case 'custom':
-                        // Show date pickers for custom range
-                        document.getElementById('urlStartDate').style.display = 'inline-block';
-                        document.getElementById('urlEndDate').style.display = 'inline-block';
-                        return;
-                }
-                // Update date inputs
-                document.getElementById('urlStartDate').value = formatDateForInput(startDate);
-                document.getElementById('urlEndDate').value = formatDateForInput(endDate);
+                      // Show date pickers for custom range
+                      document.getElementById('urlStartDate').style.display = 'inline-block';
+                      document.getElementById('urlEndDate').style.display = 'inline-block';
+                      return;
+                  }
+                  // Update date inputs
+                  document.getElementById('urlStartDate').value = formatDateForInput(startDate);
+                  document.getElementById('urlEndDate').value = formatDateForInput(endDate);
 
-                // Apply the range
-                applyDateRange();
-            }
+                  // Apply the range
+                  applyDateRange();
+                }
 
                 function formatDateForInput(date) {
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const day = String(date.getDate()).padStart(2, '0');
-                    return `${year}-${month}-${day}`;
+                  const year = date.getFullYear();
+                  const month = String(date.getMonth() + 1).padStart(2, '0');
+                  const day = String(date.getDate()).padStart(2, '0');
+                  return `${year}-${month}-${day}`;
                 }
 
                 function applyDateRange() {
-                    const startDateStr = document.getElementById('urlStartDate').value;
-                    const endDateStr = document.getElementById('urlEndDate').value;
+                  const startDateStr = document.getElementById('urlStartDate').value;
+                  const endDateStr = document.getElementById('urlEndDate').value;
 
-                    if (!startDateStr || !endDateStr) {
-                        // If no dates selected, show all rows
-                        showAllRows();
-                        return;
+                  if (!startDateStr || !endDateStr) {
+                    // If no dates selected, show all rows
+                    showAllRows();
+                    return;
+                  }
+
+                  const startDate = new Date(startDateStr);
+                  startDate.setHours(0, 0, 0, 0);
+
+                  const endDate = new Date(endDateStr);
+                  endDate.setHours(23, 59, 59, 999);
+
+                  currentStartDate = startDate;
+                  currentEndDate = endDate;
+
+                  const rows = document.querySelectorAll('.url-row');
+                  const visibleRows = [];
+
+                  rows.forEach(row => {
+                    const timestamp = row.dataset.timestamp;
+                    if (!timestamp) {
+                      row.style.display = 'none';
+                      return;
                     }
 
-                    const startDate = new Date(startDateStr);
-                    startDate.setHours(0, 0, 0, 0);
+                    const rowDate = new Date(timestamp);
+                    if (rowDate >= startDate && rowDate <= endDate) {
+                      row.style.display = '';
+                      visibleRows.push(row);
+                    } else {
+                      row.style.display = 'none';
+                    }
+                  });
 
-                    const endDate = new Date(endDateStr);
-                    endDate.setHours(23, 59, 59, 999);
+                  // Update stats for visible rows
+                  updateUrlStatsFromVisibleRows(visibleRows);
 
-                    currentStartDate = startDate;
-                    currentEndDate = endDate;
-
-                    const rows = document.querySelectorAll('.url-row');
-                    const visibleRows = [];
-
-                    rows.forEach(row => {
-                        const timestamp = row.dataset.timestamp;
-                        if (!timestamp) {
-                            row.style.display = 'none';
-                            return;
-                        }
-
-                        const rowDate = new Date(timestamp);
-                        if (rowDate >= startDate && rowDate <= endDate) {
-                            row.style.display = '';
-                            visibleRows.push(row);
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    });
-
-                    // Update stats for visible rows
-                    updateUrlStatsFromVisibleRows(visibleRows);
-
-                    // Update the date range text
-                    const startFormatted = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    const endFormatted = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                    document.getElementById('totalVisitsDateRange').textContent = `${startFormatted} - ${endFormatted}`;
+                  // Update the date range text
+                  const startFormatted = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  const endFormatted = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                  document.getElementById('totalVisitsDateRange').textContent = `${startFormatted} - ${endFormatted}`;
                 }
 
                 function clearDateRange() {
-                    document.getElementById('urlStartDate').value = '';
-                    document.getElementById('urlEndDate').value = '';
-                    document.getElementById('quickRangeSelect').value = 'last7days';
-                    showAllRows();
+                  document.getElementById('urlStartDate').value = '';
+                  document.getElementById('urlEndDate').value = '';
+                  document.getElementById('quickRangeSelect').value = 'last7days';
+                  showAllRows();
                 }
 
                 function showAllRows() {
-                    const rows = document.querySelectorAll('.url-row');
-                    rows.forEach(row => row.style.display = '');
-                    updateUrlStatsFromVisibleRows(rows);
-                    document.getElementById('totalVisitsDateRange').textContent = 'All Time';
+                  const rows = document.querySelectorAll('.url-row');
+                  rows.forEach(row => row.style.display = '');
+                  updateUrlStatsFromVisibleRows(rows);
+                  document.getElementById('totalVisitsDateRange').textContent = 'All Time';
                 }
 
 
@@ -6418,139 +6424,139 @@
                   const color = colors[letter.charCodeAt(0) % colors.length];
 
                   return `<div style="width:28px; height:28px; background:${color}; border-radius:6px;
-                              display:inline-flex; align-items:center; justify-content:center;
-                              color:white; font-size:11px; font-weight:700; flex-shrink:0;">
-                      ${displayLetter}
-                  </div>`;
+                                    display:inline-flex; align-items:center; justify-content:center;
+                                    color:white; font-size:11px; font-weight:700; flex-shrink:0;">
+                            ${displayLetter}
+                        </div>`;
                 }
 
                 function renderUrlTable(history) {
-    const urlsContainer = document.getElementById("urlsContainer");
+                  const urlsContainer = document.getElementById("urlsContainer");
 
-    let html = `
-        <table class="url-table">
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>URL</th>
-                    <th>Browser</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+                  let html = `
+              <table class="url-table">
+                  <thead>
+                      <tr>
+                          <th>Time</th>
+                          <th>URL</th>
+                          <th>Browser</th>
+                          <th>Status</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+          `;
 
-    history.forEach((entry) => {
-        const url = entry.url || "";
-        const domain = extractDomain(url);
-        const browser = entry.browser || "Unknown";
-        const blockedFlag = entry.blocked === true;
+                  history.forEach((entry) => {
+                    const url = entry.url || "";
+                    const domain = extractDomain(url);
+                    const browser = entry.browser || "Unknown";
+                    const blockedFlag = entry.blocked === true;
 
-        let timeStr = "";
-        let dateObj = null;
-        let timestamp = null;
+                    let timeStr = "";
+                    let dateObj = null;
+                    let timestamp = null;
 
-        if (Array.isArray(entry.visitTimestamp)) {
-            const [year, month, day, hour, minute, second] = entry.visitTimestamp;
-            dateObj = new Date(year, month - 1, day, hour, minute, second);
-        } else {
-            dateObj = new Date(entry.visitTimestamp || entry.timestamp);
-        }
+                    if (Array.isArray(entry.visitTimestamp)) {
+                      const [year, month, day, hour, minute, second] = entry.visitTimestamp;
+                      dateObj = new Date(year, month - 1, day, hour, minute, second);
+                    } else {
+                      dateObj = new Date(entry.visitTimestamp || entry.timestamp);
+                    }
 
-        if (!dateObj || isNaN(dateObj.getTime())) {
-            timeStr = "Unknown";
-        } else {
-            timestamp = dateObj.toISOString();
-            timeStr = dateObj.toLocaleString("en-US", {
-                year: "numeric", month: "short", day: "numeric",
-                hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
-            });
-        }
+                    if (!dateObj || isNaN(dateObj.getTime())) {
+                      timeStr = "Unknown";
+                    } else {
+                      timestamp = dateObj.toISOString();
+                      timeStr = dateObj.toLocaleString("en-US", {
+                        year: "numeric", month: "short", day: "numeric",
+                        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
+                      });
+                    }
 
-        const now = new Date();
-        const diffMs = now - dateObj;
-        const diffMins = Math.floor(diffMs / 60000);
-        let relativeTime = "";
-        if (diffMins < 1) relativeTime = "Just now";
-        else if (diffMins < 60) relativeTime = `${diffMins}m ago`;
-        else if (diffMins < 1440) relativeTime = `${Math.floor(diffMins / 60)}h ago`;
-        else relativeTime = `${Math.floor(diffMins / 1440)}d ago`;
+                    const now = new Date();
+                    const diffMs = now - dateObj;
+                    const diffMins = Math.floor(diffMs / 60000);
+                    let relativeTime = "";
+                    if (diffMins < 1) relativeTime = "Just now";
+                    else if (diffMins < 60) relativeTime = `${diffMins}m ago`;
+                    else if (diffMins < 1440) relativeTime = `${Math.floor(diffMins / 60)}h ago`;
+                    else relativeTime = `${Math.floor(diffMins / 1440)}d ago`;
 
-        // Build correct href
-        const fullUrl = url.startsWith('http') ? url :
-            (url.startsWith('localhost') || url.match(/^\d{1,3}\.\d{1,3}/)) ?
-                'http://' + url : 'https://' + url;
+                    // Build correct href
+                    const fullUrl = url.startsWith('http') ? url :
+                      (url.startsWith('localhost') || url.match(/^\d{1,3}\.\d{1,3}/)) ?
+                        'http://' + url : 'https://' + url;
 
-        // Icon letter and color
-        let cleanDomain = domain.replace('www.', '').toLowerCase();
-        let displayLetter = cleanDomain.startsWith('localhost') ? '⚙' :
-            cleanDomain.charAt(0).toUpperCase();
+                    // Icon letter and color
+                    let cleanDomain = domain.replace('www.', '').toLowerCase();
+                    let displayLetter = cleanDomain.startsWith('localhost') ? '⚙' :
+                      cleanDomain.charAt(0).toUpperCase();
 
-        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#ef4444'];
-        const color = colors[cleanDomain.charAt(0).charCodeAt(0) % colors.length];
+                    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#ef4444'];
+                    const color = colors[cleanDomain.charAt(0).charCodeAt(0) % colors.length];
 
-        // Browser icon
-        let browserIcon = "fa-globe";
-        if (browser.toLowerCase().includes("chrome")) browserIcon = "fa-chrome";
-        else if (browser.toLowerCase().includes("firefox")) browserIcon = "fa-firefox";
-        else if (browser.toLowerCase().includes("edge")) browserIcon = "fa-edge";
+                    // Browser icon
+                    let browserIcon = "fa-globe";
+                    if (browser.toLowerCase().includes("chrome")) browserIcon = "fa-chrome";
+                    else if (browser.toLowerCase().includes("firefox")) browserIcon = "fa-firefox";
+                    else if (browser.toLowerCase().includes("edge")) browserIcon = "fa-edge";
 
-        html += `
-            <tr class="url-row"
-                data-url="${url.toLowerCase()}"
-                data-browser="${browser.toLowerCase()}"
-                data-status="${blockedFlag ? 'blocked' : 'allowed'}"
-                data-timestamp="${timestamp || ''}">
+                    html += `
+                  <tr class="url-row"
+                      data-url="${url.toLowerCase()}"
+                      data-browser="${browser.toLowerCase()}"
+                      data-status="${blockedFlag ? 'blocked' : 'allowed'}"
+                      data-timestamp="${timestamp || ''}">
 
-                <td class="time-cell" data-timestamp="${timestamp || ''}">
-                    <div>${timeStr}</div>
-                    <small style="color: #94a3b8;">${relativeTime}</small>
-                </td>
+                      <td class="time-cell" data-timestamp="${timestamp || ''}">
+                          <div>${timeStr}</div>
+                          <small style="color: #94a3b8;">${relativeTime}</small>
+                      </td>
 
-                <td>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width:36px; height:36px; background:${color}; border-radius:8px;
-                                    display:flex; align-items:center; justify-content:center;
-                                    color:white; font-size:14px; font-weight:700; flex-shrink:0;">
-                            ${displayLetter}
-                        </div>
-                        <div>
-                            <a href="${fullUrl}"
-                               class="url-link"
-                               target="_blank"
-                               rel="noreferrer"
-                               onclick="event.preventDefault(); window.open(this.href, '_blank');">
-                                ${url}
-                            </a>
-                            <div style="margin-top: 3px;">
-                                <span style="background:#f1f5f9; color:#475569; padding:2px 8px;
-                                             border-radius:4px; font-size:0.75rem;">
-                                    ${domain}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </td>
+                      <td>
+                          <div style="display: flex; align-items: center; gap: 10px;">
+                              <div style="width:36px; height:36px; background:${color}; border-radius:8px;
+                                          display:flex; align-items:center; justify-content:center;
+                                          color:white; font-size:14px; font-weight:700; flex-shrink:0;">
+                                  ${displayLetter}
+                              </div>
+                              <div>
+                                  <a href="${fullUrl}"
+                                     class="url-link"
+                                     target="_blank"
+                                     rel="noreferrer"
+                                     onclick="event.preventDefault(); window.open(this.href, '_blank');">
+                                      ${url}
+                                  </a>
+                                  <div style="margin-top: 3px;">
+                                      <span style="background:#f1f5f9; color:#475569; padding:2px 8px;
+                                                   border-radius:4px; font-size:0.75rem;">
+                                          ${domain}
+                                      </span>
+                                  </div>
+                              </div>
+                          </div>
+                      </td>
 
-                <td>
-                    <span class="browser-badge">
-                        <i class="fab ${browserIcon}"></i>
-                        ${browser}
-                    </span>
-                </td>
+                      <td>
+                          <span class="browser-badge">
+                              <i class="fab ${browserIcon}"></i>
+                              ${browser}
+                          </span>
+                      </td>
 
-                <td>
-                    <span class="status-badge ${blockedFlag ? 'blocked' : 'allowed'}">
-                        ${blockedFlag ? 'Blocked' : 'Allowed'}
-                    </span>
-                </td>
-            </tr>
-        `;
-    });
+                      <td>
+                          <span class="status-badge ${blockedFlag ? 'blocked' : 'allowed'}">
+                              ${blockedFlag ? 'Blocked' : 'Allowed'}
+                          </span>
+                      </td>
+                  </tr>
+              `;
+                  });
 
-    html += "</tbody></table>";
-    urlsContainer.innerHTML = html;
-}
+                  html += "</tbody></table>";
+                  urlsContainer.innerHTML = html;
+                }
 
                 // Filter functions
                 function filterUrlTable() {
@@ -6581,49 +6587,49 @@
                   });
                 }
 
-               // Update the filterUrlByType function to work with the date range
-                    function filterUrlByType(type) {
-                        // Update active tab
-                        document.querySelectorAll('.url-filter-tab').forEach(tab => {
-                            tab.classList.remove('active');
-                        });
-                        event.currentTarget.classList.add('active');
+                // Update the filterUrlByType function to work with the date range
+                function filterUrlByType(type) {
+                  // Update active tab
+                  document.querySelectorAll('.url-filter-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                  });
+                  event.currentTarget.classList.add('active');
 
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
 
-                        let startDate = null;
-                        let endDate = new Date(today);
-                        endDate.setHours(23, 59, 59, 999);
+                  let startDate = null;
+                  let endDate = new Date(today);
+                  endDate.setHours(23, 59, 59, 999);
 
-                        if (type === 'today') {
-                            startDate = new Date(today);
-                            // Update quick range select
-                            document.getElementById('quickRangeSelect').value = 'today';
-                        } else if (type === 'week') {
-                            startDate = new Date(today);
-                            startDate.setDate(today.getDate() - 6);
-                            document.getElementById('quickRangeSelect').value = 'last7days';
-                        } else if (type === 'month') {
-                            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-                            document.getElementById('quickRangeSelect').value = 'thisMonth';
-                        } else if (type === 'all') {
-                            showAllRows();
-                            document.getElementById('quickRangeSelect').value = 'custom';
-                            document.getElementById('urlStartDate').value = '';
-                            document.getElementById('urlEndDate').value = '';
-                            return;
-                        }
+                  if (type === 'today') {
+                    startDate = new Date(today);
+                    // Update quick range select
+                    document.getElementById('quickRangeSelect').value = 'today';
+                  } else if (type === 'week') {
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - 6);
+                    document.getElementById('quickRangeSelect').value = 'last7days';
+                  } else if (type === 'month') {
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    document.getElementById('quickRangeSelect').value = 'thisMonth';
+                  } else if (type === 'all') {
+                    showAllRows();
+                    document.getElementById('quickRangeSelect').value = 'custom';
+                    document.getElementById('urlStartDate').value = '';
+                    document.getElementById('urlEndDate').value = '';
+                    return;
+                  }
 
-                        if (startDate) {
-                            // Update date inputs
-                            document.getElementById('urlStartDate').value = formatDateForInput(startDate);
-                            document.getElementById('urlEndDate').value = formatDateForInput(endDate);
+                  if (startDate) {
+                    // Update date inputs
+                    document.getElementById('urlStartDate').value = formatDateForInput(startDate);
+                    document.getElementById('urlEndDate').value = formatDateForInput(endDate);
 
-                            // Apply the filter
-                            applyDateRange();
-                        }
-                    }
+                    // Apply the filter
+                    applyDateRange();
+                  }
+                }
 
 
 
@@ -6643,10 +6649,10 @@
 
                   try {
                     topAppsList.innerHTML = `
-                            <div class="text-center" style="padding: 40px; color: #6b7280;">
-                                <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
-                                <p>Loading app usage data...</p>
-                            </div>`;
+                                  <div class="text-center" style="padding: 40px; color: #6b7280;">
+                                      <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                                      <p>Loading app usage data...</p>
+                                  </div>`;
 
                     const resp = await fetch(`/api/admin/app-usage/${agentId}?limit=1000`, { credentials: "include" });
                     const result = await resp.json();
@@ -6720,14 +6726,14 @@
                     if (!targetDay) {
                       const formattedDate = displayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
                       topAppsList.innerHTML = `
-                                <div class="text-center" style="padding: 60px; background: #f9fafb; border-radius: 12px;">
-                                    <i class="fas fa-calendar-day" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
-                                    <h4 style="color: #374151; margin-bottom: 8px;">No Data for ${formattedDate}</h4>
-                                    <p style="color: #6b7280;">This agent hasn't reported any app usage for this date.</p>
-                                    <p style="color: #6b7280; font-size: 0.9rem; margin-top: 8px;">
-                                        Available dates: ${Object.keys(groupedByDate).sort().reverse().slice(0, 5).join(', ')}
-                                    </p>
-                                </div>`;
+                                      <div class="text-center" style="padding: 60px; background: #f9fafb; border-radius: 12px;">
+                                          <i class="fas fa-calendar-day" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
+                                          <h4 style="color: #374151; margin-bottom: 8px;">No Data for ${formattedDate}</h4>
+                                          <p style="color: #6b7280;">This agent hasn't reported any app usage for this date.</p>
+                                          <p style="color: #6b7280; font-size: 0.9rem; margin-top: 8px;">
+                                              Available dates: ${Object.keys(groupedByDate).sort().reverse().slice(0, 5).join(', ')}
+                                          </p>
+                                      </div>`;
                       if (appPieChartInstance) appPieChartInstance.destroy();
                       if (totalCategoriesEl) totalCategoriesEl.textContent = "0";
                       if (categoryLegend) categoryLegend.innerHTML = `<div style="padding:16px; text-align:center; color:#6b7280;">No data for selected date</div>`;
@@ -6736,6 +6742,12 @@
 
                     // ── Build appTimeMap and categoryTimeMap from aggregated data ──────
                     const { appTotals, categoryTotals, totalTime: totalTimeForDay } = targetDay.aggregated;
+                    window._rawSnapshotsForDay = targetDay.entries;
+                    window._rawSessionsForDay = targetDay.entries.reduce((acc, entry) => {
+                      const p = parsePayload(entry);
+                      if (p && p.sessions) acc.push(...p.sessions);
+                      return acc;
+                    }, []);
 
                     const appTimeMap = new Map(
                       Object.entries(appTotals).map(([name, time]) => [getFriendlyAppName(name), time])
@@ -6778,66 +6790,71 @@
                 }
 
                 function aggregateAppUsageForDay(entries) {
-                  // entries must be sorted oldest → newest before calling this
-                  let confirmedTotals = {};   // locked-in from completed restart sessions
-                  let confirmedCategories = {};
-                  let previousTotals = {};    // peak per app in the current session
-                  let previousCategories = {};
+                  // Sort entries oldest → newest
+                  const sorted = [...entries].sort((a, b) => {
+                    const ta = getTimestampFromEntry(a);
+                    const tb = getTimestampFromEntry(b);
+                    return (ta ? ta.getTime() : 0) - (tb ? tb.getTime() : 0);
+                  });
 
-                  entries.forEach(entry => {
+                  if (sorted.length === 0) return { appTotals: {}, categoryTotals: {}, totalTime: 0 };
+
+                  const appTotals = {};
+                  const categoryTotals = {};
+
+                  // Track previous snapshot values
+                  let prevTotals = {};
+                  let prevTimestamp = null;
+
+                  sorted.forEach((entry, index) => {
                     const payload = parsePayload(entry);
                     if (!payload) return;
 
+                    const currentTimestamp = getTimestampFromEntry(entry);
+                    if (!currentTimestamp) return;
+
                     const topAppsArray = payload.top_apps || payload.topApps || [];
-                    const breakdown = payload.category_breakdown || payload.categoryBreakdown || {};
 
                     // Build current snapshot totals
                     const currentTotals = {};
                     topAppsArray.forEach(app => {
                       const name = app.app || app.name || "Unknown";
-                      currentTotals[name] = app.active_time || app.activeTime || 0;
+                      const friendlyName = getFriendlyAppName(name);
+                      currentTotals[friendlyName] = app.active_time || app.activeTime || 0;
                     });
 
-                    // Detect restart: total time dropped significantly vs previous snapshot
-                    const prevSum = Object.values(previousTotals).reduce((a, b) => a + b, 0);
-                    const currSum = Object.values(currentTotals).reduce((a, b) => a + b, 0);
+                    // If this is not the first snapshot, calculate the difference
+                    if (prevTimestamp && Object.keys(prevTotals).length > 0) {
+                      const timeDiffSeconds = (currentTimestamp - prevTimestamp) / 1000;
 
-                    if (prevSum > 30 && currSum < prevSum * 0.5) {
-                      // RESTART DETECTED — lock in previous session peaks
-                      console.log(`🔄 Restart detected! Locking ${Math.round(prevSum)}s, new session starts at ${Math.round(currSum)}s`);
-                      Object.entries(previousTotals).forEach(([app, time]) => {
-                        confirmedTotals[app] = (confirmedTotals[app] || 0) + time;
+                      // For each app in previous snapshot, add the time difference
+                      Object.entries(prevTotals).forEach(([appName, prevTime]) => {
+                        const currentTime = currentTotals[appName] || 0;
+
+                        // If the app's time increased, it was active during this period
+                        if (currentTime > prevTime + 0.1) { // +0.1s tolerance for float
+                          appTotals[appName] = (appTotals[appName] || 0) + timeDiffSeconds;
+
+                          const category = getAppCategory(appName);
+                          categoryTotals[category] = (categoryTotals[category] || 0) + timeDiffSeconds;
+                        }
                       });
-                      Object.entries(previousCategories).forEach(([cat, time]) => {
-                        confirmedCategories[cat] = (confirmedCategories[cat] || 0) + time;
-                      });
-                      previousTotals = {};
-                      previousCategories = {};
                     }
 
-                    // Track peak per app in the current session
-                    Object.entries(currentTotals).forEach(([app, time]) => {
-                      previousTotals[app] = Math.max(previousTotals[app] || 0, time);
-                    });
-                    Object.entries(breakdown).forEach(([cat, time]) => {
-                      previousCategories[cat] = Math.max(previousCategories[cat] || 0, time);
-                    });
+                    // Update previous values for next iteration
+                    prevTotals = { ...currentTotals };
+                    prevTimestamp = currentTimestamp;
                   });
 
-                  // Lock in the final (current/ongoing) session
-                  Object.entries(previousTotals).forEach(([app, time]) => {
-                    confirmedTotals[app] = (confirmedTotals[app] || 0) + time;
+                  const totalTime = Object.values(appTotals).reduce((sum, time) => sum + time, 0);
+
+                  console.log("✅ Fixed aggregation:", {
+                    appTotals,
+                    totalTime: Math.round(totalTime) + "s",
+                    sessions: Object.keys(appTotals).length
                   });
-                  Object.entries(previousCategories).forEach(([cat, time]) => {
-                    confirmedCategories[cat] = (confirmedCategories[cat] || 0) + time;
-                  });
 
-                  const totalTime = Object.values(confirmedTotals).reduce((a, b) => a + b, 0);
-
-                  console.log("✅ Aggregated totals:", confirmedTotals);
-                  console.log("✅ Total time across all sessions:", Math.round(totalTime) + "s");
-
-                  return { appTotals: confirmedTotals, categoryTotals: confirmedCategories, totalTime };
+                  return { appTotals, categoryTotals, totalTime };
                 }
 
                 function processFixedTrendData(groupedByDate, lineCtx) {
@@ -6994,15 +7011,15 @@
                 function showErrorState(agentId, topAppsList, pieCtx, lineCtx, categoryLegend, totalCategoriesEl) {
                   if (topAppsList) {
                     topAppsList.innerHTML = `
-                            <div class="text-center" style="padding: 40px; background: #fef2f2; border-radius: 12px;">
-                                <i class="fas fa-exclamation-triangle" style="font-size: 32px; color: #ef4444; margin-bottom: 12px;"></i>
-                                <h4 style="color: #991b1b; margin-bottom: 8px;">Error Loading Data</h4>
-                                <p style="color: #b91c1c;">Failed to load app usage data. Please try again.</p>
-                                <button onclick="loadAppUsage('${agentId}')" class="btn btn-primary" style="margin-top: 16px;">
-                                    <i class="fas fa-sync-alt"></i> Retry
-                                </button>
-                            </div>
-                        `;
+                                  <div class="text-center" style="padding: 40px; background: #fef2f2; border-radius: 12px;">
+                                      <i class="fas fa-exclamation-triangle" style="font-size: 32px; color: #ef4444; margin-bottom: 12px;"></i>
+                                      <h4 style="color: #991b1b; margin-bottom: 8px;">Error Loading Data</h4>
+                                      <p style="color: #b91c1c;">Failed to load app usage data. Please try again.</p>
+                                      <button onclick="loadAppUsage('${agentId}')" class="btn btn-primary" style="margin-top: 16px;">
+                                          <i class="fas fa-sync-alt"></i> Retry
+                                      </button>
+                                  </div>
+                              `;
                   }
 
                   if (pieCtx) {
@@ -7019,29 +7036,159 @@
                   if (totalCategoriesEl) totalCategoriesEl.textContent = "0";
                   if (categoryLegend) {
                     categoryLegend.innerHTML = `
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: #9ca3af;">
-                                    <i class="fas fa-question"></i>
-                                </div>
-                                <div class="legend-details">
-                                    <span class="legend-label">Error</span>
-                                    <span class="legend-value">0%</span>
-                                </div>
-                            </div>
-                        `;
+                                  <div class="legend-item">
+                                      <div class="legend-color" style="background: #9ca3af;">
+                                          <i class="fas fa-question"></i>
+                                      </div>
+                                      <div class="legend-details">
+                                          <span class="legend-label">Error</span>
+                                          <span class="legend-value">0%</span>
+                                      </div>
+                                  </div>
+                              `;
                   }
 
                   const overviewApps = document.getElementById("overviewAppsUsed");
                   if (overviewApps) overviewApps.textContent = "0";
                 }
 
+                // ── 2. New function: recalculate totals when checkboxes change ─────────────────
+
+                function recalculateFromCheckboxes() {
+                  const checkboxes = document.querySelectorAll('input[data-app][data-time]');
+                  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899',
+                    '#6366f1', '#14b8a6', '#f97316', '#06b6d4', '#84cc16'];
+
+                  // Build new totals from checked apps only
+                  let newTotal = 0;
+                  const newCategoryMap = new Map();
+                  const includedApps = [];
+
+                  checkboxes.forEach(cb => {
+                    const appName = cb.dataset.app;
+                    const time = parseFloat(cb.dataset.time);
+                    if (cb.checked) {
+                      newTotal += time;
+                      const cat = getAppCategory(appName);
+                      newCategoryMap.set(cat, (newCategoryMap.get(cat) || 0) + time);
+                      includedApps.push({ appName, time });
+                    }
+                  });
+
+                  // ── FIX: Update banner using stable IDs ──
+                  const bannerTime = document.getElementById('bannerTotalTime');
+                  const bannerCount = document.getElementById('bannerAppCount');
+                  if (bannerTime) bannerTime.textContent = formatTime(newTotal);
+                  if (bannerCount) bannerCount.textContent = includedApps.length;
+
+                  // Update each app row's percentage + grey out excluded rows
+                  checkboxes.forEach(cb => {
+                    const appName = cb.dataset.app;
+                    const time = parseFloat(cb.dataset.time);
+                    const appItem = cb.closest('.app-item');
+                    if (!appItem) return;
+
+                    const pctEl = appItem.querySelector('div[style*="font-size:0.8rem"]');
+
+                    if (cb.checked) {
+                      appItem.style.opacity = '1';
+                      if (pctEl) {
+                        const pct = newTotal > 0 ? ((time / newTotal) * 100).toFixed(1) : '0';
+                        const cat = getAppCategory(appName);
+                        pctEl.textContent = `${cat} · ${pct}% of selected day`;
+                        pctEl.style.color = '#6b7280';
+                      }
+                    } else {
+                      appItem.style.opacity = '0.45';
+                      if (pctEl) {
+                        const cat = getAppCategory(appName);
+                        pctEl.textContent = `${cat} · excluded`;
+                        pctEl.style.color = '#9ca3af';
+                      }
+                    }
+                  });
+
+                  // ── Update pie chart ──
+                  const pieCtx = window._currentPieCtx;
+                  if (pieCtx) {
+                    if (typeof appPieChartInstance !== 'undefined' && appPieChartInstance) {
+                      appPieChartInstance.destroy();
+                    }
+
+                    const categories = Array.from(newCategoryMap.keys());
+                    const values = Array.from(newCategoryMap.values());
+
+                    if (categories.length > 0 && newTotal > 0) {
+                      window.appPieChartInstance = new Chart(pieCtx, {
+                        type: 'doughnut',
+                        data: {
+                          labels: categories,
+                          datasets: [{
+                            data: values,
+                            backgroundColor: colors.slice(0, categories.length),
+                            borderWidth: 4,
+                            borderColor: '#ffffff',
+                          }],
+                        },
+                        options: {
+                          responsive: true,
+                          maintainAspectRatio: true,
+                          cutout: '70%',
+                          plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                              callbacks: {
+                                label: ctx => {
+                                  const pct = ((ctx.raw / newTotal) * 100).toFixed(1);
+                                  return `${ctx.label}: ${formatTime(ctx.raw)} (${pct}%)`;
+                                },
+                              },
+                            },
+                          },
+                        },
+                      });
+                      appPieChartInstance = window.appPieChartInstance;
+                    }
+
+                    // Update centre categories counter
+                    const totalCatEl = window._currentTotalCatEl;
+                    if (totalCatEl) totalCatEl.textContent = categories.length;
+
+                    // Update legend
+                    const legendEl = window._currentCategoryLegend;
+                    if (legendEl && categories.length > 0) {
+                      legendEl.innerHTML = categories.map((cat, i) => {
+                        const t = values[i];
+                        const pct = newTotal > 0 ? ((t / newTotal) * 100).toFixed(1) : '0';
+                        const col = colors[i % colors.length];
+                        return `
+                        <div class="legend-item" style="display:flex;align-items:center;gap:10px;
+                             margin-bottom:8px;padding:8px;background:#f9fafb;border-radius:8px;">
+                          <div style="width:32px;height:32px;background:${col};border-radius:8px;
+                               display:flex;align-items:center;justify-content:center;color:white;">
+                            <i class="fas fa-${getCategoryIcon(cat)}"></i>
+                          </div>
+                          <div style="flex:1;">
+                            <div style="display:flex;justify-content:space-between;">
+                              <span style="font-weight:500;">${cat}</span>
+                              <span style="font-weight:600;color:#2563eb;">${pct}%</span>
+                            </div>
+                            <div style="font-size:0.8rem;color:#6b7280;">${formatTime(t)}</div>
+                          </div>
+                        </div>`;
+                      }).join('');
+                    }
+                  }
+                }
+
+
                 function updateAppUsageUI({ todayTotalTime, appTimeMap, categoryTimeMap, pieCtx, lineCtx, topAppsList, categoryLegend, totalCategoriesEl, allData, displayDate }) {
 
-                    console.log("🎨 Updating UI with:", {
-                      totalTime: todayTotalTime,
-                      apps: Array.from(appTimeMap.entries()),
-                      categories: Array.from(categoryTimeMap.entries())
-                    });
+                  console.log("🎨 Updating UI with:", {
+                    totalTime: todayTotalTime,
+                    apps: Array.from(appTimeMap.entries()),
+                    categories: Array.from(categoryTimeMap.entries())
+                  });
 
                   const dateToShow = displayDate || new Date();
                   const dateString = dateToShow.toLocaleDateString('en-US', {
@@ -7054,12 +7201,12 @@
                   // Create summary text
                   const summaryDiv = document.createElement("div");
                   summaryDiv.style.cssText = `
-                        background: #f0f9ff;
-                        border-radius: 8px;
-                        padding: 16px;
-                        margin-bottom: 20px;
-                        border: 1px solid #bae6fd;
-                    `;
+                              background: #f0f9ff;
+                              border-radius: 8px;
+                              padding: 16px;
+                              margin-bottom: 20px;
+                              border: 1px solid #bae6fd;
+                          `;
 
                   const totalMinutes = Math.floor(todayTotalTime / 60);
                   const totalHours = Math.floor(totalMinutes / 60);
@@ -7073,41 +7220,44 @@
                   }
 
                   summaryDiv.innerHTML = `
-                        <h4 style="margin: 0 0 8px 0; color: #0369a1;">Application Usage Summary</h4>
-                        <p style="margin: 4px 0; color: #0c4a6e;">
-                            <strong>Total Active Time:</strong> ${formatTime(todayTotalTime)} on ${dateString}
-                        </p>
-                        <p style="margin: 4px 0; color: #0c4a6e;">
-                            <strong>Applications Used:</strong> ${appTimeMap.size} application${appTimeMap.size !== 1 ? 's' : ''} recorded
-                        </p>
-                    `;
+                              <h4 style="margin: 0 0 8px 0; color: #0369a1;">Application Usage Summary</h4>
+                              <p style="margin: 4px 0; color: #0c4a6e;">
+                                  <strong>Total Active Time:</strong> ${formatTime(todayTotalTime)} on ${dateString}
+                              </p>
+                              <p style="margin: 4px 0; color: #0c4a6e;">
+                                  <strong>Applications Used:</strong> ${appTimeMap.size} application${appTimeMap.size !== 1 ? 's' : ''} recorded
+                              </p>
+                          `;
 
                   // Create total time display
                   const totalTimeDisplay = document.createElement("div");
                   totalTimeDisplay.className = "total-time-display";
                   totalTimeDisplay.style.cssText = `
-                        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-                        border-radius: 12px;
-                        padding: 20px;
-                        margin-bottom: 24px;
-                        color: white;
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                    `;
+                              background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+                              border-radius: 12px;
+                              padding: 20px;
+                              margin-bottom: 24px;
+                              color: white;
+                              display: flex;
+                              justify-content: space-between;
+                              align-items: center;
+                              box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                          `;
 
                   totalTimeDisplay.innerHTML = `
-                        <div>
-                            <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 4px;">Total Active Time</div>
-                            <div style="font-size: 2.5rem; font-weight: 700; line-height: 1;">${formatTime(todayTotalTime)}</div>
-                            <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 4px;">${dateString}</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 4px;">Applications</div>
-                            <div style="font-size: 2.5rem; font-weight: 700; line-height: 1;">${appTimeMap.size}</div>
-                        </div>
-                    `;
+                              <div>
+                                <div style="font-size:0.9rem;opacity:0.9;margin-bottom:4px;">Total Active Time</div>
+                                <div id="bannerTotalTime" style="font-size:2.5rem;font-weight:700;line-height:1;">
+                                  ${formatTime(todayTotalTime)}
+                                </div>
+                                <div style="font-size:0.8rem;opacity:0.8;margin-top:4px;">${dateString}</div>
+                              </div>
+                              <div style="text-align:right;">
+                                <div style="font-size:0.9rem;opacity:0.9;margin-bottom:4px;">Applications</div>
+                                <div id="bannerAppCount" style="font-size:2.5rem;font-weight:700;line-height:1;">
+                                  ${appTimeMap.size}
+                                </div>
+                              </div>`;
 
                   // Process categories for pie chart
                   const categories = Array.from(categoryTimeMap.keys());
@@ -7130,28 +7280,28 @@
                         const percentage = ((time / todayTotalTime) * 100).toFixed(1);
                         const color = colors[index % colors.length];
                         legendHtml += `
-                                    <div class="legend-item" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 8px; background: #f9fafb; border-radius: 8px;">
-                                        <div style="width: 32px; height: 32px; background: ${color}; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
-                                            <i class="fas fa-${getCategoryIcon(category)}"></i>
-                                        </div>
-                                        <div style="flex: 1;">
-                                            <div style="display: flex; justify-content: space-between;">
-                                                <span style="font-weight: 500;">${category}</span>
-                                                <span style="font-weight: 600; color: #2563eb;">${percentage}%</span>
-                                            </div>
-                                            <div style="font-size: 0.8rem; color: #6b7280;">${formatTime(time)}</div>
-                                        </div>
-                                    </div>
-                                `;
+                                          <div class="legend-item" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 8px; background: #f9fafb; border-radius: 8px;">
+                                              <div style="width: 32px; height: 32px; background: ${color}; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                                                  <i class="fas fa-${getCategoryIcon(category)}"></i>
+                                              </div>
+                                              <div style="flex: 1;">
+                                                  <div style="display: flex; justify-content: space-between;">
+                                                      <span style="font-weight: 500;">${category}</span>
+                                                      <span style="font-weight: 600; color: #2563eb;">${percentage}%</span>
+                                                  </div>
+                                                  <div style="font-size: 0.8rem; color: #6b7280;">${formatTime(time)}</div>
+                                              </div>
+                                          </div>
+                                      `;
                       });
                       categoryLegend.innerHTML = legendHtml;
                     } else {
                       categoryLegend.innerHTML = `
-                                <div class="legend-item" style="padding: 16px; text-align: center; color: #6b7280;">
-                                    <i class="fas fa-chart-pie" style="font-size: 24px; margin-bottom: 8px;"></i>
-                                    <p>No category data for today</p>
-                                </div>
-                            `;
+                                      <div class="legend-item" style="padding: 16px; text-align: center; color: #6b7280;">
+                                          <i class="fas fa-chart-pie" style="font-size: 24px; margin-bottom: 8px;"></i>
+                                          <p>No category data for today</p>
+                                      </div>
+                                  `;
                     }
                   }
 
@@ -7204,40 +7354,59 @@
                       .sort((a, b) => b[1] - a[1])
                       .slice(0, 10);
 
-                    let appsHtml = "";
+                    // Store globally so recalculate can access
+                    window._currentAppTimeMap = appTimeMap;
+                    window._currentCategoryMap = categoryTimeMap;
+                    window._currentTotalTime = todayTotalTime;
+                    window._currentPieCtx = pieCtx;
+                    window._currentCategoryLegend = categoryLegend;
+                    window._currentTotalCatEl = totalCategoriesEl;
+                    window._currentSessions = (typeof currentDaySessions !== 'undefined') ? currentDaySessions : [];
+
+                    let appsHtml = '';
                     sortedApps.forEach(([appName, timeInSeconds]) => {
-                      const percentage = todayTotalTime > 0 ? ((timeInSeconds / todayTotalTime) * 100).toFixed(1) : "0";
+                      const percentage = todayTotalTime > 0 ? ((timeInSeconds / todayTotalTime) * 100).toFixed(1) : '0';
                       const category = getAppCategory(appName);
                       const color = getAppColor(appName);
                       const iconUrl = getAppIconUrl(appName);
 
                       const iconHtml = iconUrl
                         ? `<img src="${iconUrl}" alt="${appName}"
-                             style="width: 28px; height: 28px; object-fit: contain; border-radius: 4px;"
-                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                         <i class="fas fa-${getAppIcon(appName)}" style="display:none; color:${color}; font-size: 1.1rem;"></i>`
-                        : `<i class="fas fa-${getAppIcon(appName)}" style="color:${color}; font-size: 1.1rem;"></i>`;
+                                     style="width:28px;height:28px;object-fit:contain;border-radius:4px;"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                 <i class="fas fa-${getAppIcon(appName)}" style="display:none;color:${color};font-size:1.1rem;"></i>`
+                        : `<i class="fas fa-${getAppIcon(appName)}" style="color:${color};font-size:1.1rem;"></i>`;
+
+                      const safeId = 'app_cb_' + appName.replace(/[^a-zA-Z0-9]/g, '_');
 
                       appsHtml += `
-                        <div class="app-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f9fafb; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e5e7eb;">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <div style="width: 40px; height: 40px; background: ${color}20; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                              <div class="app-item" style="display:flex;justify-content:space-between;align-items:center;
+                                   padding:12px;background:#f9fafb;border-radius:8px;margin-bottom:8px;border:1px solid #e5e7eb;">
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                  <input type="checkbox" id="${safeId}" checked
+                                    style="width:16px;height:16px;accent-color:#2563eb;cursor:pointer;flex-shrink:0;"
+                                    onchange="recalculateFromCheckboxes()"
+                                    data-app="${appName}" data-time="${timeInSeconds}">
+                                  <div style="width:40px;height:40px;background:${color}20;border-radius:8px;
+                                       display:flex;align-items:center;justify-content:center;overflow:hidden;">
                                     ${iconHtml}
+                                  </div>
+                                  <div>
+                                    <div style="font-weight:600;cursor:pointer;color:#2563eb;text-decoration:underline dotted;"
+                                         onclick="showAppSessions('${appName.replace(/'/g, "\\'")}', ${timeInSeconds})"
+                                         title="Click to see all sessions">
+                                      ${appName}
+                                    </div>
+                                    <div style="font-size:0.8rem;color:#6b7280;">${category} · ${percentage}% of selected day</div>
+                                  </div>
                                 </div>
-                                <div>
-                                    <div style="font-weight: 600;">${appName}</div>
-                                    <div style="font-size: 0.8rem; color: #6b7280;">${category} · ${percentage}% of selected day</div>
-                                </div>
-                            </div>
-                            <div style="font-weight: 600; color: #2563eb;">${formatTime(timeInSeconds)}</div>
-                        </div>
-                    `;
+                                <div id="time_${safeId}" style="font-weight:600;color:#2563eb;">${formatTime(timeInSeconds)}</div>
+                              </div>`;
                     });
 
                     topAppsList.innerHTML = '';
                     topAppsList.appendChild(summaryDiv);
                     topAppsList.appendChild(totalTimeDisplay);
-
                     const appsContainer = document.createElement('div');
                     appsContainer.innerHTML = appsHtml;
                     topAppsList.appendChild(appsContainer);
@@ -7246,16 +7415,355 @@
                     topAppsList.appendChild(summaryDiv);
                     topAppsList.appendChild(totalTimeDisplay);
                     topAppsList.innerHTML += `
-                            <div class="text-center" style="padding: 40px; background: #f9fafb; border-radius: 12px;">
-                                <i class="fas fa-info-circle" style="font-size: 32px; color: #9ca3af; margin-bottom: 12px;"></i>
-                                <p style="color: #6b7280;">No application data available for selected date.</p>
-                            </div>
-                        `;
+                                  <div class="text-center" style="padding: 40px; background: #f9fafb; border-radius: 12px;">
+                                      <i class="fas fa-info-circle" style="font-size: 32px; color: #9ca3af; margin-bottom: 12px;"></i>
+                                      <p style="color: #6b7280;">No application data available for selected date.</p>
+                                  </div>
+                              `;
                   }
 
                   // Process trend data for last 7 days
 
                 }
+
+                // ── 3. New function: show session timeline popup for a specific app ────────────
+
+                function showAppSessions(appName, totalTime) {
+
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const todayTimestamp = Math.floor(today.getTime() / 1000);
+
+                  // Filter sessions to only show today's
+                  const todaysSessions = (window._rawSessionsForDay || []).filter(s => {
+                    const sessionStart = s.start_time || s.startTime || 0;
+                    return sessionStart >= todayTimestamp &&
+                      getFriendlyAppName(s.app_name || s.appName || '') === appName;
+                  }).sort((a, b) => (a.start_time || a.startTime || 0) - (b.start_time || b.startTime || 0));
+
+                  // Remove any existing popup (with fade-out)
+                  const existing = document.getElementById('appSessionPopup');
+                      if (existing) {
+                        existing.style.transition = 'opacity 0.15s, transform 0.15s';
+                    existing.style.opacity = '0';
+                    existing.style.transform = 'translateY(-8px) scale(0.98)';
+                    setTimeout(() => existing.remove(), 160);
+                    // If same app clicked again, just close
+                    const existingApp = existing.dataset.forApp;
+                    if (existingApp === appName) return;
+                  }
+
+                  // ── Get sessions: real payload sessions first, fallback to snapshot reconstruction ──
+                  const realSessions = (window._rawSessionsForDay || []).filter(s => {
+                    const friendly = getFriendlyAppName(s.app_name || s.appName || '');
+                    return friendly === appName;
+                  }).sort((a, b) => (a.start_time || a.startTime || 0) - (b.start_time || b.startTime || 0));
+
+                  // If no real sessions, reconstruct from snapshots
+                  const appSessions = realSessions.length > 0
+                    ? realSessions
+                    : reconstructSessionsFromSnapshots(appName);
+
+                  // ── Build session rows HTML ──
+                  const now = Math.floor(Date.now() / 1000);
+
+                  let sessionRowsHtml = '';
+                  if (appSessions.length === 0) {
+                    sessionRowsHtml = `
+                <div style="padding:32px 20px;text-align:center;color:#9ca3af;">
+                  <div style="width:48px;height:48px;background:#f3f4f6;border-radius:12px;
+                       display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                    <i class="fas fa-clock" style="color:#d1d5db;font-size:1.2rem;"></i>
+                  </div>
+                  <div style="font-weight:600;color:#6b7280;margin-bottom:4px;">No session data yet</div>
+                  <div style="font-size:0.8rem;line-height:1.5;">
+                    Sessions will appear here once the updated agent<br>starts sending timeline data.
+                  </div>
+                </div>`;
+                  } else {
+                    appSessions.forEach((s, idx) => {
+                      const start = s.start_time || s.startTime || 0;
+                      const end = s.end_time || s.endTime || 0;
+                      const dur = s.duration || (end ? (end - start) : (now - start));
+                      const isLive = end === 0;
+
+                      const startDt = start ? new Date(start * 1000) : null;
+                      const endDt = end ? new Date(end * 1000) : null;
+
+                      const fmt = dt => dt
+                        ? dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                        : '—';
+
+                      const startStr = fmt(startDt);
+                      const endStr = isLive
+                        ? '<span style="color:#10b981;font-weight:600;">now</span>'
+                        : fmt(endDt);
+
+                      const barPct = totalTime > 0 ? Math.min((dur / totalTime) * 100, 100).toFixed(1) : 0;
+                      const barColor = isLive
+                        ? 'linear-gradient(90deg,#10b981,#34d399)'
+                        : 'linear-gradient(90deg,#3b82f6,#60a5fa)';
+
+                      // Time-of-day tag
+                      const hour = startDt ? startDt.getHours() : 0;
+                      let tag = '', tagStyle = '';
+                      if (isLive) {
+                        tag = 'Active'; tagStyle = 'background:#d1fae5;color:#065f46;';
+                      } else if (hour < 12) {
+                        tag = 'Morning'; tagStyle = 'background:#dbeafe;color:#1e40af;';
+                      } else if (hour < 17) {
+                        tag = 'Afternoon'; tagStyle = 'background:#fef3c7;color:#92400e;';
+                      } else {
+                        tag = 'Evening'; tagStyle = 'background:#f3e8ff;color:#6d28d9;';
+                      }
+
+                      sessionRowsHtml += `
+                    <div class="session-popup-row" style="
+                        padding:13px 20px;
+                        border-bottom:1px solid #f3f4f6;
+                        opacity:0;
+                        animation: appSessSlideIn 0.25s ease forwards;
+                        animation-delay:${0.05 + idx * 0.07}s;
+                    ">
+                      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
+                        <div style="font-size:0.85rem;color:#374151;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                          <span style="font-weight:700;color:#111827;">Session ${idx + 1}</span>
+                          <span style="color:#9ca3af;font-size:0.78rem;">${startStr} → ${endStr}</span>
+                          <span style="display:inline-block;padding:2px 8px;border-radius:20px;
+                               font-size:0.7rem;font-weight:600;${tagStyle}">${tag}</span>
+                        </div>
+                        <div style="font-weight:700;color:#2563eb;font-size:0.92rem;white-space:nowrap;margin-left:10px;">
+                          ${formatTime(dur)}
+                        </div>
+                      </div>
+                      <div style="height:6px;background:#f0f4ff;border-radius:4px;overflow:hidden;">
+                        <div style="
+                            height:100%;
+                            border-radius:4px;
+                            background:${barColor};
+                            width:0%;
+                            animation: appSessBarGrow 0.55s cubic-bezier(0.34,1.1,0.64,1) forwards;
+                            animation-delay:${0.12 + idx * 0.07}s;
+                            --target-width:${barPct}%;
+                        " onanimationstart="this.style.setProperty('--w','${barPct}%')"
+                           onanimationend="this.style.width='${barPct}%'">
+                        </div>
+                      </div>
+                    </div>`;
+                    });
+                  }
+
+                  // ── Build the full popup ──
+                  const popup = document.createElement('div');
+                  popup.id = 'appSessionPopup';
+                  popup.dataset.forApp = appName;
+                  popup.style.cssText = `
+              opacity: 0;
+              transform: translateY(-12px) scale(0.97);
+              background: white;
+              border: 1px solid #e5e7eb;
+              border-radius: 16px;
+              margin: 10px 0 20px;
+              overflow: hidden;
+              box-shadow: 0 8px 32px rgba(37,99,235,0.12), 0 2px 8px rgba(0,0,0,0.06);
+              transition: opacity 0.32s cubic-bezier(0.34,1.36,0.64,1),
+                          transform 0.32s cubic-bezier(0.34,1.36,0.64,1);
+          `;
+
+                  // App icon color
+                  const color = (typeof getAppColor === 'function') ? getAppColor(appName) : '#2563eb';
+                  const icon = (typeof getAppIcon === 'function') ? getAppIcon(appName) : 'window-maximize';
+
+                  popup.innerHTML = `
+            <div style="background:linear-gradient(135deg,#2563eb 0%,#1e40af 100%);
+                        padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:36px;height:36px;background:rgba(255,255,255,0.18);border-radius:10px;
+                     display:flex;align-items:center;justify-content:center;">
+                  <i class="fas fa-${icon}" style="color:white;font-size:1rem;"></i>
+                </div>
+                <div>
+                  <div style="color:white;font-weight:700;font-size:1rem;">${appName}</div>
+                  <div style="color:rgba(255,255,255,0.75);font-size:0.78rem;margin-top:2px;">
+                    ${appSessions.length} session${appSessions.length !== 1 ? 's' : ''}
+                    &nbsp;·&nbsp; Total: ${formatTime(totalTime)}
+                  </div>
+                </div>
+              </div>
+              <button onclick="
+                    const p = document.getElementById('appSessionPopup');
+                    if(p){p.style.opacity='0';p.style.transform='translateY(-10px) scale(0.97)';
+                    setTimeout(()=>p.remove(),200);}
+                  "
+                  style="background:rgba(255,255,255,0.15);border:none;color:white;
+                         width:30px;height:30px;border-radius:8px;cursor:pointer;
+                         font-size:1.1rem;line-height:1;transition:background 0.15s;"
+                  onmouseover="this.style.background='rgba(255,255,255,0.28)'"
+                  onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                ×
+              </button>
+            </div>
+
+            ${appSessions.length > 0 ? `
+            <div style="padding:7px 20px;background:#f8fafc;border-bottom:1px solid #f0f4ff;
+                        display:flex;justify-content:space-between;
+                        font-size:0.7rem;color:#94a3b8;font-weight:700;
+                        text-transform:uppercase;letter-spacing:0.5px;">
+              <span>Session</span><span>Duration</span>
+            </div>` : ''}
+
+            <div style="max-height:320px;overflow-y:auto;">
+              ${sessionRowsHtml}
+            </div>
+
+            <div style="padding:11px 20px;background:#f8fafc;border-top:1px solid #e5e7eb;
+                        display:flex;justify-content:space-between;align-items:center;">
+              <div style="font-size:0.78rem;color:#9ca3af;">Total active time</div>
+              <div style="font-weight:700;color:#111827;font-size:0.92rem;">${formatTime(totalTime)}</div>
+            </div>`;
+
+                  // ── Inject keyframe CSS once ──
+                  if (!document.getElementById('appSessKeyframes')) {
+                    const kf = document.createElement('style');
+                    kf.id = 'appSessKeyframes';
+                    kf.textContent = `
+                @keyframes appSessSlideIn {
+                  from { opacity:0; transform:translateX(-10px); }
+                  to   { opacity:1; transform:translateX(0); }
+                }
+                @keyframes appSessBarGrow {
+                  from { width:0%; }
+                  to   { width:var(--target-width, 0%); }
+                }`;
+                    document.head.appendChild(kf);
+                  }
+
+                  // ── Insert after the clicked app-item ──
+                  const topAppsList = document.getElementById('topAppsList');
+                  if (topAppsList) {
+                    let insertAfter = null;
+                    topAppsList.querySelectorAll('.app-item').forEach(item => {
+                      const nameEl = item.querySelector('div[onclick*="showAppSessions"]');
+                      if (nameEl && nameEl.textContent.trim() === appName) insertAfter = item;
+                    });
+
+                    const parent = insertAfter ? insertAfter.parentNode : topAppsList;
+                    const sibling = insertAfter ? insertAfter.nextSibling : null;
+
+                    if (sibling) parent.insertBefore(popup, sibling);
+                    else parent.appendChild(popup);
+                  }
+
+                  // ── Trigger the pop-in animation ──
+                  requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                      popup.style.opacity = '1';
+                      popup.style.transform = 'translateY(0) scale(1)';
+                      popup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    });
+                  });
+                }
+
+
+                function reconstructSessionsFromSnapshots(appName) {
+                  const entries = window._rawSnapshotsForDay || [];
+                  if (entries.length < 2) return [];
+
+                  // Sort oldest → newest
+                  const sorted = [...entries].sort((a, b) => {
+                    const ta = getTimestampFromEntry(a);
+                    const tb = getTimestampFromEntry(b);
+                    return (ta ? ta.getTime() : 0) - (tb ? tb.getTime() : 0);
+                  });
+
+                  // Check if agent is "recently active" — last snapshot within 5 minutes
+                  const lastSnapshotTs = getTimestampFromEntry(sorted[sorted.length - 1]);
+                  const agentIsActive = lastSnapshotTs &&
+                    (Date.now() - lastSnapshotTs.getTime()) < 5 * 60 * 1000;
+
+                  const sessions = [];
+                  let sessionStart = null;
+                  let sessionStartTs = 0;
+                  let lastActiveTime = 0;
+
+                  sorted.forEach((entry, i) => {
+                    const payload = parsePayload(entry);
+                    if (!payload) return;
+
+                    const ts = getTimestampFromEntry(entry);
+                    if (!ts) return;
+                    const tsEpoch = Math.floor(ts.getTime() / 1000);
+
+                    const topApps = payload.top_apps || payload.topApps || [];
+                    const appData = topApps.find(a =>
+                      getFriendlyAppName(a.app || a.name || '') === appName
+                    );
+
+                    const currentTime = appData ? (appData.active_time || appData.activeTime || 0) : 0;
+
+                    // First entry — just store it
+                    if (i === 0) {
+                      lastActiveTime = currentTime;
+                      return;
+                    }
+
+                    // Get previous snapshot time
+                    const prevTs = getTimestampFromEntry(sorted[i - 1]);
+                    if (!prevTs) return;
+
+                    const prevTsEpoch = Math.floor(prevTs.getTime() / 1000);
+                    const timeDiff = tsEpoch - prevTsEpoch;
+
+                    // App was active in this period if currentTime > lastActiveTime
+                    if (currentTime > lastActiveTime + 0.1) { // +0.1s tolerance for float
+                      // This snapshot shows increased time — app was active during this period
+                      if (sessionStart === null) {
+                        // Start a new session at the beginning of this period
+                        sessionStart = prevTs;
+                        sessionStartTs = prevTsEpoch;
+                      }
+                    } else {
+                      // App was not active in this period
+                      if (sessionStart !== null) {
+                        // End the session at the end of the previous period
+                        const duration = prevTsEpoch - sessionStartTs;
+                        if (duration >= 2) { // Ignore tiny sessions
+                          sessions.push({
+                            app_name: appName,
+                            start_time: sessionStartTs,
+                            end_time: prevTsEpoch,
+                            duration: duration
+                          });
+                        }
+                        sessionStart = null;
+                        sessionStartTs = 0;
+                      }
+                    }
+
+                    lastActiveTime = currentTime;
+                  });
+
+                  // Handle any open session
+                  if (sessionStart !== null) {
+                    const lastTs = getTimestampFromEntry(sorted[sorted.length - 1]);
+                    const lastTsEpoch = lastTs ? Math.floor(lastTs.getTime() / 1000) : sessionStartTs;
+                    const duration = lastTsEpoch - sessionStartTs;
+
+                    if (duration >= 2) {
+                      sessions.push({
+                        app_name: appName,
+                        start_time: sessionStartTs,
+                        // Only mark as "Active" if agent was seen recently
+                        end_time: agentIsActive ? 0 : lastTsEpoch,
+                        duration: duration
+                      });
+                    }
+                  }
+
+                  return sessions;
+                }
+
+
 
                 // Fix getDomainForApp like this:
                 function getDomainForApp(appName) {
@@ -7347,12 +7855,12 @@
                 function showNoAppUsageData(message, topAppsList, pieCtx, lineCtx, categoryLegend, totalCategoriesEl) {
                   if (topAppsList) {
                     topAppsList.innerHTML = `
-                            <div class="text-center" style="padding: 60px; background: #f9fafb; border-radius: 12px;">
-                                <i class="fas fa-chart-pie" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
-                                <h4 style="color: #374151; margin-bottom: 8px;">${message}</h4>
-                                <p style="color: #6b7280;">This agent hasn't reported any app usage for today.</p>
-                            </div>
-                        `;
+                                  <div class="text-center" style="padding: 60px; background: #f9fafb; border-radius: 12px;">
+                                      <i class="fas fa-chart-pie" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
+                                      <h4 style="color: #374151; margin-bottom: 8px;">${message}</h4>
+                                      <p style="color: #6b7280;">This agent hasn't reported any app usage for today.</p>
+                                  </div>
+                              `;
                   }
 
                   if (pieCtx) {
@@ -7368,16 +7876,16 @@
                   if (totalCategoriesEl) totalCategoriesEl.textContent = "0";
                   if (categoryLegend) {
                     categoryLegend.innerHTML = `
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: #9ca3af;">
-                                    <i class="fas fa-question"></i>
-                                </div>
-                                <div class="legend-details">
-                                    <span class="legend-label">No Data</span>
-                                    <span class="legend-value">0%</span>
-                                </div>
-                            </div>
-                        `;
+                                  <div class="legend-item">
+                                      <div class="legend-color" style="background: #9ca3af;">
+                                          <i class="fas fa-question"></i>
+                                      </div>
+                                      <div class="legend-details">
+                                          <span class="legend-label">No Data</span>
+                                          <span class="legend-value">0%</span>
+                                      </div>
+                                  </div>
+                              `;
                   }
 
                   const overviewApps = document.getElementById("overviewAppsUsed");
@@ -7610,25 +8118,25 @@
                       updatePartialAccessStats(result.data);
                     } else {
                       document.getElementById("paTbody").innerHTML = `
-                                      <tr>
-                                          <td colspan="8" class="text-center" style="padding: 40px; color: #6b7280;">
-                                              <i class="fas fa-info-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
-                                              <p>No partial access sites configured</p>
-                                          </td>
-                                      </tr>
-                                  `;
+                                            <tr>
+                                                <td colspan="8" class="text-center" style="padding: 40px; color: #6b7280;">
+                                                    <i class="fas fa-info-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                                                    <p>No partial access sites configured</p>
+                                                </td>
+                                            </tr>
+                                        `;
                       updatePartialAccessStats([]);
                     }
                   } catch (error) {
                     console.error("Failed to load partial access sites:", error);
                     document.getElementById("paTbody").innerHTML = `
-                                  <tr>
-                                      <td colspan="8" class="text-center" style="padding: 40px; color: #ef4444;">
-                                          <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px;"></i>
-                                          <p>Error loading partial access sites</p>
-                                      </td>
-                                  </tr>
-                              `;
+                                        <tr>
+                                            <td colspan="8" class="text-center" style="padding: 40px; color: #ef4444;">
+                                                <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                                                <p>Error loading partial access sites</p>
+                                            </td>
+                                        </tr>
+                                    `;
                   }
                 }
 
@@ -7658,27 +8166,27 @@
                       : "N/A";
 
                     row.innerHTML = `
-                                  <td>
-                                      <div class="burl-url-name">${site.urlPattern}</div>
-                                      <div class="burl-url-reason">${site.reason || ""}</div>
-                                  </td>
-                                  <td class="burl-domain">${site.urlPattern}</td>
-                                  <td><span class="burl-tag ${permissionClass}">${permissionText}</span></td>
-                                  <td><span class="burl-tag work">${site.category || "Other"}</span></td>
-                                  <td><span class="burl-scope ${site.scope || "device"}">${formatScope(site.scope)}</span></td>
-                                  <td><span class="burl-status ${site.active ? "active" : "inactive"}">${site.active ? "Active" : "Inactive"}</span></td>
-                                  <td class="burl-date">${updatedDate}</td>
-                                  <td>
-                                      <div class="burl-actions">
-                                          <button class="burl-action-btn edit" title="Edit" onclick="openEditPaModal(this)">
-                                              <i class="fas fa-pen"></i>
-                                          </button>
-                                          <button class="burl-action-btn delete" title="Delete" onclick="deletePartialAccessSite(${site.id})">
-                                              <i class="fas fa-trash"></i>
-                                          </button>
-                                      </div>
-                                  </td>
-                              `;
+                                        <td>
+                                            <div class="burl-url-name">${site.urlPattern}</div>
+                                            <div class="burl-url-reason">${site.reason || ""}</div>
+                                        </td>
+                                        <td class="burl-domain">${site.urlPattern}</td>
+                                        <td><span class="burl-tag ${permissionClass}">${permissionText}</span></td>
+                                        <td><span class="burl-tag work">${site.category || "Other"}</span></td>
+                                        <td><span class="burl-scope ${site.scope || "device"}">${formatScope(site.scope)}</span></td>
+                                        <td><span class="burl-status ${site.active ? "active" : "inactive"}">${site.active ? "Active" : "Inactive"}</span></td>
+                                        <td class="burl-date">${updatedDate}</td>
+                                        <td>
+                                            <div class="burl-actions">
+                                                <button class="burl-action-btn edit" title="Edit" onclick="openEditPaModal(this)">
+                                                    <i class="fas fa-pen"></i>
+                                                </button>
+                                                <button class="burl-action-btn delete" title="Delete" onclick="deletePartialAccessSite(${site.id})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    `;
                     tbody.appendChild(row);
                   });
                 }
@@ -8073,15 +8581,15 @@
 
                   if (!policies || policies.length === 0) {
                     policyContainer.innerHTML = `
-                            <div style="text-align: center; padding: 60px 40px; background: #f9fafb; border-radius: 12px; border: 1px dashed #e5e7eb;">
-                                <i class="fas fa-shield-alt" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
-                                <h4 style="color: #374151; margin-bottom: 8px; font-size: 1.1rem;">No Active Policies</h4>
-                                <p style="color: #6b7280; margin-bottom: 20px;">This agent doesn't have any active policies yet.</p>
-                                <a href="assign-policy?agent=${getAgentIdFromUrl()}" class="btn btn-primary">
-                                    <i class="fas fa-plus-circle"></i> Assign Policy
-                                </a>
-                            </div>
-                        `;
+                                  <div style="text-align: center; padding: 60px 40px; background: #f9fafb; border-radius: 12px; border: 1px dashed #e5e7eb;">
+                                      <i class="fas fa-shield-alt" style="font-size: 48px; color: #9ca3af; margin-bottom: 16px;"></i>
+                                      <h4 style="color: #374151; margin-bottom: 8px; font-size: 1.1rem;">No Active Policies</h4>
+                                      <p style="color: #6b7280; margin-bottom: 20px;">This agent doesn't have any active policies yet.</p>
+                                      <a href="assign-policy?agent=${getAgentIdFromUrl()}" class="btn btn-primary">
+                                          <i class="fas fa-plus-circle"></i> Assign Policy
+                                      </a>
+                                  </div>
+                              `;
                     return;
                   }
 
@@ -8175,39 +8683,39 @@
                       : "N/A";
 
                     html += `
-                            <div class="policy-card" data-policy-id="${policy.id}" data-policy-code="${policy.policyCode}" data-policy-data='${JSON.stringify(policyDetails)}'>
-                                <div class="policy-header">
-                                    <div style="display: flex; align-items: center; gap: 12px;">
-                                        <div style="width: 44px; height: 44px; background: ${bgColor}; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: ${iconColor};">
-                                            <i class="fas ${policyIcon}"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="policy-title">${policy.name || policy.policyCode || "Unnamed Policy"}</h4>
-                                            <div class="policy-meta" style="display: flex; gap: 12px; margin-top: 4px; font-size: 0.7rem; color: #6b7280;">
-                                                <span><i class="far fa-calendar-alt"></i> Created: ${createdDate}</span>
-                                                <span><i class="far fa-clock"></i> Updated: ${updatedDate}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <span class="policy-status ${policy.isActive ? "active" : "inactive"}">${policy.isActive ? "Active" : "Inactive"}</span>
-                                        <button class="policy-delete-btn" onclick="removePolicyFromAgent(this)" title="Remove Policy">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                                  <div class="policy-card" data-policy-id="${policy.id}" data-policy-code="${policy.policyCode}" data-policy-data='${JSON.stringify(policyDetails)}'>
+                                      <div class="policy-header">
+                                          <div style="display: flex; align-items: center; gap: 12px;">
+                                              <div style="width: 44px; height: 44px; background: ${bgColor}; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: ${iconColor};">
+                                                  <i class="fas ${policyIcon}"></i>
+                                              </div>
+                                              <div>
+                                                  <h4 class="policy-title">${policy.name || policy.policyCode || "Unnamed Policy"}</h4>
+                                                  <div class="policy-meta" style="display: flex; gap: 12px; margin-top: 4px; font-size: 0.7rem; color: #6b7280;">
+                                                      <span><i class="far fa-calendar-alt"></i> Created: ${createdDate}</span>
+                                                      <span><i class="far fa-clock"></i> Updated: ${updatedDate}</span>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                          <div style="display: flex; align-items: center; gap: 10px;">
+                                              <span class="policy-status ${policy.isActive ? "active" : "inactive"}">${policy.isActive ? "Active" : "Inactive"}</span>
+                                              <button class="policy-delete-btn" onclick="removePolicyFromAgent(this)" title="Remove Policy">
+                                                  <i class="fas fa-trash"></i>
+                                              </button>
+                                          </div>
+                                      </div>
 
-                                <p class="policy-desc" style="margin: 12px 0 12px 56px; color: #4b5563;">${policy.description || "No description available"}</p>
+                                      <p class="policy-desc" style="margin: 12px 0 12px 56px; color: #4b5563;">${policy.description || "No description available"}</p>
 
-                                <div style="margin-left: 56px;">
-                                    <div style="display: flex; gap: 16px; margin-bottom: 12px; font-size: 0.8rem; color: #374151;">
-                                        <span><i class="fas fa-tag" style="color: #9ca3af;"></i> ${policy.category || "General"}</span>
-                                        <span><i class="fas fa-exclamation-triangle" style="color: #9ca3af;"></i> ${policy.severity || "MEDIUM"}</span>
-                                        <span><i class="fas fa-bullseye" style="color: #9ca3af;"></i> ${policy.target || policy.policyType || "N/A"}</span>
-                                    </div>
+                                      <div style="margin-left: 56px;">
+                                          <div style="display: flex; gap: 16px; margin-bottom: 12px; font-size: 0.8rem; color: #374151;">
+                                              <span><i class="fas fa-tag" style="color: #9ca3af;"></i> ${policy.category || "General"}</span>
+                                              <span><i class="fas fa-exclamation-triangle" style="color: #9ca3af;"></i> ${policy.severity || "MEDIUM"}</span>
+                                              <span><i class="fas fa-bullseye" style="color: #9ca3af;"></i> ${policy.target || policy.policyType || "N/A"}</span>
+                                          </div>
 
-                                    <div class="policy-rules" style="margin-top: 12px;">
-                                        ${rules.length > 0
+                                          <div class="policy-rules" style="margin-top: 12px;">
+                                              ${rules.length > 0
                         ? rules
                           .map(
                             (rule) =>
@@ -8216,15 +8724,15 @@
                           .join("")
                         : '<span class="rule-tag">No specific rules configured</span>'
                       }
-                                    </div>
+                                          </div>
 
-                                    <div style="margin-top: 12px; font-size: 0.75rem; color: #6b7280; border-top: 1px dashed #e5e7eb; padding-top: 10px;">
-                                        <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
-                                        Agent: <strong>${policy.agentHostname || "Unknown"}</strong> (ID: ${policy.agentId})
-                                    </div>
-                                </div>
-                            </div>
-                        `;
+                                          <div style="margin-top: 12px; font-size: 0.75rem; color: #6b7280; border-top: 1px dashed #e5e7eb; padding-top: 10px;">
+                                              <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
+                                              Agent: <strong>${policy.agentHostname || "Unknown"}</strong> (ID: ${policy.agentId})
+                                          </div>
+                                      </div>
+                                  </div>
+                              `;
                   });
 
                   policyContainer.innerHTML = html;
@@ -8244,15 +8752,15 @@
                   );
                   if (policyContainer) {
                     policyContainer.innerHTML = `
-                                  <div style="text-align: center; padding: 40px; background: #f9fafb; border-radius: 8px;">
-                                      <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ef4444; margin-bottom: 16px;"></i>
-                                      <h4 style="color: #374151; margin-bottom: 8px;">Error Loading Policies</h4>
-                                      <p style="color: #6b7280;">Failed to load policies. Please try again.</p>
-                                      <button onclick="loadAgentPolicies(getAgentIdFromUrl())" class="btn btn-primary" style="margin-top: 16px;">
-                                          <i class="fas fa-sync-alt"></i> Retry
-                                      </button>
-                                  </div>
-                              `;
+                                        <div style="text-align: center; padding: 40px; background: #f9fafb; border-radius: 8px;">
+                                            <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ef4444; margin-bottom: 16px;"></i>
+                                            <h4 style="color: #374151; margin-bottom: 8px;">Error Loading Policies</h4>
+                                            <p style="color: #6b7280;">Failed to load policies. Please try again.</p>
+                                            <button onclick="loadAgentPolicies(getAgentIdFromUrl())" class="btn btn-primary" style="margin-top: 16px;">
+                                                <i class="fas fa-sync-alt"></i> Retry
+                                            </button>
+                                        </div>
+                                    `;
                   }
                 }
 
@@ -8380,29 +8888,29 @@
                     notificationContainer = document.createElement("div");
                     notificationContainer.id = "notification-container";
                     notificationContainer.style.cssText = `
-                                  position: fixed;
-                                  top: 20px;
-                                  right: 20px;
-                                  z-index: 9999;
-                              `;
+                                        position: fixed;
+                                        top: 20px;
+                                        right: 20px;
+                                        z-index: 9999;
+                                    `;
                     document.body.appendChild(notificationContainer);
                   }
 
                   // Create notification element
                   const notification = document.createElement("div");
                   notification.style.cssText = `
-                              background: ${type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#3b82f6"};
-                              color: white;
-                              padding: 12px 20px;
-                              border-radius: 8px;
-                              margin-bottom: 10px;
-                              box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                              display: flex;
-                              align-items: center;
-                              gap: 10px;
-                              animation: slideIn 0.3s ease;
-                              font-size: 0.9em;
-                          `;
+                                    background: ${type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#3b82f6"};
+                                    color: white;
+                                    padding: 12px 20px;
+                                    border-radius: 8px;
+                                    margin-bottom: 10px;
+                                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 10px;
+                                    animation: slideIn 0.3s ease;
+                                    font-size: 0.9em;
+                                `;
 
                   // Add icon based on type
                   const icon =
@@ -8413,9 +8921,9 @@
                         : "fa-info-circle";
 
                   notification.innerHTML = `
-                              <i class="fas ${icon}"></i>
-                              <span>${message}</span>
-                          `;
+                                    <i class="fas ${icon}"></i>
+                                    <span>${message}</span>
+                                `;
 
                   // Add to container
                   notificationContainer.appendChild(notification);
@@ -8432,28 +8940,28 @@
                 // Add CSS animations
                 const style = document.createElement("style");
                 style.textContent = `
-                          @keyframes slideIn {
-                              from {
-                                  transform: translateX(100%);
-                                  opacity: 0;
-                              }
-                              to {
-                                  transform: translateX(0);
-                                  opacity: 1;
-                              }
-                          }
+                                @keyframes slideIn {
+                                    from {
+                                        transform: translateX(100%);
+                                        opacity: 0;
+                                    }
+                                    to {
+                                        transform: translateX(0);
+                                        opacity: 1;
+                                    }
+                                }
 
-                          @keyframes slideOut {
-                              from {
-                                  transform: translateX(0);
-                                  opacity: 1;
-                              }
-                              to {
-                                  transform: translateX(100%);
-                                  opacity: 0;
-                              }
-                          }
-                      `;
+                                @keyframes slideOut {
+                                    from {
+                                        transform: translateX(0);
+                                        opacity: 1;
+                                    }
+                                    to {
+                                        transform: translateX(100%);
+                                        opacity: 0;
+                                    }
+                                }
+                            `;
                 document.head.appendChild(style);
                 /* ==================== SIDEBAR & HEADER FUNCTIONS ==================== */
 
@@ -9080,4 +9588,5 @@
                 });
             </script>
 </body>
+
 </html>
