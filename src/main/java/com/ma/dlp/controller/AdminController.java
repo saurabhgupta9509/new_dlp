@@ -9,6 +9,7 @@ import com.ma.dlp.service.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.Data;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -109,6 +111,21 @@ public class AdminController {
 
         return ResponseEntity.ok(
                 new ApiResponse<FileBrowseResponseDTO>(true, "Success", response));
+    }
+
+    @GetMapping("/favicon")
+    public ResponseEntity<byte[]> getFavicon(@RequestParam String domain) {
+        try {
+            URL url = new URL("https://www.google.com/s2/favicons?domain=" + domain + "&sz=32");
+            byte[] imageBytes = IOUtils.toByteArray(url);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_PNG);
+
+            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // In AdminController.java - update the createAgent endpoint
