@@ -5720,13 +5720,18 @@ return `${hours}h ${minutes}m active`;
         function formatTimeAgo(dateString) {
           if (!dateString) return "Never";
 
-          const date = new Date(dateString);
+          // Ensure the timestamp is interpreted as UTC.
+          // Server may return "2026-03-20T08:52:20" without 'Z', which JS treats as local.
+          // Append 'Z' if no timezone info is present.
+          let normalised = dateString;
+          if (typeof dateString === 'string' && !dateString.endsWith('Z') && !dateString.includes('+')) {
+            normalised = dateString + 'Z';
+          }
+
+          const date = new Date(normalised);
           const now = new Date();
           const diffMs = now - date;
           const diffMins = Math.floor(diffMs / 60000);
-          if (diffMins < 1) return "Just now";
-          if (diffMins < 60) return `${diffMins}m ago`;
-
           if (diffMins < 1) return "Just now";
           if (diffMins < 60) return `${diffMins}m ago`;
 
@@ -5736,6 +5741,7 @@ return `${hours}h ${minutes}m active`;
           const diffDays = Math.floor(diffHours / 24);
           return `${diffDays}d ago`;
         }
+
 
         function editAgent() {
           const agentId = getAgentIdFromUrl();
