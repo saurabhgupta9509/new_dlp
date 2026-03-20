@@ -5138,7 +5138,7 @@
               const byDay = {};
               entries.forEach(entry => {
                 const ts = getTimestampFromEntry(entry);
-                if (!ts) return;
+                if (!ts || isNaN(ts)) return;
                 if (cutoff && ts < cutoff) return;
                 const day = ts.toISOString().split('T')[0];
                 if (!byDay[day] || ts > byDay[day].ts) {
@@ -5951,9 +5951,12 @@ return `${hours}h ${minutes}m active`;
                 if (link) link.href = `assign-policy?agent=${agentId}`;
               }
               tbody.innerHTML = "";
-              document.getElementById("totalBlockedUrlsCount").textContent = "0";
-              document.getElementById("blockedUrlCategories").textContent = "0";
-              document.getElementById("blockedUrlLastUpdated").textContent = "-";
+              const countEl = document.getElementById("totalBlockedUrlsCount");
+              if (countEl) countEl.textContent = "0";
+              const catEl = document.getElementById("blockedUrlCategories");
+              if (catEl) catEl.textContent = "0";
+              const updEl = document.getElementById("blockedUrlLastUpdated");
+              if (updEl) updEl.textContent = "-";
             }
           } catch (error) {
             console.error("Failed to load blocked URLs:", error);
