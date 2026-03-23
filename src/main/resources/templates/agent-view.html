@@ -9388,8 +9388,8 @@
         // Case 1: receivedAt is an array [year, month, day, hour, minute, second, nano]
         if (Array.isArray(entry.receivedAt)) {
           const [year, month, day, hour, minute, second] = entry.receivedAt;
-          // Create date in LOCAL time - the array values are already in local time
-          return new Date(year, month - 1, day, hour, minute, second);
+          // Use Date.UTC because backend delivers data as UTC
+          return new Date(Date.UTC(year, month - 1, day, hour, minute, second));
         }
 
         // Case 2: receivedAt is a string like "2026-03-02 11:56:25.063251"
@@ -9400,15 +9400,15 @@
           const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
           if (match) {
             const [_, year, month, day, hour, minute, second] = match;
-            // Create date in LOCAL time - the string is already in local time
-            return new Date(
+            // Parse strings directly using Date.UTC standard
+            return new Date(Date.UTC(
               parseInt(year),
               parseInt(month) - 1,
               parseInt(day),
               parseInt(hour),
               parseInt(minute),
               parseInt(second)
-            );
+            ));
           }
 
           // Fallback
